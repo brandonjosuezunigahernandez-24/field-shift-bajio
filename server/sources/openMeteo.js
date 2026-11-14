@@ -10,7 +10,7 @@ export function buildForecastUrl(lat, lon) {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
-    daily: 'precipitation_sum,precipitation_probability_max,temperature_2m_max,temperature_2m_min',
+    daily: 'precipitation_sum,precipitation_probability_max,temperature_2m_max,temperature_2m_min,weather_code',
     timezone: 'America/Mexico_City',
     forecast_days: String(FORECAST_DAYS),
   });
@@ -29,6 +29,8 @@ export function parseForecast(raw) {
     prob_lluvia_pct: d.precipitation_probability_max?.[i] ?? null,
     t_max_c: d.temperature_2m_max?.[i] ?? null,
     t_min_c: d.temperature_2m_min?.[i] ?? null,
+    // Código WMO del clima del día (0 despejado, 1-3 nublado, 61-65 lluvia, 95-99 tormenta...). Sirve para la vista 3D.
+    codigo_clima: d.weather_code?.[i] ?? null,
   }));
 }
 

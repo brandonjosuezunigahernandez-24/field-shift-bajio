@@ -3,6 +3,8 @@
 Lista honesta de lo que el asistente **no** hace o hace mal hoy. Sirve para el equipo, para el pitch ("qué sigue") y para no prometer de más. Detalle de cada punto en `docs/cambios/`.
 
 ## Lo que sí hace (resumen)
+> Si te parece mucha información: lee solo la sección **"Cómo reducir estas limitaciones"** al final.
+
 Responde en español con un modelo **local** (Gemma 4B por Ollama, sin internet para el modelo) usando solo una ficha de datos: clima histórico (NASA POWER), suelo (SoilGrids), pronóstico de 7 días (Open-Meteo), tarjetas de conocimiento, Wikipedia y datos del SIAP por cultivo. Cita la fuente, revisa que los números existan en la ficha y, si el modelo falla, responde con una plantilla. Acepta voz con Whisper local (ruta lista, falta el micrófono en el front).
 
 ## Limitaciones del modelo y de las respuestas

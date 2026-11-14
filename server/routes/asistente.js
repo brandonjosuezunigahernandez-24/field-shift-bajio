@@ -8,7 +8,8 @@ import { findContext } from '../llm/contexto.js';
 import { cropFacts } from '../llm/siap.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
-import { ESTADOS, PRIORIDADES, compactReco, explainRecommendation, inferEstado, recommend } from '../llm/recomendador.js';
+import { compactReco, explainRecommendation, inferEstado, recommend } from '../llm/recomendador.js';
+import { parsePerfil, pendientes } from '../llm/perfil.js';
 
 const router = Router();
 const MAX_QUESTION = 300;
@@ -54,21 +55,25 @@ function parseHistory(h) {
 // Sin pregunta devuelve el resumen inicial de la parcela.
 router.post('/', async (req, res) => {
   const { lat, lon } = parseCoords(req.body);
-  const { pregunta, agua, prioridad, estado: estadoIn, costos } = req.body;
+  const { pregunta, costos } = req.body;
   if (pregunta != null && (typeof pregunta !== 'string' || pregunta.length > MAX_QUESTION)) {
     throw new HttpError(400, `La pregunta debe ser texto de máximo ${MAX_QUESTION} letras.`);
   }
-  if (agua != null && !['temporal', 'riego'].includes(agua)) throw new HttpError(400, 'agua debe ser "temporal" o "riego".');
-  if (prioridad != null && !PRIORIDADES.includes(prioridad)) throw new HttpError(400, `prioridad debe ser una de: ${PRIORIDADES.join(', ')}.`);
-  if (estadoIn != null && !ESTADOS.includes(estadoIn)) throw new HttpError(400, `estado debe ser uno de: ${ESTADOS.join(', ')}.`);
+  // El perfil puede venir en `perfil` o con agua, prioridad y estado sueltos (como antes).
+  const { agua: a0, prioridad: p0, estado: e0 } = req.body;
+  const raw = { ...(req.body.perfil ?? {}), ...(a0 != null && { agua: a0 }), ...(p0 != null && { prioridad: p0 }), ...(e0 != null && { estado: e0 }) };
+  const perfil = parsePerfil(raw);
+  const { agua, prioridad } = perfil;
   const historial = parseHistory(req.body.historial);
 
   if (GREETING.test(pregunta ?? '')) {
     return res.json({ respuesta: HELLO, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [] });
   }
 
-  const estado = estadoIn ?? inferEstado(lon);
-  const reco = agua && prioridad ? recommend({ estado, agua, prioridad, costos }) : null;
+  const estado = perfil.estado ?? inferEstado(lon);
+  const reco = agua && prioridad
+    ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, hectareas: perfil.hectareas, encharca: perfil.encharca })
+    : null;
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
   if (pregunta && RECO.test(strip(pregunta))) {
@@ -76,8 +81,10 @@ router.post('/', async (req, res) => {
     if (!prioridad) return res.json(asking('prioridad'));
     if (reco) {
       return res.json({
-        respuesta: explainRecommendation(reco, !estadoIn), acciones: [], fuentes: ['SIAP'], verificado: true,
+        respuesta: explainRecommendation(reco, !perfil.estado), acciones: [], fuentes: ['SIAP'], verificado: true,
         origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco,
+        // Preguntas opcionales que todavía no contesta: con ellas la recomendación se afina.
+        afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria),
       });
     }
   }
@@ -95,6 +102,7 @@ router.post('/', async (req, res) => {
     conocimiento: contexto.items,
     siap: pregunta ? cropFacts(pregunta) : null,
     recomendacion: reco ? compactReco(reco) : null,
+    agricultor: perfil,
   });
   const result = await answer({ ficha, pregunta, historial });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.

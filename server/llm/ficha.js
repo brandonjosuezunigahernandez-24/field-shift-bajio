@@ -16,7 +16,7 @@ export function summarizeForecast(dias) {
   };
 }
 
-export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [], siap = null, recomendacion = null }) {
+export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [], siap = null, recomendacion = null, agricultor = {} }) {
   const secos = clima.anios_secos ?? [];
   return {
     // Textos de apoyo para preguntas generales (base local o Wikipedia), cada uno con su fuente.
@@ -25,6 +25,8 @@ export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [],
     ...(siap && { siap }),
     // Resultado del recomendador (cultivos, rotación y simulación) cuando el agricultor ya dijo agua y prioridad.
     ...(recomendacion && { recomendacion }),
+    // Lo que dijo el agricultor sobre su parcela (no es dato medido: es lo que él cree o sabe).
+    ...(Object.keys(agricultor).length && { dicho_por_el_agricultor: agricultor }),
     // Solo si hay pronóstico (internet o caché reciente). `obtenido` dice qué tan viejo es.
     ...(pronostico && {
       pronostico_7_dias: {
