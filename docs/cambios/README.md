@@ -23,6 +23,8 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [16](../propuesta-producto.md) | Propuesta de producto por fases (flujo lineal, línea de tiempo, administración, tienda, simulador) | Hecho |
 | [17](../integracion-completa.md) | Integración completa (prueba local): diseño + mapa de dibujo + 3D con info al tocar y clima de 7 días + asistente flotante | Hecho (sin ver en navegador) |
 | [19](19-ubicacion-mapa-grande-y-arreglos-del-asistente.md) | Ubicación primero, mapa grande, y arreglos del asistente | Hecho (sin ver en navegador) |
-| 20 | Citas y plantillas por código, set de 15 preguntas, solo CPU, streaming del asistente | Siguiente |
+| [20](20-varias-parcelas-y-corroboracion-nasa.md) | Varias parcelas a la vez y corroboración con NASA | Hecho |
+| [Estado](../estado-del-proyecto.md) | Dónde estamos y qué falta (incluye aprendizaje automático) | Actualizado |
+| 21 | Citas y plantillas por código, set de 15 preguntas, solo CPU, streaming del asistente | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.
