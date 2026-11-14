@@ -6,7 +6,8 @@ import { useParcelaContext } from '../context/ParcelaContext.jsx';
 // (cada pregunta nueva borra la anterior) y una guía de temas para no salirse de lo que sabe contestar.
 export default function AsistenteDock() {
   const { point, agua, prioridad, setAgua, setPrioridad } = useParcelaContext();
-  const [open, setOpen] = useState(false);
+  // ?asistente=abierto lo deja abierto al cargar (sirve para revisar cómo se ve).
+  const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).get('asistente') === 'abierto');
   const [temas, setTemas] = useState(null);
   const [tema, setTema] = useState(0);
   const [texto, setTexto] = useState('');
@@ -89,28 +90,28 @@ export default function AsistenteDock() {
 
   return (
     <>
-      <button type="button" className="fs-dock-fab" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="fs-dock">
+      <button type="button" className="asx-fab" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="asx">
         <i className="bi bi-chat-dots-fill" aria-hidden="true"></i> {open ? 'Cerrar' : 'Pregúntale al asistente'}
       </button>
 
       {open && (
-        <section id="fs-dock" className="fs-dock" aria-label="Asistente">
-          <header className="fs-dock-head">
+        <section id="asx" className="asx" aria-label="Asistente">
+          <header className="asx-head">
             <strong>Asistente de tu parcela</strong>
             <span>{point ? point.nombre : 'Elige tu parcela para empezar'}</span>
           </header>
 
-          <div className="fs-dock-body">
+          <div className="asx-body">
             {temas?.temas?.length > 0 && (
               <>
-                <div className="fs-dock-tabs" role="tablist" aria-label="Temas">
+                <div className="asx-tabs" role="tablist" aria-label="Temas">
                   {temas.temas.map((t, i) => (
                     <button key={t.id} type="button" role="tab" aria-selected={tema === i} className={tema === i ? 'on' : ''} onClick={() => setTema(i)}>
                       <i className={`bi ${t.icono}`} aria-hidden="true"></i> {t.titulo}
                     </button>
                   ))}
                 </div>
-                <div className="fs-dock-qs">
+                <div className="asx-qs">
                   {temas.temas[tema].preguntas.map((p) => (
                     <button key={p} type="button" onClick={() => preguntar(p)}>{p}</button>
                   ))}
@@ -118,7 +119,7 @@ export default function AsistenteDock() {
               </>
             )}
 
-            <div className="fs-dock-input">
+            <div className="asx-input">
               <input
                 value={texto}
                 onChange={(e) => setTexto(e.target.value)}
@@ -127,14 +128,14 @@ export default function AsistenteDock() {
                 aria-label="Tu pregunta"
                 maxLength={300}
               />
-              <button type="button" className={`fs-dock-mic${grabando ? ' rec' : ''}`} onClick={microfono} aria-pressed={grabando} aria-label={grabando ? 'Terminar de grabar' : 'Hablar'}>
+              <button type="button" className={`asx-mic${grabando ? ' rec' : ''}`} onClick={microfono} aria-pressed={grabando} aria-label={grabando ? 'Terminar de grabar' : 'Hablar'}>
                 <i className={`bi ${grabando ? 'bi-stop-fill' : 'bi-mic-fill'}`} aria-hidden="true"></i>
                 {grabando ? ' Escuchando… toca para terminar' : ' Hablar'}
               </button>
-              <button type="button" className="fs-dock-go" onClick={() => texto.trim() && preguntar(texto.trim())}>Preguntar</button>
+              <button type="button" className="asx-go" onClick={() => texto.trim() && preguntar(texto.trim())}>Preguntar</button>
             </div>
 
-            <div className="fs-dock-answer" aria-live="polite">
+            <div className="asx-answer" aria-live="polite">
               {estado.fase === 'inicio' && <p>{estado.mensaje ?? 'Toca una pregunta de arriba, escribe la tuya o toca «Hablar».'}</p>}
               {estado.fase === 'pensando' && <p>{estado.mensaje ?? 'Pensando… la primera respuesta puede tardar medio minuto.'}</p>}
               {estado.fase === 'error' && <p className="err">{estado.mensaje}</p>}
@@ -152,7 +153,7 @@ export default function AsistenteDock() {
             </div>
 
             {pendiente && (
-              <div className="fs-dock-opts">
+              <div className="asx-opts">
                 <p><strong>{r.preguntar ? pendiente.pregunta ?? r.respuesta : `Para afinar tu resultado: ${pendiente.pregunta}`}</strong></p>
                 {pendiente.opciones.map((o) => (
                   <button key={o.valor} type="button" onClick={() => contestar(pendiente.campo, o.valor)}>{o.texto}</button>
@@ -160,8 +161,8 @@ export default function AsistenteDock() {
               </div>
             )}
 
-            {temas?.nota && <p className="fs-dock-note">{temas.nota}</p>}
-            <button type="button" className="fs-dock-reset" onClick={reiniciar}>Empezar de nuevo</button>
+            {temas?.nota && <p className="asx-note">{temas.nota}</p>}
+            <button type="button" className="asx-reset" onClick={reiniciar}>Empezar de nuevo</button>
           </div>
         </section>
       )}

@@ -1,41 +1,41 @@
 /* Asistente flotante: botones grandes y claros, una sola respuesta a la vez. */
-.fs-dock-fab {
+.asx-fab {
   position: fixed; right: 18px; bottom: 18px; z-index: 1050;
   min-height: 60px; padding: 14px 22px; font-size: 18px; font-weight: 700;
   border: 0; border-radius: 30px; background: #14532d; color: #fff; box-shadow: 0 6px 20px rgba(0, 0, 0, 0.28); cursor: pointer;
 }
-.fs-dock-fab:hover, .fs-dock-fab:focus-visible { background: #1f7a45; outline: 3px solid #bfe3c9; }
-.fs-dock {
+.asx-fab:hover, .asx-fab:focus-visible { background: #1f7a45; outline: 3px solid #bfe3c9; }
+.asx {
   position: fixed; right: 18px; bottom: 92px; z-index: 1050; width: min(460px, calc(100vw - 36px)); max-height: calc(100vh - 120px);
   display: flex; flex-direction: column; background: #fff; border: 2px solid #14532d; border-radius: 18px; box-shadow: 0 12px 36px rgba(0, 0, 0, 0.3); overflow: hidden;
 }
-.fs-dock-head { display: flex; flex-direction: column; padding: 12px 16px; background: #14532d; color: #fff; }
-.fs-dock-head span { font-size: 14px; opacity: 0.85; }
-.fs-dock-body { padding: 12px 14px 14px; overflow-y: auto; font-size: 17px; }
-.fs-dock button { font-family: inherit; }
-.fs-dock-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
-.fs-dock-tabs button, .fs-dock-qs button, .fs-dock-opts button, .fs-dock-reset {
+.asx-head { display: flex; flex-direction: column; padding: 12px 16px; background: #14532d; color: #fff; }
+.asx-head span { font-size: 14px; opacity: 0.85; }
+.asx-body { padding: 12px 14px 14px; overflow-y: auto; font-size: 17px; }
+.asx button { font-family: inherit; }
+.asx-tabs { display: flex; flex-wrap: wrap; gap: 6px; margin-bottom: 8px; }
+.asx-tabs button, .asx-qs button, .asx-opts button, .asx-reset {
   min-height: 48px; padding: 10px 14px; font-size: 16px; border-radius: 12px; border: 2px solid #1f7a45; background: #fff; color: #14532d; cursor: pointer; text-align: left;
 }
-.fs-dock-tabs button.on { background: #14532d; color: #fff; }
-.fs-dock-qs { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
-.fs-dock-qs button:hover, .fs-dock-opts button:hover, .fs-dock-tabs button:hover { background: #e3f1e6; }
-.fs-dock-tabs button.on:hover { background: #1f7a45; }
-.fs-dock-input { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
-.fs-dock-input input { font-size: 18px; padding: 12px; border: 2px solid #b9cbb9; border-radius: 12px; }
-.fs-dock-mic, .fs-dock-go { min-height: 52px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; border: 2px solid #14532d; }
-.fs-dock-mic { background: #fff; color: #14532d; }
-.fs-dock-mic.rec { background: #b3261e; border-color: #b3261e; color: #fff; }
-.fs-dock-go { background: #14532d; color: #fff; }
-.fs-dock-answer { background: #f4f7f2; border: 2px solid #b9cbb9; border-radius: 14px; padding: 12px 14px; min-height: 80px; line-height: 1.5; }
-.fs-dock-answer p { margin: 0 0 6px; }
-.fs-dock-answer .err { color: #9b2c1f; }
-.fs-dock-answer small { color: #4a5a4a; }
-.fs-dock-answer a { margin-left: 4px; }
-.fs-dock-opts { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
-.fs-dock-opts p { flex-basis: 100%; margin: 0 0 4px; }
-.fs-dock-note { font-size: 14px; color: #4a5a4a; margin: 10px 0 6px; }
-.fs-dock-reset { width: 100%; text-align: center; }
+.asx-tabs button.on { background: #14532d; color: #fff; }
+.asx-qs { display: flex; flex-direction: column; gap: 6px; margin-bottom: 10px; }
+.asx-qs button:hover, .asx-opts button:hover, .asx-tabs button:hover { background: #e3f1e6; }
+.asx-tabs button.on:hover { background: #1f7a45; }
+.asx-input { display: flex; flex-direction: column; gap: 8px; margin: 10px 0; }
+.asx-input input { font-size: 18px; padding: 12px; border: 2px solid #b9cbb9; border-radius: 12px; }
+.asx-mic, .asx-go { min-height: 52px; font-size: 18px; font-weight: 700; border-radius: 12px; cursor: pointer; border: 2px solid #14532d; }
+.asx-mic { background: #fff; color: #14532d; }
+.asx-mic.rec { background: #b3261e; border-color: #b3261e; color: #fff; }
+.asx-go { background: #14532d; color: #fff; }
+.asx-answer { background: #f4f7f2; border: 2px solid #b9cbb9; border-radius: 14px; padding: 12px 14px; min-height: 80px; line-height: 1.5; }
+.asx-answer p { margin: 0 0 6px; }
+.asx-answer .err { color: #9b2c1f; }
+.asx-answer small { color: #4a5a4a; }
+.asx-answer a { margin-left: 4px; }
+.asx-opts { margin-top: 10px; display: flex; flex-wrap: wrap; gap: 6px; }
+.asx-opts p { flex-basis: 100%; margin: 0 0 4px; }
+.asx-note { font-size: 14px; color: #4a5a4a; margin: 10px 0 6px; }
+.asx-reset { width: 100%; text-align: center; }
 
 /* ---- Paso 1 grande: el mapa es lo primero que se ve ---- */
 .fs-hero-map { padding: 24px; }
