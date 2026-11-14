@@ -27,6 +27,12 @@ test('GET /api/health', async () => {
   assert.deepEqual(body, { ok: true });
 });
 
+test('GET /api/ejemplos lists exactly the fixture points (the client buttons)', async () => {
+  const { status, body } = await get('/api/ejemplos');
+  assert.equal(status, 200);
+  assert.deepEqual(body, FIXTURE_POINTS);
+});
+
 test('GET /api/clima works offline for every fixture point', async () => {
   for (const point of FIXTURE_POINTS) {
     const { status, body } = await get(`/api/clima?lat=${point.lat}&lon=${point.lon}`);

@@ -12,7 +12,8 @@ export const DRY_YEAR_RATIO = 0.8;
 export const DEMO_POINT = { nombre: 'Celaya, Gto.', lat: 20.47, lon: -100.81 };
 
 // Every point with committed fixtures (works offline). All outside town centers,
-// because SoilGrids returns no soil for urban pixels.
+// because SoilGrids returns no soil for urban pixels. GET /api/ejemplos serves this list
+// to the client's quick buttons, so it is the only place to add an example.
 export const FIXTURE_POINTS = [
   DEMO_POINT,
   { nombre: 'Irapuato, Gto.', lat: 20.6, lon: -101.42 },

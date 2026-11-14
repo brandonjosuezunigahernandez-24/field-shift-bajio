@@ -23,7 +23,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - **`origen`** dice de dónde salió el dato:
   - `"api"`: recién consultado a la fuente.
   - `"cache"`: guardado en `server/cache/` por una consulta anterior.
-  - `"fixture"`: copia de respaldo versionada en `server/fixtures/` (solo existe para el punto demo).
+  - `"fixture"`: copia de respaldo versionada en `server/fixtures/` (solo existe para las parcelas de `GET /api/ejemplos`).
 - El orden de búsqueda es caché → API → fixture → 502. Con `OFFLINE=1` se salta la API.
 
 ## Selección de la parcela (front)
@@ -41,6 +41,18 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 
 ```json
 { "ok": true }
+```
+
+## GET /api/ejemplos
+
+Las parcelas de los botones de ejemplo. Todas tienen fixture, así que funcionan sin internet. Para agregar una, se agrega a `FIXTURE_POINTS` en `server/lib/seasons.js` y se corre `npm run fixtures`; el front no cambia.
+
+```json
+[
+  { "nombre": "Celaya, Gto.", "lat": 20.47, "lon": -100.81 },
+  { "nombre": "Irapuato, Gto.", "lat": 20.6, "lon": -101.42 }
+  // ... 4 en total
+]
 ```
 
 ## GET /api/clima?lat=20.47&lon=-100.81

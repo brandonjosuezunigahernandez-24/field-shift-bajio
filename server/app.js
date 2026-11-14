@@ -3,6 +3,7 @@ import climaRouter from './routes/clima.js';
 import sueloRouter from './routes/suelo.js';
 import recomendarRouter from './routes/recomendar.js';
 import { HttpError } from './lib/errors.js';
+import { FIXTURE_POINTS } from './lib/seasons.js';
 
 // All routes are mounted here so nobody else needs to edit this file.
 export function createApp() {
@@ -10,6 +11,8 @@ export function createApp() {
   app.use(express.json());
 
   app.get('/api/health', (req, res) => res.json({ ok: true }));
+  // Quick-button plots: only points with committed fixtures, so every button works offline.
+  app.get('/api/ejemplos', (req, res) => res.json(FIXTURE_POINTS));
   app.use('/api/clima', climaRouter);
   app.use('/api/suelo', sueloRouter);
   app.use('/api/recomendar', recomendarRouter);
