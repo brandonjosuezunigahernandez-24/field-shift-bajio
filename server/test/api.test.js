@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { createApp } from '../app.js';
-import { DEMO_POINT } from '../lib/seasons.js';
+import { FIXTURE_POINTS } from '../lib/seasons.js';
 
 // These tests never touch the network: OFFLINE=1 makes the server use cache and fixtures only.
 let server;
@@ -21,34 +21,36 @@ const get = async (path) => {
   return { status: res.status, body: await res.json() };
 };
 
-const demoQuery = `lat=${DEMO_POINT.lat}&lon=${DEMO_POINT.lon}`;
-
 test('GET /api/health', async () => {
   const { status, body } = await get('/api/health');
   assert.equal(status, 200);
   assert.deepEqual(body, { ok: true });
 });
 
-test('GET /api/clima works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/clima?${demoQuery}`);
-  assert.equal(status, 200);
-  assert.ok(['cache', 'fixture'].includes(body.origen));
-  assert.equal(body.lat, DEMO_POINT.lat);
-  assert.equal(body.lluvia_pv_anual.length, 25);
-  assert.equal(body.temp_media_mensual.length, 12);
-  assert.ok(Array.isArray(body.anios_secos));
-  assert.ok(body.umbral_seco_mm > 0);
-  assert.match(body.fuente, /NASA POWER/);
+test('GET /api/clima works offline for every fixture point', async () => {
+  for (const point of FIXTURE_POINTS) {
+    const { status, body } = await get(`/api/clima?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(status, 200, point.nombre);
+    assert.ok(['cache', 'fixture'].includes(body.origen));
+    assert.equal(body.lat, point.lat);
+    assert.equal(body.lluvia_pv_anual.length, 25, point.nombre);
+    assert.equal(body.temp_media_mensual.length, 12);
+    assert.ok(Array.isArray(body.anios_secos));
+    assert.ok(body.umbral_seco_mm > 0);
+    assert.match(body.fuente, /NASA POWER/);
+  }
 });
 
-test('GET /api/suelo works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/suelo?${demoQuery}`);
-  assert.equal(status, 200);
-  assert.ok(['cache', 'fixture'].includes(body.origen));
-  assert.equal(body.sin_datos, false);
-  assert.equal(body.aviso, null);
-  assert.ok(body.ph > 4 && body.ph < 10);
-  assert.match(body.fuente, /SoilGrids/);
+test('GET /api/suelo works offline and has soil data for every fixture point', async () => {
+  for (const point of FIXTURE_POINTS) {
+    const { status, body } = await get(`/api/suelo?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(status, 200, point.nombre);
+    assert.ok(['cache', 'fixture'].includes(body.origen));
+    assert.equal(body.sin_datos, false, point.nombre);
+    assert.equal(body.aviso, null);
+    assert.ok(body.ph > 4 && body.ph < 10, point.nombre);
+    assert.match(body.fuente, /SoilGrids/);
+  }
 });
 
 test('bad coordinates answer 400 with a message in Spanish', async () => {
