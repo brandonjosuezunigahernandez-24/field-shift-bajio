@@ -1,6 +1,7 @@
 import assert from 'node:assert/strict';
 import { rm } from 'node:fs/promises';
 import { afterEach, test } from 'node:test';
+import { writeCache } from '../lib/cache.js';
 import { HttpError } from '../lib/errors.js';
 import { loadRaw } from '../lib/loadRaw.js';
 
@@ -30,6 +31,18 @@ test('loadRaw retries once when the first call fails', async () => {
   const calls = flakyFetch(1);
   const { raw, origen } = await loadRaw(options);
   assert.equal(calls.count, 2);
+  assert.equal(origen, 'api');
+  assert.deepEqual(raw, { ok: true });
+});
+
+test('loadRaw downloads again a cache file that no longer passes validate', async () => {
+  await writeCache('test-retry_0.00_0.00', { old: true });
+  const calls = flakyFetch(0);
+  const validate = (raw) => {
+    if (!raw.ok) throw new Error('missing ok');
+  };
+  const { raw, origen } = await loadRaw({ ...options, validate });
+  assert.equal(calls.count, 1);
   assert.equal(origen, 'api');
   assert.deepEqual(raw, { ok: true });
 });

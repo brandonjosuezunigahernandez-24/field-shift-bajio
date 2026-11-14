@@ -6,7 +6,8 @@ import { DEMO_POINT } from './seasons.js';
 
 // Gets the raw response of an external API for one point.
 // Order: disk cache -> live API -> committed fixture -> 502.
-// `validate(raw)` must throw when the response is not usable, so bad payloads are never cached.
+// `validate(raw)` must throw when the response is not usable, so bad payloads are never cached
+// and stale cache files are downloaded again.
 // `decimals` is the source's resolution: the point is rounded once, so the URL and the cache key always match.
 // Set OFFLINE=1 to skip the network (demo rehearsal without internet).
 export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl, timeoutMs, validate }) {
@@ -15,7 +16,15 @@ export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl,
   const key = cacheKey(source, lat, lon, decimals);
 
   const cached = await readCache(key);
-  if (cached) return { raw: cached, origen: 'cache' };
+  if (cached) {
+    try {
+      validate?.(cached);
+      return { raw: cached, origen: 'cache' };
+    } catch (err) {
+      // Saved by an older version of the query (e.g. fewer parameters): download it again.
+      console.warn(`[${source}] caché vieja en ${key}, se vuelve a descargar: ${err.message}`);
+    }
+  }
 
   if (process.env.OFFLINE !== '1') {
     // Two tries: SoilGrids drops about 1 call in 5 and only the demo point has a fixture.
