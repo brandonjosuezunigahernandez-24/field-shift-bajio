@@ -10,8 +10,8 @@ Responde en español con un modelo **local** (Gemma 4B por Ollama, sin internet 
 2. **El verificador es débil.** Solo comprueba que cada número aparezca en la ficha. **No detecta** un número real puesto en el lugar equivocado, ni frases falsas sin números. Los números ≤ 3 siempre pasan (así se coló "2 años" cuando eran 1; se arregló para ese caso, no en general).
 3. **Respuestas cortas y sencillas.** Repite con otras palabras el texto que le damos; no razona ni analiza. Respuestas más completas salen de más datos verificados, no de entrenar el modelo.
 4. **El primer mensaje tarda ~30 s** (carga del modelo); después 2–10 s. Probado solo en una laptop con GPU RTX 4060 de 8 GB. **No se probó en una laptop modesta** (el 1B no sirve: rechaza todo; el 4B necesita ~3 GB).
-5. **No tiene memoria de la conversación.** Cada pregunta es independiente; no entiende "¿y en Querétaro?" como seguimiento.
-6. **El chat no sabe qué sembrar.** No hay motor de recomendaciones ni rotación en `main`; el asistente no la explica porque no existe. No calcula costos ni usa precios de fertilizantes (no hay fuente confirmada en México).
+5. **Memoria corta y solo si el front manda el historial** (2 vueltas). El servidor no guarda sesiones; no está probado a fondo que el modelo la use bien.
+6. **Recomendador provisional** (`docs/cambios/12`): recomienda con datos del SIAP por estado y simula ingresos, pero es ingreso **bruto** (sin costos ni inflación), de 7 años, no de la parcela, y no usa clima ni suelo. No es aprendizaje automático. Hortalizas excluidas. No es el motor del equipo (`/api/recomendar` sigue en 501). Sin precios de fertilizantes (no hay fuente confirmada en México).
 
 ## Limitaciones de los datos
 7. **NASA POWER y SoilGrids:** una sola parcela de prueba (Celaya) y sin internet solo funcionan los puntos ya guardados; una parcela nueva sin conexión da error 502. Si SoilGrids no tiene suelo (ciudades) lo dice, no inventa.

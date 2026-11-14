@@ -8,6 +8,7 @@ Un asistente que responde preguntas del agricultor en español con un modelo **l
 - `POST /api/asistente`: pregunta → respuesta con fuentes, acciones de mapa y `origen`/`base`.
 - `POST /api/voz`: audio (Float32, 16 kHz) → texto, con Whisper local.
 - `GET /api/pronostico`: 7 días con Open-Meteo.
+- Recomendador provisional con simulación de ingresos y conversación guiada (preguntas con botones, historial corto).
 - Verificador de números y respuesta de respaldo (la app nunca se queda sin respuesta).
 - Tarjetas de conocimiento, Wikipedia y datos del SIAP 2018–2024 (`server/data/siap_resumen.json`).
 - Página de prueba `/probar` y documentación en `docs/cambios/` (registro por cambio), `docs/limitaciones-chat.md`, `docs/probar-asistente.md`, `docs/plan-features.md`, `docs/ml-plan.md`.
@@ -24,7 +25,7 @@ No modifica `/api/clima`, `/api/suelo`, `/api/recomendar` ni `client/`. En `serv
 - [ ] **Contrato de API:** aprobar `/api/asistente`, `/api/voz` y `/api/pronostico` en `docs/api-contract.md` (hoy son propuestas).
 - [ ] **Dependencia nueva:** `@huggingface/transformers` en `server/` (voz). `CLAUDE.md` pide preguntar antes de cambiar el stack.
 - [ ] **Front:** chat, botón de micrófono (grabar, remuestrear a 16 kHz, enviar a `/api/voz`) y ejecutar las acciones de mapa (`zoom_parcela`, `zoom_region`, `resaltar_anios_secos`).
-- [ ] **Motor:** cuando exista `/api/recomendar`, conectarlo a la ficha (`server/llm/ficha.js`).
+- [ ] **Motor:** el asistente trae un recomendador **provisional** (`server/llm/recomendador.js`, datos del SIAP). Decidir si se reemplaza por el motor del equipo cuando exista `/api/recomendar`, o si se compara con él.
 - [ ] **Datos:** alguien revise las tarjetas de `server/llm/conocimiento.json` marcadas `"parcial"` y abran los enlaces de `respaldo` (12 se verificaron con resúmenes de búsqueda, no con lectura completa).
 
 ## Riesgos

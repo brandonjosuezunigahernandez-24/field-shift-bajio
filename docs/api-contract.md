@@ -232,3 +232,7 @@ Próximos 7 días, de Open-Meteo (gratis, CC BY 4.0, solo uso no comercial). Es 
 - `base`: `"ficha"` (solo datos de la parcela), `"conocimiento"` (usó la base local) o `"internet"` (usó Wikipedia).
 - `enlaces`: páginas consultadas (vacío salvo `base: "internet"`). Mostrar el enlace y avisar que no lo verifica la app.
 - `fuentes` ahora puede incluir `"Base local"` y `"Wikipedia"`.
+
+### Campos extra de `/api/asistente` (recomendador y conversación)
+Petición: `agua` ("temporal"|"riego"), `prioridad` ("ganar"|"suelo"|"agua"|"riesgo"), `estado` ("Guanajuato"|"Querétaro"; si falta se supone por la longitud), `costos` ({ cultivo: pesos por hectárea y ciclo }) e `historial` (últimas 2 vueltas `{pregunta, respuesta}`).
+Respuesta nueva para "¿qué me conviene sembrar?": `origen: "motor"`. Si falta `agua` o `prioridad` trae `preguntar: { campo, opciones: [{valor, texto}] }` (mostrar botones y repetir la petición con ese campo). Con los dos trae `recomendacion` con la forma de `/api/recomendar` (`cultivos`, `rotacion`, `fuentes`) más `prediccion` y `notas`. Es **provisional** hasta que exista el motor del equipo.

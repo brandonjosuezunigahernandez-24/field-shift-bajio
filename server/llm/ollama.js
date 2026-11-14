@@ -14,7 +14,8 @@ REGLAS:
 7. Si preguntan por un cultivo y "conocimiento" no lo explica, responde "No tengo ese dato para tu parcela." No uses el pH, la arcilla ni la lluvia de la parcela para hablar de un cultivo, salvo que el texto de "conocimiento" diga qué necesita.
 8. Si usas "conocimiento", explica con tus palabras en hasta 5 oraciones cortas y sencillas.
 9. Contesta solo lo que preguntaron. No agregues pronóstico, suelo ni lluvia si no te lo pidieron.
-10. Si hay "siap", son datos oficiales por estado, no de la parcela: di el estado y cita [SIAP]. Para preguntas de riesgo usa "perdida_promedio_pct" y "anios_con_perdida_mayor_10_pct".`;
+10. Si hay "siap", son datos oficiales por estado, no de la parcela: di el estado y cita [SIAP]. Para preguntas de riesgo usa "perdida_promedio_pct" y "anios_con_perdida_mayor_10_pct".
+11. Si hay "recomendacion", explícala con sus números y cita [SIAP]; no cambies los cultivos ni la rotación.`;
 
 const SCHEMA = {
   type: 'object',
@@ -26,7 +27,7 @@ const SCHEMA = {
   required: ['respuesta', 'datos_usados', 'fuentes'],
 };
 
-export async function askModel(ficha, pregunta, model = MODEL, timeoutMs = 60000) {
+export async function askModel(ficha, pregunta, { historial = [], model = MODEL, timeoutMs = 60000 } = {}) {
   const res = await fetch(`${URL}/api/chat`, {
     method: 'POST',
     signal: AbortSignal.timeout(timeoutMs),
@@ -38,6 +39,8 @@ export async function askModel(ficha, pregunta, model = MODEL, timeoutMs = 60000
       options: { temperature: 0.1, num_ctx: Number(process.env.OLLAMA_CTX) || 3072, num_predict: 300 },
       messages: [
         { role: 'system', content: `${SYSTEM}\n\nFICHA:\n${JSON.stringify(ficha)}` },
+        // Memoria corta: las últimas vueltas de la conversación (la ficha ya trae los datos de la parcela).
+        ...historial.flatMap((t) => [{ role: 'user', content: t.pregunta }, { role: 'assistant', content: JSON.stringify({ respuesta: t.respuesta, datos_usados: [], fuentes: [] }) }]),
         { role: 'user', content: pregunta },
       ],
     }),

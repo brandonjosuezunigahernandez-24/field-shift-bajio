@@ -8,10 +8,10 @@ export const REFUSAL = /^no tengo ese dato[^.]*.?$/i;
 const SUMMARY_QUESTION = 'Explícame cómo es mi parcela: lluvia, años secos y suelo.';
 
 // Nunca lanza: si el modelo falla o inventa un número, responde con la plantilla.
-export async function answer({ ficha, pregunta, ask = askModel }) {
+export async function answer({ ficha, pregunta, historial = [], ask = askModel }) {
   const q = pregunta?.trim() || SUMMARY_QUESTION;
   try {
-    const r = await ask(ficha, q);
+    const r = await ask(ficha, q, { historial });
     // Gemma a veces deja corchetes vacíos "[ ]" al citar fuentes.
     // También quita corchetes que no son una fuente conocida ("[suelo]", "[pronostico_7_dias]").
     const texto = (r.respuesta ?? '')

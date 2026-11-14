@@ -4,7 +4,7 @@ import { existsSync, readFileSync } from 'node:fs';
 
 const FILE = new URL('../data/siap_resumen.json', import.meta.url);
 let data;
-const load = () => (data ??= existsSync(FILE) ? JSON.parse(readFileSync(FILE, 'utf8')) : null);
+export const loadSiap = () => (data ??= existsSync(FILE) ? JSON.parse(readFileSync(FILE, 'utf8')) : null);
 
 const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const ALIASES = {
@@ -22,7 +22,7 @@ const r1 = (n) => Math.round(n * 10) / 10;
 
 // Para el cultivo de la pregunta: por estado, los dos ciclo/modalidad con más superficie.
 export function cropFacts(question) {
-  const d = load();
+  const d = loadSiap();
   const id = detectCrop(question);
   if (!d || !id) return null;
   const groups = new Map();

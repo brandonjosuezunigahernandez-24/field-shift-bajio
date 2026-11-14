@@ -16,13 +16,15 @@ export function summarizeForecast(dias) {
   };
 }
 
-export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [], siap = null }) {
+export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [], siap = null, recomendacion = null }) {
   const secos = clima.anios_secos ?? [];
   return {
     // Textos de apoyo para preguntas generales (base local o Wikipedia), cada uno con su fuente.
     ...(conocimiento.length && { conocimiento }),
     // Datos oficiales del SIAP del cultivo por el que preguntaron (por estado, no de la parcela).
     ...(siap && { siap }),
+    // Resultado del recomendador (cultivos, rotación y simulación) cuando el agricultor ya dijo agua y prioridad.
+    ...(recomendacion && { recomendacion }),
     // Solo si hay pronóstico (internet o caché reciente). `obtenido` dice qué tan viejo es.
     ...(pronostico && {
       pronostico_7_dias: {
