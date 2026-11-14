@@ -1,0 +1,392 @@
+{
+  "_mock": "Respuesta de prueba. Los bloques clima y suelo son reales (fixture de Celaya); cultivos y rotacion son de relleno hasta que exista el motor (fase 2).",
+  "clima": {
+    "lat": 20.47,
+    "lon": -100.81,
+    "origen": "fixture",
+    "periodo": {
+      "inicio": 2000,
+      "fin": 2024
+    },
+    "meses_pv": [
+      6,
+      7,
+      8,
+      9
+    ],
+    "lluvia_pv_anual": [
+      {
+        "anio": 2000,
+        "lluvia_mm": 361,
+        "seco": true
+      },
+      {
+        "anio": 2001,
+        "lluvia_mm": 571.4,
+        "seco": false
+      },
+      {
+        "anio": 2002,
+        "lluvia_mm": 569.3,
+        "seco": false
+      },
+      {
+        "anio": 2003,
+        "lluvia_mm": 773.2,
+        "seco": false
+      },
+      {
+        "anio": 2004,
+        "lluvia_mm": 670,
+        "seco": false
+      },
+      {
+        "anio": 2005,
+        "lluvia_mm": 407.1,
+        "seco": true
+      },
+      {
+        "anio": 2006,
+        "lluvia_mm": 497.1,
+        "seco": false
+      },
+      {
+        "anio": 2007,
+        "lluvia_mm": 607.9,
+        "seco": false
+      },
+      {
+        "anio": 2008,
+        "lluvia_mm": 641.7,
+        "seco": false
+      },
+      {
+        "anio": 2009,
+        "lluvia_mm": 462.1,
+        "seco": false
+      },
+      {
+        "anio": 2010,
+        "lluvia_mm": 528.9,
+        "seco": false
+      },
+      {
+        "anio": 2011,
+        "lluvia_mm": 397.9,
+        "seco": true
+      },
+      {
+        "anio": 2012,
+        "lluvia_mm": 485.8,
+        "seco": false
+      },
+      {
+        "anio": 2013,
+        "lluvia_mm": 592.4,
+        "seco": false
+      },
+      {
+        "anio": 2014,
+        "lluvia_mm": 488.7,
+        "seco": false
+      },
+      {
+        "anio": 2015,
+        "lluvia_mm": 428.3,
+        "seco": false
+      },
+      {
+        "anio": 2016,
+        "lluvia_mm": 548.3,
+        "seco": false
+      },
+      {
+        "anio": 2017,
+        "lluvia_mm": 536,
+        "seco": false
+      },
+      {
+        "anio": 2018,
+        "lluvia_mm": 636.4,
+        "seco": false
+      },
+      {
+        "anio": 2019,
+        "lluvia_mm": 437.3,
+        "seco": false
+      },
+      {
+        "anio": 2020,
+        "lluvia_mm": 406,
+        "seco": true
+      },
+      {
+        "anio": 2021,
+        "lluvia_mm": 616.1,
+        "seco": false
+      },
+      {
+        "anio": 2022,
+        "lluvia_mm": 415.4,
+        "seco": true
+      },
+      {
+        "anio": 2023,
+        "lluvia_mm": 293.9,
+        "seco": true
+      },
+      {
+        "anio": 2024,
+        "lluvia_mm": 687.4,
+        "seco": false
+      }
+    ],
+    "lluvia_pv_mediana_mm": 528.9,
+    "umbral_seco_mm": 423.2,
+    "anios_secos": [
+      2000,
+      2005,
+      2011,
+      2020,
+      2022,
+      2023
+    ],
+    "temp_media_mensual": [
+      {
+        "mes": 1,
+        "t_media_c": 13.4,
+        "t_max_c": 25.9,
+        "t_min_c": 1.5
+      },
+      {
+        "mes": 2,
+        "t_media_c": 15.4,
+        "t_max_c": 28.9,
+        "t_min_c": 3
+      },
+      {
+        "mes": 3,
+        "t_media_c": 17.9,
+        "t_max_c": 31.3,
+        "t_min_c": 4.8
+      },
+      {
+        "mes": 4,
+        "t_media_c": 20.7,
+        "t_max_c": 33.5,
+        "t_min_c": 8.2
+      },
+      {
+        "mes": 5,
+        "t_media_c": 21.9,
+        "t_max_c": 34.2,
+        "t_min_c": 10.1
+      },
+      {
+        "mes": 6,
+        "t_media_c": 20.4,
+        "t_max_c": 32.6,
+        "t_min_c": 10.7
+      },
+      {
+        "mes": 7,
+        "t_media_c": 18.9,
+        "t_max_c": 29.3,
+        "t_min_c": 10.9
+      },
+      {
+        "mes": 8,
+        "t_media_c": 18.6,
+        "t_max_c": 28.7,
+        "t_min_c": 10.5
+      },
+      {
+        "mes": 9,
+        "t_media_c": 17.9,
+        "t_max_c": 28.2,
+        "t_min_c": 8.6
+      },
+      {
+        "mes": 10,
+        "t_media_c": 16.8,
+        "t_max_c": 28.1,
+        "t_min_c": 5.8
+      },
+      {
+        "mes": 11,
+        "t_media_c": 14.8,
+        "t_max_c": 26.9,
+        "t_min_c": 3
+      },
+      {
+        "mes": 12,
+        "t_media_c": 13.7,
+        "t_max_c": 25.8,
+        "t_min_c": 2.3
+      }
+    ],
+    "lluvia_media_mensual": [
+      {
+        "mes": 1,
+        "lluvia_mm": 8.6
+      },
+      {
+        "mes": 2,
+        "lluvia_mm": 13.6
+      },
+      {
+        "mes": 3,
+        "lluvia_mm": 12.1
+      },
+      {
+        "mes": 4,
+        "lluvia_mm": 8.9
+      },
+      {
+        "mes": 5,
+        "lluvia_mm": 38
+      },
+      {
+        "mes": 6,
+        "lluvia_mm": 113
+      },
+      {
+        "mes": 7,
+        "lluvia_mm": 153.1
+      },
+      {
+        "mes": 8,
+        "lluvia_mm": 135.1
+      },
+      {
+        "mes": 9,
+        "lluvia_mm": 121.2
+      },
+      {
+        "mes": 10,
+        "lluvia_mm": 40.3
+      },
+      {
+        "mes": 11,
+        "lluvia_mm": 12.9
+      },
+      {
+        "mes": 12,
+        "lluvia_mm": 5.9
+      }
+    ],
+    "fuente": "NASA POWER (Prediction Of Worldwide Energy Resources), NASA Langley Research Center, comunidad AG"
+  },
+  "suelo": {
+    "lat": 20.47,
+    "lon": -100.81,
+    "origen": "fixture",
+    "profundidad_cm": "0-30",
+    "ph": 7.4,
+    "arcilla_pct": 42.4,
+    "arena_pct": 37.2,
+    "limo_pct": 20.4,
+    "carbono_organico_g_kg": 12.1,
+    "nitrogeno_g_kg": 1.48,
+    "sin_datos": false,
+    "aviso": null,
+    "fuente": "SoilGrids 2.0, ISRIC World Soil Information (CC BY 4.0)"
+  },
+  "cultivos": [
+    {
+      "id": "sorgo",
+      "nombre": "Sorgo grano",
+      "puntaje": 82,
+      "riesgo": 0.12,
+      "razones": [
+        "En 3 de 25 años llovió menos de lo que el sorgo grano necesita aquí (400 mm).",
+        "pH del suelo 7.4: dentro del rango del cultivo. (Dato de relleno, falta el motor.)"
+      ]
+    },
+    {
+      "id": "frijol",
+      "nombre": "Frijol",
+      "puntaje": 78,
+      "riesgo": 0.04,
+      "razones": [
+        "En 1 de 25 años llovió menos de lo que el frijol necesita aquí (350 mm).",
+        "pH del suelo 7.4: dentro del rango del cultivo. (Dato de relleno, falta el motor.)"
+      ]
+    },
+    {
+      "id": "garbanzo",
+      "nombre": "Garbanzo",
+      "puntaje": 71,
+      "riesgo": 0.04,
+      "razones": [
+        "En 1 de 25 años llovió menos de lo que el garbanzo necesita aquí (300 mm).",
+        "pH del suelo 7.4: dentro del rango del cultivo. (Dato de relleno, falta el motor.)"
+      ]
+    },
+    {
+      "id": "maiz",
+      "nombre": "Maíz grano",
+      "puntaje": 64,
+      "riesgo": 0.48,
+      "razones": [
+        "En 12 de 25 años llovió menos de lo que el maíz grano necesita aquí (500 mm).",
+        "pH del suelo 7.4: dentro del rango del cultivo. (Dato de relleno, falta el motor.)"
+      ]
+    },
+    {
+      "id": "cebada",
+      "nombre": "Cebada",
+      "puntaje": 55,
+      "riesgo": 0.04,
+      "razones": [
+        "En 1 de 25 años llovió menos de lo que el cebada necesita aquí (350 mm).",
+        "pH del suelo 7.4: dentro del rango del cultivo. (Dato de relleno, falta el motor.)"
+      ]
+    },
+    {
+      "id": "trigo",
+      "nombre": "Trigo grano",
+      "puntaje": 48,
+      "riesgo": 0.32,
+      "razones": [
+        "En 8 de 25 años llovió menos de lo que el trigo grano necesita aquí (450 mm).",
+        "pH del suelo 7.4: dentro del rango del cultivo. (Dato de relleno, falta el motor.)"
+      ]
+    },
+    {
+      "id": "brocoli",
+      "nombre": "Brócoli",
+      "puntaje": 30,
+      "riesgo": 0.72,
+      "razones": [
+        "En 18 de 25 años llovió menos de lo que el brócoli necesita aquí (600 mm).",
+        "pH del suelo 7.4: dentro del rango del cultivo. (Dato de relleno, falta el motor.)"
+      ]
+    }
+  ],
+  "rotacion": [
+    {
+      "anio": 1,
+      "temporada": "PV",
+      "cultivo": "sorgo",
+      "porque": "Aguanta mejor los años secos: solo falló en 3 de 25 años."
+    },
+    {
+      "anio": 2,
+      "temporada": "PV",
+      "cultivo": "frijol",
+      "porque": "Leguminosa: regresa nitrógeno al suelo y rompe el ciclo de la gramínea."
+    },
+    {
+      "anio": 3,
+      "temporada": "PV",
+      "cultivo": "maiz",
+      "porque": "Después del frijol el suelo tiene más nitrógeno. Riesgo: 12 de 25 años secos."
+    }
+  ],
+  "fuentes": [
+    "NASA POWER (Prediction Of Worldwide Energy Resources), NASA Langley Research Center, comunidad AG",
+    "SoilGrids 2.0, ISRIC World Soil Information (CC BY 4.0)",
+    "FAO Ecocrop (requerimientos de los cultivos, valores sin verificar)"
+  ]
+}

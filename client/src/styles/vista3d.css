@@ -1,4 +1,5 @@
-:root {
+/* Generado: estilos de la vista 3D con ámbito .v3d (ver docs/integracion-prueba.md) */
+.v3d {
   --bg: #f6f4ee;
   --surface: #ffffff;
   --text: #22301f;
@@ -9,12 +10,10 @@
   --dry: #fbe9d7;
   --error: #9b2c1f;
 }
-
-* {
+.v3d * {
   box-sizing: border-box;
 }
-
-body {
+.v3d {
   margin: 0;
   background: var(--bg);
   color: var(--text);
@@ -22,50 +21,42 @@ body {
   font-size: 17px;
   line-height: 1.5;
 }
-
-.page {
+.v3d .page {
   max-width: 760px;
   margin: 0 auto;
   padding: 16px;
 }
-
-.page-header h1 {
+.v3d .page-header h1 {
   margin: 8px 0 0;
   color: var(--accent);
 }
-
-.page-header p {
+.v3d .page-header p {
   margin: 4px 0 16px;
   color: var(--muted);
 }
-
-.card {
+.v3d .card {
   background: var(--surface);
   border: 1px solid var(--border);
   border-radius: 12px;
   padding: 16px;
   margin-bottom: 16px;
 }
-
-.card h2 {
+.v3d .card h2 {
   margin: 0 0 8px;
   font-size: 1.2rem;
 }
-
-.hint,
-.source {
+.v3d .hint,
+.v3d .source {
   color: var(--muted);
   font-size: 0.9rem;
   margin: 8px 0 0;
 }
-
-.button-row {
+.v3d .button-row {
   display: flex;
   flex-wrap: wrap;
   gap: 8px;
 }
-
-button {
+.v3d button {
   font: inherit;
   padding: 10px 18px;
   border: none;
@@ -74,78 +65,63 @@ button {
   color: var(--accent-text);
   cursor: pointer;
 }
-
-button:disabled {
+.v3d button:disabled {
   opacity: 0.6;
   cursor: wait;
 }
-
-button:focus-visible {
+.v3d button:focus-visible {
   outline: 3px solid #1d4ed8;
   outline-offset: 2px;
 }
-
-.status {
+.v3d .status {
   padding: 12px 16px;
 }
-
-.error {
+.v3d .error {
   color: var(--error);
   font-weight: 600;
 }
-
-.facts {
+.v3d .facts {
   margin: 0 0 12px;
   padding-left: 20px;
 }
-
-.facts li {
+.v3d .facts li {
   margin-bottom: 4px;
 }
-
-table {
+.v3d table {
   width: 100%;
   border-collapse: collapse;
   font-variant-numeric: tabular-nums;
 }
-
-caption {
+.v3d caption {
   text-align: left;
   font-weight: 600;
   padding-bottom: 6px;
 }
-
-th,
-td {
+.v3d th,
+.v3d td {
   text-align: left;
   padding: 4px 8px;
   border-bottom: 1px solid var(--border);
 }
-
-tr.dry {
+.v3d tr.dry {
   background: var(--dry);
   font-weight: 600;
 }
-
-.page-footer {
+.v3d .page-footer {
   color: var(--muted);
   font-size: 0.85rem;
   padding: 8px 0 24px;
 }
-
-.page-footer p {
+.v3d .page-footer p {
   margin: 0 0 4px;
 }
-
-button.secondary {
+.v3d button.secondary {
   background: var(--surface);
   color: var(--accent);
   border: 2px solid var(--accent);
   padding: 8px 14px;
 }
-
-/* --- 3D view --- */
-.vista3d-canvas {
+.v3d .vista3d-canvas {
   position: relative;
   height: min(70vh, 520px);
   min-height: 340px;
@@ -153,9 +129,8 @@ button.secondary {
   overflow: hidden;
   background: #05070d;
 }
-
-.vista3d-hint,
-.vista3d-badge {
+.v3d .vista3d-hint,
+.v3d .vista3d-badge {
   position: absolute;
   margin: 0;
   padding: 6px 10px;
@@ -165,23 +140,19 @@ button.secondary {
   font-size: 0.85rem;
   pointer-events: none;
 }
-
-.vista3d-hint {
+.v3d .vista3d-hint {
   left: 8px;
   right: 8px;
   bottom: 8px;
 }
-
-.vista3d-badge {
+.v3d .vista3d-badge {
   top: 8px;
   left: 8px;
 }
-
-.vista3d-panel {
+.v3d .vista3d-panel {
   margin-top: 12px;
 }
-
-.vista3d-move {
+.v3d .vista3d-move {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -190,73 +161,58 @@ button.secondary {
   margin: 12px 0;
   padding: 8px 10px 10px;
 }
-
-.vista3d-move legend {
+.v3d .vista3d-move legend {
   font-size: 0.9rem;
   color: var(--muted);
 }
-
-.vista3d-year {
+.v3d .vista3d-year {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
   gap: 8px 12px;
 }
-
-.vista3d-year input[type='range'] {
+.v3d .vista3d-year input[type='range'] {
   flex: 1 1 180px;
   accent-color: var(--accent);
 }
-
-.vista3d-year p {
+.v3d .vista3d-year p {
   flex-basis: 100%;
   margin: 4px 0 0;
 }
-
-.vista3d-dry {
+.v3d .vista3d-dry {
   background: var(--dry);
   padding: 4px 8px;
   border-radius: 6px;
 }
-
-.vista3d-crop {
+.v3d .vista3d-crop {
   display: inline-block;
   margin-top: 12px;
 }
-
-.vista3d-crop select {
+.v3d .vista3d-crop select {
   font: inherit;
   padding: 4px 8px;
   margin-left: 6px;
 }
-
-/* --- parcel map (MapLibre) --- */
-.parcel-map-canvas {
+.v3d .parcel-map-canvas {
   height: min(60vh, 460px);
   min-height: 320px;
   border-radius: 10px;
   overflow: hidden;
 }
-
-.parcel-map-tools {
+.v3d .parcel-map-tools {
   margin: 10px 0 12px;
 }
-
-.parcel-map-tools .hint {
+.v3d .parcel-map-tools .hint {
   margin: 0 0 8px;
 }
-
-.button-row .hint {
+.v3d .button-row .hint {
   align-self: center;
   margin: 0;
 }
-
-button:disabled {
+.v3d button:disabled {
   cursor: not-allowed;
 }
-
-/* Numbered parcel corners on the map */
-.corner-marker {
+.v3d .corner-marker {
   width: 26px;
   height: 26px;
   border-radius: 50%;
@@ -269,15 +225,12 @@ button:disabled {
   cursor: default;
   user-select: none;
 }
-
-.corner-marker-first {
+.v3d .corner-marker-first {
   background: var(--accent);
   color: #ffffff;
   border-color: #ffffff;
 }
-
-/* Map options: view type and imagery */
-.option-switch {
+.v3d .option-switch {
   display: flex;
   flex-wrap: wrap;
   gap: 4px 18px;
@@ -286,69 +239,56 @@ button:disabled {
   padding: 0;
   font-size: 0.95rem;
 }
-
-.option-switch legend {
+.v3d .option-switch legend {
   float: left;
   margin-right: 10px;
   color: var(--muted);
 }
-
-.option-switch label {
+.v3d .option-switch label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   cursor: pointer;
 }
-
-.option-switch input {
+.v3d .option-switch input {
   accent-color: var(--accent);
   width: 18px;
   height: 18px;
 }
-
-.option-note {
+.v3d .option-note {
   color: var(--muted);
   font-size: 0.85rem;
 }
-
-/* GPS: walk the edge of the parcel */
-.gps-tools {
+.v3d .gps-tools {
   margin: 4px 0 10px;
   padding: 10px 12px;
   border-left: 4px solid var(--accent);
   background: #eef4ec;
   border-radius: 6px;
 }
-
-.gps-tools .hint,
-.gps-tools .error {
+.v3d .gps-tools .hint,
+.v3d .gps-tools .error {
   margin: 6px 0 0;
 }
-
-.map-options {
+.v3d .map-options {
   margin-top: 8px;
 }
-
-/* Drawn parcels: list with each crop, and "1 · Trigo" tags on the map */
-.parcel-list {
+.v3d .parcel-list {
   margin: 12px 0 4px;
   padding: 10px 12px;
   border: 1px solid var(--border);
   border-radius: 8px;
 }
-
-.parcel-list h3 {
+.v3d .parcel-list h3 {
   margin: 0 0 6px;
   font-size: 1rem;
 }
-
-.parcel-list ul {
+.v3d .parcel-list ul {
   list-style: none;
   margin: 0;
   padding: 0;
 }
-
-.parcel-list li {
+.v3d .parcel-list li {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -356,35 +296,29 @@ button:disabled {
   padding: 6px 0;
   border-top: 1px solid var(--border);
 }
-
-.parcel-list li:first-child {
+.v3d .parcel-list li:first-child {
   border-top: none;
 }
-
-.parcel-swatch {
+.v3d .parcel-swatch {
   width: 18px;
   height: 18px;
   border-radius: 4px;
   background: var(--parcel-color);
   border: 2px solid rgba(0, 0, 0, 0.35);
 }
-
-.parcel-name {
+.v3d .parcel-name {
   flex: 1 1 140px;
   font-weight: 600;
 }
-
-.parcel-list select {
+.v3d .parcel-list select {
   font: inherit;
   padding: 4px 8px;
 }
-
-button.small {
+.v3d button.small {
   padding: 4px 10px;
   font-size: 0.9rem;
 }
-
-.parcel-tag {
+.v3d .parcel-tag {
   padding: 2px 8px;
   border-radius: 999px;
   background: rgba(20, 24, 18, 0.78);
@@ -394,8 +328,7 @@ button.small {
   white-space: nowrap;
   user-select: none;
 }
-
-.visually-hidden {
+.v3d .visually-hidden {
   position: absolute;
   width: 1px;
   height: 1px;
@@ -403,8 +336,7 @@ button.small {
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
-
-.vista3d-legend {
+.v3d .vista3d-legend {
   list-style: none;
   display: flex;
   flex-wrap: wrap;
@@ -412,16 +344,13 @@ button.small {
   margin: 12px 0 4px;
   padding: 0;
 }
-
-.vista3d-legend li {
+.v3d .vista3d-legend li {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 600;
 }
-
-/* 3D: which parcel (section) the diorama shows */
-.vista3d-sections {
+.v3d .vista3d-sections {
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -431,36 +360,27 @@ button.small {
   margin: 12px 0;
   padding: 8px 10px 10px;
 }
-
-.vista3d-sections legend {
+.v3d .vista3d-sections legend {
   font-size: 0.9rem;
   color: var(--muted);
 }
-
-.vista3d-sections label {
+.v3d .vista3d-sections label {
   display: inline-flex;
   align-items: center;
   gap: 6px;
   font-weight: 600;
   cursor: pointer;
 }
-
-.vista3d-sections input {
+.v3d .vista3d-sections input {
   accent-color: var(--accent);
   width: 18px;
   height: 18px;
 }
-
-.vista3d-sections .hint {
+.v3d .vista3d-sections .hint {
   flex-basis: 100%;
   margin: 2px 0 0;
 }
-
-/* ===================================================================
-   Visual refresh: brighter, friendlier, more "app" than "document".
-   No external fonts or images: everything works offline for the demo.
-   =================================================================== */
-:root {
+.v3d {
   --accent: #2f7d3b;
   --accent-strong: #1f5f2b;
   --sun: #f2b636;
@@ -468,21 +388,17 @@ button.small {
   --bg: #f3f6ef;
   --shadow: 0 10px 30px rgba(31, 61, 26, 0.12), 0 2px 6px rgba(31, 61, 26, 0.08);
 }
-
-body {
+.v3d {
   background:
     radial-gradient(1200px 500px at 10% -10%, #e2f0d9 0%, transparent 60%),
     radial-gradient(900px 400px at 110% 10%, #fdf0cf 0%, transparent 55%),
     var(--bg);
   min-height: 100vh;
 }
-
-.page {
+.v3d .page {
   max-width: 900px;
 }
-
-/* --- Hero header with field furrows --- */
-.hero {
+.v3d .hero {
   position: relative;
   overflow: hidden;
   margin: 8px 0 20px;
@@ -494,9 +410,8 @@ body {
     linear-gradient(135deg, #1f5f2b 0%, #2f7d3b 45%, #6a9f2f 100%);
   box-shadow: var(--shadow);
 }
-
-.hero::after {
-  /* the sun */
+.v3d .hero::after {
+  
   content: '';
   position: absolute;
   right: -40px;
@@ -507,8 +422,7 @@ body {
   background: radial-gradient(circle, #ffe08a 0%, #f2b636 55%, rgba(242, 182, 54, 0) 72%);
   opacity: 0.9;
 }
-
-.hero-kicker {
+.v3d .hero-kicker {
   margin: 0;
   font-size: 0.8rem;
   font-weight: 700;
@@ -516,24 +430,20 @@ body {
   text-transform: uppercase;
   opacity: 0.85;
 }
-
-.hero h1 {
+.v3d .hero h1 {
   position: relative;
   margin: 4px 0 6px;
   font-size: clamp(1.8rem, 5vw, 2.6rem);
   line-height: 1.1;
 }
-
-.hero-lead {
+.v3d .hero-lead {
   position: relative;
   max-width: 34em;
   margin: 0 0 16px;
   font-size: 1.05rem;
   opacity: 0.95;
 }
-
-/* --- Step tracker --- */
-.steps {
+.v3d .steps {
   position: relative;
   display: flex;
   flex-wrap: wrap;
@@ -542,8 +452,7 @@ body {
   padding: 0;
   list-style: none;
 }
-
-.steps a {
+.v3d .steps a {
   display: inline-flex;
   align-items: center;
   gap: 8px;
@@ -555,13 +464,11 @@ body {
   text-decoration: none;
   transition: background 0.2s, transform 0.2s;
 }
-
-.steps a:hover {
+.v3d .steps a:hover {
   background: rgba(255, 255, 255, 0.28);
   transform: translateY(-1px);
 }
-
-.steps-dot {
+.v3d .steps-dot {
   display: inline-grid;
   place-items: center;
   width: 26px;
@@ -570,39 +477,32 @@ body {
   background: rgba(255, 255, 255, 0.25);
   font-size: 0.85rem;
 }
-
-.steps .current a {
+.v3d .steps .current a {
   background: #ffffff;
   color: var(--accent-strong);
 }
-
-.steps .current .steps-dot {
+.v3d .steps .current .steps-dot {
   background: var(--sun);
   color: #3b2a00;
   animation: pulse 1.8s ease-in-out infinite;
 }
-
-.steps .done .steps-dot {
+.v3d .steps .done .steps-dot {
   background: var(--sun);
   color: #3b2a00;
 }
-
 @keyframes pulse {
   50% {
     box-shadow: 0 0 0 6px rgba(242, 182, 54, 0.35);
   }
 }
-
-/* --- Cards --- */
-.card {
+.v3d .card {
   border: none;
   border-radius: 20px;
   padding: 20px;
   margin-bottom: 20px;
   box-shadow: var(--shadow);
 }
-
-.card h2 {
+.v3d .card h2 {
   display: flex;
   align-items: center;
   gap: 10px;
@@ -610,8 +510,7 @@ body {
   font-size: 1.35rem;
   color: var(--accent-strong);
 }
-
-.step-badge {
+.v3d .step-badge {
   display: inline-grid;
   place-items: center;
   width: 34px;
@@ -623,43 +522,34 @@ body {
   font-weight: 800;
   box-shadow: 0 3px 8px rgba(245, 158, 44, 0.35);
 }
-
-/* --- Buttons --- */
-button {
+.v3d button {
   border-radius: 12px;
   font-weight: 600;
   background: linear-gradient(180deg, #389447, var(--accent));
   box-shadow: 0 3px 0 var(--accent-strong);
   transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
 }
-
-button:hover:not(:disabled) {
+.v3d button:hover:not(:disabled) {
   transform: translateY(-1px);
   filter: brightness(1.05);
 }
-
-button:active:not(:disabled) {
+.v3d button:active:not(:disabled) {
   transform: translateY(2px);
   box-shadow: 0 1px 0 var(--accent-strong);
 }
-
-button.secondary {
+.v3d button.secondary {
   background: #ffffff;
   box-shadow: 0 2px 0 #cfe0c9;
 }
-
-button:disabled {
+.v3d button:disabled {
   box-shadow: none;
 }
-
-.parcel-map-canvas,
-.vista3d-canvas {
+.v3d .parcel-map-canvas,
+.v3d .vista3d-canvas {
   border-radius: 16px;
   box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
 }
-
-/* --- "Tu terreno": total hectares and crops --- */
-.farm-summary {
+.v3d .farm-summary {
   display: grid;
   grid-template-columns: minmax(170px, 0.8fr) 1.6fr;
   gap: 14px 20px;
@@ -669,91 +559,78 @@ button:disabled {
   border-radius: 16px;
   background: linear-gradient(135deg, #fff8e4, #eef7e8);
 }
-
 @media (max-width: 560px) {
-  .farm-summary {
+.v3d .farm-summary {
     grid-template-columns: 1fr;
   }
-}
 
-.farm-total {
+
+}
+.v3d .farm-total {
   display: flex;
   flex-direction: column;
 }
-
-.farm-total-label {
+.v3d .farm-total-label {
   font-size: 0.8rem;
   font-weight: 700;
   letter-spacing: 0.06em;
   text-transform: uppercase;
   color: var(--muted);
 }
-
-.farm-total-value {
+.v3d .farm-total-value {
   font-size: 2.6rem;
   font-weight: 800;
   line-height: 1.05;
   color: var(--accent-strong);
   font-variant-numeric: tabular-nums;
 }
-
-.farm-total-value small {
+.v3d .farm-total-value small {
   font-size: 1.1rem;
   font-weight: 700;
 }
-
-.farm-total-note {
+.v3d .farm-total-note {
   font-size: 0.9rem;
   color: var(--muted);
 }
-
-.farm-crops {
+.v3d .farm-crops {
   display: grid;
   gap: 8px;
   margin: 0;
   padding: 0;
   list-style: none;
 }
-
-.farm-crops li {
+.v3d .farm-crops li {
   display: grid;
   grid-template-columns: 80px 1fr auto;
   align-items: center;
   gap: 10px;
   font-weight: 600;
 }
-
-.farm-crop-bar {
+.v3d .farm-crop-bar {
   height: 14px;
   border-radius: 999px;
   background: rgba(0, 0, 0, 0.06);
   overflow: hidden;
 }
-
-.farm-crop-bar span {
+.v3d .farm-crop-bar span {
   display: block;
   height: 100%;
   border-radius: 999px;
   transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
 }
-
-.farm-crop-ha {
+.v3d .farm-crop-ha {
   font-variant-numeric: tabular-nums;
   white-space: nowrap;
 }
-
-.farm-crop-ha small {
+.v3d .farm-crop-ha small {
   color: var(--muted);
   font-weight: 500;
 }
-
-.farm-summary .hint {
+.v3d .farm-summary .hint {
   grid-column: 1 / -1;
   margin: 0;
 }
-
-/* --- Side lengths on the map while drawing --- */
-.side-tag {
+.v3d .side-tag {
   padding: 1px 7px;
   border-radius: 6px;
   background: #ffffff;
@@ -763,27 +640,25 @@ button:disabled {
   white-space: nowrap;
   user-select: none;
 }
-
-.side-tag-closing {
+.v3d .side-tag-closing {
   background: rgba(255, 255, 255, 0.75);
   border: 1px dashed #1f2a1c;
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .steps .current .steps-dot {
+.v3d .steps .current .steps-dot {
     animation: none;
   }
-  .farm-crop-bar span,
-  button,
-  .steps a {
+.v3d .farm-crop-bar span,
+.v3d button,
+.v3d .steps a {
     transition: none;
   }
-}
 
-/* Keep MapLibre's own controls (zoom, compass, location) as MapLibre draws them. */
-.maplibregl-ctrl button,
-.maplibregl-ctrl button:hover:not(:disabled),
-.maplibregl-ctrl button:active:not(:disabled) {
+
+}
+.v3d .maplibregl-ctrl button,
+.v3d .maplibregl-ctrl button:hover:not(:disabled),
+.v3d .maplibregl-ctrl button:active:not(:disabled) {
   padding: 0;
   border-radius: 0;
   background-color: #ffffff;
@@ -793,18 +668,14 @@ button:disabled {
   filter: none;
   font-weight: normal;
 }
-
-.maplibregl-ctrl-group {
+.v3d .maplibregl-ctrl-group {
   border-radius: 10px;
   overflow: hidden;
 }
-
-/* --- The map follows the years --- */
-.parcel-map-frame {
+.v3d .parcel-map-frame {
   position: relative;
 }
-
-.map-year-badge {
+.v3d .map-year-badge {
   position: absolute;
   top: 10px;
   left: 10px;
@@ -819,40 +690,32 @@ button:disabled {
   pointer-events: none;
   transition: background 0.4s;
 }
-
-.map-year-dry {
+.v3d .map-year-dry {
   background: rgba(166, 98, 24, 0.95);
 }
-
-.map-year {
+.v3d .map-year {
   margin: 12px 0 6px;
   padding: 12px 14px;
   border-radius: 16px;
   background: #f4f8ff;
   border: 1px solid #d8e6fb;
 }
-
-.map-year-title {
+.v3d .map-year-title {
   margin: 0 0 8px;
   font-weight: 600;
   color: #1d4f86;
 }
-
-/* Corners can be dragged */
-.corner-marker {
+.v3d .corner-marker {
   cursor: grab;
   transition: transform 0.12s;
 }
-
-.corner-marker:hover {
+.v3d .corner-marker:hover {
   transform: scale(1.15);
 }
-
-.corner-marker:active {
+.v3d .corner-marker:active {
   cursor: grabbing;
 }
-
-.weather-switch {
+.v3d .weather-switch {
   display: flex;
   align-items: center;
   gap: 8px;
@@ -860,15 +723,12 @@ button:disabled {
   font-size: 0.95rem;
   cursor: pointer;
 }
-
-.weather-switch input {
+.v3d .weather-switch input {
   accent-color: var(--sky);
   width: 18px;
   height: 18px;
 }
-
-/* --- Weather picker (chips) --- */
-.weather-picker {
+.v3d .weather-picker {
   display: flex;
   flex-wrap: wrap;
   gap: 6px;
@@ -876,19 +736,16 @@ button:disabled {
   margin: 8px 0 0;
   padding: 0;
 }
-
-.weather-picker legend {
+.v3d .weather-picker legend {
   float: left;
   margin: 6px 10px 0 0;
   color: var(--muted);
 }
-
-.weather-picker .hint {
+.v3d .weather-picker .hint {
   flex-basis: 100%;
   margin: 2px 0 0;
 }
-
-.chip {
+.v3d .chip {
   display: inline-flex;
   align-items: center;
   gap: 4px;
@@ -901,34 +758,27 @@ button:disabled {
   cursor: pointer;
   transition: background 0.15s, border-color 0.15s, transform 0.15s;
 }
-
-.chip:hover {
+.v3d .chip:hover {
   transform: translateY(-1px);
 }
-
-.chip input {
+.v3d .chip input {
   position: absolute;
   opacity: 0;
   pointer-events: none;
 }
-
-.chip-on {
+.v3d .chip-on {
   background: var(--accent);
   border-color: var(--accent);
   color: #ffffff;
 }
-
-.chip:focus-within {
+.v3d .chip:focus-within {
   outline: 3px solid #1d4ed8;
   outline-offset: 2px;
 }
-
-.map-year-example {
+.v3d .map-year-example {
   background: rgba(43, 143, 214, 0.92);
 }
-
-/* --- Weather overlay over the map (CSS only: sun glow, heat haze, cloud shade, lightning) --- */
-.weather-overlay {
+.v3d .weather-overlay {
   position: absolute;
   inset: 0;
   border-radius: 16px;
@@ -936,8 +786,7 @@ button:disabled {
   pointer-events: none;
   transition: background 0.8s;
 }
-
-.wx-sun {
+.v3d .wx-sun {
   position: absolute;
   top: -120px;
   right: -120px;
@@ -950,63 +799,51 @@ button:disabled {
     repeating-conic-gradient(rgba(255, 230, 150, 0.22) 0deg 6deg, rgba(255, 230, 150, 0) 6deg 18deg);
   transition: opacity 0.8s;
 }
-
-.wx-soleado .wx-sun,
-.wx-sequia .wx-sun {
+.v3d .wx-soleado .wx-sun,
+.v3d .wx-sequia .wx-sun {
   opacity: 1;
   animation: sun-turn 40s linear infinite;
 }
-
-.wx-normal .wx-sun {
+.v3d .wx-normal .wx-sun {
   opacity: 0.45;
   animation: sun-turn 40s linear infinite;
 }
-
-.wx-soleado {
+.v3d .wx-soleado {
   background: linear-gradient(200deg, rgba(255, 210, 120, 0.12), rgba(255, 210, 120, 0) 60%);
 }
-
-.wx-sequia {
+.v3d .wx-sequia {
   background:
     linear-gradient(200deg, rgba(255, 170, 70, 0.22), rgba(230, 160, 80, 0.12) 70%);
   animation: heat-haze 3s ease-in-out infinite;
 }
-
-.wx-nublado {
+.v3d .wx-nublado {
   background: linear-gradient(180deg, rgba(110, 120, 135, 0.28), rgba(110, 120, 135, 0.12));
 }
-
-.wx-lluvia {
+.v3d .wx-lluvia {
   background: linear-gradient(180deg, rgba(70, 90, 115, 0.32), rgba(70, 90, 115, 0.16));
 }
-
-.wx-tormenta {
+.v3d .wx-tormenta {
   background: linear-gradient(180deg, rgba(30, 38, 55, 0.5), rgba(30, 38, 55, 0.28));
 }
-
-.wx-flash {
+.v3d .wx-flash {
   position: absolute;
   inset: 0;
   opacity: 0;
   background: rgba(235, 240, 255, 0.85);
 }
-
-.wx-tormenta .wx-flash {
+.v3d .wx-tormenta .wx-flash {
   animation: lightning 7s infinite;
 }
-
 @keyframes sun-turn {
   to {
     transform: rotate(360deg);
   }
 }
-
 @keyframes heat-haze {
   50% {
     background-color: rgba(255, 190, 90, 0.06);
   }
 }
-
 @keyframes lightning {
   0%, 88%, 92%, 95%, 100% {
     opacity: 0;
@@ -1015,11 +852,32 @@ button:disabled {
     opacity: 0.85;
   }
 }
-
 @media (prefers-reduced-motion: reduce) {
-  .wx-sun,
-  .wx-sequia,
-  .wx-tormenta .wx-flash {
+.v3d .wx-sun,
+.v3d .wx-sequia,
+.v3d .wx-tormenta .wx-flash {
     animation: none !important;
   }
+
+
 }
+
+
+/* Integración: la vista 3D y el mapa viven dentro de tarjetas del diseño. */
+.v3d.v3d-embed { background: transparent; font-size: 15px; }
+
+/* Botones más grandes y claros (pedido del equipo) */
+.v3d button { min-height: 44px; font-size: 16px; padding: 10px 18px; }
+.v3d button.secondary { border-width: 2px; font-weight: 600; }
+.v3d .vista3d-forecast { border: 2px solid var(--border); border-radius: 12px; padding: 12px; margin: 12px 0; }
+.v3d .vista3d-forecast legend { font-weight: 700; padding: 0 6px; }
+.v3d .forecast-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.v3d .forecast-day { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border: 2px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); cursor: pointer; }
+.v3d .forecast-day.is-on { border-color: var(--accent); background: #e6f1e8; }
+.v3d .fd-icon { font-size: 26px; line-height: 1; }
+.v3d .fd-name { font-size: 13px; font-weight: 700; text-transform: capitalize; }
+.v3d .fd-mm { font-size: 12px; color: var(--muted); }
+.v3d .forecast-detail { margin: 10px 0 0; }
+.v3d .parcel-info { border: 2px solid var(--parcel-color, var(--accent)); border-radius: 12px; padding: 12px 14px; margin: 12px 0; background: var(--surface); }
+.v3d .parcel-info h3 { margin: 4px 0 8px; font-size: 18px; }
+.v3d .parcel-info > button { float: right; margin-left: 8px; }
