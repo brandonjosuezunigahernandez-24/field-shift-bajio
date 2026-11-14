@@ -1,60 +1,47 @@
+import { useMemo } from 'react';
 import L from 'leaflet';
-import { MapContainer, Marker, Popup, TileLayer } from 'react-leaflet';
-import markerIcon from 'leaflet/dist/images/marker-icon.png';
-import markerIcon2x from 'leaflet/dist/images/marker-icon-2x.png';
-import markerShadow from 'leaflet/dist/images/marker-shadow.png';
-import { EXAMPLE_POINTS } from '../../config/examplePoints.js';
+import { MapContainer, Marker, TileLayer, ZoomControl } from 'react-leaflet';
+import { BAJIO_CENTER, BAJIO_ZOOM, BASE_LAYER, MAP_LAYERS } from '../../config/mapLayers.js';
 import ClickHandler from './ClickHandler.jsx';
 
-// Vite does not resolve Leaflet's default icon paths; point them to the bundled images once.
-L.Marker.prototype.options.icon = L.icon({
-  iconUrl: markerIcon,
-  iconRetinaUrl: markerIcon2x,
-  shadowUrl: markerShadow,
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
-  shadowSize: [41, 41],
-});
+// Real Leaflet map inside the design's .fs-map box. The HUD, the hint and the bottom bar are the
+// design's overlays and stay on top (pointer-events: none). The pin is the design's .fs-pin
+// markup rendered as a Leaflet DivIcon, so it moves with the map.
+function pinIcon(point) {
+  const name = point.boton || point.nombre || 'Tu parcela';
+  const html =
+    '<div class="fs-pin">' +
+    '<span class="fs-pin-ring" aria-hidden="true"></span><span class="fs-pin-ring r2" aria-hidden="true"></span>' +
+    '<span class="fs-pin-dot" aria-hidden="true"></span>' +
+    `<div class="fs-pin-tip"><b>${escapeHtml(name)}</b><span>Lat ${point.lat.toFixed(2)} · Lon ${point.lon.toFixed(2)}</span></div>` +
+    '</div>';
+  return L.divIcon({ className: 'fs-pin-icon', html, iconSize: [0, 0], iconAnchor: [0, 0] });
+}
 
-// Bajío: Guanajuato and Querétaro fit at zoom 8 around this center.
-const BAJIO_CENTER = [20.6, -100.9];
-const BAJIO_ZOOM = 8;
+function escapeHtml(s) {
+  return String(s).replace(/[&<>"']/g, (ch) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' })[ch]);
+}
 
-// Props: point ({ lat, lon, nombre? } | null), onSelect({ lat, lon, nombre? }), disabled.
-export default function MapaParcela({ point, onSelect, disabled }) {
+// Props: point, onSelect({lat, lon}), capa ('sat' | 'ndvi' | 'smap').
+export default function MapaParcela({ point, onSelect, capa = 'sat' }) {
+  const icon = useMemo(() => (point ? pinIcon(point) : null), [point]);
+  const layer = MAP_LAYERS[capa] || MAP_LAYERS.sat;
+
   return (
-    <div className="mapa-wrap">
-      <MapContainer center={BAJIO_CENTER} zoom={BAJIO_ZOOM} className="mapa" scrollWheelZoom>
-        {/* NASA GIBS layers can be added here later as a second TileLayer (visual only). */}
+    <MapContainer center={BAJIO_CENTER} zoom={BAJIO_ZOOM} zoomControl={false} attributionControl={false} scrollWheelZoom className="fs-leaflet">
+      <TileLayer url={BASE_LAYER.url} attribution={BASE_LAYER.attribution} />
+      {layer.overlay && (
         <TileLayer
-          attribution='&copy; colaboradores de <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-          url="https://tile.openstreetmap.org/{z}/{x}/{y}.png"
+          key={capa}
+          url={layer.overlay.url}
+          opacity={layer.overlay.opacity}
+          maxNativeZoom={layer.overlay.maxNativeZoom}
+          attribution="NASA GIBS"
         />
-        <ClickHandler point={point} onSelect={onSelect} />
-        {point && (
-          <Marker position={[point.lat, point.lon]}>
-            <Popup>
-              {point.nombre ?? 'Tu parcela'}: {point.lat}, {point.lon}
-            </Popup>
-          </Marker>
-        )}
-      </MapContainer>
-
-      <div className="button-row">
-        <span className="hint">O prueba con un ejemplo:</span>
-        {EXAMPLE_POINTS.map((example) => (
-          <button key={example.nombre} type="button" disabled={disabled} onClick={() => onSelect(example)}>
-            {example.nombre}
-          </button>
-        ))}
-      </div>
-
-      <p className="hint" aria-live="polite">
-        {point
-          ? `Parcela marcada: ${point.nombre ? `${point.nombre} ` : ''}(${point.lat}, ${point.lon})`
-          : 'Haz clic en el mapa sobre tu parcela.'}
-      </p>
-    </div>
+      )}
+      <ZoomControl position="topright" />
+      <ClickHandler point={point} onSelect={onSelect} />
+      {point && icon && <Marker position={[point.lat, point.lon]} icon={icon} interactive={false} />}
+    </MapContainer>
   );
 }
