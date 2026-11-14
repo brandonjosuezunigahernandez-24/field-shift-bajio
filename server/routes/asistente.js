@@ -5,10 +5,11 @@ import { getClimate, summarizeClimate } from '../sources/nasaPower.js';
 import { getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { getForecast } from '../sources/openMeteo.js';
 import { findContext } from '../llm/contexto.js';
-import { cropFacts } from '../llm/siap.js';
+import { cropFacts, loadSiap } from '../llm/siap.js';
+import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
-import { compactReco, explainRecommendation, inferEstado, recommend } from '../llm/recomendador.js';
+import { compactReco, explainFarm, explainRecommendation, inferEstado, recommend, recommendFarm } from '../llm/recomendador.js';
 import { parsePerfil, pendientes } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
@@ -49,6 +50,17 @@ function parseHistory(h) {
   });
 }
 
+// Parcelas dibujadas: [{ id, hectareas, ultimo_cultivo? }]. Con 2 o más se analizan juntas.
+const MAX_PARCELAS = 20;
+function parseParcelas(list) {
+  if (list == null) return [];
+  if (!Array.isArray(list) || list.length > MAX_PARCELAS) throw new HttpError(400, `parcelas debe ser una lista de máximo ${MAX_PARCELAS}.`);
+  return list.map((p, i) => {
+    const extra = parsePerfil({ ultimo_cultivo: p?.ultimo_cultivo, hectareas: p?.hectareas });
+    return { id: Number.isInteger(p?.id) ? p.id : i + 1, hectareas: extra.hectareas ?? null, ultimo_cultivo: extra.ultimo_cultivo ?? null };
+  });
+}
+
 // GET /api/asistente/temas -> los temas y preguntas de ejemplo que el asistente sabe contestar (botones del chat).
 router.get('/temas', (req, res) => res.json({ temas: TEMAS, nota: NOTA_FUERA_DE_TEMA }));
 
@@ -67,6 +79,9 @@ router.post('/', async (req, res) => {
   const perfil = parsePerfil(raw);
   const { agua, prioridad } = perfil;
   const historial = parseHistory(req.body.historial);
+  const parcelas = parseParcelas(req.body.parcelas);
+  // Con una sola parcela dibujada, sus hectáreas son las del perfil.
+  if (parcelas.length === 1 && parcelas[0].hectareas && perfil.hectareas == null) perfil.hectareas = parcelas[0].hectareas;
 
   if (GREETING.test(pregunta ?? '')) {
     return res.json({ respuesta: HELLO, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [] });
@@ -84,10 +99,30 @@ router.post('/', async (req, res) => {
   if (pregunta && wantsRecommendation(pregunta)) {
     if (!agua) return res.json(asking('agua'));
     if (!prioridad) return res.json(asking('prioridad'));
+    // Dos o más parcelas dibujadas: se analizan juntas (el servidor reparte los cultivos del primer año).
+    if (parcelas.length >= 2) {
+      const finca = recommendFarm({ parcelas, estado, agua, prioridad, encharca: perfil.encharca });
+      if (finca) {
+        return res.json({
+          respuesta: explainFarm(finca, !perfil.estado), acciones: [], fuentes: ['SIAP'], verificado: true,
+          origen: 'motor', base: 'ficha', enlaces: [], recomendacion_finca: finca,
+          afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria && q.campo !== 'hectareas' && q.campo !== 'ultimo_cultivo'),
+        });
+      }
+    }
     if (reco) {
+      // Se comparan los años secos de NASA (en esta parcela) con los años de pérdidas del SIAP, solo en temporal.
+      let corroboracion = null;
+      if (agua === 'temporal') {
+        try {
+          const { rows } = await getClimate(lat, lon);
+          corroboracion = corroborate({ clima: summarizeClimate(rows), filas: loadSiap()?.filas, estado, cultivo: reco.rotacion[0].cultivo });
+        } catch { /* sin clima no hay comparación; la recomendación sale igual */ }
+      }
       return res.json({
-        respuesta: explainRecommendation(reco, !perfil.estado), acciones: [], fuentes: ['SIAP'], verificado: true,
-        origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco,
+        respuesta: explainRecommendation(reco, !perfil.estado) + (corroboracion ? ` Comparé con la lluvia de NASA en tu parcela (${reco.rotacion[0].cultivo}): ${corroboracion.lectura} [NASA POWER, SIAP]` : ''),
+        acciones: [], fuentes: corroboracion ? ['SIAP', 'NASA POWER'] : ['SIAP'], verificado: true,
+        origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco, corroboracion,
         // Preguntas opcionales que todavía no contesta: con ellas la recomendación se afina.
         afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria),
       });

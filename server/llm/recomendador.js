@@ -102,7 +102,7 @@ function razones(c, estado) {
 }
 
 // Rotación de 3 años: no repetir cultivo ni familia en temporadas seguidas y al menos una leguminosa.
-function buildPlan(ranked, agua, ultimoCultivo) {
+function buildPlan(ranked, agua, ultimoCultivo, evitar = null) {
   const ciclos = seasonsFor(agua).map(([ciclo]) => ciclo);
   const plan = [];
   // Lo último que sembró el agricultor cuenta como la temporada anterior (no repetir cultivo ni familia).
@@ -114,7 +114,10 @@ function buildPlan(ranked, agua, ultimoCultivo) {
       const pool = ranked.filter((c) => c.ciclo === ciclo);
       if (!pool.length) continue;
       // Primero: distinto cultivo y familia que la temporada anterior Y que el mismo ciclo del año pasado.
+      // En el primer año se prefiere un cultivo que las otras parcelas no usen (repartir el riesgo).
+      const libre = (c) => anio !== 1 || !evitar || !evitar.has(`${ciclo}:${c.cultivo}`);
       const choice =
+        pool.find((c) => differs(c, prev) && differs(c, lastSeason[ciclo]) && libre(c)) ??
         pool.find((c) => differs(c, prev) && differs(c, lastSeason[ciclo])) ??
         pool.find((c) => c.cultivo !== lastSeason[ciclo]?.cultivo && c.cultivo !== prev?.cultivo) ??
         pool.find((c) => c.cultivo !== lastSeason[ciclo]?.cultivo) ??
@@ -198,7 +201,7 @@ function withHectares(p, ha) {
   return out;
 }
 
-export function recommend({ estado, agua, prioridad, costos = null, incluirHortalizas = false, ultimoCultivo = null, hectareas = null, encharca = null, filas = loadSiap()?.filas }) {
+function planFor({ estado, agua, prioridad, incluirHortalizas, ultimoCultivo, encharca, evitar, filas }) {
   if (!filas || !ESTADOS.includes(estado) || !['temporal', 'riego'].includes(agua) || !PRIORIDADES.includes(prioridad)) return null;
   const ranked = score(candidates(filas, estado, agua).filter((c) => incluirHortalizas || !HORTALIZAS.has(c.cultivo)), prioridad);
   if (!ranked.length) return null;
@@ -209,7 +212,13 @@ export function recommend({ estado, agua, prioridad, costos = null, incluirHorta
     }
     ranked.sort((a, b) => b.puntaje - a.puntaje);
   }
-  const plan = buildPlan(ranked, agua, ultimoCultivo);
+  return { ranked, plan: buildPlan(ranked, agua, ultimoCultivo, evitar) };
+}
+
+export function recommend({ estado, agua, prioridad, costos = null, incluirHortalizas = false, ultimoCultivo = null, hectareas = null, encharca = null, filas = loadSiap()?.filas }) {
+  const base = planFor({ estado, agua, prioridad, incluirHortalizas, ultimoCultivo, encharca, evitar: null, filas });
+  if (!base) return null;
+  const { ranked, plan } = base;
   return {
     estado, agua, prioridad,
     cultivos: ranked.map((c) => ({
@@ -228,6 +237,97 @@ export function recommend({ estado, agua, prioridad, costos = null, incluirHorta
       'Ingreso bruto por hectárea con precios de cada año (sin inflación) y sin costos.',
     ],
   };
+}
+
+// ---- Varias parcelas: se analizan juntas y se reparten los cultivos del primer año ----
+function simulateFarm(parcels, { nSim = 2000, seed = 1 } = {}) {
+  let years = null;
+  for (const { plan } of parcels) {
+    for (const p of plan) {
+      const ys = new Set(p.cand.anios.map((a) => a.anio));
+      years = years ? years.filter((y) => ys.has(y)) : [...ys];
+    }
+  }
+  if (!years || years.length < 3) return null;
+  const maps = parcels.map(({ plan, ha }) => ({ ha, rows: plan.map((p) => ({ anio: p.anio, byYear: new Map(p.cand.anios.map((a) => [a.anio, a])) })) }));
+  const totalHa = parcels.reduce((t, p) => t + p.ha, 0);
+  const random = rng(seed);
+  const totals = [];
+  let anyLoss = 0;
+  let widespread = 0;
+  for (let s = 0; s < nSim; s++) {
+    const pick = [1, 2, 3].map(() => years[Math.floor(random() * years.length)]); // el mismo año de clima para todas las parcelas
+    let total = 0;
+    let any = false;
+    const lossHa = [0, 0, 0];
+    for (const m of maps) {
+      for (const r of m.rows) {
+        const a = r.byYear.get(pick[r.anio - 1]);
+        total += a.ingreso * m.ha;
+        if (a.perdida > PERDIDA_ALTA) { any = true; lossHa[r.anio - 1] += m.ha; }
+      }
+    }
+    totals.push(total);
+    if (any) anyLoss++;
+    if (lossHa.some((h) => h >= totalHa * 0.5)) widespread++;
+  }
+  totals.sort((a, b) => a - b);
+  return {
+    anios_base: years.length,
+    ingreso_bruto_3_anios_esperado_total: money(mean(totals)),
+    ingreso_bruto_3_anios_peor_10_pct_total: money(pct(totals, 0.1)),
+    ingreso_bruto_3_anios_mejor_10_pct_total: money(pct(totals, 0.9)),
+    probabilidad_al_menos_una_parcela_con_perdida_pct: Math.round((100 * anyLoss) / nSim),
+    probabilidad_perdida_en_la_mitad_o_mas_del_terreno_pct: Math.round((100 * widespread) / nSim),
+  };
+}
+
+// parcelas: [{ id, hectareas, ultimo_cultivo? }]. Cada parcela recibe su rotación; las siguientes evitan empezar con los
+// mismos cultivos que las anteriores. Se compara contra sembrar todo igual que la primera parcela.
+export function recommendFarm({ parcelas, estado, agua, prioridad, incluirHortalizas = false, encharca = null, filas = loadSiap()?.filas }) {
+  if (!Array.isArray(parcelas) || parcelas.length < 1) return null;
+  const used = new Set();
+  const items = [];
+  for (const p of parcelas) {
+    const base = planFor({ estado, agua, prioridad, incluirHortalizas, ultimoCultivo: p.ultimo_cultivo ?? null, encharca, evitar: used, filas });
+    if (!base) return null;
+    for (const x of base.plan.filter((q) => q.anio === 1)) used.add(`${x.ciclo}:${x.cand.cultivo}`);
+    items.push({ p, ...base });
+  }
+  const ha = (it) => it.p.hectareas ?? 1;
+  return {
+    estado, agua, prioridad,
+    hectareas_total: Math.round(items.reduce((t, it) => t + ha(it), 0) * 10) / 10,
+    parcelas: items.map((it) => ({
+      id: it.p.id, hectareas: it.p.hectareas ?? null,
+      rotacion: it.plan.map((x) => ({ anio: x.anio, temporada: CODIGO[x.ciclo], cultivo: x.cand.cultivo })),
+    })),
+    repartido: simulateFarm(items.map((it) => ({ plan: it.plan, ha: ha(it) }))),
+    igual: simulateFarm(items.map((it) => ({ plan: items[0].plan, ha: ha(it) }))),
+    fuentes: ['SIAP, Cierre de la producción agrícola (datos abiertos), 2018-2024'],
+    notas: [
+      'Es una estimación con 7 años de datos del estado, sin costos ni inflación; no sustituye a un técnico.',
+      'Repartir los cultivos del primer año no siempre baja el riesgo: depende de los años que hay en los datos.',
+    ],
+  };
+}
+
+export function explainFarm(r, estadoInferido = false) {
+  const parc = r.parcelas.map((p, i) => {
+    const rot = p.rotacion.map((x) => `año ${x.anio} ${x.temporada}: ${NOMBRE[x.cultivo]}`).join('; ');
+    return `Parcela ${i + 1}${p.hectareas ? ` (${p.hectareas} ha)` : ''}: ${rot}.`;
+  });
+  const a = r.repartido;
+  const partes = [`Analicé tus ${r.parcelas.length} parcelas juntas (${r.hectareas_total} ha) para sembrar de ${r.agua} y con la meta de ${ETIQUETA[r.prioridad]}, en ${r.estado}${estadoInferido ? ' (lo supuse por tu ubicación; confírmalo)' : ''}. [SIAP]`, ...parc];
+  if (a) {
+    partes.push(`Con eso, el ingreso bruto esperado de todo tu terreno en 3 años es de unos ${peso(a.ingreso_bruto_3_anios_esperado_total)} (de ${peso(a.ingreso_bruto_3_anios_peor_10_pct_total)} en un caso malo a ${peso(a.ingreso_bruto_3_anios_mejor_10_pct_total)} en uno bueno). En ${a.probabilidad_al_menos_una_parcela_con_perdida_pct} de cada 100 casos alguna parcela tiene un año con pérdidas mayores al ${PERDIDA_ALTA} %, y en ${a.probabilidad_perdida_en_la_mitad_o_mas_del_terreno_pct} de cada 100 la mitad o más del terreno pierde el mismo año. [SIAP]`);
+    const b = r.igual;
+    if (b && r.parcelas.length > 1) {
+      partes.push(`Si sembraras en todas lo mismo que en la parcela 1, el caso malo sería de ${peso(b.ingreso_bruto_3_anios_peor_10_pct_total)} y la mitad o más del terreno perdería el mismo año en ${b.probabilidad_perdida_en_la_mitad_o_mas_del_terreno_pct} de cada 100 casos.`);
+    }
+  }
+  partes.push(r.notas.join(' '));
+  return partes.join(' ');
 }
 
 const peso = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
