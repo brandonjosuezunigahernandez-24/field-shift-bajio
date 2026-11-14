@@ -40,7 +40,7 @@ npm install
 npm run dev
 ```
 
-Abre <http://localhost:5173>, haz clic en el mapa sobre tu parcela (o presiona **Celaya, Gto.**). Debes ver la gráfica de lluvia por año con los años secos marcados y los datos de suelo. El botón **Recomendar rotación** responde con un aviso hasta que el motor esté listo (fase 2).
+Abre <http://localhost:5173>. Pantalla 1: haz clic en el mapa sobre tu parcela o presiona **Celaya, Gto. (Temporal)**; la barra del mapa muestra lluvia, años secos y pH reales. Pantalla 2 (Simulador 3D): gráfica de lluvia por año con los años secos marcados y KPIs reales; el plan de rotación sale de `/api/recomendar` (con el mock mientras el motor esté pendiente, si no, muestra el plan de ejemplo con un aviso). Pantalla 4 (Probar cultivo): el motor del navegador compara 22 cultivos contra el clima y suelo reales del punto. Pantalla 3 (Análisis IA) y el chat son demostrativos hasta que exista `/api/asistente`.
 
 ### Pruebas
 
@@ -97,17 +97,19 @@ server/
   test/                pruebas
 client/
   src/
-    App.jsx            una sola página: mapa, formulario y resultado
+    main.jsx, App.jsx  rutas de las 4 pantallas (react-router) y el proveedor de estado
+    pages/             Parcela (mapa + perfil + chat), Rotacion (3D CSS, plan, lluvia, ranking),
+                       Analisis (respuesta del asistente, demo), Cultivo (probar un cultivo)
+    components/        layout/Header, mapa/MapaParcela (Leaflet), charts/ (Chart.js)
+    hooks/useParcela   estado compartido: parcela, agua, prioridad, clima, suelo, recomendacion
+    context/           ParcelaContext: el hook anterior disponible en todas las pantallas
+    lib/               cropEngine (motor de "Probar cultivo"), parcelaClima (API -> números de pantalla), fs (localStorage, toast)
     api/               client.js (llamadas al server) y mock.js (bandera VITE_USE_MOCK)
-    hooks/             useParcela.js: estado de la parcela, el formulario y los resultados
-    config/            textos en español, puntos de ejemplo
-    components/
-      mapa/            MapaParcela (Leaflet): clic marca la parcela
-      formulario/      FormularioParcela: temporal o riego y prioridad
-      resultado/       Resultado, RotacionCards, GraficaLluvia (Recharts), TablaCultivos, ClimaCard, SueloCard
-      comunes/         estados de carga y error, créditos
-    three/             Parcela3D: contenedor aislado para la maqueta 3D (hoy, vista previa 2D)
+    data/datosDemo.js  datos ilustrativos del diseño: se usan donde la API aún no tiene dato
+    config/            parcelas de ejemplo y capas del mapa (OSM + NASA GIBS)
+    styles/            fieldshift.css: tokens, componentes y animaciones del diseño
     mocks/             recomendar.celaya.json: respuesta de prueba de /api/recomendar
+    three/README.md    contrato para la maqueta 3D real (hoy la maqueta es CSS en Rotacion)
 docs/
   api-contract.md      contrato entre front, back y motor
 ```
@@ -126,7 +128,9 @@ Por agregar en las siguientes fases: FAO Ecocrop (requerimientos de los cultivos
 
 **Software**
 
-React, Vite, Express, Leaflet, react-leaflet y Recharts, todos de código abierto. Mapa base: © colaboradores de OpenStreetMap (ODbL).
+React, Vite, react-router, Express, Leaflet, react-leaflet, Chart.js, Bootstrap y Bootstrap Icons, todos de código abierto. Tipografías Plus Jakarta Sans y JetBrains Mono vía Google Fonts. Mapa base: © colaboradores de OpenStreetMap (ODbL). Capas NDVI, humedad SMAP y color verdadero: NASA GIBS (Global Imagery Browse Services), solo visuales.
+
+El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. Los rangos de los 22 cultivos de "Probar cultivo" y los datos del asistente IA son ilustrativos y no están verificados.
 
 **Uso de inteligencia artificial**
 
