@@ -34,7 +34,10 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - Debe poder deshacer la última esquina y borrar todo para empezar de nuevo.
 - El front calcula el centro y lo manda como `lat` y `lon`. Basta el promedio de las esquinas: el servidor redondea a 2 decimales (más o menos 1 km), así que un centro más exacto no cambia el resultado.
 - **El back, el motor y el asistente no cambian.** NASA POWER y SoilGrids se consultan por punto y una parcela es mucho más chica que su resolución.
-- Sin librería nueva: con react-leaflet alcanza (`useMapEvents` para los clics y `<Polygon>` para pintarla).
+- Se hace con **MapLibre GL** (`client/src/map/ParcelMap.jsx`), con imagen satelital de Esri y el relieve de AWS Terrain Tiles. Cambio del 14 de noviembre: antes decía react-leaflet.
+- Si el mapa está muy lejos (zoom < 13), el clic acerca el mapa en lugar de poner una esquina.
+- Al tocar "Usar esta parcela", el mapa se ajusta al contorno (`fitBounds`, inclinado para ver el relieve).
+- El objeto que recibe la app es `{ nombre, lat, lon, contorno: [[lon, lat], ...], hectareas }`. `contorno` y `hectareas` solo son para el front (mapa y vista 3D); a la API se mandan `lat` y `lon`.
 - Los botones de ejemplo (Celaya, Gto.) siguen mandando su `lat` y `lon` directo.
 
 ## GET /api/health

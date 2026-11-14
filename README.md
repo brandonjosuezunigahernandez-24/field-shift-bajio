@@ -93,7 +93,8 @@ server/
   scripts/             fetch-fixtures.js
   test/                pruebas
 client/
-  src/                 React + Vite; Leaflet y Recharts ya instalados para la fase 2
+  src/                 React + Vite; Recharts ya instalado para la fase 2
+  src/map/             mapa MapLibre donde se dibuja la parcela, y cálculos del polígono
   src/three/           vista 3D: globo, maqueta de la parcela, cámara (three.js + react-three-fiber)
   public/models/       bajio.glb, generado con Blender (no se edita a mano)
   public/textures/     textura del globo (NASA Blue Marble), bajada con `npm run textura`
@@ -133,11 +134,13 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
   *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS).*
 - **Terrain Tiles** en el Registry of Open Data on AWS (formato *terrarium* de Mapzen), relieve de la vista 3D. En México las alturas provienen de **NASA SRTM** (Shuttle Radar Topography Mission). <https://registry.opendata.aws/terrain-tiles/>
 
+- **Esri World Imagery** y **World Boundaries and Places** (imagen satelital y nombres de lugares del mapa donde se dibuja la parcela). *Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS.* Se usan sin API key para este prototipo; para un uso en producción hay que revisar los términos de Esri.
+
 Por agregar en las siguientes fases: FAO Ecocrop (requerimientos de los cultivos) y, si se usa, MODIS NDVI (ORNL DAAC).
 
 **Software**
 
-React, Vite, Express, Leaflet, react-leaflet, Recharts, three.js, @react-three/fiber y @react-three/drei, todos de código abierto. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
+React, Vite, Express, MapLibre GL JS, Recharts, three.js, @react-three/fiber y @react-three/drei, todos de código abierto. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
 
 **Uso de inteligencia artificial**
 
