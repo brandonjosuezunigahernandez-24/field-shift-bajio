@@ -20,6 +20,8 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 
 Las tareas de cada fase y el reparto del equipo están en [docs/plan.md](docs/plan.md).
 
+El detalle de lo que cambió en el frontend está en [docs/CHANGELOG-frontend.md](docs/CHANGELOG-frontend.md).
+
 ## Cómo correrlo
 
 Necesitas **Node.js 20 o más nuevo** (probado con Node 24). No hace falta ninguna API key ni base de datos.
