@@ -14,7 +14,7 @@ Pantallas: `/` Parcela, `/rotacion` Simulador 3D, `/analisis`, `/cultivo` Probar
 ## Qué se cableó
 | Pedido | Qué hace ahora |
 |---|---|
-| **Dibujar la parcela** (mapa de tu compañero del 3D) | La pantalla 1 usa `ParcelMap` (MapLibre): dibujas el contorno, calcula hectáreas, varias parcelas, cada una con su cultivo. El centro se manda al servidor. El selector viejo de capas se quitó (el mapa nuevo trae las suyas). |
+| **Dibujar la parcela** (mapa de tu compañero del 3D) | La pantalla 1 es un mapa grande con buscador de dirección, coordenadas y GPS (ver `docs/cambios/19`); dibujas el contorno, calcula hectáreas, varias parcelas, cada una con su cultivo. Se quitaron los botones de ejemplo y el chat simulado. |
 | **La maqueta 3D en el simulador** | La pantalla 2 reemplaza el escenario de CSS por la maqueta 3D real (`Vista3DPanel`), con las parcelas dibujadas y el año de lluvia. Al cambiar el año del plan de rotación, **las parcelas pasan al cultivo de ese año**. |
 | **Tocar la parcela en la maqueta → información** | Tocar una parcela abre una tarjeta con: cultivo, hectáreas, lluvia del año elegido, puntaje en la recomendación y la razón principal, y el clima del día elegido. Se detecta con el punto tocado dentro del contorno. |
 | **Clima de los próximos 7 días en el 3D** | Una fila de 7 botones (día, ícono, mm). Al elegir un día la maqueta muestra la lluvia de ese día (intensidad según el pronóstico real) y una tarjeta con probabilidad y temperaturas. "Volver al año" regresa a la lluvia histórica. |
