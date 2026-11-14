@@ -15,6 +15,7 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [09](09-datos-siap.md) | Datos del SIAP: prueba de descarga | Hecho (la descarga se corta, falta el script) |
 | [10](10-verificacion-tarjetas.md) | Verificación de las tarjetas contra fuentes | Hecho (falta leer los documentos completos) |
 | [11](11-datos-siap-en-el-asistente.md) | Datos del SIAP dentro del asistente (2018-2024) | Hecho |
-| 12 | Verificar tarjetas restantes, modelo de riesgo con clima NASA + pérdidas SIAP | Siguiente |
+| [12](../limitaciones-chat.md) | Limitaciones del chat y borrador de PR (`docs/pr-asistente.md`) | Hecho |
+| 13 | Verificar tarjetas restantes, modelo de riesgo con clima NASA + pérdidas SIAP | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.
