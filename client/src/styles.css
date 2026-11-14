@@ -136,3 +136,96 @@ tr.dry {
 .page-footer p {
   margin: 0 0 4px;
 }
+
+button.secondary {
+  background: var(--surface);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  padding: 8px 14px;
+}
+
+/* --- 3D view --- */
+.vista3d-canvas {
+  position: relative;
+  height: min(70vh, 520px);
+  min-height: 340px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #05070d;
+}
+
+.vista3d-hint,
+.vista3d-badge {
+  position: absolute;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(5, 7, 13, 0.7);
+  color: #e8eef7;
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+
+.vista3d-hint {
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+}
+
+.vista3d-badge {
+  top: 8px;
+  left: 8px;
+}
+
+.vista3d-panel {
+  margin-top: 12px;
+}
+
+.vista3d-move {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 12px 0;
+  padding: 8px 10px 10px;
+}
+
+.vista3d-move legend {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.vista3d-year {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+
+.vista3d-year input[type='range'] {
+  flex: 1 1 180px;
+  accent-color: var(--accent);
+}
+
+.vista3d-year p {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+}
+
+.vista3d-dry {
+  background: var(--dry);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+
+.vista3d-crop {
+  display: inline-block;
+  margin-top: 12px;
+}
+
+.vista3d-crop select {
+  font: inherit;
+  padding: 4px 8px;
+  margin-left: 6px;
+}

@@ -1,6 +1,7 @@
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import { getClima, getSuelo } from './api.js';
 import { EXAMPLE_POINTS } from './examplePoints.js';
+import Vista3DSection from './Vista3DSection.jsx';
 
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -17,8 +18,11 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [clima, setClima] = useState(null);
   const [suelo, setSuelo] = useState(null);
+  const latestRequest = useRef(0);
 
   async function loadPoint(selected) {
+    // Picking on the globe makes quick successive clicks easy: only the last one may paint.
+    const request = ++latestRequest.current;
     setPoint(selected);
     setLoading(true);
     setClima(null);
@@ -28,6 +32,7 @@ export default function App() {
       getClima(selected.lat, selected.lon),
       getSuelo(selected.lat, selected.lon),
     ]);
+    if (request !== latestRequest.current) return;
     const unwrap = (result) =>
       result.status === 'fulfilled' ? { data: result.value } : { error: result.reason.message };
     setClima(unwrap(climaResult));
@@ -45,10 +50,10 @@ export default function App() {
       <main>
         <section className="card">
           <h2>1. Elige tu parcela</h2>
-          <p className="hint">Por ahora hay una parcela de ejemplo. El mapa llega en la siguiente fase.</p>
+          <p className="hint">Toca tu región en el globo de abajo, o usa la parcela de ejemplo.</p>
           <div className="button-row">
             {EXAMPLE_POINTS.map((example) => (
-              <button key={example.nombre} type="button" disabled={loading} onClick={() => loadPoint(example)}>
+              <button key={example.nombre} type="button" onClick={() => loadPoint(example)}>
                 {example.nombre}
               </button>
             ))}
@@ -59,6 +64,8 @@ export default function App() {
             </p>
           )}
         </section>
+
+        <Vista3DSection point={point} clima={clima} suelo={suelo} onSelectPoint={loadPoint} />
 
         {loading && (
           <p className="status" role="status">
@@ -73,6 +80,10 @@ export default function App() {
       <footer className="page-footer">
         <p>
           Clima: NASA POWER (NASA Langley Research Center). Suelo: SoilGrids 2.0 (ISRIC World Soil Information).
+        </p>
+        <p>
+          Globo: NASA Blue Marble vía NASA GIBS. Relieve: AWS Terrain Tiles (Mapzen), con alturas de NASA SRTM. Modelos
+          3D hechos por el equipo en Blender.
         </p>
         <p>NASA Space Apps Challenge 2026, Querétaro. Reto Field Shift.</p>
       </footer>
