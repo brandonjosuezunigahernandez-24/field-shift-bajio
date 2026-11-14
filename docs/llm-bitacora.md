@@ -115,3 +115,10 @@ La ventana es lo que el modelo ve en cada pregunta (ficha + pregunta + respuesta
 3. **Historial corto**: guardar solo las últimas 2 preguntas, o un resumen.
 4. **Ficha descargable**: la ficha es un JSON; se puede guardar en un archivo y cargar en otro chat o dispositivo sin recalcular. Es fácil porque ya es un objeto simple.
 5. **Resultados ya calculados** (pronósticos, motor) en lugar de datos crudos.
+
+## Paso 5: rutas `/api/asistente` y `/api/voz`
+- `routes/asistente.js`, `llm/responder.js` (nunca lanza error: si el modelo falla o inventa, usa la plantilla), `llm/acciones.js`, `routes/voz.js`. Contrato agregado a `docs/api-contract.md` (propuesta, falta avisar al equipo).
+- 36 pruebas pasan. Prueba real offline contra Gemma 4B: resumen, años secos, trampa del 15, pesticida: respondió bien las 4; la voz transcribió con 1 error.
+- Decisión: las **acciones del mapa las deduce el código**, no el modelo (en pruebas Gemma 4B devolvía la lista vacía).
+- Se corrigió que el modelo dejaba `[ ]` vacíos.
+- Cómo probar y límites: `docs/probar-asistente.md`.

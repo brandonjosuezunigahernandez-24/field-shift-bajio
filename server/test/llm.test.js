@@ -2,6 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { buildFicha } from '../llm/ficha.js';
 import { templateAnswer } from '../llm/plantilla.js';
+import { answer } from '../llm/responder.js';
 import { verifyNumbers } from '../llm/verificador.js';
 
 const clima = {
@@ -31,4 +32,23 @@ test('verificador acepta números de la ficha y rechaza inventados', () => {
 
 test('la plantilla pasa su propio verificador', () => {
   assert.equal(verifyNumbers(templateAnswer(ficha), ficha).ok, true);
+});
+
+test('responder: respuesta buena pasa, limpia "[ ]", filtra fuentes y deduce acciones', async () => {
+  const ask = async () => ({ respuesta: 'Hubo 6 años secos [NASA POWER]. [ ]', fuentes: ['NASA POWER', 'Inventada'] });
+  const r = await answer({ ficha, pregunta: 'años secos', ask });
+  assert.equal(r.origen, 'llm');
+  assert.equal(r.respuesta, 'Hubo 6 años secos [NASA POWER].');
+  assert.deepEqual(r.acciones, [{ tipo: 'resaltar_anios_secos' }]);
+  assert.deepEqual(r.fuentes, ['NASA POWER']);
+});
+
+test('responder: número inventado -> plantilla', async () => {
+  const r = await answer({ ficha, pregunta: 'x', ask: async () => ({ respuesta: 'Fallaron 15 años.' }) });
+  assert.equal(r.origen, 'plantilla');
+});
+
+test('responder: el modelo se cae -> plantilla', async () => {
+  const r = await answer({ ficha, pregunta: 'x', ask: async () => { throw new Error('sin ollama'); } });
+  assert.equal(r.origen, 'plantilla');
 });

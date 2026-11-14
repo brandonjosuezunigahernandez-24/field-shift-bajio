@@ -188,3 +188,28 @@ recommend({ rows, soil, crops, agua, prioridad }) // -> { cultivos, rotacion }
 1. **Ventana de lluvia.** PV está definido como junio a septiembre, pero el ciclo de varios cultivos es más largo (mayo a octubre). Hay que decidir contra qué meses se compara `lluvia_ciclo_min_mm`.
 2. **Prioridad `ganar`.** El esquema de `cultivos.json` no tiene dato de rendimiento ni de precio. Propuesta: un campo `valor_relativo` con datos de SIAP, sin verificar hasta que alguien lo confirme.
 3. **Suelo sin datos.** Cuando `sin_datos` es `true`, ¿el motor recomienda sin pH (con una nota) o pide otro punto?
+
+## POST /api/asistente (propuesta del rol LLM, avisar al equipo)
+
+Asistente que responde con los datos de la parcela, con un modelo local (Ollama + Gemma). Funciona sin internet si la parcela ya está en caché.
+
+Petición: `{ "lat": 20.47, "lon": -100.81, "pregunta": "¿Cuáles fueron los años secos?" }`
+- `pregunta` es opcional (máx. 300 letras). Sin ella devuelve el **resumen inicial** de la parcela.
+
+Respuesta:
+```json
+{
+  "respuesta": "Los años secos fueron 2000, 2005, 2011, 2020, 2022 y 2023 [NASA POWER].",
+  "acciones": [ { "tipo": "resaltar_anios_secos" } ],
+  "fuentes": ["NASA POWER"],
+  "verificado": true,
+  "origen": "llm"
+}
+```
+- `origen`: `"llm"` (lo redactó el modelo y pasó el verificador de números) o `"plantilla"` (el modelo falló o inventó un número; texto fijo del servidor).
+- `acciones` (el front las ejecuta, ignora las que no conozca): `zoom_parcela`, `zoom_region`, `resaltar_anios_secos`.
+- Errores: 400 si faltan `lat`/`lon` o la pregunta es inválida; 502 si no hay datos de esa parcela. Si el modelo falla **no** es error: responde con la plantilla.
+
+## POST /api/voz (propuesta del rol LLM)
+
+`Content-Type: application/octet-stream`. Cuerpo: audio **mono a 16 kHz en Float32 little-endian** (el front lo remuestrea con `AudioContext`). Máx. 30 s. Respuesta: `{ "texto": "..." }`. Mostrar el texto al usuario antes de mandarlo a `/api/asistente`.

@@ -70,3 +70,13 @@ test('unknown /api routes answer 404 as JSON', async () => {
   assert.equal(status, 404);
   assert.equal(typeof body.error, 'string');
 });
+
+test('POST /api/asistente sin coordenadas -> 400', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+  assert.equal(res.status, 400);
+});
+
+test('POST /api/voz sin audio -> 400', async () => {
+  const res = await fetch(`${baseUrl}/api/voz`, { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: new Uint8Array(0) });
+  assert.equal(res.status, 400);
+});
