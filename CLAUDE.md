@@ -19,6 +19,10 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
 
 ## Stack (decidido, no cambiar sin preguntar)
 - `client/`: React + Vite, Leaflet (react-leaflet) para el mapa y Recharts para las gráficas.
+- Vista 3D (extra, la lleva un compañero): mapa de **MapLibre GL** con el dibujo en **Three.js** encima. Va en su propia carpeta dentro de `client/src/`.
+  - Leaflet sigue siendo el mapa 2D donde se dibuja la parcela. La vista 3D solo muestra; recibe el mismo contorno y el resultado de `/api/recomendar`.
+  - Ojo: Leaflet usa `[lat, lon]` y MapLibre usa `[lon, lat]`. Hay que voltear las coordenadas del contorno al pasarlo.
+  - La app debe funcionar completa en 2D si el 3D falla o va lento.
 - `server/`: Node + Express. Sin base de datos y sin login.
 - Caché en disco: `server/cache/<fuente>_<lat2>_<lon2>.json`, con lat/lon redondeados a 2 decimales.
 - Fixtures en `server/fixtures/` del punto demo, para que la demo funcione aunque falle el internet.
