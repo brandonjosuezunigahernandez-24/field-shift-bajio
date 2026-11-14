@@ -1,7 +1,10 @@
-import { useRef, useState } from 'react';
+import { Suspense, lazy, useRef, useState } from 'react';
 import { getClima, getSuelo } from './api.js';
 import { EXAMPLE_POINTS } from './examplePoints.js';
 import Vista3DSection from './Vista3DSection.jsx';
+
+// MapLibre (~1 MB) loads in its own chunk, after the page is already on screen.
+const ParcelMap = lazy(() => import('./map/ParcelMap.jsx'));
 
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -49,18 +52,21 @@ export default function App() {
 
       <main>
         <section className="card">
-          <h2>1. Elige tu parcela</h2>
-          <p className="hint">Toca tu región en el globo de abajo, o usa la parcela de ejemplo.</p>
+          <h2>1. Dibuja tu parcela</h2>
+          <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
+            <ParcelMap point={point} onParcel={loadPoint} />
+          </Suspense>
           <div className="button-row">
+            <span className="hint">O usa la parcela de ejemplo:</span>
             {EXAMPLE_POINTS.map((example) => (
-              <button key={example.nombre} type="button" onClick={() => loadPoint(example)}>
+              <button key={example.nombre} type="button" className="secondary" onClick={() => loadPoint(example)}>
                 {example.nombre}
               </button>
             ))}
           </div>
           {point && (
             <p className="hint">
-              Parcela: {point.nombre} ({point.lat}, {point.lon})
+              Parcela: {point.nombre} (centro en {point.lat.toFixed(4)}, {point.lon.toFixed(4)})
             </p>
           )}
         </section>

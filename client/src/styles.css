@@ -229,3 +229,28 @@ button.secondary {
   padding: 4px 8px;
   margin-left: 6px;
 }
+
+/* --- parcel map (MapLibre) --- */
+.parcel-map-canvas {
+  height: min(60vh, 460px);
+  min-height: 320px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.parcel-map-tools {
+  margin: 10px 0 12px;
+}
+
+.parcel-map-tools .hint {
+  margin: 0 0 8px;
+}
+
+.button-row .hint {
+  align-self: center;
+  margin: 0;
+}
+
+button:disabled {
+  cursor: not-allowed;
+}
