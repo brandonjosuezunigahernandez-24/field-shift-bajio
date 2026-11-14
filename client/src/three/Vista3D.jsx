@@ -6,7 +6,8 @@ import { ALL_SECTIONS, fitsOneBlock, parcelColor, sectionCenter, sectionParcels 
 import { toDiorama } from '../map/polygon.js';
 import { latLonToXYZ, round2, wrapLon } from './geo.js';
 import { preloadModels } from './models.js';
-import { reliefExaggeration, yearState } from './parcelState.js';
+import { YearControl } from '../year.jsx';
+import { reliefExaggeration } from './parcelState.js';
 import Scene from './Scene.jsx';
 
 const STEP_DEG = 0.01; // ~1 km, the same resolution as the server cache
@@ -24,7 +25,6 @@ function loadTerreno(lat, lon) {
   return terrainCache.get(key);
 }
 const round3 = (v) => Math.round(v * 1000) / 1000 + 0;
-const PLAY_MS = 900;
 
 function usePrefersReducedMotion() {
   const query = '(prefers-reduced-motion: reduce)';
@@ -45,12 +45,10 @@ const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 //   point          { nombre, lat, lon } or null
 //   clima, suelo   { data } | { error } | null, as App keeps them
 //   onSelectPoint  ({ nombre, lat, lon }) => void
-export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint }) {
+export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint, year }) {
   const reducedMotion = usePrefersReducedMotion();
   const [view, setView] = useState('globe');
   const [terreno, setTerreno] = useState(null);
-  const [anio, setAnio] = useState(null);
-  const [playing, setPlaying] = useState(false);
   const [cultivo, setCultivo] = useState(DEFAULT_CROP);
   const [contextLost, setContextLost] = useState(false);
 
@@ -80,29 +78,7 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
 
 
   const climaData = clima?.data ?? null;
-  const years = useMemo(() => climaData?.lluvia_pv_anual.map((y) => y.anio) ?? [], [climaData]);
-
-  // Start on the latest year whenever a new climate series arrives.
-  useEffect(() => {
-    setPlaying(false);
-    setAnio(years.length ? years[years.length - 1] : null);
-  }, [years]);
-
-  // "Ver los años": one year every PLAY_MS, stops at the end.
-  useEffect(() => {
-    if (!playing) return undefined;
-    const id = setInterval(() => {
-      setAnio((current) => {
-        const i = years.indexOf(current);
-        if (i < 0 || i >= years.length - 1) {
-          setPlaying(false);
-          return current;
-        }
-        return years[i + 1];
-      });
-    }, PLAY_MS);
-    return () => clearInterval(id);
-  }, [playing, years]);
+  const anio = year.anio;
 
   // The diorama is centered where the server centers /api/terreno (3 decimals, ~110 m): on the
   // section's parcels, or on the chosen point. Outlines are placed relative to that same center.
@@ -168,12 +144,6 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
       lon: round2(wrapLon(centerLon + dLon)),
     });
 
-  const startPlaying = () => {
-    if (anio === years[years.length - 1]) setAnio(years[0]);
-    setPlaying(true);
-  };
-
-  const state = yearState(climaData, anio);
   const sueloData = suelo?.data ?? null;
   const terrenoData = terreno?.data ?? null;
   const exaggeration = terrenoData ? reliefExaggeration(terrenoData.desnivel_m, terrenoData.lado_m) : 1;
@@ -265,36 +235,7 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
             </fieldset>
           )}
 
-          {years.length > 0 ? (
-            <div className="vista3d-year">
-              <label htmlFor="anio3d">
-                Año: <strong>{anio}</strong>
-              </label>
-              <input
-                id="anio3d"
-                type="range"
-                min={years[0]}
-                max={years[years.length - 1]}
-                step={1}
-                value={anio ?? years[0]}
-                onChange={(e) => {
-                  setPlaying(false);
-                  setAnio(Number(e.target.value));
-                }}
-              />
-              <button type="button" className="secondary" onClick={playing ? () => setPlaying(false) : startPlaying}>
-                {playing ? 'Pausa' : 'Ver los años'}
-              </button>
-              {state.lluvia_mm !== null && (
-                <p className={state.seco ? 'vista3d-dry' : undefined} aria-live="polite">
-                  En {anio} llovieron <strong>{fmt(state.lluvia_mm)} mm</strong> de junio a septiembre:{' '}
-                  {state.seco ? 'año seco' : 'año normal o bueno'} (lo normal aquí es {fmt(climaData.lluvia_pv_mediana_mm)} mm).
-                </p>
-              )}
-            </div>
-          ) : (
-            <p className="hint">{clima?.error ?? 'Cargando la lluvia de tu parcela…'}</p>
-          )}
+          <YearControl id="anio3d" year={year} clima={climaData} error={clima?.error} />
 
           {sections.length > 0 ? (
             <>

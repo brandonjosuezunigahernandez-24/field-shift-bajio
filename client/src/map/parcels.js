@@ -80,6 +80,15 @@ export function fitsOneBlock(members) {
 const SOIL_FALLBACK = '#6b4f3a'; // brown when SoilGrids has no data
 const CROP_LAYER_M = 3; // the crop "carpet" on top of the soil block
 const STEP_M = 1.5; // each newer parcel stands this much higher, so overlaps show the newest
+const DRY_CROP = [0.78, 0.64, 0.38]; // straw: what a crop looks like in a dry year
+
+const hexToRgb = (hex) => [1, 3, 5].map((i) => parseInt(hex.slice(i, i + 2), 16) / 255);
+
+// Crop color for a year: `wet` 1 = its own color, 0 = dry straw (from parcelState.yearState).
+export function cropColorForYear(hex, wet = 1) {
+  const rgb = hexToRgb(hex);
+  return toHex(rgb.map((v, i) => DRY_CROP[i] + (v - DRY_CROP[i]) * wet));
+}
 
 // Block height in meters: grows with the parcel so it always shows, but never hides the map.
 // ~6 m for a 1 ha plot, ~12 m for 4 ha, capped at 40 m.
@@ -97,12 +106,15 @@ const toHex = (rgb) =>
 // With the 3D relief on, MapLibre stands each block on the ground height at the parcel's center,
 // so a parcel on lower ground would sink under its neighbor. `groundAt` (id -> meters, as
 // map.queryTerrainElevation gives them) evens that out: every top ends at the same level.
-export function raisedParcelsGeoJSON(parcelas, rise = new Map(), soilRgb = null, cropColors = {}, groundAt = null) {
+// `year` ({ wet, growth } from parcelState.yearState, or null): the crop layer follows the year.
+export function raisedParcelsGeoJSON(parcelas, rise = new Map(), soilRgb = null, cropColors = {}, groundAt = null, year = null) {
   const tierra = soilRgb ? toHex(soilRgb) : SOIL_FALLBACK;
   const base = Math.max(0, ...parcelas.map((p) => raiseHeight(p.hectareas)));
   const grounds = parcelas.map((p) => groundAt?.get(p.id));
   const even = grounds.every((g) => Number.isFinite(g));
   const top = even ? Math.max(...grounds) : 0;
+  const wet = year?.wet ?? 1;
+  const cropLayer = CROP_LAYER_M * Math.min(1.15, Math.max(0.4, year?.growth ?? 1));
   return {
     type: 'FeatureCollection',
     features: parcelas.map((p, i) => {
@@ -113,9 +125,9 @@ export function raisedParcelsGeoJSON(parcelas, rise = new Map(), soilRgb = null,
         properties: {
           id: p.id,
           tierra,
-          cultivo: cropColors[p.cultivo] ?? '#5f9e3a',
+          cultivo: cropColorForYear(cropColors[p.cultivo] ?? '#5f9e3a', wet),
           suelo_m: h * k,
-          tope_m: (h + CROP_LAYER_M) * k,
+          tope_m: (h + cropLayer) * k,
         },
         geometry: { type: 'Polygon', coordinates: [[...p.contorno, p.contorno[0]]] },
       };

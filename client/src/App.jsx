@@ -3,6 +3,7 @@ import { getClima, getSuelo } from './api.js';
 import { EXAMPLE_POINTS } from './examplePoints.js';
 import { createParcel, farmPoint, nextParcelId } from './map/parcels.js';
 import Vista3DSection from './Vista3DSection.jsx';
+import { useYearPlayer } from './year.jsx';
 
 // MapLibre (~1 MB) loads in its own chunk, after the page is already on screen.
 const ParcelMap = lazy(() => import('./map/ParcelMap.jsx'));
@@ -71,6 +72,12 @@ export default function App() {
   }
   const addParcela = (contorno) => setFarm([...parcelas, createParcel(nextParcelId(parcelas), contorno)]);
   const removeParcela = (id) => setFarm(parcelas.filter((p) => p.id !== id));
+  // A corrected outline: same id and crop, new corners and hectares.
+  const updateParcela = (id, contorno) =>
+    setFarm(parcelas.map((p) => (p.id === id ? createParcel(id, contorno, p.cultivo) : p)));
+
+  // The year shown on the map and in the 3D view (one slider moves both).
+  const year = useYearPlayer(clima?.data ?? null);
   const setCultivo = (id, cultivo) => setParcelas((list) => list.map((p) => (p.id === id ? { ...p, cultivo } : p)));
 
   // A point chosen without drawing (example button, 3D globe) is another place: parcels are cleared.
@@ -104,7 +111,10 @@ export default function App() {
               point={point}
               parcelas={parcelas}
               suelo={suelo?.data ?? null}
+              clima={clima?.data ?? null}
+              year={year}
               onAddParcela={addParcela}
+              onUpdateParcela={updateParcela}
               onRemoveParcela={removeParcela}
               onSetCultivo={setCultivo}
             />
@@ -124,7 +134,14 @@ export default function App() {
           )}
         </section>
 
-        <Vista3DSection point={point} parcelas={parcelas} clima={clima} suelo={suelo} onSelectPoint={choosePoint} />
+        <Vista3DSection
+          point={point}
+          parcelas={parcelas}
+          clima={clima}
+          suelo={suelo}
+          year={year}
+          onSelectPoint={choosePoint}
+        />
 
         {loading && (
           <p className="status" role="status">

@@ -4,6 +4,7 @@ import {
   ALL_SECTIONS,
   PARCEL_COLORS,
   createParcel,
+  cropColorForYear,
   farmPoint,
   farmSummary,
   fitsOneBlock,
@@ -139,4 +140,14 @@ test('farmSummary: a section inside a parcel is not counted twice, and the newes
   assert.ok(Math.abs(ha.trigo - 3) < 0.04, `trigo ${ha.trigo}`);
   assert.ok(Math.abs(ha.frijol - 1) < 0.02, `frijol ${ha.frijol}`);
   assert.ok(Math.abs(s.overlapHa - 1) < 0.04);
+});
+
+test('the map follows the year: a dry year turns the crop to straw and makes it thinner', () => {
+  assert.equal(cropColorForYear('#2f7a3a', 1), '#2f7a3a');
+  assert.equal(cropColorForYear('#2f7a3a', 0), '#c7a361');
+  const good = raisedParcelsGeoJSON([west], new Map(), null, {}, null, { wet: 1, growth: 1 }).features[0].properties;
+  const dry = raisedParcelsGeoJSON([west], new Map(), null, {}, null, { wet: 0, growth: 0.6 }).features[0].properties;
+  assert.equal(good.tope_m - good.suelo_m, 3);
+  assert.ok(Math.abs(dry.tope_m - dry.suelo_m - 1.8) < 1e-9);
+  assert.equal(dry.cultivo, '#c7a361');
 });

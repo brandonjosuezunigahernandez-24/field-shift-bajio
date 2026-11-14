@@ -10,7 +10,8 @@ import {
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
 import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
-import { soilColors } from '../three/parcelState.js';
+import { soilColors, yearState } from '../three/parcelState.js';
+import { YearControl } from '../year.jsx';
 import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
 import FarmSummary from './FarmSummary.jsx';
 import {
@@ -218,12 +219,14 @@ function applyView(map, view, { animate = true } = {}) {
 
 // Corners are numbered HTML markers (1, 2, 3...) so the farmer sees the order they were placed.
 // HTML instead of a map text layer: no font files to download, and there are only a few corners.
+// They can be dragged to fix a corner without drawing again.
 function cornerMarker(index) {
   const el = document.createElement('div');
   el.className = index === 0 ? 'corner-marker corner-marker-first' : 'corner-marker';
   el.textContent = String(index + 1);
+  el.title = 'Arrastra para mover esta esquina';
   el.setAttribute('aria-hidden', 'true');
-  return new Marker({ element: el });
+  return new Marker({ element: el, draggable: true });
 }
 
 // "124 m" on the middle of each side while drawing; the closing side (back to corner 1) dashed.
@@ -257,7 +260,19 @@ const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 1
 //   onRemoveParcela  (id) => void
 //   onSetCultivo     (id, cultivo) => void
 //   suelo            /api/suelo data (or null): colors the sides of the raised parcels
-export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela, onRemoveParcela, onSetCultivo }) {
+//   clima, year      /api/clima data and the page-wide year (useYearPlayer): the parcels follow it
+//   onUpdateParcela  (id, contorno) => void, when a saved parcel is corrected
+export default function ParcelMap({
+  point,
+  parcelas,
+  suelo = null,
+  clima = null,
+  year = null,
+  onAddParcela,
+  onUpdateParcela,
+  onRemoveParcela,
+  onSetCultivo,
+}) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -268,6 +283,9 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
   const [imagery, setImagery] = useState(() => saved('fieldshift.imagen', IMAGERY, 'claro'));
   const [imageryNotice, setImageryNotice] = useState(null);
   const [view, setView] = useState(() => saved('fieldshift.vista', VIEWS, 'aerea'));
+  const [editingId, setEditingId] = useState(null); // a saved parcel being corrected, or null
+  const shown = editingId === null ? parcelas : parcelas.filter((p) => p.id !== editingId);
+  const yearNow = yearState(clima, year?.anio ?? null);
 
   // Latest values for the map handlers and effects that must not re-run on every change.
   const drawingRef = useRef(drawing);
@@ -373,11 +391,26 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
     if (!ready) return undefined;
     const map = mapRef.current;
     map.getSource('parcela').setData(outlineGeoJSON(corners));
-    const markers = [
-      ...sideLengths(corners).map((side) => sideTag(side).addTo(map)),
-      ...corners.map((corner, i) => cornerMarker(i).setLngLat(corner).addTo(map)),
-    ];
-    return () => markers.forEach((m) => m.remove());
+    const sides = sideLengths(corners).map((side) => sideTag(side).addTo(map));
+    const live = corners.map((c) => [...c]);
+    const redrawLive = () => {
+      map.getSource('parcela').setData(outlineGeoJSON(live));
+      sideLengths(live).forEach((side, i) => {
+        sides[i]?.setLngLat(side.mid);
+        if (sides[i]) sides[i].getElement().textContent = fmtM(side.m);
+      });
+    };
+    const handles = corners.map((corner, i) => {
+      const marker = cornerMarker(i).setLngLat(corner).addTo(map);
+      marker.on('drag', () => {
+        const { lng, lat } = marker.getLngLat();
+        live[i] = [lng, lat];
+        redrawLive();
+      });
+      marker.on('dragend', () => setCorners(live.map((c) => [...c])));
+      return marker;
+    });
+    return () => [...sides, ...handles].forEach((m) => m.remove());
   }, [ready, corners]);
 
   // Raised parcels. A parcel seen for the first time rises from the ground (one short animation,
@@ -407,7 +440,7 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
       const key = ground ? [...ground.values()].map((g) => (g ?? 'x').toString()).join(',') : 'plano';
       if (onlyIfGroundChanged && key === lastGround) return; // nothing new: avoid a repaint loop
       lastGround = key;
-      source.setData(raisedParcelsGeoJSON(parcelas, rise, soilRgb, CROP_COLORS, ground));
+      source.setData(raisedParcelsGeoJSON(shown, rise, soilRgb, CROP_COLORS, ground, yearNow));
     };
     paintRaisedRef.current = paint;
     const fresh = parcelas.filter((p) => !rise.has(p.id)).map((p) => p.id);
@@ -430,16 +463,16 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
       cancelAnimationFrame(frame);
       fresh.forEach((id) => rise.set(id, 1)); // never leave a parcel half way up
     };
-  }, [ready, parcelas, soilKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Finished parcels: colored outlines and a "number · crop" tag on each.
   useEffect(() => {
     if (!ready) return undefined;
     const map = mapRef.current;
-    map.getSource('parcelas').setData(parcelsGeoJSON(parcelas));
-    const tags = parcelas.map((p, i) => parcelTag(p, i).addTo(map));
+    map.getSource('parcelas').setData(parcelsGeoJSON(shown));
+    const tags = shown.map((p) => parcelTag(p, parcelas.indexOf(p)).addTo(map));
     return () => tags.forEach((t) => t.remove());
-  }, [ready, parcelas]);
+  }, [ready, parcelas, editingId]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     if (ready) mapRef.current.getCanvas().style.cursor = drawing ? 'crosshair' : '';
@@ -487,12 +520,14 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
   // Parcels the one being drawn lands on top of (only a warning: it may be on purpose).
   const overlapping =
     corners.length >= 3
-      ? parcelas.map((p, i) => (polygonsOverlap(corners, p.contorno) ? i + 1 : null)).filter(Boolean)
+      ? parcelas.map((p, i) => (p.id !== editingId && polygonsOverlap(corners, p.contorno) ? i + 1 : null)).filter(Boolean)
       : [];
 
   // Saving tilts the map so the farmer sees the new parcel rise as a block of land.
   const finish = () => {
-    onAddParcela(corners);
+    if (editingId !== null) onUpdateParcela(editingId, corners);
+    else onAddParcela(corners);
+    setEditingId(null);
     setCorners([]);
     setDrawing(false);
     setHint(null);
@@ -501,6 +536,7 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
 
   // "Dibujar otra parcela": back to the aerial view, so the next outline is drawn precisely.
   const startNewParcel = () => {
+    setEditingId(null);
     setCorners([]);
     setDrawing(true);
     setHint(null);
@@ -508,10 +544,22 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
   };
 
   const cancelDrawing = () => {
+    setEditingId(null);
     setCorners([]);
     setDrawing(false);
     setHint(null);
   };
+
+  // "Corregir": the saved corners come back as draggable numbers, seen from above.
+  const startEditing = (parcela) => {
+    setEditingId(parcela.id);
+    setCorners(parcela.contorno.map((c) => [...c]));
+    setDrawing(true);
+    setHint(null);
+    changeView('aerea');
+    mapRef.current?.fitBounds(bounds(parcela.contorno), { padding: 80, pitch: 0, bearing: 0, maxZoom: 18, duration: reducedMotion() ? 0 : 900 });
+  };
+  const editingNumber = editingId === null ? null : parcelas.findIndex((p) => p.id === editingId) + 1;
 
   // "Walk the edge": the farmer stands on each corner and adds it with the GPS.
   const gpsCheck = checkGpsCorner(gps, corners);
@@ -537,7 +585,14 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
 
   return (
     <div className="parcel-map">
-      <div ref={containerRef} className="parcel-map-canvas" />
+      <div className="parcel-map-frame">
+        <div ref={containerRef} className="parcel-map-canvas" />
+        {parcelas.length > 0 && yearNow.lluvia_mm !== null && (
+          <p className={yearNow.seco ? 'map-year-badge map-year-dry' : 'map-year-badge'} aria-hidden="true">
+            {year.anio} · {yearNow.seco ? 'año seco' : 'año bueno'} · {Math.round(yearNow.lluvia_mm)} mm
+          </p>
+        )}
+      </div>
 
       <div className="map-options">
         <fieldset className="option-switch">
@@ -580,6 +635,13 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
 
       <FarmSummary parcelas={parcelas} />
 
+      {parcelas.length > 0 && year && (
+        <div className="map-year">
+          <p className="map-year-title">¿Cómo le fue a tu terreno cada año? Mueve el año y mira el color de tus cultivos.</p>
+          <YearControl id="anio-mapa" year={year} clima={clima} />
+        </div>
+      )}
+
       {parcelas.length > 0 && (
         <div className="parcel-list">
           <h3>Tus parcelas</h3>
@@ -603,7 +665,17 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
                     ))}
                   </select>
                 </label>
-                <button type="button" className="secondary small" onClick={() => onRemoveParcela(p.id)}>
+                <button type="button" className="secondary small" onClick={() => startEditing(p)} disabled={editingId === p.id}>
+                  Corregir
+                </button>
+                <button
+                  type="button"
+                  className="secondary small"
+                  onClick={() => {
+                    if (editingId === p.id) cancelDrawing();
+                    onRemoveParcela(p.id);
+                  }}
+                >
                   Borrar
                 </button>
               </li>
@@ -616,7 +688,13 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
         {drawing ? (
           <>
             <p className="hint" aria-live="polite">
-              <strong>{parcelas.length ? `Dibujando la parcela ${number}. ` : ''}</strong>
+              <strong>
+                {editingNumber !== null
+                  ? `Corrigiendo la parcela ${editingNumber}: arrastra los números para mover las esquinas. `
+                  : parcelas.length
+                    ? `Dibujando la parcela ${number}. `
+                    : ''}
+              </strong>
               {hint ??
                 (corners.length === 0
                   ? 'Busca tu parcela y toca sus esquinas en orden, siguiendo la orilla.'
@@ -668,7 +746,11 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
             )}
             <div className="button-row">
               <button type="button" disabled={corners.length < 3} onClick={finish}>
-                {parcelas.length ? `Guardar parcela ${number}` : 'Usar esta parcela'}
+                {editingNumber !== null
+                  ? 'Guardar cambios'
+                  : parcelas.length
+                    ? `Guardar parcela ${number}`
+                    : 'Usar esta parcela'}
               </button>
               <button
                 type="button"

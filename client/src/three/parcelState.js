@@ -17,7 +17,7 @@ export function yearState(clima, anio) {
   const year = clima?.lluvia_pv_anual?.find((y) => y.anio === anio);
   const median = clima?.lluvia_pv_mediana_mm;
   if (!year || !median) {
-    return { anio: null, lluvia_mm: null, seco: false, ratio: null, growth: 1, ground: mix(GROUND_DRY, GROUND_WET, 0.6), tint: NEUTRAL, rain: 0 };
+    return { anio: null, lluvia_mm: null, seco: false, ratio: null, wet: 1, growth: 1, ground: mix(GROUND_DRY, GROUND_WET, 0.6), tint: NEUTRAL, rain: 0 };
   }
   const ratio = year.lluvia_mm / median;
   const wet = clamp((ratio - 0.6) / 0.5, 0, 1);
@@ -26,6 +26,7 @@ export function yearState(clima, anio) {
     lluvia_mm: year.lluvia_mm,
     seco: year.seco,
     ratio,
+    wet,
     growth: clamp(0.4 + 0.6 * ratio, 0.4, 1.15),
     ground: mix(GROUND_DRY, GROUND_WET, wet),
     tint: mix(TINT_DRY, NEUTRAL, wet),
