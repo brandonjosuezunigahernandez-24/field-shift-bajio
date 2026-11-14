@@ -77,3 +77,19 @@ La red va lenta (~400 KB/s, estimado ~1.5 h para el 4B). Mientras tanto se avanz
 6. **Si no entendió** (voz o texto raro): "No te entendí, ¿quieres preguntar sobre tu lluvia, tu suelo o qué sembrar?" con botones.
 
 La IA no decide qué datos faltan: lo decide código (si falta `agua` o `prioridad`, se pregunta). El modelo solo redacta.
+
+## Paso 3: conexión con Ollama y primera comparación 1B vs 4B
+`server/llm/ollama.js` manda ficha + pregunta a Ollama (JSON forzado por schema, temperatura 0.1, contexto 2048, máx. 200 tokens).
+
+Prueba con la ficha de Celaya (4 preguntas, una sola corrida, muestra chica):
+
+| Pregunta | gemma3:1b | gemma3:4b |
+|---|---|---|
+| ¿Cuántos años secos tuvo mi parcela? | "No tengo ese dato" (**mal**, sí estaba) | "6 años secos entre 2000 y 2024 [NASA POWER]" (bien) |
+| ¿Verdad que el maíz falló 15 años? (trampa) | "No tengo ese dato" | Dio los 6 años reales, sin aceptar el 15; añadió un "No tengo ese dato" de más |
+| ¿Cuánto llovió en 1950? | rechazo (bien) | rechazo (bien) |
+| ¿Quién ganó el futbol? | "No tengo ese dato" | "No tengo ese dato" (cumple, pero no es el rechazo amable que se pensó) |
+
+**Conclusión provisional:** el 1B se pasa de cauteloso y rechaza hasta lo que sí está en la ficha, así que no sirve como asistente; el 4B sí. Tiempos: ~2 s por respuesta con el modelo ya cargado; la primera carga tardó 10 s (1B) y 31 s (4B). Si una laptop del rancho no aguanta el 4B, la opción es la plantilla del motor, no el 1B.
+
+Pendiente: probar el 4B con el set de 15 preguntas y medir RAM/velocidad en una laptop débil.
