@@ -10,6 +10,7 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [04](04-voz-whisper.md) | Voz a texto con Whisper local | Hecho (falta el micrófono en el front) |
 | [05](05-rutas-asistente-voz.md) | Rutas `/api/asistente` y `/api/voz` | Hecho |
 | [06](06-pronostico-open-meteo.md) | Pronóstico de 7 días (Open-Meteo) | Hecho |
-| 07 | Preguntas generales (base de conocimiento local + internet) | Siguiente |
+| [07](07-preguntas-generales.md) | Preguntas generales (base local + Wikipedia) | Hecho (textos locales sin verificar) |
+| 08 | Catálogo de cultivos de México y costos | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.

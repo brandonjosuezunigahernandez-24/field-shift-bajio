@@ -55,3 +55,14 @@ Con internet (sin `OFFLINE=1`):
 **Cómo verificar que no inventa:** abre `http://localhost:3001/api/pronostico?lat=20.47&lon=-100.81` en el navegador y compara fechas y números con lo que dijo el asistente.
 **Sin internet:** repite con `OFFLINE=1`. Debe usar la caché (`origen: "cache"`, mira `obtenido`). Con una parcela que nunca consultaste, el asistente no debe hablar del pronóstico.
 **Fallas que sí se ven:** a veces cita la fuente equivocada (`[SoilGrids]` en una temperatura) y mete frases de relleno. Anótalas.
+
+## Preguntas generales (nuevo)
+| Pregunta | Esperado |
+|---|---|
+| ¿Para qué sirve sembrar frijol? | Habla del nitrógeno, `base: conocimiento`, `[Base local]` |
+| ¿Qué ayuda a que el suelo guarde humedad? | Materia orgánica, `[Base local]` |
+| ¿Qué es el amaranto? (con internet) | Resumen de Wikipedia, `base: internet` y un enlace |
+| ¿Quién ganó el futbol? | "No tengo ese dato…", sin enlaces |
+| ¿Qué insecticida uso contra la plaga del maíz? | No da marcas ni dosis |
+
+**Cómo verificar:** abre el `enlace` y comprueba que el texto del asistente salga de esa página. Los textos de `[Base local]` están en `server/llm/conocimiento.json` y **no están verificados**.

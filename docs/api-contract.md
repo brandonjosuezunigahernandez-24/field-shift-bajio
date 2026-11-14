@@ -227,3 +227,8 @@ Próximos 7 días, de Open-Meteo (gratis, CC BY 4.0, solo uso no comercial). Es 
 - `origen`: `"api"` o `"cache"` (la caché se reusa 3 horas; sin internet se usa la última, mira `obtenido`).
 - Con `disponible: false` solo vienen `lat`, `lon` y `aviso`.
 - El asistente usa este pronóstico dentro de su ficha; `fuentes` puede traer `"Open-Meteo"`.
+
+### Campos extra de `/api/asistente` (preguntas generales)
+- `base`: `"ficha"` (solo datos de la parcela), `"conocimiento"` (usó la base local) o `"internet"` (usó Wikipedia).
+- `enlaces`: páginas consultadas (vacío salvo `base: "internet"`). Mostrar el enlace y avisar que no lo verifica la app.
+- `fuentes` ahora puede incluir `"Base local"` y `"Wikipedia"`.

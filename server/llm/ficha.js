@@ -16,9 +16,11 @@ export function summarizeForecast(dias) {
   };
 }
 
-export function buildFicha({ clima, suelo, pronostico = null }) {
+export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [] }) {
   const secos = clima.anios_secos ?? [];
   return {
+    // Textos de apoyo para preguntas generales (base local o Wikipedia), cada uno con su fuente.
+    ...(conocimiento.length && { conocimiento }),
     // Solo si hay pronóstico (internet o caché reciente). `obtenido` dice qué tan viejo es.
     ...(pronostico && {
       pronostico_7_dias: {
