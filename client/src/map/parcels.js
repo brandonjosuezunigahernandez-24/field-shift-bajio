@@ -1,7 +1,7 @@
 // A farm is a list of drawn parcels, each with its own crop. Pure functions, tested with node --test.
 // parcela: { id, contorno: [[lon, lat], ...], hectareas, cultivo }
 import { CROP_NAMES, DEFAULT_CROP } from '../crops.js';
-import { areaHectares, polygonCenter, toMeters } from './polygon.js';
+import { areaHectares, pointInPolygon, polygonCenter, polygonsOverlap, toMeters } from './polygon.js';
 
 // One color per parcel, the same on the map and in the 3D view. Picked to stand out on satellite
 // imagery (no greens, which disappear over fields).
@@ -22,7 +22,7 @@ const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 1
 // ~1 km anyway), with a name for the page.
 export function farmPoint(parcelas) {
   const { lat, lon } = polygonCenter(allCorners(parcelas));
-  const total = parcelas.reduce((sum, p) => sum + p.hectareas, 0);
+  const total = farmSummary(parcelas).totalHa; // overlaps counted once, like "Tu terreno"
   const nombre =
     parcelas.length === 1
       ? `Tu parcela (${fmtHa(total)} ha)`
@@ -120,5 +120,53 @@ export function raisedParcelsGeoJSON(parcelas, rise = new Map(), soilRgb = null,
         geometry: { type: 'Polygon', coordinates: [[...p.contorno, p.contorno[0]]] },
       };
     }),
+  };
+}
+
+// --- How much land: total and per crop, without counting overlaps twice ---
+
+// A soccer field (105 x 68 m) is ~0.714 ha: an easy way to picture a hectare count.
+export const SOCCER_FIELD_HA = 0.714;
+
+// { totalHa, byCrop: [{ cultivo, ha }], overlapHa, estimated }.
+// No overlaps: exact areas. With overlaps (a section drawn inside another parcel): a fine grid of
+// sample points, where each point belongs to the NEWEST parcel that contains it (the same rule as
+// the map and the 3D view). ~40 000 points: under 1 % error, a few ms.
+export function farmSummary(parcelas, { samples = 40000 } = {}) {
+  if (!parcelas.length) return { totalHa: 0, byCrop: [], overlapHa: 0, estimated: false };
+  const exactSum = parcelas.reduce((sum, p) => sum + areaHectares(p.contorno), 0);
+  const overlaps = parcelas.some((p, i) => parcelas.slice(i + 1).some((q) => polygonsOverlap(p.contorno, q.contorno)));
+  const byCrop = new Map();
+  let totalHa;
+
+  if (!overlaps) {
+    for (const p of parcelas) byCrop.set(p.cultivo, (byCrop.get(p.cultivo) ?? 0) + areaHectares(p.contorno));
+    totalHa = exactSum;
+  } else {
+    const { lat, lon } = polygonCenter(allCorners(parcelas));
+    const shapes = parcelas.map((p) => toMeters(p.contorno, lat, lon));
+    const xs = shapes.flat().map((p) => p[0]);
+    const ys = shapes.flat().map((p) => p[1]);
+    const [x0, x1, y0, y1] = [Math.min(...xs), Math.max(...xs), Math.min(...ys), Math.max(...ys)];
+    const step = Math.max(Math.sqrt(((x1 - x0) * (y1 - y0)) / samples), 0.25);
+    const cellHa = (step * step) / 10000;
+    totalHa = 0;
+    for (let y = y0 + step / 2; y < y1; y += step) {
+      for (let x = x0 + step / 2; x < x1; x += step) {
+        for (let i = shapes.length - 1; i >= 0; i--) {
+          if (pointInPolygon([x, y], shapes[i])) {
+            totalHa += cellHa;
+            byCrop.set(parcelas[i].cultivo, (byCrop.get(parcelas[i].cultivo) ?? 0) + cellHa);
+            break;
+          }
+        }
+      }
+    }
+  }
+  return {
+    totalHa,
+    byCrop: [...byCrop.entries()].map(([cultivo, ha]) => ({ cultivo, ha })).sort((a, b) => b.ha - a.ha),
+    overlapHa: Math.max(0, exactSum - totalHa),
+    estimated: overlaps,
   };
 }

@@ -41,8 +41,10 @@ export default function Vista3DSection(props) {
   const [supported] = useState(hasWebGL);
 
   return (
-    <section className="card">
-      <h2>Tu parcela en 3D</h2>
+    <section className="card" id="paso-2">
+      <h2>
+        <span className="step-badge">2</span> Tu parcela en 3D
+      </h2>
       {supported ? (
         <ErrorBoundary>
           <Suspense fallback={<p className="status">Cargando el globo…</p>}>

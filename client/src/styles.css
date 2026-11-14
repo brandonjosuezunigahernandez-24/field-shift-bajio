@@ -455,3 +455,346 @@ button.small {
   flex-basis: 100%;
   margin: 2px 0 0;
 }
+
+/* ===================================================================
+   Visual refresh: brighter, friendlier, more "app" than "document".
+   No external fonts or images: everything works offline for the demo.
+   =================================================================== */
+:root {
+  --accent: #2f7d3b;
+  --accent-strong: #1f5f2b;
+  --sun: #f2b636;
+  --sky: #2b8fd6;
+  --bg: #f3f6ef;
+  --shadow: 0 10px 30px rgba(31, 61, 26, 0.12), 0 2px 6px rgba(31, 61, 26, 0.08);
+}
+
+body {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #e2f0d9 0%, transparent 60%),
+    radial-gradient(900px 400px at 110% 10%, #fdf0cf 0%, transparent 55%),
+    var(--bg);
+  min-height: 100vh;
+}
+
+.page {
+  max-width: 900px;
+}
+
+/* --- Hero header with field furrows --- */
+.hero {
+  position: relative;
+  overflow: hidden;
+  margin: 8px 0 20px;
+  padding: 28px 24px 22px;
+  border-radius: 22px;
+  color: #ffffff;
+  background:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.06) 0 14px, transparent 14px 34px),
+    linear-gradient(135deg, #1f5f2b 0%, #2f7d3b 45%, #6a9f2f 100%);
+  box-shadow: var(--shadow);
+}
+
+.hero::after {
+  /* the sun */
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe08a 0%, #f2b636 55%, rgba(242, 182, 54, 0) 72%);
+  opacity: 0.9;
+}
+
+.hero-kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+
+.hero h1 {
+  position: relative;
+  margin: 4px 0 6px;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  line-height: 1.1;
+}
+
+.hero-lead {
+  position: relative;
+  max-width: 34em;
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+  opacity: 0.95;
+}
+
+/* --- Step tracker --- */
+.steps {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.steps a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+
+.steps a:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+
+.steps-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 0.85rem;
+}
+
+.steps .current a {
+  background: #ffffff;
+  color: var(--accent-strong);
+}
+
+.steps .current .steps-dot {
+  background: var(--sun);
+  color: #3b2a00;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+
+.steps .done .steps-dot {
+  background: var(--sun);
+  color: #3b2a00;
+}
+
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(242, 182, 54, 0.35);
+  }
+}
+
+/* --- Cards --- */
+.card {
+  border: none;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+
+.card h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 1.35rem;
+  color: var(--accent-strong);
+}
+
+.step-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--sun), #f59e2c);
+  color: #3b2a00;
+  font-size: 1.05rem;
+  font-weight: 800;
+  box-shadow: 0 3px 8px rgba(245, 158, 44, 0.35);
+}
+
+/* --- Buttons --- */
+button {
+  border-radius: 12px;
+  font-weight: 600;
+  background: linear-gradient(180deg, #389447, var(--accent));
+  box-shadow: 0 3px 0 var(--accent-strong);
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+}
+
+button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+
+button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--accent-strong);
+}
+
+button.secondary {
+  background: #ffffff;
+  box-shadow: 0 2px 0 #cfe0c9;
+}
+
+button:disabled {
+  box-shadow: none;
+}
+
+.parcel-map-canvas,
+.vista3d-canvas {
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+
+/* --- "Tu terreno": total hectares and crops --- */
+.farm-summary {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.8fr) 1.6fr;
+  gap: 14px 20px;
+  align-items: center;
+  margin: 14px 0 6px;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fff8e4, #eef7e8);
+}
+
+@media (max-width: 560px) {
+  .farm-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+.farm-total {
+  display: flex;
+  flex-direction: column;
+}
+
+.farm-total-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+
+.farm-total-value {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+
+.farm-total-value small {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+
+.farm-total-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.farm-crops {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+
+.farm-crops li {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+
+.farm-crop-bar {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+
+.farm-crop-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+
+.farm-crop-ha {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+
+.farm-crop-ha small {
+  color: var(--muted);
+  font-weight: 500;
+}
+
+.farm-summary .hint {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+
+/* --- Side lengths on the map while drawing --- */
+.side-tag {
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1f2a1c;
+  font: 700 12px/18px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  user-select: none;
+}
+
+.side-tag-closing {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed #1f2a1c;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .steps .current .steps-dot {
+    animation: none;
+  }
+  .farm-crop-bar span,
+  button,
+  .steps a {
+    transition: none;
+  }
+}
+
+/* Keep MapLibre's own controls (zoom, compass, location) as MapLibre draws them. */
+.maplibregl-ctrl button,
+.maplibregl-ctrl button:hover:not(:disabled),
+.maplibregl-ctrl button:active:not(:disabled) {
+  padding: 0;
+  border-radius: 0;
+  background-color: #ffffff;
+  background-image: none;
+  box-shadow: none;
+  transform: none;
+  filter: none;
+  font-weight: normal;
+}
+
+.maplibregl-ctrl-group {
+  border-radius: 10px;
+  overflow: hidden;
+}

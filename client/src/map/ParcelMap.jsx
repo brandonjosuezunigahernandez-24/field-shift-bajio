@@ -12,7 +12,17 @@ import { useEffect, useRef, useState } from 'react';
 import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
 import { soilColors } from '../three/parcelState.js';
 import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
-import { areaHectares, bounds, checkGpsCorner, outlineGeoJSON, polygonCenter, polygonsOverlap } from './polygon.js';
+import FarmSummary from './FarmSummary.jsx';
+import {
+  areaHectares,
+  bounds,
+  checkGpsCorner,
+  outlineGeoJSON,
+  perimeterMeters,
+  polygonCenter,
+  polygonsOverlap,
+  sideLengths,
+} from './polygon.js';
 
 // The browser only gives the location on https (or localhost) and with the farmer's permission.
 const CAN_LOCATE = typeof navigator !== 'undefined' && 'geolocation' in navigator && window.isSecureContext;
@@ -216,6 +226,16 @@ function cornerMarker(index) {
   return new Marker({ element: el });
 }
 
+// "124 m" on the middle of each side while drawing; the closing side (back to corner 1) dashed.
+const fmtM = (m) => (m >= 1000 ? `${(m / 1000).toLocaleString('es-MX', { maximumFractionDigits: 2 })} km` : `${Math.round(m)} m`);
+function sideTag({ m, mid, closing }) {
+  const el = document.createElement('div');
+  el.className = closing ? 'side-tag side-tag-closing' : 'side-tag';
+  el.textContent = fmtM(m);
+  el.setAttribute('aria-hidden', 'true');
+  return new Marker({ element: el }).setLngLat(mid);
+}
+
 // "1 · Trigo" tag in the middle of each finished parcel, in the parcel's color.
 function parcelTag(parcela, index) {
   const el = document.createElement('div');
@@ -331,7 +351,7 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
     map.on('click', (event) => {
       if (!drawingRef.current) return;
       // A tap on a corner number or a parcel tag must not add a corner on top of it.
-      if (event.originalEvent?.target?.closest?.('.corner-marker, .parcel-tag')) return;
+      if (event.originalEvent?.target?.closest?.('.corner-marker, .parcel-tag, .side-tag')) return;
       if (map.getZoom() < MIN_DRAW_ZOOM) {
         setHint('Te acercamos para que marques las esquinas con precisión.');
         map.flyTo({ center: event.lngLat, zoom: 15.5, duration: reducedMotion() ? 0 : 1500 });
@@ -353,7 +373,10 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
     if (!ready) return undefined;
     const map = mapRef.current;
     map.getSource('parcela').setData(outlineGeoJSON(corners));
-    const markers = corners.map((corner, i) => cornerMarker(i).setLngLat(corner).addTo(map));
+    const markers = [
+      ...sideLengths(corners).map((side) => sideTag(side).addTo(map)),
+      ...corners.map((corner, i) => cornerMarker(i).setLngLat(corner).addTo(map)),
+    ];
     return () => markers.forEach((m) => m.remove());
   }, [ready, corners]);
 
@@ -555,6 +578,8 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
         )}
       </div>
 
+      <FarmSummary parcelas={parcelas} />
+
       {parcelas.length > 0 && (
         <div className="parcel-list">
           <h3>Tus parcelas</h3>
@@ -563,7 +588,10 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
               <li key={p.id} style={{ '--parcel-color': parcelColor(p.id) }}>
                 <span className="parcel-swatch" aria-hidden="true" />
                 <span className="parcel-name">
-                  Parcela {i + 1} <span className="option-note">({fmtHa(p.hectareas)} ha)</span>
+                  Parcela {i + 1}{' '}
+                  <span className="option-note">
+                    ({fmtHa(p.hectareas)} ha · orilla {fmtM(perimeterMeters(p.contorno))})
+                  </span>
                 </span>
                 <label>
                   <span className="visually-hidden">Cultivo de la parcela {i + 1}</span>
@@ -594,7 +622,7 @@ export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela,
                   ? 'Busca tu parcela y toca sus esquinas en orden, siguiendo la orilla.'
                   : corners.length < 3
                     ? `Llevas ${corners.length} ${corners.length === 1 ? 'esquina' : 'esquinas'}. Faltan ${3 - corners.length} como mínimo.`
-                    : `Llevas ${corners.length} esquinas. Esta parcela mide ${fmtHa(area)} hectáreas.`)}
+                    : `Llevas ${corners.length} esquinas. Esta parcela mide ${fmtHa(area)} hectáreas y su orilla ${fmtM(perimeterMeters(corners))}.`)}
             </p>
             {area > BIG_PARCEL_HA && (
               <p className="error">Es muy grande para una parcela. Revisa que las esquinas estén bien.</p>

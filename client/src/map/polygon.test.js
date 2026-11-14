@@ -6,9 +6,11 @@ import {
   checkGpsCorner,
   distanceMeters,
   outlineGeoJSON,
+  perimeterMeters,
   pointInPolygon,
   polygonCenter,
   polygonsOverlap,
+  sideLengths,
   toDiorama,
 } from './polygon.js';
 
@@ -85,4 +87,17 @@ test('polygonsOverlap: inside, crossing, apart and side by side', () => {
   assert.equal(polygonsOverlap(box(0, 1, 4, 1), box(1, 0, 1, 4)), true, 'a cross, no corner inside');
   assert.equal(polygonsOverlap(box(0, 0, 1, 1), box(3, 3, 1, 1)), false, 'apart');
   assert.equal(polygonsOverlap(box(0, 0, 1, 1), box(1, 0, 1, 1)), false, 'sharing an edge');
+});
+
+test('sideLengths and perimeterMeters: a 200 m square', () => {
+  const lat = 20.47;
+  const dLon = 200 / (111320 * Math.cos((lat * Math.PI) / 180));
+  const dLat = 200 / 111320;
+  const sq = [[-100.81, lat], [-100.81 + dLon, lat], [-100.81 + dLon, lat + dLat], [-100.81, lat + dLat]];
+  const sides = sideLengths(sq);
+  assert.equal(sides.length, 4);
+  assert.ok(sides.every((s) => Math.abs(s.m - 200) < 0.5));
+  assert.equal(sides[3].closing, true);
+  assert.equal(sideLengths(sq.slice(0, 2)).length, 1, 'two corners: one side, nothing to close');
+  assert.ok(Math.abs(perimeterMeters(sq) - 800) < 2);
 });

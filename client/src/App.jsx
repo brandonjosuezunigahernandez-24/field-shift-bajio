@@ -15,8 +15,25 @@ const ORIGIN_LABEL = {
   fixture: 'copia de respaldo (sin internet)',
 };
 
-// Phase 1 screen: proves the whole path works (button -> server -> NASA POWER / SoilGrids).
-// Phase 2 replaces the button with the map and the form, and adds the recommendation.
+// Progress at the top: each step lights up when the farmer gets there, and jumps to its section.
+function Steps({ steps }) {
+  const current = steps.findIndex((s) => !s.done);
+  return (
+    <ol className="steps">
+      {steps.map((step, i) => (
+        <li key={step.href} className={step.done ? 'done' : i === current ? 'current' : undefined}>
+          <a href={step.href}>
+            <span className="steps-dot" aria-hidden="true">{step.done ? '✓' : i + 1}</span>
+            {step.label}
+            {step.done && <span className="visually-hidden"> (listo)</span>}
+          </a>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+// Phase 2 adds the form and the recommendation below the climate.
 export default function App() {
   const [point, setPoint] = useState(null);
   const [loading, setLoading] = useState(false);
@@ -64,14 +81,24 @@ export default function App() {
 
   return (
     <div className="page">
-      <header className="page-header">
+      <header className="hero">
+        <p className="hero-kicker">NASA Space Apps · Bajío</p>
         <h1>Field Shift Bajío</h1>
-        <p>Rotación de cultivos para tu parcela de temporal, con datos de la NASA.</p>
+        <p className="hero-lead">Dibuja tu parcela, mírala en 3D y descubre cómo le ha ido a tu tierra con la lluvia de los últimos 25 años.</p>
+        <Steps
+          steps={[
+            { href: '#paso-1', label: 'Dibuja tu parcela', done: parcelas.length > 0 || Boolean(point) },
+            { href: '#paso-2', label: 'Mírala en 3D', done: Boolean(point) },
+            { href: '#paso-3', label: 'Conoce tu clima', done: Boolean(clima?.data) },
+          ]}
+        />
       </header>
 
       <main>
-        <section className="card">
-          <h2>1. Dibuja tu parcela</h2>
+        <section className="card" id="paso-1">
+          <h2>
+            <span className="step-badge">1</span> Dibuja tu parcela
+          </h2>
           <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
             <ParcelMap
               point={point}
@@ -105,6 +132,7 @@ export default function App() {
           </p>
         )}
 
+        <div id="paso-3" />
         {clima && <ClimateCard result={clima} />}
         {suelo && <SoilCard result={suelo} />}
       </main>
@@ -127,7 +155,9 @@ function ClimateCard({ result }) {
   if (result.error) {
     return (
       <section className="card">
-        <h2>Lluvia y temperatura</h2>
+        <h2>
+          <span className="step-badge">3</span> Lluvia y temperatura
+        </h2>
         <p className="error" role="alert">{result.error}</p>
       </section>
     );
@@ -141,7 +171,9 @@ function ClimateCard({ result }) {
 
   return (
     <section className="card">
-      <h2>Lluvia y temperatura</h2>
+      <h2>
+          <span className="step-badge">3</span> Lluvia y temperatura
+        </h2>
       <ul className="facts">
         <li>
           En un año normal llueven <strong>{Math.round(clima.lluvia_pv_mediana_mm)} mm</strong> de junio a septiembre.

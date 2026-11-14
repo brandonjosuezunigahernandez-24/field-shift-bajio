@@ -141,3 +141,19 @@ export function polygonsOverlap(a, b) {
   }
   return false;
 }
+
+// Length of each side in meters, with its midpoint for a label. With `closed`, the side from the
+// last corner back to the first is included (marked `closing: true`).
+export function sideLengths(corners, { closed = true } = {}) {
+  const sides = [];
+  const n = corners.length;
+  const count = closed && n >= 3 ? n : n - 1;
+  for (let i = 0; i < count; i++) {
+    const a = corners[i];
+    const b = corners[(i + 1) % n];
+    sides.push({ m: distanceMeters(a, b), mid: [(a[0] + b[0]) / 2, (a[1] + b[1]) / 2], closing: i === n - 1 });
+  }
+  return sides;
+}
+
+export const perimeterMeters = (corners) => sideLengths(corners).reduce((sum, s) => sum + s.m, 0);

@@ -5,6 +5,7 @@ import {
   PARCEL_COLORS,
   createParcel,
   farmPoint,
+  farmSummary,
   fitsOneBlock,
   nextParcelId,
   parcelColor,
@@ -110,4 +111,32 @@ test('raisedParcelsGeoJSON evens out the ground height so tops line up (3D relie
   // Missing heights (terrain not loaded yet): no correction at all.
   const partial = raisedParcelsGeoJSON([west, east], new Map(), null, {}, new Map([[1, 1755]]));
   assert.deepEqual(partial.features.map((f) => f.properties.suelo_m), [12, 13.5]);
+});
+
+test('farmSummary: side by side parcels add up exactly, by crop', () => {
+  const s = farmSummary([west, east]);
+  assert.equal(s.estimated, false);
+  assert.ok(Math.abs(s.totalHa - 8) < 0.01);
+  assert.deepEqual(s.byCrop.map((c) => c.cultivo), ['trigo', 'maiz'].sort((a, b) => (a === 'trigo' ? -1 : 1)));
+  assert.equal(s.overlapHa, 0);
+  assert.deepEqual(farmSummary([]), { totalHa: 0, byCrop: [], overlapHa: 0, estimated: false });
+});
+
+test('farmSummary: a section inside a parcel is not counted twice, and the newest crop wins there', () => {
+  // 1 ha of beans (100 x 100 m) drawn inside the 4 ha wheat parcel.
+  const d100Lon = 100 / (111320 * Math.cos((lat0 * Math.PI) / 180));
+  const d100Lat = 100 / 111320;
+  const inner = createParcel(2, [
+    [-100.81 + d100Lon / 2, lat0 + d100Lat / 2],
+    [-100.81 + d100Lon * 1.5, lat0 + d100Lat / 2],
+    [-100.81 + d100Lon * 1.5, lat0 + d100Lat * 1.5],
+    [-100.81 + d100Lon / 2, lat0 + d100Lat * 1.5],
+  ], 'frijol');
+  const s = farmSummary([west, inner]);
+  assert.equal(s.estimated, true);
+  assert.ok(Math.abs(s.totalHa - 4) < 0.04, `total ${s.totalHa}`);
+  const ha = Object.fromEntries(s.byCrop.map((c) => [c.cultivo, c.ha]));
+  assert.ok(Math.abs(ha.trigo - 3) < 0.04, `trigo ${ha.trigo}`);
+  assert.ok(Math.abs(ha.frijol - 1) < 0.02, `frijol ${ha.frijol}`);
+  assert.ok(Math.abs(s.overlapHa - 1) < 0.04);
 });
