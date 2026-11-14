@@ -1,0 +1,19 @@
+{
+  "name": "field-shift-bajio-server",
+  "version": "0.1.0",
+  "private": true,
+  "description": "API de Field Shift Bajío: clima (NASA POWER), suelo (SoilGrids) y recomendaciones de rotación",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "dev": "node --watch index.js",
+    "start": "node index.js",
+    "test": "node --test",
+    "fixtures": "node scripts/fetch-fixtures.js"
+  },
+  "dependencies": {
+    "express": "^5.3.0"
+  }
+}
