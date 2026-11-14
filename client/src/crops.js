@@ -12,3 +12,14 @@ export const CROP_NAMES = {
 };
 
 export const DEFAULT_CROP = 'maiz';
+
+// Color of each crop seen from above, for the raised parcels on the map.
+export const CROP_COLORS = {
+  maiz: '#5f9e3a',
+  sorgo: '#a4552d',
+  trigo: '#d9b44a',
+  cebada: '#e3d27e',
+  frijol: '#2f7a3a',
+  garbanzo: '#93b35c',
+  brocoli: '#2e5b3a',
+};

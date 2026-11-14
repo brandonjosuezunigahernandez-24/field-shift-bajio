@@ -74,3 +74,51 @@ export function fitsOneBlock(members) {
     ([east, north]) => Math.abs(east) <= BLOCK_HALF_M && Math.abs(north) <= BLOCK_HALF_M
   );
 }
+
+// --- Raised parcels on the satellite map (MapLibre fill-extrusion) ---
+
+const SOIL_FALLBACK = '#6b4f3a'; // brown when SoilGrids has no data
+const CROP_LAYER_M = 3; // the crop "carpet" on top of the soil block
+const STEP_M = 1.5; // each newer parcel stands this much higher, so overlaps show the newest
+
+// Block height in meters: grows with the parcel so it always shows, but never hides the map.
+// ~6 m for a 1 ha plot, ~12 m for 4 ha, capped at 40 m.
+export function raiseHeight(hectareas) {
+  return Math.round(Math.min(40, Math.max(6, Math.sqrt(hectareas * 10000) * 0.06)));
+}
+
+const toHex = (rgb) =>
+  `#${rgb.map((v) => Math.round(Math.min(1, Math.max(0, v)) * 255).toString(16).padStart(2, '0')).join('')}`;
+
+// GeoJSON for the raised parcels. `rise` (id -> 0..1) animates each block coming up out of the
+// ground; `soilRgb` is the side color ([r, g, b] 0..1 from parcelState.soilColors, or null).
+// All parcels share the height of the biggest one, and each newer one stands STEP_M higher: if two
+// overlap, the newest is the one seen on top (the same rule as the 3D diorama).
+// With the 3D relief on, MapLibre stands each block on the ground height at the parcel's center,
+// so a parcel on lower ground would sink under its neighbor. `groundAt` (id -> meters, as
+// map.queryTerrainElevation gives them) evens that out: every top ends at the same level.
+export function raisedParcelsGeoJSON(parcelas, rise = new Map(), soilRgb = null, cropColors = {}, groundAt = null) {
+  const tierra = soilRgb ? toHex(soilRgb) : SOIL_FALLBACK;
+  const base = Math.max(0, ...parcelas.map((p) => raiseHeight(p.hectareas)));
+  const grounds = parcelas.map((p) => groundAt?.get(p.id));
+  const even = grounds.every((g) => Number.isFinite(g));
+  const top = even ? Math.max(...grounds) : 0;
+  return {
+    type: 'FeatureCollection',
+    features: parcelas.map((p, i) => {
+      const k = rise.get(p.id) ?? 1;
+      const h = base + i * STEP_M + (even ? top - grounds[i] : 0);
+      return {
+        type: 'Feature',
+        properties: {
+          id: p.id,
+          tierra,
+          cultivo: cropColors[p.cultivo] ?? '#5f9e3a',
+          suelo_m: h * k,
+          tope_m: (h + CROP_LAYER_M) * k,
+        },
+        geometry: { type: 'Polygon', coordinates: [[...p.contorno, p.contorno[0]]] },
+      };
+    }),
+  };
+}

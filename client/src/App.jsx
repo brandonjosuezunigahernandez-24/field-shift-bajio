@@ -76,6 +76,7 @@ export default function App() {
             <ParcelMap
               point={point}
               parcelas={parcelas}
+              suelo={suelo?.data ?? null}
               onAddParcela={addParcela}
               onRemoveParcela={removeParcela}
               onSetCultivo={setCultivo}

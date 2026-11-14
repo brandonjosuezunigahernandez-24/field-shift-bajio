@@ -10,6 +10,8 @@ import {
   parcelColor,
   parcelLabel,
   parcelsGeoJSON,
+  raiseHeight,
+  raisedParcelsGeoJSON,
   sectionCenter,
   sectionParcels,
 } from './parcels.js';
@@ -76,4 +78,36 @@ test('fitsOneBlock: neighbors fit, parcels 3 km apart do not', () => {
   const far = createParcel(3, square(-100.81 + 0.03)); // ~3 km east
   assert.equal(fitsOneBlock([west, far]), false);
   assert.equal(fitsOneBlock([far]), true);
+});
+
+test('raiseHeight grows with the parcel and stays between 6 and 40 m', () => {
+  assert.equal(raiseHeight(0.2), 6);
+  assert.equal(raiseHeight(4), 12);
+  assert.equal(raiseHeight(5000), 40);
+});
+
+test('raisedParcelsGeoJSON: soil block with the crop on top, scaled by the rise animation', () => {
+  const fc = raisedParcelsGeoJSON([west, east], new Map([[2, 0.5]]), [0.4, 0.3, 0.2], { trigo: '#d9b44a' });
+  const [a, b] = fc.features.map((f) => f.properties);
+  assert.equal(a.tierra, '#664d33');
+  assert.equal(a.cultivo, '#d9b44a');
+  assert.equal(a.suelo_m, 12);
+  assert.equal(a.tope_m, 15);
+  assert.equal(b.suelo_m, (12 + 1.5) * 0.5, 'newer parcel 1.5 m higher, half way up');
+  assert.equal(raisedParcelsGeoJSON([west]).features[0].properties.tierra, '#6b4f3a', 'brown without soil data');
+  // A small parcel drawn inside a big one is not hidden: it shares the big height, plus a step.
+  const small = createParcel(3, square(-100.81).map(([x, y]) => [x + dLon / 4, y + dLat / 4]).map(([x, y], i) => [x - (i === 1 || i === 2 ? dLon / 2 : 0), y - (i >= 2 ? dLat / 2 : 0)]));
+  const [big, inner] = raisedParcelsGeoJSON([west, small]).features.map((f) => f.properties);
+  assert.ok(inner.suelo_m > big.suelo_m, 'the newer, smaller parcel stands above the bigger one');
+});
+
+test('raisedParcelsGeoJSON evens out the ground height so tops line up (3D relief on)', () => {
+  // Parcel 1 stands on ground 5 m higher than parcel 2.
+  const ground = new Map([[1, 1755], [2, 1750]]);
+  const [a, b] = raisedParcelsGeoJSON([west, east], new Map(), null, {}, ground).features.map((f) => f.properties);
+  assert.equal(1755 + a.suelo_m, 1755 + 12);
+  assert.equal(1750 + b.suelo_m, 1755 + 12 + 1.5, 'the newer top still ends 1.5 m above, despite lower ground');
+  // Missing heights (terrain not loaded yet): no correction at all.
+  const partial = raisedParcelsGeoJSON([west, east], new Map(), null, {}, new Map([[1, 1755]]));
+  assert.deepEqual(partial.features.map((f) => f.properties.suelo_m), [12, 13.5]);
 });

@@ -9,8 +9,9 @@ import {
 } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
-import { CROP_IDS, CROP_NAMES } from '../crops.js';
-import { allCorners, parcelColor, parcelsGeoJSON } from './parcels.js';
+import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
+import { soilColors } from '../three/parcelState.js';
+import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
 import { areaHectares, bounds, checkGpsCorner, outlineGeoJSON, polygonCenter, polygonsOverlap } from './polygon.js';
 
 // The browser only gives the location on https (or localhost) and with the farmer's permission.
@@ -54,6 +55,7 @@ export const VIEWS = {
   relieve: { label: 'Relieve 3D', note: 'inclinada, para ver lomas y bajadas' },
 };
 const VIEW_PITCH = { aerea: 0, relieve: 55 };
+const RISE_MS = 1300; // a saved parcel comes up out of the ground in this time
 const TERRAIN = { source: 'relieve', exaggeration: 1.5 };
 
 function saved(key, options, fallback) {
@@ -148,6 +150,31 @@ function addParcelLayers(map) {
     source: 'parcelas',
     paint: { 'line-color': ['get', 'color'], 'line-width': 3 },
   });
+  // Saved parcels raised over the satellite image: a block of soil (sides in the SoilGrids color)
+  // with the crop on top. Its height comes from each feature (see raisedParcelsGeoJSON).
+  map.addSource('parcelas-3d', { type: 'geojson', data: EMPTY });
+  map.addLayer({
+    id: 'parcelas-tierra',
+    type: 'fill-extrusion',
+    source: 'parcelas-3d',
+    paint: {
+      'fill-extrusion-color': ['get', 'tierra'],
+      'fill-extrusion-base': 0,
+      'fill-extrusion-height': ['get', 'suelo_m'],
+      'fill-extrusion-opacity': 0.95,
+    },
+  });
+  map.addLayer({
+    id: 'parcelas-cultivo',
+    type: 'fill-extrusion',
+    source: 'parcelas-3d',
+    paint: {
+      'fill-extrusion-color': ['get', 'cultivo'],
+      'fill-extrusion-base': ['get', 'suelo_m'],
+      'fill-extrusion-height': ['get', 'tope_m'],
+      'fill-extrusion-opacity': 0.95,
+    },
+  });
   // The parcel being drawn: white and dashed, so it reads as "not finished yet".
   map.addSource('parcela', { type: 'geojson', data: EMPTY });
   map.addLayer({
@@ -209,7 +236,8 @@ const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 1
 //   onAddParcela     (contorno) => void, when the farmer finishes drawing one
 //   onRemoveParcela  (id) => void
 //   onSetCultivo     (id, cultivo) => void
-export default function ParcelMap({ point, parcelas, onAddParcela, onRemoveParcela, onSetCultivo }) {
+//   suelo            /api/suelo data (or null): colors the sides of the raised parcels
+export default function ParcelMap({ point, parcelas, suelo = null, onAddParcela, onRemoveParcela, onSetCultivo }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [ready, setReady] = useState(false);
@@ -282,6 +310,8 @@ export default function ParcelMap({ point, parcelas, onAddParcela, onRemoveParce
       geolocate.on('trackuserlocationend', () => setTracking(false));
       geolocateRef.current = geolocate;
     }
+    // When relief tiles arrive (or the view changes), re-level the raised parcels if needed.
+    map.on('idle', () => paintRaisedRef.current?.({ onlyIfGroundChanged: true }));
     map.on('load', () => {
       addParcelLayers(map);
       applyView(map, viewRef.current, { animate: false });
@@ -326,6 +356,58 @@ export default function ParcelMap({ point, parcelas, onAddParcela, onRemoveParce
     const markers = corners.map((corner, i) => cornerMarker(i).setLngLat(corner).addTo(map));
     return () => markers.forEach((m) => m.remove());
   }, [ready, corners]);
+
+  // Raised parcels. A parcel seen for the first time rises from the ground (one short animation,
+  // only that parcel); crop or soil changes just repaint. Few polygons: setData per frame is cheap.
+  const riseRef = useRef(new Map()); // parcel id -> 0..1
+  const paintRaisedRef = useRef(null); // latest painter, also called when the relief finishes loading
+  const soilRgb = suelo && !suelo.sin_datos ? soilColors(suelo).top : null;
+  const soilKey = soilRgb ? soilRgb.join(',') : 'none';
+  useEffect(() => {
+    if (!ready) return undefined;
+    const map = mapRef.current;
+    const source = map.getSource('parcelas-3d');
+    const rise = riseRef.current;
+    // Ground height at each parcel's center, only with the 3D relief on (see raisedParcelsGeoJSON).
+    const groundAt = () => {
+      if (!map.getTerrain()) return null;
+      return new Map(
+        parcelas.map((p) => {
+          const { lat, lon } = polygonCenter(p.contorno);
+          return [p.id, map.queryTerrainElevation([lon, lat])];
+        })
+      );
+    };
+    let lastGround = '';
+    const paint = ({ onlyIfGroundChanged = false } = {}) => {
+      const ground = groundAt();
+      const key = ground ? [...ground.values()].map((g) => (g ?? 'x').toString()).join(',') : 'plano';
+      if (onlyIfGroundChanged && key === lastGround) return; // nothing new: avoid a repaint loop
+      lastGround = key;
+      source.setData(raisedParcelsGeoJSON(parcelas, rise, soilRgb, CROP_COLORS, ground));
+    };
+    paintRaisedRef.current = paint;
+    const fresh = parcelas.filter((p) => !rise.has(p.id)).map((p) => p.id);
+    for (const id of [...rise.keys()]) if (!parcelas.some((p) => p.id === id)) rise.delete(id);
+    if (!fresh.length || reducedMotion()) {
+      fresh.forEach((id) => rise.set(id, 1));
+      paint();
+      return undefined;
+    }
+    fresh.forEach((id) => rise.set(id, 0));
+    const start = performance.now();
+    let frame = requestAnimationFrame(function step(now) {
+      const t = Math.min(1, (now - start) / RISE_MS);
+      const k = 1 - (1 - t) ** 3; // ease out: fast start, soft landing
+      fresh.forEach((id) => rise.set(id, k));
+      paint();
+      if (t < 1) frame = requestAnimationFrame(step);
+    });
+    return () => {
+      cancelAnimationFrame(frame);
+      fresh.forEach((id) => rise.set(id, 1)); // never leave a parcel half way up
+    };
+  }, [ready, parcelas, soilKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Finished parcels: colored outlines and a "number · crop" tag on each.
   useEffect(() => {
@@ -385,11 +467,13 @@ export default function ParcelMap({ point, parcelas, onAddParcela, onRemoveParce
       ? parcelas.map((p, i) => (polygonsOverlap(corners, p.contorno) ? i + 1 : null)).filter(Boolean)
       : [];
 
+  // Saving tilts the map so the farmer sees the new parcel rise as a block of land.
   const finish = () => {
     onAddParcela(corners);
     setCorners([]);
     setDrawing(false);
     setHint(null);
+    if (viewRef.current === 'aerea') changeView('relieve');
   };
 
   // "Dibujar otra parcela": back to the aerial view, so the next outline is drawn precisely.
