@@ -23,7 +23,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - **`origen`** dice de dónde salió el dato:
   - `"api"`: recién consultado a la fuente.
   - `"cache"`: guardado en `server/cache/` por una consulta anterior.
-  - `"fixture"`: copia de respaldo versionada en `server/fixtures/` (solo existe para las parcelas de `GET /api/ejemplos`).
+  - `"fixture"`: copia de respaldo versionada en `server/fixtures/` (solo existe para `FIXTURE_POINTS` en `server/lib/seasons.js`: las parcelas de `GET /api/ejemplos` y 3 más).
 - El orden de búsqueda es caché → API → fixture → 502. Con `OFFLINE=1` se salta la API.
 
 ## Selección de la parcela (front)
@@ -45,15 +45,17 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 
 ## GET /api/ejemplos
 
-Las parcelas de los botones de ejemplo. Todas tienen fixture, así que funcionan sin internet. Para agregar una, se agrega a `FIXTURE_POINTS` en `server/lib/seasons.js` y se corre `npm run fixtures`; el front no cambia.
+Las parcelas de los botones de ejemplo, con los mismos `id` y `boton` del diseño del front. Todas tienen fixture, así que funcionan sin internet. Para agregar o mover una, se cambia `EXAMPLE_POINTS` en `server/lib/seasons.js` y se corre `npm run fixtures`; el front no cambia.
 
 ```json
 [
-  { "nombre": "Celaya, Gto.", "lat": 20.47, "lon": -100.81 },
-  { "nombre": "Irapuato, Gto.", "lat": 20.6, "lon": -101.42 }
-  // ... 4 en total
+  { "id": "celaya", "nombre": "Celaya, Gto.", "boton": "Celaya, Gto. (Temporal)", "lat": 20.47, "lon": -100.81 },
+  { "id": "marques", "nombre": "El Marqués, Qro.", "boton": "El Marqués, Qro. (Sequía)", "lat": 20.7, "lon": -100.27 },
+  { "id": "salamanca", "nombre": "Salamanca, Gto.", "boton": "Salamanca, Gto. (Riego)", "lat": 20.6, "lon": -101.23 }
 ]
 ```
+
+- Los puntos son tierra de cultivo a unos km del centro de cada ciudad, revisada en imagen satelital. Los centros (Celaya 20.52, -100.81; Querétaro 20.59, -100.39; Salamanca 20.57, -101.19) son zona urbana y SoilGrids no da suelo ahí.
 
 ## GET /api/clima?lat=20.47&lon=-100.81
 

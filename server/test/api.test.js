@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { createApp } from '../app.js';
-import { FIXTURE_POINTS } from '../lib/seasons.js';
+import { EXAMPLE_POINTS, FIXTURE_POINTS } from '../lib/seasons.js';
 
 // These tests never touch the network: OFFLINE=1 makes the server use cache and fixtures only.
 let server;
@@ -27,10 +27,16 @@ test('GET /api/health', async () => {
   assert.deepEqual(body, { ok: true });
 });
 
-test('GET /api/ejemplos lists exactly the fixture points (the client buttons)', async () => {
+// Every button must work offline: the tests below check clima and suelo for all FIXTURE_POINTS.
+test('GET /api/ejemplos lists the client buttons, all of them with fixtures', async () => {
   const { status, body } = await get('/api/ejemplos');
   assert.equal(status, 200);
-  assert.deepEqual(body, FIXTURE_POINTS);
+  assert.deepEqual(body, EXAMPLE_POINTS);
+  for (const point of body) {
+    assert.ok(FIXTURE_POINTS.some((f) => f.lat === point.lat && f.lon === point.lon), point.nombre);
+    assert.equal(typeof point.id, 'string');
+    assert.equal(typeof point.boton, 'string');
+  }
 });
 
 test('GET /api/clima works offline for every fixture point', async () => {
