@@ -2,6 +2,7 @@ import express from 'express';
 import climaRouter from './routes/clima.js';
 import sueloRouter from './routes/suelo.js';
 import recomendarRouter from './routes/recomendar.js';
+import terrenoRouter from './routes/terreno.js';
 import { HttpError } from './lib/errors.js';
 
 // All routes are mounted here so nobody else needs to edit this file.
@@ -13,6 +14,7 @@ export function createApp() {
   app.use('/api/clima', climaRouter);
   app.use('/api/suelo', sueloRouter);
   app.use('/api/recomendar', recomendarRouter);
+  app.use('/api/terreno', terrenoRouter);
 
   app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Esa ruta no existe.' });

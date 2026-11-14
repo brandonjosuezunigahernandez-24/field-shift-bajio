@@ -51,6 +51,15 @@ test('GET /api/suelo works offline for the demo point', async () => {
   assert.match(body.fuente, /SoilGrids/);
 });
 
+test('GET /api/terreno works offline for the demo point', async () => {
+  const { status, body } = await get(`/api/terreno?${demoQuery}`);
+  assert.equal(status, 200);
+  assert.ok(['cache', 'fixture'].includes(body.origen));
+  assert.equal(body.alturas.length, body.tam * body.tam);
+  assert.equal(body.lado_m, 1000);
+  assert.match(body.fuente, /SRTM/);
+});
+
 test('bad coordinates answer 400 with a message in Spanish', async () => {
   for (const path of ['/api/clima?lat=abc&lon=1', '/api/suelo', '/api/clima?lat=95&lon=0']) {
     const { status, body } = await get(path);
