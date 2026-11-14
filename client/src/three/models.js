@@ -1,15 +1,18 @@
 import { useGLTF } from '@react-three/drei';
 import { useMemo } from 'react';
-import { MODELS_URL, modelGeometries } from './mergeModels.js';
+import { SCENERY_URL, modelGeometries, modelUrl } from './mergeModels.js';
 
 export { CROP_IDS } from '../crops.js';
-export { MODELS_URL };
 
-// { maiz: BufferGeometry, ..., casa, arbol }. The .glb is ~120 KB and cached by useGLTF.
+const urlsFor = (cropIds) => [...new Set(cropIds)].sort().map(modelUrl).concat(SCENERY_URL);
+
+// { maiz: BufferGeometry, maiz_lp, ..., casa, arbol } for the given crops (each file is cached).
 // Draco/Meshopt are off: they would download a decoder from a CDN, and the demo must work offline.
-export function useModelGeometries() {
-  const { scene } = useGLTF(MODELS_URL, false, false);
-  return useMemo(() => modelGeometries(scene), [scene]);
+export function useModelGeometries(cropIds) {
+  const key = [...new Set(cropIds)].sort().join(',');
+  const urls = useMemo(() => urlsFor(key.split(',')), [key]);
+  const gltfs = useGLTF(urls, false, false);
+  return useMemo(() => Object.assign({}, ...gltfs.map((gltf) => modelGeometries(gltf.scene))), [gltfs]);
 }
 
-export const preloadModels = () => useGLTF.preload(MODELS_URL, false, false);
+export const preloadModels = (cropIds) => useGLTF.preload(urlsFor(cropIds), false, false);

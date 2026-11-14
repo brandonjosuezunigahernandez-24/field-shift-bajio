@@ -1,7 +1,8 @@
 """Low-poly models for the 3D view of Field Shift Bajío.
 
-Builds the 7 crops of server/data/cultivos.json plus a farmhouse and a mesquite tree, and
-exports them as ONE .glb (one named mesh per model) to client/public/models/bajio.glb.
+Builds 22 crops plus a farmhouse and a mesquite tree, and exports ONE .glb PER CROP to
+client/public/models/<id>.glb (with "<id>" and "<id>_lp" inside) and escenario.glb (house and
+tree). One file per crop: the web app downloads only the crops the farmer actually uses.
 
 Run from the repo root (Blender 4.2+ or 5.x, no GUI needed):
     blender --background --factory-startup --python assets/blender/build_models.py
@@ -34,7 +35,7 @@ import bpy
 from mathutils import Vector
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
-OUT = os.path.join(REPO, "client", "public", "models", "bajio.glb")
+OUT_DIR = os.path.join(REPO, "client", "public", "models")
 
 rng = random.Random(2026)  # fixed seed: the same script always gives the same file
 
@@ -64,6 +65,27 @@ C = {
     "blade_husk": (0.50, 0.66, 0.28),
     "silk": (0.86, 0.72, 0.44),
     "glass": (0.12, 0.16, 0.18),
+    # the 15 crops added later
+    "oat": (0.82, 0.78, 0.50),
+    "rice": (0.85, 0.72, 0.30),
+    "amaranth": (0.62, 0.08, 0.22),
+    "petal_yellow": (0.95, 0.74, 0.08),
+    "disc": (0.25, 0.15, 0.07),
+    "pumpkin": (0.90, 0.45, 0.08),
+    "tuber": (0.72, 0.58, 0.36),
+    "peanut": (0.75, 0.60, 0.38),
+    "bulb": (0.86, 0.78, 0.70),
+    "tomato": (0.80, 0.10, 0.06),
+    "chile_red": (0.75, 0.08, 0.05),
+    "chile_green": (0.15, 0.40, 0.10),
+    "berry": (0.82, 0.08, 0.10),
+    "flower_white": (0.95, 0.95, 0.90),
+    "flower_purple": (0.50, 0.30, 0.70),
+    "flower_yellow": (0.95, 0.80, 0.15),
+    "agave": (0.33, 0.50, 0.50),
+    "nopal": (0.30, 0.50, 0.24),
+    "tuna": (0.70, 0.10, 0.30),
+    "avocado": (0.10, 0.22, 0.08),
 }
 
 # Which procedural pattern each part gets.
@@ -76,6 +98,12 @@ KIND = {
     "wall": "plaster", "roof": "tiles", "wood": "woodgrain", "bark": "bark",
     "blade": "leafuv", "blade_dark": "leafuv", "blade_blue": "leafuv", "blade_husk": "leafuv",
     "silk": "fiber", "glass": "plaster",
+    "oat": "kernels", "rice": "kernels", "amaranth": "kernels", "disc": "kernels", "berry": "kernels",
+    "petal_yellow": "leafuv", "agave": "leafuv",
+    "nopal": "florets",
+    "pumpkin": "fruit", "tuber": "fruit", "peanut": "fruit", "bulb": "fruit", "tomato": "fruit",
+    "chile_red": "fruit", "chile_green": "fruit", "flower_white": "fruit", "flower_purple": "fruit",
+    "flower_yellow": "fruit", "tuna": "fruit", "avocado": "fruit",
 }
 TEXTURE_SIZE = 512
 _materials = {}
@@ -198,6 +226,9 @@ def material(name):
     elif kind == "woodgrain":  # planks of the door and windows
         fac = _mix(nodes, links, wave(6, 8, "RINGS"), noise(40), 0.75)
         color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.7)), (0.5, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.25))])
+    elif kind == "fruit":  # smooth skin with soft blotches
+        fac = _mix(nodes, links, noise(18, 3, 0.5), noise(70, 2, 0.5), 0.7)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.78)), (0.5, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.15))])
     elif kind == "leafuv":
         uv = nodes.new("ShaderNodeUVMap")
         uv.uv_map = "LeafUV"  # u along the blade (0 base, 1 tip), v across (0.5 = midrib)
@@ -569,13 +600,14 @@ def ribbon(B, color, origin, yaw, length, width, rise=1.2, droop=1.0, segs=10, c
                 loop[uvl].uv = uv_of[loop.vert]
 
 
-def blob_at(B, color, center, radius, scale=(1, 1, 1), subdiv=1):
+def blob_at(B, color, center, radius, scale=(1, 1, 1), subdiv=1, yaw=0.0):
+    """Ico sphere, scaled per axis, then turned by `yaw` around Z, at `center`."""
     bm = B.bm(color)
-    from mathutils import Matrix
-    m = Matrix.Translation(Vector(center)) @ Matrix.Diagonal((*scale, 1.0)) if False else None
     geom = bmesh.ops.create_icosphere(bm, subdivisions=subdiv, radius=radius)
+    cy, sy = math.cos(yaw), math.sin(yaw)
     for v in geom["verts"]:
-        v.co = Vector((v.co.x * scale[0], v.co.y * scale[1], v.co.z * scale[2])) + Vector(center)
+        x, y, z = v.co.x * scale[0], v.co.y * scale[1], v.co.z * scale[2]
+        v.co = Vector((x * cy - y * sy, x * sy + y * cy, z)) + Vector(center)
 
 
 def stalk_with_nodes(B, height, r_base, r_top, nodes, sides=8):
@@ -807,12 +839,357 @@ def farmhouse_detailed():
     return join("casa", parts)
 
 
+# --- the 15 crops added later (same helpers, same level of detail) ---------------------------
+
+OVAL = lambda t: math.sin(math.pi * min(1.0, 0.05 + t)) ** 0.75
+SWORD = lambda t: (1 - t) ** 0.6 * 0.9 + 0.05
+
+
+def leaflets(B, color, at, yaw, pairs, length, width, spacing, terminal=True, wave=0.0):
+    """Compound leaf: `pairs` pairs of leaflets along a midrib, plus an optional terminal one."""
+    for m in range(pairs):
+        q = (at[0] + math.cos(yaw) * spacing * m, at[1] + math.sin(yaw) * spacing * m, at[2] + 0.004 * m)
+        for sgn in (-1, 1):
+            ribbon(B, color, q, yaw + sgn * 1.15, length, width, rise=0.5, droop=0.8, segs=4, crease=0.12,
+                   width_profile=OVAL, wave=wave)
+    if terminal:
+        q = (at[0] + math.cos(yaw) * spacing * pairs, at[1] + math.sin(yaw) * spacing * pairs, at[2] + 0.004 * pairs)
+        ribbon(B, color, q, yaw, length * 1.15, width, rise=0.4, droop=0.8, segs=4, crease=0.12, width_profile=OVAL, wave=wave)
+
+
+def oat_detailed():
+    B = Builder()
+    for c in range(8):
+        a = c * math.tau / 8 + rng.uniform(-0.3, 0.3)
+        lean = rng.uniform(0.05, 0.15)
+        h = rng.uniform(0.9, 1.05)
+        top = (math.cos(a) * h * lean, math.sin(a) * h * lean, h)
+        tube(B, "stalk", [(0, 0, 0)] + [(top[0] * t, top[1] * t, top[2] * t) for t in (0.4, 0.75, 1.0)], [0.006, 0.005, 0.004, 0.003], 5)
+        for k in range(2):
+            z = 0.15 + k * 0.22
+            ribbon(B, "blade", (top[0] * z / h, top[1] * z / h, z), a + (k - 0.5) * 2.0, 0.3, 0.02, rise=1.5, droop=1.9, segs=7)
+        # open panicle: spikelets hanging from thin drooping branches
+        for j in range(9):
+            z0 = h - 0.02 + j * 0.022
+            ba = a + j * 2.4
+            pts = curve((top[0], top[1], z0), ba, 0.07 + rng.uniform(0, 0.03), rise=0.6, droop=2.2, n=3)
+            tube(B, "oat", pts, [0.0012, 0.001, 0.001, 0.0008], 3)
+            blob_at(B, "oat", (pts[-1][0], pts[-1][1], pts[-1][2] - 0.012), 0.007, scale=(1, 1, 2.2), subdiv=0)
+        tube(B, "stalk", [top, (top[0], top[1], h + 0.2)], [0.003, 0.001], 4)
+    return B.finish("avena")
+
+
+def rice_detailed():
+    B = Builder()
+    for c in range(14):
+        a = c * math.tau / 14 + rng.uniform(-0.3, 0.3)
+        lean = rng.uniform(0.06, 0.22)
+        h = rng.uniform(0.75, 0.95)
+        top = (math.cos(a) * h * lean, math.sin(a) * h * lean, h)
+        tube(B, "stalk", [(0, 0, 0)] + [(top[0] * t, top[1] * t, top[2] * t) for t in (0.5, 1.0)], [0.005, 0.004, 0.003], 4)
+        ribbon(B, "blade", (top[0] * 0.3, top[1] * 0.3, h * 0.3), a + rng.uniform(-1, 1), 0.4, 0.014, rise=2.2, droop=1.6, segs=7)
+        if c % 2 == 0:  # a heavy, drooping panicle full of grain
+            pts = curve(top, a, 0.2, rise=0.9, droop=2.4, n=6)
+            tube(B, "rice", pts, [0.0025, 0.0022, 0.002, 0.0018, 0.0015, 0.001, 0.0005], 3)
+            for p in pts[1:]:
+                for _ in range(2):
+                    blob_at(B, "rice", (p[0] + rng.uniform(-0.008, 0.008), p[1] + rng.uniform(-0.008, 0.008), p[2] - 0.006), 0.006,
+                            scale=(1, 1, 1.8), subdiv=0)
+    return B.finish("arroz")
+
+
+def amaranth_detailed():
+    B = Builder()
+    H = 1.5
+    tube(B, "stalk", [(0, 0, 0), (0.01, 0, 0.5), (0, 0.01, 1.0), (0, 0, H)], [0.028, 0.024, 0.02, 0.014], 8)
+    for i in range(13):
+        yaw = i * 2.4
+        z = 0.2 + i * 0.085
+        pet = (math.cos(yaw) * 0.07, math.sin(yaw) * 0.07, z + 0.04)
+        tube(B, "stalk", [(0, 0, z), pet], [0.004, 0.003], 4)
+        ribbon(B, "blade", pet, yaw, 0.2 - i * 0.006, 0.1, rise=0.5, droop=1.1, segs=7, crease=0.15, width_profile=OVAL, wave=0.012)
+    # the plume: a dense magenta spike with side plumes that hang
+    for k in range(46):
+        u = k / 45
+        rr = 0.055 * (1 - u) ** 0.7 * math.sqrt(rng.random())
+        a = rng.uniform(0, math.tau)
+        blob_at(B, "amaranth", (math.cos(a) * rr, math.sin(a) * rr, H - 0.05 + u * 0.5), 0.02 + rng.uniform(0, 0.008), scale=(1, 1, 1.5), subdiv=0)
+    for k in range(6):
+        pts = curve((0, 0, H - 0.05 + k * 0.03), k * 1.9, 0.22, rise=0.8, droop=2.0, n=5)
+        for p in pts[1:]:
+            blob_at(B, "amaranth", p, 0.017, scale=(1, 1, 1.4), subdiv=0)
+    return B.finish("amaranto")
+
+
+def sunflower_detailed():
+    B = Builder()
+    H = 1.75
+    tube(B, "stalk", [(0, 0, 0), (0, 0.01, 0.7), (0.01, 0, 1.3), (0.03, 0, H)], [0.032, 0.028, 0.022, 0.018], 8)
+    for i in range(12):
+        yaw = i * 2.4
+        z = 0.25 + i * 0.11
+        pet = (math.cos(yaw) * 0.1, math.sin(yaw) * 0.1, z + 0.05)
+        tube(B, "stalk", [(0, 0, z), pet], [0.005, 0.004], 4)
+        ribbon(B, "blade", pet, yaw, 0.26 - i * 0.008, 0.2, rise=0.4, droop=1.2, segs=8, crease=0.14, width_profile=OVAL, wave=0.015)
+    body = B.finish("girasol_cuerpo")
+    # the head is built facing up, then tilted to face the sun
+    F = Builder()
+    blob_at(F, "disc", (0, 0, 0), 0.13, scale=(1, 1, 0.22), subdiv=2)
+    blob_at(F, "blade", (0, 0, -0.03), 0.15, scale=(1, 1, 0.25), subdiv=1)  # green back
+    for k in range(26):
+        a = k * math.tau / 26
+        ribbon(F, "petal_yellow", (math.cos(a) * 0.11, math.sin(a) * 0.11, 0.0), a, 0.13, 0.04, rise=0.35, droop=0.5, segs=4, crease=0.2,
+               width_profile=OVAL)
+    head = F.finish("girasol_cabeza")
+    head.rotation_euler = (0, math.radians(62), 0)
+    head.location = (0.07, 0, H + 0.02)
+    return join("girasol", [body, head], smooth=True)
+
+
+def peanut_detailed():
+    B = Builder()
+    for k in range(7):
+        a = k * math.tau / 7 + rng.uniform(-0.3, 0.3)
+        pts = curve((0, 0, 0.02), a, 0.24, rise=1.2, droop=1.1, n=4)
+        tube(B, "stalk", pts, [0.005, 0.0045, 0.004, 0.003, 0.002], 4)
+        for p in pts[1:]:
+            ya = a + rng.uniform(-1, 1)
+            pet = (p[0] + math.cos(ya) * 0.04, p[1] + math.sin(ya) * 0.04, p[2] + 0.03)
+            tube(B, "stalk", [p, pet], [0.002, 0.0015], 3)
+            leaflets(B, "blade_dark", pet, ya, 2, 0.04, 0.026, 0.022, terminal=False)
+        blob_at(B, "flower_yellow", (pts[2][0], pts[2][1], pts[2][2] + 0.015), 0.008, subdiv=0)
+    # pods at ground level, where the pegs go into the soil
+    for k in range(6):
+        a = rng.uniform(0, math.tau)
+        rr = rng.uniform(0.05, 0.12)
+        c = (math.cos(a) * rr, math.sin(a) * rr, 0.012)
+        tube(B, "stalk", [(c[0] * 0.5, c[1] * 0.5, 0.06), c], [0.0015, 0.0015], 3)
+        blob_at(B, "peanut", c, 0.014, scale=(1, 1, 0.9), subdiv=1, yaw=a)
+        blob_at(B, "peanut", (c[0] + math.cos(a) * 0.02, c[1] + math.sin(a) * 0.02, 0.012), 0.013, subdiv=1)
+    return B.finish("cacahuate")
+
+
+def squash_detailed():
+    B = Builder()
+    for k in range(4):
+        a = k * math.tau / 4 + rng.uniform(-0.4, 0.4)
+        pts = curve((0, 0, 0.03), a, 1.0, rise=0.12, droop=0.1, n=7)
+        pts = [(p[0] + math.sin(i * 1.3) * 0.05, p[1] + math.cos(i * 1.1) * 0.05, max(0.02, p[2])) for i, p in enumerate(pts)]
+        tube(B, "stalk", pts, [0.012, 0.011, 0.01, 0.009, 0.008, 0.007, 0.006, 0.004], 6)
+        for i, p in enumerate(pts[1:]):
+            ya = a + (1 if i % 2 else -1) * 1.2 + rng.uniform(-0.3, 0.3)
+            top = (p[0] + math.cos(ya) * 0.05, p[1] + math.sin(ya) * 0.05, 0.2 + rng.uniform(-0.04, 0.05))
+            tube(B, "stalk", [p, top], [0.006, 0.005], 5)
+            ribbon(B, "blade_dark", top, ya, 0.2, 0.24, rise=0.3, droop=0.9, segs=7, crease=0.16, width_profile=OVAL, wave=0.03)
+    for c, r, col in (((0.35, 0.25, 0.1), 0.14, "pumpkin"), ((-0.4, -0.2, 0.09), 0.12, "pumpkin"), ((0.1, -0.5, 0.06), 0.08, "chile_green")):
+        blob_at(B, col, c, r, scale=(1, 1, 0.72), subdiv=2)
+        tube(B, "stalk", [(c[0], c[1], c[2] + r * 0.7), (c[0] + 0.02, c[1], c[2] + r * 0.7 + 0.04)], [0.012, 0.008], 5)
+    for c in ((0.2, 0.55, 0.16), (-0.55, 0.3, 0.14)):  # big yellow flowers
+        for k in range(5):
+            ribbon(B, "petal_yellow", c, k * math.tau / 5, 0.07, 0.05, rise=1.6, droop=1.2, segs=4, crease=0.2, width_profile=OVAL)
+    return B.finish("calabaza")
+
+
+def potato_detailed():
+    B = Builder()
+    for k in range(5):
+        a = k * math.tau / 5 + rng.uniform(-0.3, 0.3)
+        pts = curve((0, 0, 0.02), a, 0.5, rise=2.2, droop=0.9, n=5)
+        tube(B, "stalk", pts, [0.009, 0.008, 0.007, 0.006, 0.005, 0.003], 5)
+        for i, p in enumerate(pts[1:]):
+            ya = a + (1 if i % 2 else -1) * 1.0 + rng.uniform(-0.3, 0.3)
+            leaflets(B, "blade_dark", p, ya, 2, 0.065, 0.042, 0.04, wave=0.01)
+        tip = pts[-1]
+        for f in range(4):
+            fa = f * math.tau / 4
+            blob_at(B, "flower_white", (tip[0] + math.cos(fa) * 0.02, tip[1] + math.sin(fa) * 0.02, tip[2] + 0.03), 0.012, scale=(1, 1, 0.5), subdiv=0)
+        blob_at(B, "flower_yellow", (tip[0], tip[1], tip[2] + 0.035), 0.006, subdiv=0)
+    for k in range(5):  # tubers, half out of the hill
+        a = rng.uniform(0, math.tau)
+        rr = rng.uniform(0.04, 0.12)
+        blob_at(B, "tuber", (math.cos(a) * rr, math.sin(a) * rr, 0.012), 0.04, scale=(1.3, 0.9, 0.8), subdiv=1, yaw=a)
+    return B.finish("papa")
+
+
+def onion_detailed():
+    B = Builder()
+    blob_at(B, "bulb", (0, 0, 0.04), 0.05, scale=(1, 1, 0.95), subdiv=2)
+    tube(B, "bulb", [(0, 0, 0.07), (0, 0, 0.13)], [0.022, 0.014], 7)  # neck
+    for k in range(9):  # hollow tubular leaves
+        a = k * math.tau / 9 + rng.uniform(-0.2, 0.2)
+        pts = curve((0, 0, 0.11), a, 0.2 + rng.uniform(0, 0.06), rise=4.0 + rng.uniform(0, 1.5), droop=1.5 + rng.uniform(0, 1.5), n=6)
+        tube(B, "blade_blue", pts, [0.009, 0.0085, 0.008, 0.007, 0.0055, 0.004, 0.0008], 6)
+    for k in range(8):  # roots
+        a = k * math.tau / 8
+        tube(B, "silk", [(0, 0, 0.01), (math.cos(a) * 0.04, math.sin(a) * 0.04, -0.005)], [0.0015, 0.0006], 3)
+    return B.finish("cebolla")
+
+
+def tomato_detailed():
+    B = Builder()
+    tube(B, "wood", [(0.04, 0, 0), (0.04, 0, 1.35)], [0.012, 0.011], 5)  # stake
+    stem = [(0, 0, 0), (0.02, 0.02, 0.35), (-0.01, 0.01, 0.7), (0.01, -0.01, 1.0), (0, 0, 1.2)]
+    tube(B, "stalk", stem, [0.012, 0.011, 0.009, 0.007, 0.005], 6)
+    for i in range(9):
+        t = (i + 1) / 10
+        z = 0.15 + t * 1.0
+        ya = i * 2.4
+        pet = (math.cos(ya) * 0.07, math.sin(ya) * 0.07, z + 0.03)
+        tube(B, "stalk", [(0, 0, z), pet], [0.004, 0.003], 4)
+        leaflets(B, "blade_dark", pet, ya, 2, 0.085, 0.05, 0.05, wave=0.03)
+    for z, ya in ((0.4, 0.5), (0.7, 2.8), (0.95, 4.6)):  # trusses of fruit
+        hub = (math.cos(ya) * 0.08, math.sin(ya) * 0.08, z - 0.03)
+        tube(B, "stalk", [(0, 0, z), hub], [0.003, 0.0025], 4)
+        for k in range(4):
+            c = (hub[0] + math.cos(ya + k * 1.6) * 0.035, hub[1] + math.sin(ya + k * 1.6) * 0.035, hub[2] - 0.03 - k * 0.012)
+            blob_at(B, "tomato" if (k or z < 0.9) else "chile_green", c, 0.03 - k * 0.002, scale=(1, 1, 0.9), subdiv=1)
+    return B.finish("jitomate")
+
+
+def chile_detailed():
+    B = Builder()
+    tube(B, "stalk", [(0, 0, 0), (0, 0, 0.25)], [0.011, 0.009], 6)
+    tips = []
+    for k in range(4):
+        a = k * math.tau / 4 + 0.4
+        pts = curve((0, 0, 0.25), a, 0.3, rise=1.6, droop=0.6, n=4)
+        tube(B, "stalk", pts, [0.007, 0.006, 0.005, 0.004, 0.003], 5)
+        for i, p in enumerate(pts[1:]):
+            for sgn in (-1, 1):
+                ribbon(B, "blade_dark", p, a + sgn * 1.2 + rng.uniform(-0.3, 0.3), 0.085, 0.036, rise=0.5, droop=1.0, segs=5,
+                       crease=0.14, width_profile=OVAL)
+            tips.append(p)
+    for i, p in enumerate(tips[::2]):  # chiles hang down, some already red
+        a = rng.uniform(0, math.tau)
+        pts = [(p[0] + math.cos(a) * 0.006 * j, p[1] + math.sin(a) * 0.006 * j, p[2] - 0.022 * j) for j in range(6)]
+        tube(B, "chile_red" if i % 3 else "chile_green", pts, [0.004, 0.009, 0.0085, 0.007, 0.004, 0.0008], 6)
+    return B.finish("chile")
+
+
+def strawberry_detailed():
+    B = Builder()
+    for k in range(10):  # rosette of trifoliate leaves
+        a = k * math.tau / 10 + rng.uniform(-0.2, 0.2)
+        pts = curve((0, 0, 0.02), a, 0.1 + rng.uniform(0, 0.04), rise=1.8, droop=1.3, n=3)
+        tube(B, "stalk", pts, [0.003, 0.0028, 0.0025, 0.002], 4)
+        for lf in (-1, 0, 1):
+            ribbon(B, "blade_dark", pts[-1], a + lf * 1.1, 0.055, 0.052, rise=0.5, droop=0.8, segs=5, crease=0.14, width_profile=OVAL, wave=0.025)
+    for k in range(7):  # berries rest near the ground
+        a = k * 0.9 + 0.3
+        rr = 0.1 + rng.uniform(0, 0.04)
+        c = (math.cos(a) * rr, math.sin(a) * rr, 0.03)
+        tube(B, "stalk", [(0, 0, 0.05), (c[0] * 0.6, c[1] * 0.6, 0.08), (c[0], c[1], 0.05)], [0.002, 0.002, 0.0015], 3)
+        blob_at(B, "berry", c, 0.017, scale=(1, 1, 1.25), subdiv=1)
+        blob_at(B, "blade_dark", (c[0], c[1], 0.05), 0.011, scale=(1, 1, 0.3), subdiv=0)  # calyx
+    for k in range(4):  # flowers
+        a = k * 1.7 + 1.0
+        c = (math.cos(a) * 0.07, math.sin(a) * 0.07, 0.11)
+        tube(B, "stalk", [(0, 0, 0.04), c], [0.002, 0.0015], 3)
+        blob_at(B, "flower_white", c, 0.014, scale=(1, 1, 0.35), subdiv=0)
+        blob_at(B, "flower_yellow", (c[0], c[1], c[2] + 0.004), 0.006, subdiv=0)
+    return B.finish("fresa")
+
+
+def alfalfa_detailed():
+    B = Builder()
+    for k in range(11):
+        a = k * math.tau / 11 + rng.uniform(-0.3, 0.3)
+        pts = curve((0, 0, 0.01), a, 0.12 + rng.uniform(0, 0.08), rise=4.5, droop=1.0, n=5)
+        tube(B, "stalk", pts, [0.004, 0.0038, 0.0035, 0.003, 0.0025, 0.002], 4)
+        for i, p in enumerate(pts[1:]):
+            ya = a + i * 2.1
+            for lf in (-1, 0, 1):
+                ribbon(B, "blade", p, ya + lf * 0.9, 0.032, 0.016, rise=0.8, droop=0.8, segs=3, crease=0.1, width_profile=OVAL)
+        tip = pts[-1]
+        for f in range(5):  # purple flower cluster
+            blob_at(B, "flower_purple", (tip[0] + rng.uniform(-0.01, 0.01), tip[1] + rng.uniform(-0.01, 0.01), tip[2] + 0.008 * f), 0.008, subdiv=0)
+    return B.finish("alfalfa")
+
+
+def agave_detailed():
+    B = Builder()
+    blob_at(B, "agave", (0, 0, 0.12), 0.16, scale=(1, 1, 0.9), subdiv=1)  # the heart (piña)
+    for k in range(26):
+        ring = k / 25  # 0 = innermost and upright, 1 = outermost and spreading
+        a = k * 2.4
+        ribbon(B, "agave", (math.cos(a) * 0.08, math.sin(a) * 0.08, 0.14 + (1 - ring) * 0.12), a,
+               0.55 + ring * 0.35, 0.14, rise=3.2 - ring * 2.6, droop=0.5 + ring * 0.5, segs=6, crease=0.38, width_profile=SWORD)
+    return B.finish("agave")
+
+
+def nopal_detailed():
+    B = Builder()
+    pads = [((0, 0, 0.26), 0.2, 0.3), ((0.13, 0.05, 0.66), 0.17, 1.1), ((-0.14, -0.03, 0.62), 0.15, 2.4),
+            ((0.2, 0.12, 1.02), 0.14, 0.2), ((0.03, 0.02, 1.05), 0.13, 1.9), ((-0.22, -0.08, 0.95), 0.13, 2.9),
+            ((0.26, 0.15, 1.33), 0.11, 1.3)]
+    for c, r, yaw in pads:
+        blob_at(B, "nopal", c, r, scale=(1, 0.17, 1.4), subdiv=2, yaw=yaw)
+    for c, r, yaw in pads[3:]:  # tunas along the top edge of the upper pads
+        for k in (-1, 0, 1):
+            off = k * r * 0.5
+            blob_at(B, "tuna", (c[0] + math.cos(yaw) * off, c[1] + math.sin(yaw) * off, c[2] + r * 1.35 - abs(k) * 0.03), 0.032,
+                    scale=(1, 1, 1.3), subdiv=1)
+    return B.finish("nopal")
+
+
+def avocado_detailed():
+    B = Builder()
+    trunk = [(0, 0, 0), (0.05, 0.03, 0.8), (0.0, 0.06, 1.6), (0.06, 0.0, 2.2)]
+    tube(B, "bark", trunk, [0.17, 0.14, 0.12, 0.1], 9)
+    ends = []
+    for k in range(6):
+        a = k * math.tau / 6 + rng.uniform(-0.3, 0.3)
+        pts = curve(trunk[-1], a, 1.3 + rng.uniform(-0.2, 0.3), rise=1.3, droop=0.5, n=4)
+        tube(B, "bark", pts, [0.08, 0.06, 0.045, 0.03, 0.02], 6)
+        ends.append(pts)
+    for pts in ends:  # dense, dark, rounded canopy
+        for p in pts[1:]:
+            for _ in range(3):
+                c = (p[0] + rng.uniform(-0.5, 0.5), p[1] + rng.uniform(-0.5, 0.5), p[2] + rng.uniform(0.0, 0.6))
+                blob_at(B, "leaf_dark", c, rng.uniform(0.4, 0.6), scale=(1, 1, 0.75), subdiv=1)
+    for k in range(10):  # avocados hang under the canopy
+        a = rng.uniform(0, math.tau)
+        rr = rng.uniform(0.5, 1.3)
+        c = (math.cos(a) * rr, math.sin(a) * rr, rng.uniform(1.9, 2.4))
+        tube(B, "stalk", [(c[0], c[1], c[2] + 0.22), (c[0], c[1], c[2] + 0.1)], [0.006, 0.005], 3)
+        blob_at(B, "avocado", c, 0.07, scale=(1, 1, 1.45), subdiv=1)
+    return B.finish("aguacate")
+
+
+def lowpoly_copy(obj, target=240):
+    """A light copy for the far view of the map: the detailed model, decimated."""
+    lp = obj.copy()
+    lp.data = obj.data.copy()
+    lp.name = lp.data.name = obj.name + "_lp"
+    bpy.context.collection.objects.link(lp)
+    tris = sum(len(p.vertices) - 2 for p in lp.data.polygons)
+    mod = lp.modifiers.new("decimar", "DECIMATE")
+    mod.ratio = min(1.0, target / max(tris, 1))
+    bpy.ops.object.select_all(action="DESELECT")
+    lp.select_set(True)
+    bpy.context.view_layer.objects.active = lp
+    bpy.ops.object.modifier_apply(modifier="decimar")
+    return lp
+
+
+def export_glb(objects, filename):
+    bpy.ops.object.select_all(action="DESELECT")
+    for obj in objects:
+        obj.select_set(True)
+    options = dict(filepath=os.path.join(OUT_DIR, filename), export_format="GLB", use_selection=True, export_apply=True, export_yup=True)
+    try:  # JPEG keeps the textures small (the option names changed across Blender versions)
+        bpy.ops.export_scene.gltf(**options, export_image_format="JPEG", export_jpeg_quality=82)
+    except TypeError:
+        bpy.ops.export_scene.gltf(**options, export_image_format="JPEG")
+
+
 def main():
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
+    os.makedirs(OUT_DIR, exist_ok=True)
 
-    # Low-poly versions for the satellite map (the first models, renamed "<id>_lp").
-    lowpoly = [
+    # The first 7 crops keep their hand-made low-poly versions ("<id>_lp").
+    handmade_lp = [
         tall_grass("maiz_lp", 2.0, 7, maize_head),
         tall_grass("sorgo_lp", 1.4, 6, sorghum_head),
         small_grain("trigo_lp", "wheat", 0.85, 7, nod=0.15),
@@ -821,8 +1198,9 @@ def main():
         bush("garbanzo_lp", "chickpea", 0.22, 0.45, chickpea_pods),
         broccoli(),
     ]
-    lowpoly[-1].name = lowpoly[-1].data.name = "brocoli_lp"
-    # Detailed versions for the 3D diorama.
+    handmade_lp[-1].name = handmade_lp[-1].data.name = "brocoli_lp"
+    lowpoly = {obj.name[:-3]: obj for obj in handmade_lp}
+
     detailed = [
         maize_detailed(),
         sorghum_detailed(),
@@ -831,29 +1209,44 @@ def main():
         bean_detailed(),
         chickpea_detailed(),
         broccoli_detailed(),
-        farmhouse_detailed(),
-        mesquite_detailed(),
+        oat_detailed(),
+        amaranth_detailed(),
+        sunflower_detailed(),
+        peanut_detailed(),
+        squash_detailed(),
+        potato_detailed(),
+        onion_detailed(),
+        tomato_detailed(),
+        chile_detailed(),
+        strawberry_detailed(),
+        rice_detailed(),
+        alfalfa_detailed(),
+        agave_detailed(),
+        nopal_detailed(),
+        avocado_detailed(),
     ]
-    # Leafy detailed crops get 1024 px so the veins along each blade stay visible.
-    sizes = {"maiz": 1024, "sorgo": 1024, "frijol": 1024, "brocoli": 1024}
-    for obj in lowpoly:
-        bake_texture(obj, 256)
+    # The 15 newer crops get their low-poly version by decimating the detailed one.
     for obj in detailed:
-        bake_texture(obj, sizes.get(obj.name, TEXTURE_SIZE))
+        if obj.name not in lowpoly:
+            lowpoly[obj.name] = lowpoly_copy(obj)
+    scenery = [farmhouse_detailed(), mesquite_detailed()]
 
-    # Spread them on X so the .blend/.glb is easy to inspect; the web view only reads geometry.
-    for i, obj in enumerate(detailed + lowpoly):
-        obj.location = (i * 3.0 if obj.name not in ("casa", "arbol") else 60 + i * 6.0, 0 if not obj.name.endswith("_lp") else 6, 0)
+    # Maize keeps 1024 px so the veins along each blade stay visible; the rest use 512.
+    for obj in detailed:
+        bake_texture(obj, 1024 if obj.name == "maiz" else TEXTURE_SIZE)
+    for obj in lowpoly.values():
+        bake_texture(obj, 256)
+    for obj in scenery:
+        bake_texture(obj, TEXTURE_SIZE)
+
+    for obj in detailed:
+        export_glb([obj, lowpoly[obj.name]], f"{obj.name}.glb")
         tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
-        print(f"  {obj.name:<12} {tris:>6} triangles")
-
-    os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    options = dict(filepath=OUT, export_format="GLB", use_selection=False, export_apply=True, export_yup=True)
-    try:  # JPEG keeps 9 textures small (the option names changed across Blender versions)
-        bpy.ops.export_scene.gltf(**options, export_image_format="JPEG", export_jpeg_quality=85)
-    except TypeError:
-        bpy.ops.export_scene.gltf(**options, export_image_format="JPEG")
-    print(f"OK {OUT}")
+        lp = sum(len(p.vertices) - 2 for p in lowpoly[obj.name].data.polygons)
+        size = os.path.getsize(os.path.join(OUT_DIR, f"{obj.name}.glb")) // 1024
+        print(f"  {obj.name:<10} {tris:>6} triangles, low-poly {lp:>4}, {size:>4} KB")
+    export_glb(scenery, "escenario.glb")
+    print(f"OK {OUT_DIR}")
 
 
 if __name__ == "__main__":

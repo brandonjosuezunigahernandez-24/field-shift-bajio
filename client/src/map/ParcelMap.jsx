@@ -70,6 +70,7 @@ export const VIEWS = {
 };
 const VIEW_PITCH = { aerea: 0, relieve: 55 };
 const RISE_MS = 1300; // a saved parcel comes up out of the ground in this time
+const DETAIL_ZOOM = 16.2; // from here in, the map draws the detailed crop models
 const TERRAIN = { source: 'relieve', exaggeration: 1.5 };
 
 function saved(key, options, fallback) {
@@ -294,6 +295,7 @@ export default function ParcelMap({
   const weatherIds = Object.fromEntries(WEATHER_OPTIONS.map((o) => [o.id, true]));
   const [weatherChoice, setWeatherChoice] = useState(() => saved('fieldshift.clima', weatherIds, 'auto'));
   const [onScreen, setOnScreen] = useState(true);
+  const [closeUp, setCloseUp] = useState(false); // zoomed in enough for the detailed crop models
   const shown = editingId === null ? parcelas : parcelas.filter((p) => p.id !== editingId);
   const yearNow = yearState(clima, year?.anio ?? null);
   // Weather drawn over the map: from the real year ("auto") or picked by hand (marked as example).
@@ -368,6 +370,7 @@ export default function ParcelMap({
     }
     // When relief tiles arrive (or the view changes), re-level the raised parcels if needed.
     map.on('idle', () => paintRaisedRef.current?.({ onlyIfGroundChanged: true }));
+    map.on('zoomend', () => setCloseUp(map.getZoom() >= DETAIL_ZOOM));
     map.on('load', () => {
       addParcelLayers(map);
       // Under the outline being drawn, so the drawing always shows on top of the plants.
@@ -479,6 +482,7 @@ export default function ParcelMap({
         plants: plantLook,
         weather: weather.id === 'apagado' ? null : weather,
         animate: animateWeather,
+        detail: closeUp,
       });
     };
     paintRaisedRef.current = paint;
@@ -502,7 +506,7 @@ export default function ParcelMap({
       cancelAnimationFrame(frame);
       fresh.forEach((id) => rise.set(id, 1)); // never leave a parcel half way up
     };
-  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, weather.id, weather.example, animateWeather]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, weather.id, weather.example, animateWeather, closeUp]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pause the weather animation while the map is scrolled out of view (no wasted battery).
   useEffect(() => {

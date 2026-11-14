@@ -230,7 +230,7 @@ function Rain({ intensity, animate }) {
 // Without sections the whole block is one field of `cultivo`.
 export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, sections = [], showRain, reducedMotion }) {
   const invalidate = useThree((s) => s.invalidate);
-  const models = useModelGeometries();
+  const models = useModelGeometries(sections.length ? sections.map((sec) => sec.cultivo) : [cultivo]);
   const groupRef = useRef();
   const cropMeshes = useRef(new Map()); // field key -> InstancedMesh
 
@@ -322,7 +322,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
   }, [outlines]);
 
   // Exaggerated like the relief, so a 0.5 m bean is still visible: 0.022 to 0.045 of the side.
-  const cropGeometry = (id) => models[id] ?? models.maiz;
+  const cropGeometry = (id) => models[id] ?? Object.values(models).find((g) => !/casa|arbol|_lp/.test(g.userData.name));
   const cropScale = (geometry) => {
     if (!geometry.boundingBox) geometry.computeBoundingBox();
     const realHeight = geometry.boundingBox.max.y - geometry.boundingBox.min.y;

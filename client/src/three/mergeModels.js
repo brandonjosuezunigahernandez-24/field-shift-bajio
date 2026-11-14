@@ -1,12 +1,13 @@
 import { BufferAttribute, DoubleSide, Matrix4, MeshStandardMaterial, SRGBColorSpace } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
-import { CROP_IDS } from '../crops.js';
 
 // Made in Blender by assets/blender/build_models.py. One named node per model, sizes in meters.
 // Shared by the 3D diorama (React Three Fiber) and the crops on the satellite map (plain three.js),
 // so it has no React in it.
-export const MODELS_URL = '/models/bajio.glb';
-export const SCENERY_IDS = ['casa', 'arbol'];
+// One file per crop ("<id>" detailed + "<id>_lp" low-poly inside) and one for the scenery (house,
+// tree): the app downloads only the crops the farmer actually uses (~120-350 KB each).
+export const modelUrl = (id) => `/models/${id}.glb`;
+export const SCENERY_URL = '/models/escenario.glb';
 
 // Each model may come as several meshes (one per material). For instancing we want ONE
 // geometry per model: bake each material color into a vertex color and merge. Since the models
@@ -72,15 +73,14 @@ export const lowPoly = (id) => `${id}_lp`;
 // Merged once per loaded file (a new parcel or diorama does not re-merge).
 const mergedByScene = new WeakMap();
 
-// glTF scene -> { maiz: BufferGeometry, ..., casa, arbol }
+// glTF scene of one file -> { maiz: BufferGeometry, maiz_lp: BufferGeometry } (or { casa, arbol })
 export function modelGeometries(scene) {
   if (!mergedByScene.has(scene)) {
     const out = {};
-    for (const id of [...CROP_IDS, ...CROP_IDS.map(lowPoly), ...SCENERY_IDS]) {
-      const node = scene.getObjectByName(id);
-      if (!node) continue;
-      out[id] = mergeModel(node);
-      out[id].userData.name = id;
+    for (const node of scene.children) {
+      if (!node.name) continue;
+      out[node.name] = mergeModel(node);
+      out[node.name].userData.name = node.name;
     }
     mergedByScene.set(scene, out);
   }
