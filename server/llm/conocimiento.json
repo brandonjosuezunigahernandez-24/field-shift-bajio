@@ -108,7 +108,11 @@
       "nutrientes"
     ],
     "texto": "Si el pH del suelo es muy alto o muy bajo, la planta no puede tomar bien algunos nutrientes.",
-    "verificado": false
+    "verificado": true,
+    "respaldo": [
+      "https://extension.psu.edu/soil-acidity-and-aglime",
+      "https://www.nrcs.usda.gov/sites/default/files/2022-11/pH%20-%20Soil%20Health%20Guide_0.pdf"
+    ]
   },
   {
     "id": "rastrojo",
@@ -119,8 +123,12 @@
       "evaporacion",
       "mulch"
     ],
-    "texto": "Dejar rastrojo sobre el suelo lo cubre, reduce la evaporación del agua y frena la erosión.",
-    "verificado": false
+    "texto": "Dejar rastrojo sobre el suelo lo cubre, reduce la evaporación del agua y frena la erosión; ayuda más donde llueve poco y el sol evapora mucho, y se necesita bastante rastrojo para notarlo.",
+    "verificado": true,
+    "respaldo": [
+      "https://www.fao.org/conservation-agriculture/impact/benefits-of-ca/en/",
+      "https://www.fao.org/4/y4690e/y4690e09.htm"
+    ]
   },
   {
     "id": "temporal-riego",
@@ -131,7 +139,8 @@
       "regar"
     ],
     "texto": "En temporal el cultivo depende solo de la lluvia, así que conviene elegir el cultivo y la fecha según la lluvia que suele caer en la parcela.",
-    "verificado": false
+    "verificado": "definición",
+    "nota": "Es una definición (temporal = depende de la lluvia), no se buscó fuente."
   },
   {
     "id": "invernadero",
@@ -142,8 +151,13 @@
       "cubierta",
       "frio"
     ],
-    "texto": "Un invernadero protege de heladas y de calor extremo y alarga la temporada de cultivo, pero necesita inversión y más cuidado.",
-    "verificado": false
+    "texto": "Un invernadero o túnel protege de heladas y alarga la temporada de cultivo, pero necesita inversión y buen manejo, por ejemplo ventilación para que no se sobrecaliente.",
+    "verificado": true,
+    "respaldo": [
+      "https://www.nrcs.usda.gov/plantmaterials/mipmcar9778.pdf",
+      "https://www.nrcs.usda.gov/state-offices/alaska/alaska-high-tunnels"
+    ],
+    "nota": "Las fuentes (NRCS) hablan de túneles tipo high tunnel de EE.UU.; el aumento de temporada citado es de unas dos semanas por lado, no se promete cifra."
   },
   {
     "id": "jitomate",
@@ -205,7 +219,11 @@
       "sembrado"
     ],
     "texto": "El maíz de temporal se siembra al empezar las lluvias para que tenga agua mientras crece.",
-    "verificado": false
+    "verificado": true,
+    "respaldo": [
+      "https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4146_4843_Agenda_T%C3%A9cnica_Tlaxcala_2017.pdf"
+    ],
+    "nota": "Regla general (sembrar al inicio de las lluvias, con humedad en el suelo) confirmada en agendas de INIFAP de otras regiones. No encontré fechas específicas del Bajío."
   },
   {
     "id": "plagas",
@@ -219,6 +237,11 @@
       "fumigacion"
     ],
     "texto": "Revisa tu parcela seguido para detectar las plagas a tiempo. Para saber qué producto usar y en qué cantidad, consulta a un técnico agrícola o a la oficina de sanidad vegetal de tu zona.",
-    "verificado": false
+    "verificado": true,
+    "respaldo": [
+      "https://www.gob.mx/senasica/articulos/senasica-refuerza-vigilancia-epidemiologica-vegetal?idiom=es",
+      "https://www.gob.mx/agricultura/prensa/mexico-referente-mundial-en-sanidad-vegetal-con-prestigio-en-la-produccion-y-exportacion-de-alimentos-agricultura?idiom=es"
+    ],
+    "nota": "SENASICA trabaja manejo integrado de plagas y monitoreo con Comités Estatales de Sanidad Vegetal en las 32 entidades. Fuentes sobre programas de cultivos específicos (cítricos, caña, vid); apoyo indirecto."
   }
 ]

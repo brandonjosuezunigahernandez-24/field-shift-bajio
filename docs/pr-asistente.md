@@ -25,7 +25,7 @@ No modifica `/api/clima`, `/api/suelo`, `/api/recomendar` ni `client/`. En `serv
 - [ ] **Dependencia nueva:** `@huggingface/transformers` en `server/` (voz). `CLAUDE.md` pide preguntar antes de cambiar el stack.
 - [ ] **Front:** chat, botón de micrófono (grabar, remuestrear a 16 kHz, enviar a `/api/voz`) y ejecutar las acciones de mapa (`zoom_parcela`, `zoom_region`, `resaltar_anios_secos`).
 - [ ] **Motor:** cuando exista `/api/recomendar`, conectarlo a la ficha (`server/llm/ficha.js`).
-- [ ] **Datos:** alguien revise las tarjetas de `server/llm/conocimiento.json` marcadas `verificado: false` o `"parcial"`.
+- [ ] **Datos:** alguien revise las tarjetas de `server/llm/conocimiento.json` marcadas `"parcial"` y abran los enlaces de `respaldo` (12 se verificaron con resúmenes de búsqueda, no con lectura completa).
 
 ## Riesgos
 - Gemma 4B se equivoca a veces (fuente mal citada, relleno); el verificador solo revisa números. Lista completa en `docs/limitaciones-chat.md`.

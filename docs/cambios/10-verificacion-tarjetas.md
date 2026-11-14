@@ -16,7 +16,12 @@
 | textura del suelo | 🟡 parcial | Arenoso drena rápido y guarda poco (FAO, Penn State). Que la arcilla guarde más agua está respaldado, pero con fuente débil. "Se encharca" es conocimiento general. |
 | jitomate | 🟡 parcial | INIFAP Zacatecas: trasplantar después del riesgo de heladas. Riego constante y drenaje: sin fuente directa. |
 | trigo y cebada | 🟡 parcial | Solo respaldado por datos del SIAP de Guanajuato 2023 (archivo parcial): sobre todo otoño-invierno con riego. |
-| pH, rastrojo, temporal/riego, invernadero, siembra del maíz, plagas | ❌ sin verificar | No se buscaron todavía. |
+| pH del suelo | ✅ verificada | Penn State y NRCS: con pH muy bajo o muy alto la planta no aprovecha bien varios nutrientes; el rango bueno para la mayoría de los cultivos es de 6 a 7.5. |
+| rastrojo | ✅ verificada y **ajustada** | FAO: la cobertura con residuos limita la pérdida de agua y la erosión, sobre todo donde llueve poco y evapora mucho, pero **hace falta bastante rastrojo**. |
+| invernadero | ✅ verificada y **ajustada** | NRCS: protege de heladas y alarga la temporada (unas 2 semanas por lado en túneles), con costo y manejo (ventilación). Las fuentes hablan de túneles de EE.UU., no de invernaderos del Bajío. |
+| siembra del maíz | ✅ verificada (regla general) | Agendas de INIFAP (otras regiones): sembrar al inicio de las lluvias y con humedad en el suelo. **No encontré fechas del Bajío.** |
+| plagas (ir al técnico) | ✅ verificada (apoyo indirecto) | SENASICA: manejo integrado de plagas, monitoreo y Comités Estatales de Sanidad Vegetal en los 32 estados. Las fuentes son de programas de cítricos, caña y vid. |
+| temporal vs riego | 🔵 definición | Es una definición; no se buscó fuente. |
 
 **Cómo probar:** `npm test` (47 pruebas); en `/probar` pregunta "garbanzo", "brócoli" o "materia orgánica" y compara con los enlaces de `respaldo` del JSON.
 
@@ -24,3 +29,6 @@
 - Los resultados de búsqueda son resúmenes; falta la lectura completa de los documentos.
 - Varios respaldos son en inglés y de otros países (USDA, Penn State); aplican en principio, pero no son específicos del Bajío.
 - No se encontró un dato de INIFAP específico para "clima fresco" del garbanzo ni temperaturas de almácigo de jitomate.
+
+## Resumen final (actualizado)
+**12 tarjetas verificadas, 3 parciales (textura, jitomate, trigo y cebada) y 1 definición.** Siguen siendo resúmenes de búsqueda: **alguien debe abrir los enlaces de `respaldo` antes de la demo**.

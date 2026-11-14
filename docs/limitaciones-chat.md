@@ -17,7 +17,7 @@ Responde en español con un modelo **local** (Gemma 4B por Ollama, sin internet 
 7. **NASA POWER y SoilGrids:** una sola parcela de prueba (Celaya) y sin internet solo funcionan los puntos ya guardados; una parcela nueva sin conexión da error 502. Si SoilGrids no tiene suelo (ciudades) lo dice, no inventa.
 8. **Pronóstico (Open-Meteo):** solo 7 días; no sirve para decidir qué sembrar. Gratis solo para uso **no comercial**; hay que citarlo. Se envía lat/lon (redondeados) a un servicio externo.
 9. **SIAP:** 2018–2024, 8 cultivos, **por estado** (Guanajuato y Querétaro), no por parcela ni municipio; el asistente no sabe en qué estado está la parcela y muestra ambos. "Siniestrada" = superficie dañada por clima u otras causas (no solo sequía). El precio es el medio rural del último año. Los años secos de NASA en Celaya no coinciden del todo con las pérdidas del SIAP.
-10. **Tarjetas de conocimiento (16):** 7 verificadas contra FAO/USDA/INIFAP/gob.mx, 3 parciales, **6 sin verificar** (pH, rastrojo, temporal/riego, invernadero, siembra del maíz, plagas). La verificación se hizo con **resúmenes de búsqueda**, no leyendo cada documento completo. El estado `verificado` **no se muestra** al agricultor.
+10. **Tarjetas de conocimiento (16):** 12 verificadas contra FAO/USDA/NRCS/INIFAP/SENASICA/gob.mx, 3 parciales (textura, jitomate, trigo y cebada) y 1 definición. En siembra del maíz no hay fechas del Bajío; en invernadero las fuentes son de túneles de EE.UU. La verificación se hizo con **resúmenes de búsqueda**, no leyendo cada documento completo. El estado `verificado` **no se muestra** al agricultor.
 11. **Wikipedia** solo da definiciones, no manejo del cultivo; requiere internet la primera vez (luego se guarda). Un dato de Wikipedia de otro país puede colarse. No hay búsqueda semántica: si la pregunta usa otras palabras que la base, no encuentra nada.
 12. **Cultivos sin tarjeta ni SIAP ni página útil** → "No tengo ese dato". Solo hay datos del SIAP para: maíz, sorgo, frijol, trigo, cebada, garbanzo, brócoli y jitomate.
 
@@ -35,7 +35,7 @@ Responde en español con un modelo **local** (Gemma 4B por Ollama, sin internet 
 
 ## Cómo reducir estas limitaciones (en orden)
 1. Micrófono, chat y acciones de mapa en el front; probar con voz real.
-2. Verificar las 6 tarjetas que faltan y abrir los enlaces de `respaldo`.
+2. Abrir los enlaces de `respaldo` y leer los documentos completos (la verificación fue con resúmenes de búsqueda).
 3. Correr el set de 15 preguntas con trampas y reportar el número.
 4. Conectar el motor de recomendaciones cuando exista.
 5. Memoria corta de conversación (últimas 2 preguntas).
