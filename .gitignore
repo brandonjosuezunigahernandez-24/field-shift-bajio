@@ -147,3 +147,7 @@ vite.config.ts.timestamp-*
 
 # Turbo Repo
 .turbo
+
+# Field Shift Bajío: caché en disco de las APIs (los fixtures sí se versionan)
+server/cache/*
+!server/cache/.gitkeep
