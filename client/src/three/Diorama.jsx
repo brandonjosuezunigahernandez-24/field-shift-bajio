@@ -25,14 +25,14 @@ import { reliefExaggeration, soilColors, yearState } from './parcelState.js';
 export const SIZE = 0.05; // globe radius = 1, so the 1 km square is shown ~300x bigger than real
 export const BASE = 0.12; // depth of the soil block below the lowest point
 const TOP = 0.1; // highest point after exaggeration (8% target + margin)
-const GRID = 22; // plants per side
+const GRID = 18; // plants per side (detailed models: ~1-3k triangles each)
 const FIELD = 0.84; // planted share of the side
 const RISE_SECONDS = 1.4;
 const MORPH_SECONDS = 0.9;
 const MAX_RAIN = 500;
 const TERRAIN_REPEAT = 10; // the soil texture tiles 10 times across the 1 km block
 const SKIRT_REPEAT = 6; // strata texture tiles per block side
-const MAX_PLANTS = 900;
+const MAX_PLANTS = 400; // per parcel, with the detailed models
 const OUTSIDE_GROUND = [0.55, 0.5, 0.36]; // land around a drawn parcel: brush and dirt roads
 const EDGE = 0.49; // keep plants and the outline on the block
 

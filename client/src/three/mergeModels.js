@@ -1,4 +1,4 @@
-import { BufferAttribute, Matrix4, MeshStandardMaterial, SRGBColorSpace } from 'three';
+import { BufferAttribute, DoubleSide, Matrix4, MeshStandardMaterial, SRGBColorSpace } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { CROP_IDS } from '../crops.js';
 
@@ -51,11 +51,23 @@ export function modelMaterial(geometry) {
   if (!materialByGeometry.has(geometry)) {
     materialByGeometry.set(
       geometry,
-      new MeshStandardMaterial({ vertexColors: true, map: geometry.userData.map ?? null, roughness: 0.85, flatShading: true })
+      new MeshStandardMaterial({
+        vertexColors: true,
+        map: geometry.userData.map ?? null,
+        roughness: 0.85,
+        // Leaf blades are single sheets: draw both faces. Detailed models have smooth curves;
+        // low-poly ones and the house keep their faceted look.
+        side: DoubleSide,
+        flatShading: /_lp$|^casa$/.test(geometry.userData.name ?? ''),
+      })
     );
   }
   return materialByGeometry.get(geometry);
 }
+
+// Each crop comes twice: "<id>" detailed (3D diorama, ~1-3k triangles) and "<id>_lp" low-poly
+// (satellite map, hundreds of tiny plants). See assets/blender/build_models.py.
+export const lowPoly = (id) => `${id}_lp`;
 
 // Merged once per loaded file (a new parcel or diorama does not re-merge).
 const mergedByScene = new WeakMap();
@@ -64,9 +76,11 @@ const mergedByScene = new WeakMap();
 export function modelGeometries(scene) {
   if (!mergedByScene.has(scene)) {
     const out = {};
-    for (const id of [...CROP_IDS, ...SCENERY_IDS]) {
+    for (const id of [...CROP_IDS, ...CROP_IDS.map(lowPoly), ...SCENERY_IDS]) {
       const node = scene.getObjectByName(id);
-      if (node) out[id] = mergeModel(node);
+      if (!node) continue;
+      out[id] = mergeModel(node);
+      out[id].userData.name = id;
     }
     mergedByScene.set(scene, out);
   }

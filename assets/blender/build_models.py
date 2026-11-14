@@ -10,6 +10,13 @@ Budget, so hundreds of instances stay smooth on a school laptop or a phone:
   - crops under ~300 triangles each, flat shaded;
   - sizes in real meters (Z up in Blender, Y up in the .glb); the web view scales them.
 
+Two versions of each crop:
+  - "<id>" DETAILED, for the 3D diorama: arching ribbon leaves with midrib and wavy edges, stalk
+    with nodes and sheaths, maize ear in its husk with silk, branched tassel, brace roots, seed
+    heads made of spikelets, trifoliate bean leaves, broccoli florets... (~700-2000 triangles).
+  - "<id>_lp" LOW-POLY (the first version), for the satellite map, where a plant is ~25 px tall
+    and hundreds of them are drawn: detail there would only cost frames.
+
 Textures: every part gets a procedural material (leaf veins, stalk fibers, kernels, florets,
 bark, adobe plaster, clay roof tiles, wood grain). Each finished model is then UV-unwrapped and
 its colors are BAKED (Cycles) into ONE image, exported as JPEG inside the .glb. One texture per
@@ -22,7 +29,9 @@ import os
 import random
 import sys
 
+import bmesh
 import bpy
+from mathutils import Vector
 
 REPO = os.path.abspath(os.path.join(os.path.dirname(__file__), "..", ".."))
 OUT = os.path.join(REPO, "client", "public", "models", "bajio.glb")
@@ -48,6 +57,13 @@ C = {
     "wood": (0.40, 0.25, 0.12),
     "canopy": (0.33, 0.45, 0.20),
     "bark": (0.34, 0.23, 0.14),
+    # detailed models: leaf blades with veins ALONG the leaf (they use the LeafUV map)
+    "blade": (0.13, 0.36, 0.13),  # the deep, slightly blue green of a healthy maize leaf
+    "blade_dark": (0.11, 0.33, 0.09),
+    "blade_blue": (0.24, 0.43, 0.36),
+    "blade_husk": (0.50, 0.66, 0.28),
+    "silk": (0.86, 0.72, 0.44),
+    "glass": (0.12, 0.16, 0.18),
 }
 
 # Which procedural pattern each part gets.
@@ -58,6 +74,8 @@ KIND = {
     "tassel": "kernels", "wheat": "kernels", "barley": "kernels", "grain_red": "kernels",
     "broccoli": "florets",
     "wall": "plaster", "roof": "tiles", "wood": "woodgrain", "bark": "bark",
+    "blade": "leafuv", "blade_dark": "leafuv", "blade_blue": "leafuv", "blade_husk": "leafuv",
+    "silk": "fiber", "glass": "plaster",
 }
 TEXTURE_SIZE = 512
 _materials = {}
@@ -92,6 +110,18 @@ def _mix(nodes, links, a, b, wa=0.5):
     links.new(b, m2.inputs[0])
     links.new(m1.outputs[0], m2.inputs[2])
     return m2.outputs[0]
+
+
+def _mix_color(nodes, links, fac, a, b):
+    """Color mix node, wired by socket identifiers (stable across Blender 4.x / 5.x)."""
+    m = nodes.new("ShaderNodeMix")
+    m.data_type = "RGBA"
+    ins = {sock.identifier: sock for sock in m.inputs}
+    outs = {sock.identifier: sock for sock in m.outputs}
+    links.new(fac, ins["Factor_Float"])
+    links.new(a, ins["A_Color"])
+    links.new(b, ins["B_Color"])
+    return outs["Result_Color"]
 
 
 def material(name):
@@ -168,6 +198,46 @@ def material(name):
     elif kind == "woodgrain":  # planks of the door and windows
         fac = _mix(nodes, links, wave(6, 8, "RINGS"), noise(40), 0.75)
         color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.7)), (0.5, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.25))])
+    elif kind == "leafuv":
+        uv = nodes.new("ShaderNodeUVMap")
+        uv.uv_map = "LeafUV"  # u along the blade (0 base, 1 tip), v across (0.5 = midrib)
+        sep = nodes.new("ShaderNodeSeparateXYZ")
+        links.new(uv.outputs["UV"], sep.inputs[0])
+        veins = nodes.new("ShaderNodeTexWave")
+        veins.wave_type = "BANDS"
+        veins.bands_direction = "Y"
+        veins.inputs["Scale"].default_value = 14.0
+        veins.inputs["Distortion"].default_value = 0.4
+        veins.inputs["Detail"].default_value = 1.0
+        links.new(uv.outputs["UV"], veins.inputs["Vector"])
+        fac = _mix(nodes, links, veins.outputs["Fac"], noise(22, 3, 0.5), 0.75)
+        blade = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.68)), (0.5, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.22))])
+        # midrib: a pale stripe where v is close to 0.5
+        off = nodes.new("ShaderNodeMath")
+        off.operation = "SUBTRACT"
+        off.inputs[1].default_value = 0.5
+        links.new(sep.outputs["Y"], off.inputs[0])
+        dist = nodes.new("ShaderNodeMath")
+        dist.operation = "ABSOLUTE"
+        links.new(off.outputs[0], dist.inputs[0])
+        rib = _ramp(nodes, links, dist.outputs[0], [(0.0, (0.82, 0.88, 0.62, 1.0)), (0.06, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.0))])
+        ribmask = nodes.new("ShaderNodeMath")
+        ribmask.operation = "LESS_THAN"
+        ribmask.inputs[1].default_value = 0.06
+        links.new(dist.outputs[0], ribmask.inputs[0])
+        with_rib = _mix_color(nodes, links, ribmask.outputs[0], blade, rib)
+        # the tip dries a little, as in a real field
+        tip = nodes.new("ShaderNodeMath")
+        tip.operation = "POWER"
+        tip.inputs[1].default_value = 4.0
+        links.new(sep.outputs["X"], tip.inputs[0])
+        tipk = nodes.new("ShaderNodeMath")
+        tipk.operation = "MULTIPLY"
+        tipk.inputs[1].default_value = 0.55
+        links.new(tip.outputs[0], tipk.inputs[0])
+        dry = nodes.new("ShaderNodeRGB")
+        dry.outputs[0].default_value = (0.70, 0.66, 0.36, 1.0)
+        color = _mix_color(nodes, links, tipk.outputs[0], with_rib, dry.outputs[0])
     else:  # bark: deep vertical cracks
         fac = _mix(nodes, links, wave(18, 10, direction="Z"), noise(10, 8, 0.7), 0.5)
         color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.45)), (0.45, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.25))])
@@ -183,6 +253,9 @@ def bake_texture(obj, size=TEXTURE_SIZE):
     bpy.ops.object.select_all(action="DESELECT")
     obj.select_set(True)
     bpy.context.view_layer.objects.active = obj
+    uv_layers = obj.data.uv_layers
+    bake_uv = uv_layers.new(name="BakeUV")
+    uv_layers.active = bake_uv
     bpy.ops.object.mode_set(mode="EDIT")
     bpy.ops.mesh.select_all(action="SELECT")
     bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.03)
@@ -205,6 +278,11 @@ def bake_texture(obj, size=TEXTURE_SIZE):
     for tree, node in added:
         tree.nodes.remove(node)
     image.pack()  # embedded in the .glb
+    # Keep only the baked UV map: the exported mesh has a single UV set for the texture.
+    for layer in [l for l in uv_layers if l.name != "BakeUV"]:
+        uv_layers.remove(layer)
+    uv_layers["BakeUV"].active = True
+    uv_layers["BakeUV"].active_render = True
 
     baked = bpy.data.materials.new(f"{obj.name}_material")
     try:
@@ -265,7 +343,7 @@ def leaf(color, length, width, height, yaw, droop=0.45):
     return box(color, (length, width, 0.006), (cx, cy, height), rot=(0, droop, yaw))
 
 
-def join(name, parts):
+def join(name, parts, smooth=False):
     bpy.ops.object.select_all(action="DESELECT")
     for part in parts:
         part.select_set(True)
@@ -275,7 +353,10 @@ def join(name, parts):
     obj.name = name
     obj.data.name = name
     bpy.ops.object.transform_apply(location=True, rotation=True, scale=True)
-    bpy.ops.object.shade_flat()
+    if smooth:
+        bpy.ops.object.shade_smooth()
+    else:
+        bpy.ops.object.shade_flat()
     return obj
 
 
@@ -381,29 +462,390 @@ def mesquite():
     return join("arbol", parts)
 
 
+
+# --- detailed models (bmesh) -----------------------------------------------------------------
+
+class Builder:
+    """Collects geometry per color in bmeshes; finish() makes one object per color and joins."""
+
+    def __init__(self):
+        self.bms = {}
+
+    def bm(self, color):
+        if color not in self.bms:
+            b = bmesh.new()
+            b.loops.layers.uv.new("LeafUV")
+            self.bms[color] = b
+        return self.bms[color]
+
+    def finish(self, name, smooth=True):
+        objs = []
+        for color, b in self.bms.items():
+            mesh = bpy.data.meshes.new(f"{name}_{color}")
+            b.normal_update()
+            b.to_mesh(mesh)
+            b.free()
+            obj = bpy.data.objects.new(f"{name}_{color}", mesh)
+            bpy.context.collection.objects.link(obj)
+            obj.data.materials.append(material(color))
+            objs.append(obj)
+        return join(name, objs, smooth=smooth)
+
+
+def _frame(t):
+    t = t.normalized()
+    ref = Vector((0, 0, 1)) if abs(t.z) < 0.9 else Vector((1, 0, 0))
+    a = t.cross(ref).normalized()
+    return a, t.cross(a).normalized()
+
+
+def tube(B, color, points, radii, sides=6):
+    """Tube along a polyline with one radius per point (0 at the end = pointed tip)."""
+    bm = B.bm(color)
+    pts = [Vector(p) for p in points]
+    rings = []
+    for i, p in enumerate(pts):
+        if i == 0:
+            t = pts[1] - p
+        elif i == len(pts) - 1:
+            t = p - pts[i - 1]
+        else:
+            t = pts[i + 1] - pts[i - 1]
+        a, b = _frame(t)
+        r = max(radii[i], 0.0004)
+        rings.append([bm.verts.new(p + (a * math.cos(2 * math.pi * k / sides) + b * math.sin(2 * math.pi * k / sides)) * r) for k in range(sides)])
+    for r0, r1 in zip(rings, rings[1:]):
+        for k in range(sides):
+            bm.faces.new((r0[k], r0[(k + 1) % sides], r1[(k + 1) % sides], r1[k]))
+
+
+def curve(start, direction, length, rise, droop, n=6):
+    """Points of a branch that leaves `start` toward `direction` (yaw), rises and then bends down."""
+    sx, sy, sz = start
+    dx, dy = math.cos(direction), math.sin(direction)
+    out = []
+    for i in range(n + 1):
+        t = i / n
+        h = length * t
+        out.append((sx + dx * h, sy + dy * h, sz + length * (rise * t - droop * t * t)))
+    return out
+
+
+def ribbon(B, color, origin, yaw, length, width, rise=1.2, droop=1.0, segs=10, crease=0.22, wave=0.0,
+           width_profile=None, tilt=0.0):
+    """A leaf blade: arches out from `origin`, V-shaped across (midrib), tapered, wavy edges.
+    LeafUV: u along the blade (0 base, 1 tip), v across (0, 0.5 midrib, 1)."""
+    bm = B.bm(color)
+    uvl = bm.loops.layers.uv["LeafUV"]
+    ox, oy, oz = origin
+    d = Vector((math.cos(yaw), math.sin(yaw), 0.0))
+    side = Vector((-math.sin(yaw), math.cos(yaw), 0.0))
+    if tilt:
+        side = (side * math.cos(tilt) + Vector((0, 0, 1)) * math.sin(tilt)).normalized()
+    profile = width_profile or (lambda t: math.sin(math.pi * min(1.0, 0.08 + t * 0.95)) ** 0.55)
+    rows, uv_of = [], {}
+    prev = None
+    for i in range(segs + 1):
+        t = i / segs
+        c = Vector((ox, oy, oz)) + d * (length * t) + Vector((0, 0, length * (rise * t - droop * t * t) * 0.5))
+        tangent = (c - prev) if prev is not None else d + Vector((0, 0, rise * 0.5))
+        prev = c
+        normal = tangent.normalized().cross(side).normalized()
+        if normal.z < 0:
+            normal = -normal
+        w = width * profile(t) * (1.0 if i < segs else 0.04)
+        ripple = wave * math.sin(i * 2.3) * w * 4
+        left = c - side * (w / 2) + normal * (crease * w + ripple)
+        mid = c
+        right = c + side * (w / 2) + normal * (crease * w - ripple)
+        row = [bm.verts.new(left), bm.verts.new(mid), bm.verts.new(right)]
+        for vert, v in zip(row, (0.0, 0.5, 1.0)):
+            uv_of[vert] = (t, v)
+        rows.append(row)
+    for r0, r1 in zip(rows, rows[1:]):
+        for a, b in ((0, 1), (1, 2)):
+            face = bm.faces.new((r0[a], r0[b], r1[b], r1[a]))
+            for loop in face.loops:
+                loop[uvl].uv = uv_of[loop.vert]
+
+
+def blob_at(B, color, center, radius, scale=(1, 1, 1), subdiv=1):
+    bm = B.bm(color)
+    from mathutils import Matrix
+    m = Matrix.Translation(Vector(center)) @ Matrix.Diagonal((*scale, 1.0)) if False else None
+    geom = bmesh.ops.create_icosphere(bm, subdivisions=subdiv, radius=radius)
+    for v in geom["verts"]:
+        v.co = Vector((v.co.x * scale[0], v.co.y * scale[1], v.co.z * scale[2])) + Vector(center)
+
+
+def stalk_with_nodes(B, height, r_base, r_top, nodes, sides=8):
+    """Stalk that tapers up and bulges a little at each node."""
+    zs, rs = [0.0], [r_base * 1.05]
+    for z in nodes:
+        r = r_base + (r_top - r_base) * (z / height)
+        for dz, k in ((-0.025, 1.0), (0.0, 1.12), (0.02, 1.0)):
+            zs.append(z + dz)
+            rs.append(r * k)
+    zs.append(height)
+    rs.append(r_top * 0.7)
+    tube(B, "stalk", [(0, 0, z) for z in zs], rs, sides)
+
+
+def maize_detailed():
+    B = Builder()
+    H = 2.2
+    nodes = [0.13, 0.28, 0.43, 0.58, 0.73, 0.88, 1.03, 1.18, 1.33, 1.48, 1.63, 1.78, 1.93]
+    stalk_with_nodes(B, H, 0.042, 0.02, nodes)  # thick stalk, like the photo
+    # brace roots at the base
+    for k in range(7):
+        a = k * math.tau / 7 + 0.3
+        tube(B, "stalk", [(0, 0, 0.14), (math.cos(a) * 0.07, math.sin(a) * 0.07, 0.065), (math.cos(a) * 0.12, math.sin(a) * 0.12, -0.01)],
+             [0.009, 0.008, 0.005], 5)
+    # leaves alternate (two ranks): wide, long, they rise steeply and then arch over and droop
+    count = len(nodes) - 1
+    for i, z in enumerate(nodes[:-1]):
+        yaw = (0 if i % 2 == 0 else math.pi) + rng.uniform(-0.5, 0.5)
+        t = i / (count - 1)
+        length = 0.65 + 0.5 * math.sin(math.pi * (0.2 + t * 0.65))
+        r = 0.042 + (0.02 - 0.042) * (z / H)
+        # sheath: hugs the stalk from below the node, so the stalk shows green bands, not rings
+        tube(B, "blade", [(0, 0, z - 0.14), (0, 0, z - 0.05), (0, 0, z + 0.015)], [r + 0.002, r + 0.003, r + 0.004], 9)
+        ribbon(B, "blade", (math.cos(yaw) * r, math.sin(yaw) * r, z + 0.015), yaw, length, 0.11,
+               rise=2.1 + rng.uniform(-0.2, 0.4), droop=2.5 + rng.uniform(0, 0.6), segs=14, wave=0.014,
+               tilt=rng.uniform(-0.3, 0.3))
+    # the ear: shank, a big husk-wrapped spindle, loose husk tips and a tuft of silk
+    ez, ea = 1.0, math.radians(24)
+    yaw = math.pi / 2
+    base = Vector((math.cos(yaw) * 0.034, math.sin(yaw) * 0.034, ez))
+    axis = Vector((math.cos(yaw) * math.sin(ea), math.sin(yaw) * math.sin(ea), math.cos(ea)))
+    tube(B, "blade_husk", [base, base + axis * 0.05], [0.014, 0.017], 7)
+    prof = [0.02, 0.038, 0.046, 0.046, 0.042, 0.034, 0.024, 0.013, 0.005]
+    ear = [base + axis * (0.05 + 0.3 * k / (len(prof) - 1)) for k in range(len(prof))]
+    tube(B, "blade_husk", ear, prof, 10)
+    for k in range(4):
+        a = yaw + (k - 1.5) * 0.7
+        ribbon(B, "blade_husk", tuple(ear[-3]), a, 0.12, 0.035, rise=2.8, droop=1.6, segs=6, crease=0.3)
+    for k in range(26):
+        a = yaw + rng.uniform(-1.6, 1.6)
+        tip = ear[-1]
+        spread = rng.uniform(0.018, 0.03)
+        pts = [tip + Vector((math.cos(a) * spread * j, math.sin(a) * spread * j, 0.032 * j - 0.013 * j * j)) for j in range(6)]
+        tube(B, "silk", pts, [0.0022, 0.0022, 0.002, 0.0017, 0.0012, 0.0004], 3)
+    # tassel: central spike and drooping branches
+    tube(B, "tassel", [(0, 0, H - 0.02), (0, 0, H + 0.2), (0.01, 0, H + 0.4)], [0.009, 0.006, 0.001], 6)
+    for k in range(8):
+        a = k * math.tau / 8 + rng.uniform(-0.2, 0.2)
+        z0 = H + 0.03 + k * 0.022
+        pts = curve((0, 0, z0), a, 0.24 + rng.uniform(-0.04, 0.05), rise=0.7, droop=1.6, n=5)
+        tube(B, "tassel", pts, [0.004, 0.004, 0.0035, 0.003, 0.002, 0.0005], 4)
+    return B.finish("maiz")
+
+
+def sorghum_detailed():
+    B = Builder()
+    H = 1.5
+    nodes = [0.12, 0.3, 0.48, 0.66, 0.84, 1.02, 1.18, 1.32]
+    stalk_with_nodes(B, H, 0.024, 0.013, nodes)
+    for i, z in enumerate(nodes[:-1]):
+        yaw = (0 if i % 2 == 0 else math.pi) + rng.uniform(-0.5, 0.5)
+        r = 0.024 - 0.011 * (z / H)
+        tube(B, "blade", [(0, 0, z - 0.08), (0, 0, z + 0.01)], [r + 0.005, r + 0.003], 7)
+        ribbon(B, "blade", (math.cos(yaw) * r, math.sin(yaw) * r, z + 0.01), yaw, 0.42 + 0.2 * math.sin(math.pi * i / 6), 0.06,
+               rise=1.6, droop=2.0 + rng.uniform(0, 0.5), segs=10, wave=0.01, tilt=rng.uniform(-0.2, 0.2))
+    # peduncle and a compact panicle of grains
+    tube(B, "stalk", [(0, 0, H), (0, 0, H + 0.12)], [0.012, 0.009], 6)
+    for k in range(70):
+        u = rng.random()
+        z = H + 0.12 + u * 0.24
+        rad = 0.07 * math.sin(math.pi * (0.15 + u * 0.8))
+        a = rng.uniform(0, math.tau)
+        rr = rad * math.sqrt(rng.random())
+        blob_at(B, "grain_red", (math.cos(a) * rr, math.sin(a) * rr, z), 0.016 + rng.uniform(0, 0.006), subdiv=0)
+    return B.finish("sorgo")
+
+
+def small_grain_detailed(name, head_color, height, culms, awns, nod):
+    B = Builder()
+    for c in range(culms):
+        a = c * math.tau / culms + rng.uniform(-0.3, 0.3)
+        lean = rng.uniform(0.05, 0.16)
+        top = (math.cos(a) * height * lean, math.sin(a) * height * lean, height * rng.uniform(0.92, 1.05))
+        pts = [(0, 0, 0)] + [(top[0] * t, top[1] * t, top[2] * t) for t in (0.35, 0.7, 1.0)]
+        tube(B, "stalk", pts, [0.006, 0.005, 0.004, 0.0035], 5)
+        # narrow leaves from the lower culm
+        for k in range(2):
+            z = 0.12 + k * 0.18
+            ribbon(B, "blade", (top[0] * z / top[2], top[1] * z / top[2], z), a + (k - 0.5) * 1.8, 0.28, 0.016,
+                   rise=1.4, droop=1.9, segs=7, crease=0.2, wave=0.0)
+        # head: two rows of spikelets along a (nodding) rachis
+        hx, hy, hz = top
+        length = 0.1
+        for j in range(12):
+            t = j / 11
+            bend = nod * t * t
+            cx = hx + math.cos(a) * bend * length
+            cy = hy + math.sin(a) * bend * length
+            cz = hz + length * t * (1 - nod * 0.6 * t)
+            side = 1 if j % 2 else -1
+            sx, sy = -math.sin(a) * side * 0.006, math.cos(a) * side * 0.006
+            blob_at(B, head_color, (cx + sx, cy + sy, cz), 0.0085, scale=(1, 1, 1.6), subdiv=0)
+            if awns and j % 2 == 0:
+                tip = (cx + sx * 2 + math.cos(a) * nod * 0.05, cy + sy * 2 + math.sin(a) * nod * 0.05, cz + 0.09 * (1 - nod * 0.5))
+                tube(B, head_color, [(cx + sx, cy + sy, cz), tip], [0.0012, 0.0003], 3)
+    return B.finish(name)
+
+
+def bean_detailed():
+    B = Builder()
+    stems = []
+    for k in range(4):
+        a = k * math.tau / 4 + rng.uniform(-0.3, 0.3)
+        pts = curve((0, 0, 0.02), a, 0.22, rise=1.8, droop=1.0, n=4)
+        tube(B, "stalk", pts, [0.008, 0.007, 0.006, 0.005, 0.004], 5)
+        stems.append((a, pts))
+    # trifoliate leaves: three ovate leaflets on a petiole
+    oval = lambda t: math.sin(math.pi * min(1.0, 0.05 + t)) ** 0.8
+    for a, pts in stems:
+        for j, p in enumerate(pts[2:]):
+            ya = a + (j - 1) * 0.9 + rng.uniform(-0.3, 0.3)
+            pet_end = (p[0] + math.cos(ya) * 0.06, p[1] + math.sin(ya) * 0.06, p[2] + 0.05)
+            tube(B, "stalk", [p, pet_end], [0.003, 0.0025], 4)
+            for leaflet in (-1, 0, 1):
+                ribbon(B, "blade_dark", pet_end, ya + leaflet * 1.0, 0.11, 0.075, rise=0.6, droop=1.0, segs=6,
+                       crease=0.12, width_profile=oval, tilt=rng.uniform(-0.3, 0.3))
+    # hanging pods
+    for k in range(7):
+        a = rng.uniform(0, math.tau)
+        z = rng.uniform(0.12, 0.25)
+        start = (math.cos(a) * 0.08, math.sin(a) * 0.08, z)
+        pts = [(start[0] + math.cos(a) * 0.02 * j, start[1] + math.sin(a) * 0.02 * j, z - 0.025 * j) for j in range(6)]
+        tube(B, "pod", pts, [0.004, 0.007, 0.008, 0.008, 0.006, 0.001], 6)
+    return B.finish("frijol")
+
+
+def chickpea_detailed():
+    B = Builder()
+    oval = lambda t: math.sin(math.pi * min(1.0, 0.05 + t)) ** 0.7
+    for k in range(6):
+        a = k * math.tau / 6 + rng.uniform(-0.3, 0.3)
+        pts = curve((0, 0, 0.01), a, 0.2, rise=2.0, droop=1.2, n=4)
+        tube(B, "stalk", pts, [0.006, 0.005, 0.004, 0.0035, 0.003], 4)
+        # pinnate leaves: small leaflets along short branches
+        for p in pts[1:]:
+            ya = a + rng.uniform(-0.8, 0.8)
+            for m in range(5):
+                q = (p[0] + math.cos(ya) * 0.012 * m, p[1] + math.sin(ya) * 0.012 * m, p[2] + 0.004 * m)
+                for sgn in (-1, 1):
+                    ribbon(B, "chickpea", q, ya + sgn * 1.2, 0.028, 0.016, rise=0.5, droop=0.6, segs=3, crease=0.1,
+                           width_profile=oval)
+    for k in range(9):
+        a = rng.uniform(0, math.tau)
+        rr = rng.uniform(0.05, 0.13)
+        blob_at(B, "pod", (math.cos(a) * rr, math.sin(a) * rr, rng.uniform(0.12, 0.28)), 0.014, scale=(1, 0.8, 1.2), subdiv=1)
+    return B.finish("garbanzo")
+
+
+def broccoli_detailed():
+    B = Builder()
+    tube(B, "stalk", [(0, 0, 0), (0, 0, 0.25), (0, 0, 0.42)], [0.045, 0.04, 0.035], 10)
+    # large blue-green leaves with wavy edges, arching out
+    for k in range(9):
+        a = k * 2.4
+        z = 0.08 + k * 0.03
+        ribbon(B, "blade_blue", (math.cos(a) * 0.03, math.sin(a) * 0.03, z), a, 0.42 - k * 0.015, 0.16,
+               rise=2.2, droop=2.0, segs=10, crease=0.18, wave=0.035, tilt=rng.uniform(-0.2, 0.2))
+    # the head: a dome of florets
+    for k in range(48):
+        u = rng.random()
+        a = rng.uniform(0, math.tau)
+        rr = 0.13 * math.sqrt(u)
+        z = 0.44 + 0.07 * (1 - u)
+        blob_at(B, "broccoli", (math.cos(a) * rr, math.sin(a) * rr, z), 0.03 + rng.uniform(0, 0.012), subdiv=1)
+    return B.finish("brocoli")
+
+
+def mesquite_detailed():
+    B = Builder()
+    trunk = [(0, 0, 0), (0.08, 0.02, 0.6), (0.05, 0.08, 1.2), (0.18, 0.05, 1.7)]
+    tube(B, "bark", trunk, [0.2, 0.15, 0.13, 0.11], 9)
+    ends = []
+    for k in range(5):
+        a = k * math.tau / 5 + rng.uniform(-0.3, 0.3)
+        pts = curve(trunk[-1], a, 1.4 + rng.uniform(-0.2, 0.3), rise=0.9, droop=0.4, n=4)
+        tube(B, "bark", pts, [0.09, 0.07, 0.05, 0.035, 0.02], 6)
+        ends.append(pts)
+    # feathery canopy: many small flattened clumps around the branch ends
+    for pts in ends:
+        for p in pts[2:]:
+            for m in range(4):
+                c = (p[0] + rng.uniform(-0.45, 0.45), p[1] + rng.uniform(-0.45, 0.45), p[2] + rng.uniform(-0.1, 0.35))
+                blob_at(B, "canopy", c, rng.uniform(0.32, 0.5), scale=(1, 1, 0.45), subdiv=1)
+    return B.finish("arbol")
+
+
+def farmhouse_detailed():
+    w, d, h = 7.0, 5.0, 3.0
+    parts = [box("wall", (w, d, h), (0, 0, h / 2))]
+    side = d * 0.82
+    parts.append(box("roof", (w * 1.12, side, side), (0, 0, h), rot=(math.pi / 4, 0, 0)))  # gabled roof with eaves
+    parts.append(box("wood", (w * 1.14, 0.18, 0.18), (0, 0, h + side * 0.7)))  # ridge beam
+    parts.append(box("wall", (w * 1.02, d * 1.02, 0.3), (0, 0, 0.15)))  # plinth
+    # door with frame and lintel
+    parts.append(box("wood", (1.0, 0.08, 2.0), (0.8, -d / 2 - 0.03, 1.0)))
+    parts.append(box("wall", (1.25, 0.12, 0.15), (0.8, -d / 2 - 0.05, 2.08)))
+    # two windows with frames, dark glass and sills
+    for x in (-2.0, 2.4):
+        parts.append(box("wood", (0.95, 0.08, 0.9), (x, -d / 2 - 0.03, 1.75)))
+        parts.append(box("glass", (0.7, 0.1, 0.65), (x, -d / 2 - 0.05, 1.75)))
+        parts.append(box("wall", (1.05, 0.25, 0.08), (x, -d / 2 - 0.1, 1.27)))
+    # porch: roof on two posts
+    parts.append(box("roof", (3.2, 1.6, 0.12), (0.8, -d / 2 - 0.8, 2.4), rot=(-0.18, 0, 0)))
+    for x in (-0.6, 2.2):
+        parts.append(box("wood", (0.15, 0.15, 2.3), (x, -d / 2 - 1.45, 1.15)))
+    # chimney
+    parts.append(box("wall", (0.5, 0.5, 1.4), (-2.4, 0.8, h + 1.1)))
+    return join("casa", parts)
+
+
 def main():
     bpy.ops.object.select_all(action="SELECT")
     bpy.ops.object.delete()
 
-    models = [
-        tall_grass("maiz", 2.0, 7, maize_head),
-        tall_grass("sorgo", 1.4, 6, sorghum_head),
-        small_grain("trigo", "wheat", 0.85, 7, nod=0.15),
-        small_grain("cebada", "barley", 0.75, 7, nod=0.9),
-        bush("frijol", "leaf_dark", 0.28, 0.5, bean_pods),
-        bush("garbanzo", "chickpea", 0.22, 0.45, chickpea_pods),
+    # Low-poly versions for the satellite map (the first models, renamed "<id>_lp").
+    lowpoly = [
+        tall_grass("maiz_lp", 2.0, 7, maize_head),
+        tall_grass("sorgo_lp", 1.4, 6, sorghum_head),
+        small_grain("trigo_lp", "wheat", 0.85, 7, nod=0.15),
+        small_grain("cebada_lp", "barley", 0.75, 7, nod=0.9),
+        bush("frijol_lp", "leaf_dark", 0.28, 0.5, bean_pods),
+        bush("garbanzo_lp", "chickpea", 0.22, 0.45, chickpea_pods),
         broccoli(),
-        farmhouse(),
-        mesquite(),
     ]
+    lowpoly[-1].name = lowpoly[-1].data.name = "brocoli_lp"
+    # Detailed versions for the 3D diorama.
+    detailed = [
+        maize_detailed(),
+        sorghum_detailed(),
+        small_grain_detailed("trigo", "wheat", 0.85, 9, awns=False, nod=0.12),
+        small_grain_detailed("cebada", "barley", 0.75, 9, awns=True, nod=0.7),
+        bean_detailed(),
+        chickpea_detailed(),
+        broccoli_detailed(),
+        farmhouse_detailed(),
+        mesquite_detailed(),
+    ]
+    # Leafy detailed crops get 1024 px so the veins along each blade stay visible.
+    sizes = {"maiz": 1024, "sorgo": 1024, "frijol": 1024, "brocoli": 1024}
+    for obj in lowpoly:
+        bake_texture(obj, 256)
+    for obj in detailed:
+        bake_texture(obj, sizes.get(obj.name, TEXTURE_SIZE))
 
     # Spread them on X so the .blend/.glb is easy to inspect; the web view only reads geometry.
-    for obj in models:
-        bake_texture(obj)
-    for i, obj in enumerate(models):
-        obj.location = (i * 3.0 if obj.name not in ("casa", "arbol") else 30 + i * 6.0, 0, 0)
+    for i, obj in enumerate(detailed + lowpoly):
+        obj.location = (i * 3.0 if obj.name not in ("casa", "arbol") else 60 + i * 6.0, 0 if not obj.name.endswith("_lp") else 6, 0)
         tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
-        print(f"  {obj.name:<9} {tris:>5} triangles, textura {TEXTURE_SIZE} px")
+        print(f"  {obj.name:<12} {tris:>6} triangles")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
     options = dict(filepath=OUT, export_format="GLB", use_selection=False, export_apply=True, export_yup=True)

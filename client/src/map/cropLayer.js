@@ -25,7 +25,7 @@ import {
   WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { MODELS_URL, modelGeometries, modelMaterial } from '../three/mergeModels.js';
+import { MODELS_URL, lowPoly, modelGeometries, modelMaterial } from '../three/mergeModels.js';
 import { allCorners, mapPlantSpots } from './parcels.js';
 import { polygonCenter } from './polygon.js';
 
@@ -271,7 +271,8 @@ export function createCropLayer() {
 
     if (!models) return; // the .glb is still loading; rebuild() runs again when it arrives
     for (const [cultivo, groups] of byCrop) {
-      const geometry = models[cultivo] ?? models.maiz;
+      // Low-poly on the map: plants are ~25 px tall there and hundreds are drawn.
+      const geometry = models[lowPoly(cultivo)] ?? models[cultivo] ?? models[lowPoly('maiz')];
       if (!geometry.boundingBox) geometry.computeBoundingBox();
       const modelHeight = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
       const count = groups.reduce((n, g) => n + g.spots.length, 0);

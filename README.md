@@ -119,7 +119,9 @@ Cuidados de rendimiento: three.js se descarga solo si el navegador tiene WebGL y
 blender --background --factory-startup --python assets/blender/build_models.py
 ```
 
-**Texturas.** Cada parte tiene un material procedural (nervaduras en hojas, fibras en tallos, granos en espigas y elote, floretes en el brócoli, corteza, aplanado de adobe, tejas y vetas de madera) que Blender hornea en **una sola imagen por modelo** (JPEG dentro del `.glb`, ~500 KB en total). Así cada cultivo sigue siendo un solo dibujo aunque tenga cientos de plantas. El terreno de la maqueta (surcos, terrones, capas del suelo) y los bloques del mapa (hileras sembradas y terrones) usan texturas que el navegador dibuja al momento (`client/src/three/textures.js`, `client/src/map/patterns.js`). Ninguna textura se descarga de internet.
+**Texturas.** Cada parte tiene un material procedural (nervaduras en hojas, fibras en tallos, granos en espigas y elote, floretes en el brócoli, corteza, aplanado de adobe, tejas y vetas de madera) que Blender hornea en **una sola imagen por modelo** (JPEG dentro del `.glb`, ~2 MB en total). Así cada cultivo sigue siendo un solo dibujo aunque tenga cientos de plantas.
+
+**Dos versiones de cada cultivo.** La maqueta 3D usa modelos **detallados** (el maíz tiene hojas anchas que se arquean con su nervadura, tallo con nudos y vainas, elote con hojas y pelos, espiga ramificada y raíces de apoyo; 1,400 a 3,300 triángulos). El mapa satelital usa los **sencillos** (`<id>_lp`, 100 a 230 triángulos), porque ahí cada mata mide ~25 px y se dibujan cientos. El terreno de la maqueta (surcos, terrones, capas del suelo) y los bloques del mapa (hileras sembradas y terrones) usan texturas que el navegador dibuja al momento (`client/src/three/textures.js`, `client/src/map/patterns.js`). Ninguna textura se descarga de internet.
 
 Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de objeto: `maiz`, `sorgo`, `trigo`, `cebada`, `frijol`, `garbanzo`, `brocoli`, `casa`, `arbol`.
 
