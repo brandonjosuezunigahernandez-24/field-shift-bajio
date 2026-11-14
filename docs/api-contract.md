@@ -101,6 +101,29 @@ Fuente: SoilGrids 2.0 (ISRIC). Promedio de 0 a 30 cm, ponderado por el espesor d
 
 - **`sin_datos: true`**: SoilGrids respondió pero no tiene suelo en ese punto (ciudades y cuerpos de agua están enmascarados). En ese caso los valores vienen en `null` y `aviso` trae un texto para mostrar. Pasa, por ejemplo, en el centro de Celaya (20.52, -100.81). El front y el motor deben aguantar `null`.
 
+## GET /api/terreno?lat=20.47&lon=-100.81
+
+Relieve del cuadro de 1 km alrededor de la parcela, para la vista 3D. Fuente: AWS Terrain Tiles (Mapzen, codificación *terrarium*, zoom 14); en México las alturas vienen de NASA SRTM (~30 m), así que la malla es una interpolación suave: sirve para una maqueta, no para topografía.
+
+```jsonc
+{
+  "lat": 20.47,
+  "lon": -100.81,
+  "origen": "fixture",
+  "tam": 65,                 // la malla es de 65 x 65 alturas
+  "lado_m": 1000,            // lado del cuadro, centrado en la parcela
+  "altura_centro_m": 1752,
+  "altura_min_m": 1746.8,
+  "altura_max_m": 1766.2,
+  "desnivel_m": 19.4,
+  "alturas": [1752.4, 1751.9 /* ... 4225 valores en m */],
+  "fuente": "AWS Terrain Tiles (Mapzen, Registry of Open Data on AWS); en México las alturas vienen de NASA SRTM"
+}
+```
+
+- `alturas[fila * tam + col]`: la fila 0 es el borde **norte** y la columna 0 el borde **oeste**.
+- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat2>_<lon2>.json`.
+
 ## POST /api/recomendar (fase 2, hoy responde 501)
 
 Petición:

@@ -19,6 +19,8 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
 
 ## Stack (decidido, no cambiar sin preguntar)
 - `client/`: React + Vite, Leaflet (react-leaflet) para el mapa y Recharts para las gráficas.
+  Vista 3D en `client/src/three/` con three.js + @react-three/fiber + @react-three/drei (aprobado por el equipo).
+  Modelos generados con Blender desde `assets/blender/build_models.py`.
 - `server/`: Node + Express. Sin base de datos y sin login.
 - Caché en disco: `server/cache/<fuente>_<lat2>_<lon2>.json`, con lat/lon redondeados a 2 decimales.
 - Fixtures en `server/fixtures/` del punto demo, para que la demo funcione aunque falle el internet.
