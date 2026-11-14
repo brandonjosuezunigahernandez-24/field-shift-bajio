@@ -1,22 +1,169 @@
 [
-  { "id": "rotacion", "palabras": ["rotacion", "rotar", "plagas", "enfermedades", "alternar"],
-    "texto": "Rotar cultivos ayuda a cortar el ciclo de las plagas y enfermedades que se quedan en el suelo." },
-  { "id": "leguminosas", "palabras": ["leguminosa", "leguminosas", "frijol", "garbanzo", "nitrogeno", "fijan"],
-    "texto": "El frijol y el garbanzo son leguminosas: con ayuda de bacterias en sus raíces toman nitrógeno del aire y dejan el suelo con más nitrógeno para el siguiente cultivo." },
-  { "id": "sorgo-sequia", "palabras": ["sorgo", "sequia", "seco", "resiste", "aguanta"],
-    "texto": "El sorgo suele aguantar mejor la falta de agua que el maíz." },
-  { "id": "maiz-agua", "palabras": ["maiz", "floracion", "espiga", "jilote"],
-    "texto": "El maíz es muy sensible a la falta de agua, sobre todo cuando está floreando." },
-  { "id": "materia-organica", "palabras": ["materia", "organica", "humedad", "carbono", "composta"],
-    "texto": "Un suelo con más materia orgánica guarda mejor la humedad y es más fértil." },
-  { "id": "textura", "palabras": ["arcilla", "arena", "arenoso", "arcilloso", "textura", "drenaje", "encharca"],
-    "texto": "Los suelos arcillosos guardan más agua pero drenan despacio y se encharcan; los arenosos drenan rápido y guardan poca agua." },
-  { "id": "ph", "palabras": ["ph", "acidez", "acido", "alcalino", "nutrientes"],
-    "texto": "Si el pH del suelo es muy alto o muy bajo, la planta no puede tomar bien algunos nutrientes." },
-  { "id": "rastrojo", "palabras": ["rastrojo", "cobertura", "erosion", "evaporacion", "mulch"],
-    "texto": "Dejar rastrojo sobre el suelo lo cubre, reduce la evaporación del agua y frena la erosión." },
-  { "id": "temporal-riego", "palabras": ["temporal", "riego", "lluvia", "regar"],
-    "texto": "En temporal el cultivo depende solo de la lluvia, así que conviene elegir el cultivo y la fecha según la lluvia que suele caer en la parcela." },
-  { "id": "invernadero", "palabras": ["invernadero", "helada", "heladas", "cubierta", "frio"],
-    "texto": "Un invernadero protege de heladas y de calor extremo y alarga la temporada de cultivo, pero necesita inversión y más cuidado." }
+  {
+    "id": "rotacion",
+    "palabras": [
+      "rotacion",
+      "rotar",
+      "plagas",
+      "enfermedades",
+      "alternar"
+    ],
+    "texto": "Rotar cultivos ayuda a cortar el ciclo de las plagas y enfermedades que se quedan en el suelo."
+  },
+  {
+    "id": "leguminosas",
+    "palabras": [
+      "leguminosa",
+      "leguminosas",
+      "frijol",
+      "garbanzo",
+      "nitrogeno",
+      "fijan"
+    ],
+    "texto": "El frijol y el garbanzo son leguminosas: con ayuda de bacterias en sus raíces toman nitrógeno del aire y dejan el suelo con más nitrógeno para el siguiente cultivo."
+  },
+  {
+    "id": "sorgo-sequia",
+    "palabras": [
+      "sorgo",
+      "sequia",
+      "seco",
+      "resiste",
+      "aguanta"
+    ],
+    "texto": "El sorgo suele aguantar mejor la falta de agua que el maíz."
+  },
+  {
+    "id": "maiz-agua",
+    "palabras": [
+      "maiz",
+      "floracion",
+      "espiga",
+      "jilote"
+    ],
+    "texto": "El maíz es muy sensible a la falta de agua, sobre todo cuando está floreando."
+  },
+  {
+    "id": "materia-organica",
+    "palabras": [
+      "materia",
+      "organica",
+      "humedad",
+      "carbono",
+      "composta"
+    ],
+    "texto": "Un suelo con más materia orgánica guarda mejor la humedad y es más fértil."
+  },
+  {
+    "id": "textura",
+    "palabras": [
+      "arcilla",
+      "arena",
+      "arenoso",
+      "arcilloso",
+      "textura",
+      "drenaje",
+      "encharca"
+    ],
+    "texto": "Los suelos arcillosos guardan más agua pero drenan despacio y se encharcan; los arenosos drenan rápido y guardan poca agua."
+  },
+  {
+    "id": "ph",
+    "palabras": [
+      "ph",
+      "acidez",
+      "acido",
+      "alcalino",
+      "nutrientes"
+    ],
+    "texto": "Si el pH del suelo es muy alto o muy bajo, la planta no puede tomar bien algunos nutrientes."
+  },
+  {
+    "id": "rastrojo",
+    "palabras": [
+      "rastrojo",
+      "cobertura",
+      "erosion",
+      "evaporacion",
+      "mulch"
+    ],
+    "texto": "Dejar rastrojo sobre el suelo lo cubre, reduce la evaporación del agua y frena la erosión."
+  },
+  {
+    "id": "temporal-riego",
+    "palabras": [
+      "temporal",
+      "riego",
+      "lluvia",
+      "regar"
+    ],
+    "texto": "En temporal el cultivo depende solo de la lluvia, así que conviene elegir el cultivo y la fecha según la lluvia que suele caer en la parcela."
+  },
+  {
+    "id": "invernadero",
+    "palabras": [
+      "invernadero",
+      "helada",
+      "heladas",
+      "cubierta",
+      "frio"
+    ],
+    "texto": "Un invernadero protege de heladas y de calor extremo y alarga la temporada de cultivo, pero necesita inversión y más cuidado."
+  },
+  {
+    "id": "jitomate",
+    "palabras": [
+      "jitomate",
+      "tomate",
+      "trasplante",
+      "almacigo"
+    ],
+    "texto": "El jitomate no aguanta las heladas: se suele sembrar en almácigo y trasplantar cuando ya no hay riesgo de helada. Necesita riego constante y un suelo que drene bien."
+  },
+  {
+    "id": "brocoli",
+    "palabras": [
+      "brocoli",
+      "brecol"
+    ],
+    "texto": "El brócoli es un cultivo de clima fresco y el calor fuerte lo daña. En el Bajío se siembra casi siempre con riego, en otoño-invierno."
+  },
+  {
+    "id": "cereales-invierno",
+    "palabras": [
+      "trigo",
+      "cebada"
+    ],
+    "texto": "El trigo y la cebada son cereales de clima fresco. En el Bajío se siembran en otoño-invierno, normalmente con riego."
+  },
+  {
+    "id": "garbanzo",
+    "palabras": [
+      "garbanzo"
+    ],
+    "texto": "El garbanzo es una leguminosa de clima fresco y no tolera el exceso de humedad."
+  },
+  {
+    "id": "siembra-maiz",
+    "palabras": [
+      "maiz",
+      "sembrar",
+      "siembra",
+      "sembrado"
+    ],
+    "texto": "El maíz de temporal se siembra al empezar las lluvias para que tenga agua mientras crece."
+  },
+  {
+    "id": "plagas",
+    "palabras": [
+      "plaga",
+      "plagas",
+      "insecticida",
+      "pesticida",
+      "fumigar",
+      "gusano",
+      "fumigacion"
+    ],
+    "texto": "Revisa tu parcela seguido para detectar las plagas a tiempo. Para saber qué producto usar y en qué cantidad, consulta a un técnico agrícola o a la oficina de sanidad vegetal de tu zona."
+  }
 ]

@@ -11,6 +11,7 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [05](05-rutas-asistente-voz.md) | Rutas `/api/asistente` y `/api/voz` | Hecho |
 | [06](06-pronostico-open-meteo.md) | Pronóstico de 7 días (Open-Meteo) | Hecho |
 | [07](07-preguntas-generales.md) | Preguntas generales (base local + Wikipedia) | Hecho (textos locales sin verificar) |
-| 08 | Catálogo de cultivos de México y costos | Siguiente |
+| [08](08-mas-lenguaje.md) | Más lenguaje, tarjetas de cultivos y respuestas más completas | Hecho (tarjetas sin verificar) |
+| 09 | Catálogo de cultivos de México y costos | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.

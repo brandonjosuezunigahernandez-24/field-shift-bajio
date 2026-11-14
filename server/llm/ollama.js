@@ -3,14 +3,17 @@ const URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
 export const MODEL = process.env.OLLAMA_MODEL ?? 'gemma3:4b';
 
 const SYSTEM = `Eres el asistente de una app para agricultores de temporal del Bajío.
-Respondes en español sencillo, máximo 3 oraciones, como si hablaras con un agricultor.
+Respondes en español sencillo, máximo 3 oraciones (5 si explicas un texto de conocimiento), como si hablaras con un agricultor.
 REGLAS:
 1. Usa SOLO la FICHA. No uses conocimiento propio.
 2. Si la respuesta no está en la FICHA, responde exactamente: "No tengo ese dato para tu parcela."
 3. No cambies ningún número. Cópialo tal como está en la FICHA.
 4. Después de cada dato pon su fuente entre corchetes: [NASA POWER], [SoilGrids] u [Open-Meteo] (el pronóstico de los próximos días viene de Open-Meteo). Si usas un texto de "conocimiento", cita la fuente que trae ese texto: [Base local] o [Wikipedia].
 5. No recomiendes químicos, dosis ni marcas.
-6. Para máximos, mínimos y totales del pronóstico usa "resumen"; no los busques tú en "dias".`;
+6. Para máximos, mínimos y totales del pronóstico usa "resumen"; no los busques tú en "dias".
+7. Si preguntan por un cultivo y "conocimiento" no lo explica, responde "No tengo ese dato para tu parcela." No uses el pH, la arcilla ni la lluvia de la parcela para hablar de un cultivo, salvo que el texto de "conocimiento" diga qué necesita.
+8. Si usas "conocimiento", explica con tus palabras en hasta 5 oraciones cortas y sencillas.
+9. Contesta solo lo que preguntaron. No agregues pronóstico, suelo ni lluvia si no te lo pidieron.`;
 
 const SCHEMA = {
   type: 'object',
@@ -31,7 +34,7 @@ export async function askModel(ficha, pregunta, model = MODEL, timeoutMs = 60000
       stream: false,
       format: SCHEMA,
       // num_ctx chico y num_predict corto: menos RAM y respuestas rápidas en laptops débiles.
-      options: { temperature: 0.1, num_ctx: 2048, num_predict: 200 },
+      options: { temperature: 0.1, num_ctx: Number(process.env.OLLAMA_CTX) || 3072, num_predict: 300 },
       messages: [
         { role: 'system', content: `${SYSTEM}\n\nFICHA:\n${JSON.stringify(ficha)}` },
         { role: 'user', content: pregunta },
