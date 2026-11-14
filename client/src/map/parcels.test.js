@@ -2,11 +2,13 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
   ALL_SECTIONS,
+  MAP_MAX_PLANTS,
   PARCEL_COLORS,
   createParcel,
   cropColorForYear,
   farmPoint,
   farmSummary,
+  mapPlantSpots,
   fitsOneBlock,
   nextParcelId,
   parcelColor,
@@ -150,4 +152,13 @@ test('the map follows the year: a dry year turns the crop to straw and makes it 
   assert.equal(good.tope_m - good.suelo_m, 3);
   assert.ok(Math.abs(dry.tope_m - dry.suelo_m - 1.8) < 1e-9);
   assert.equal(dry.cultivo, '#c7a361');
+});
+
+test('mapPlantSpots: plants inside the outline, capped, with the same result every time', () => {
+  const { spots, spacing } = mapPlantSpots(west.contorno, lat0, -100.81, 7);
+  assert.ok(spots.length > 100 && spots.length <= MAP_MAX_PLANTS, `${spots.length} plants`);
+  assert.ok(spacing >= 6);
+  // the 200 m square starts at (0, 0) and goes east (+x) and north (-z)
+  assert.ok(spots.every((p) => p.x >= -1 && p.x <= 201 && p.z <= 1 && p.z >= -201));
+  assert.deepEqual(mapPlantSpots(west.contorno, lat0, -100.81, 7).spots[3], spots[3]);
 });

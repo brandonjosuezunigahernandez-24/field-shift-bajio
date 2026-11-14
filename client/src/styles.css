@@ -851,3 +851,18 @@ button:disabled {
 .corner-marker:active {
   cursor: grabbing;
 }
+
+.weather-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+
+.weather-switch input {
+  accent-color: var(--sky);
+  width: 18px;
+  height: 18px;
+}

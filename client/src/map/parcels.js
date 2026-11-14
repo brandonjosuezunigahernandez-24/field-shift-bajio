@@ -182,3 +182,37 @@ export function farmSummary(parcelas, { samples = 40000 } = {}) {
     estimated: overlaps,
   };
 }
+
+// --- Crops standing on the satellite map ---
+
+export const MAP_MAX_PLANTS = 700; // per parcel: enough to read as a field, cheap to draw
+
+// Spots for the plant models on one parcel, in meters from (lat0, lon0): x = east, z = south
+// (the frame used by the map's crop layer). A seeded jittered grid inside the outline, with the
+// spacing adapted to the parcel size. Also returns `spacing` (m), used to size the plants.
+export function mapPlantSpots(contorno, lat0, lon0, seed = 1) {
+  let a = seed >>> 0;
+  const random = () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+  const poly = toMeters(contorno, lat0, lon0); // [east, north]
+  const areaM2 = areaHectares(contorno) * 10000;
+  const spacing = Math.max(6, Math.sqrt(areaM2 / MAP_MAX_PLANTS));
+  const xs = poly.map((p) => p[0]);
+  const ys = poly.map((p) => p[1]);
+  const spots = [];
+  for (let y = Math.min(...ys) + spacing / 2; y < Math.max(...ys); y += spacing) {
+    for (let x = Math.min(...xs) + spacing / 2; x < Math.max(...xs); x += spacing) {
+      const px = x + (random() - 0.5) * spacing * 0.4;
+      const py = y + (random() - 0.5) * spacing * 0.4;
+      if (spots.length < MAP_MAX_PLANTS && pointInPolygon([px, py], poly)) {
+        spots.push({ x: px, z: -py, yaw: random() * Math.PI * 2, size: 0.85 + random() * 0.3 });
+      }
+    }
+  }
+  return { spots, spacing };
+}

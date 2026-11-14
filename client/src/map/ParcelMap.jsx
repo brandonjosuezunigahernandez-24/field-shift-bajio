@@ -13,6 +13,7 @@ import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
 import { soilColors, yearState } from '../three/parcelState.js';
 import { YearControl } from '../year.jsx';
 import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
+import { createCropLayer } from './cropLayer.js';
 import FarmSummary from './FarmSummary.jsx';
 import {
   areaHectares,
@@ -284,6 +285,11 @@ export default function ParcelMap({
   const [imageryNotice, setImageryNotice] = useState(null);
   const [view, setView] = useState(() => saved('fieldshift.vista', VIEWS, 'aerea'));
   const [editingId, setEditingId] = useState(null); // a saved parcel being corrected, or null
+  // Plants + weather standing on the satellite map, and whether the weather moves.
+  const cropLayerRef = useRef(null);
+  const [showWeather, setShowWeather] = useState(() => saved('fieldshift.clima', { si: 1, no: 1 }, 'si') === 'si');
+  const [onScreen, setOnScreen] = useState(true);
+  const animateWeather = showWeather && onScreen && !reducedMotion();
   const shown = editingId === null ? parcelas : parcelas.filter((p) => p.id !== editingId);
   const yearNow = yearState(clima, year?.anio ?? null);
 
@@ -352,6 +358,10 @@ export default function ParcelMap({
     map.on('idle', () => paintRaisedRef.current?.({ onlyIfGroundChanged: true }));
     map.on('load', () => {
       addParcelLayers(map);
+      // Under the outline being drawn, so the drawing always shows on top of the plants.
+      const crops = createCropLayer();
+      map.addLayer(crops.layer, 'parcela-relleno');
+      cropLayerRef.current = crops;
       applyView(map, viewRef.current, { animate: false });
       setReady(true);
     });
@@ -440,7 +450,20 @@ export default function ParcelMap({
       const key = ground ? [...ground.values()].map((g) => (g ?? 'x').toString()).join(',') : 'plano';
       if (onlyIfGroundChanged && key === lastGround) return; // nothing new: avoid a repaint loop
       lastGround = key;
-      source.setData(raisedParcelsGeoJSON(shown, rise, soilRgb, CROP_COLORS, ground, yearNow));
+      const raised = raisedParcelsGeoJSON(shown, rise, soilRgb, CROP_COLORS, ground, yearNow);
+      source.setData(raised);
+      // Plants stand on the top of each raised block (ground height + block, as the map draws it).
+      cropLayerRef.current?.update({
+        parcels: shown.map((p, i) => ({
+          id: p.id,
+          cultivo: p.cultivo,
+          contorno: p.contorno,
+          base: (ground?.get(p.id) ?? 0) + raised.features[i].properties.tope_m,
+        })),
+        year: yearNow,
+        weather: showWeather,
+        animate: animateWeather,
+      });
     };
     paintRaisedRef.current = paint;
     const fresh = parcelas.filter((p) => !rise.has(p.id)).map((p) => p.id);
@@ -463,7 +486,16 @@ export default function ParcelMap({
       cancelAnimationFrame(frame);
       fresh.forEach((id) => rise.set(id, 1)); // never leave a parcel half way up
     };
-  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, showWeather, animateWeather]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pause the weather animation while the map is scrolled out of view (no wasted battery).
+  useEffect(() => {
+    const el = containerRef.current;
+    if (!el || typeof IntersectionObserver === 'undefined') return undefined;
+    const observer = new IntersectionObserver(([entry]) => setOnScreen(entry.isIntersecting), { threshold: 0.05 });
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
 
   // Finished parcels: colored outlines and a "number · crop" tag on each.
   useEffect(() => {
@@ -626,6 +658,20 @@ export default function ParcelMap({
             </label>
           ))}
         </fieldset>
+        <label className="weather-switch">
+          <input
+            type="checkbox"
+            checked={showWeather}
+            onChange={(e) => {
+              setShowWeather(e.target.checked);
+              remember('fieldshift.clima', e.target.checked ? 'si' : 'no');
+            }}
+          />
+          <span>
+            <strong>Clima animado</strong>{' '}
+            <span className="option-note">(lluvia en años buenos, polvo en años secos, según el año que elijas)</span>
+          </span>
+        </label>
         {imageryNotice && (
           <p className="hint" role="status">
             {imageryNotice}
