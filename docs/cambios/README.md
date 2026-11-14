@@ -21,6 +21,7 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [14](../integracion-prueba.md) | Prueba de integración con las ramas de 3D y frontend (qué corrige cada quien) | Hecho |
 | [15](15-perfil-de-parcela.md) | Perfil de parcela (preguntas con "No sé") y clima para la vista 3D | Hecho (falta la pantalla) |
 | [16](../propuesta-producto.md) | Propuesta de producto por fases (flujo lineal, línea de tiempo, administración, tienda, simulador) | Hecho |
-| 17 | Citas y plantillas por código, set de 15 preguntas, solo CPU, streaming del asistente | Siguiente |
+| [17](../integracion-completa.md) | Integración completa (prueba local): diseño + mapa de dibujo + 3D con info al tocar y clima de 7 días + asistente flotante | Hecho (sin ver en navegador) |
+| 18 | Citas y plantillas por código, set de 15 preguntas, solo CPU, streaming del asistente | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.

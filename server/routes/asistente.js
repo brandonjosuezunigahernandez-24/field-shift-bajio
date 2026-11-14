@@ -11,15 +11,13 @@ import { REFUSAL, answer } from '../llm/responder.js';
 import { compactReco, explainRecommendation, inferEstado, recommend } from '../llm/recomendador.js';
 import { parsePerfil, pendientes } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
+import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
 
 const router = Router();
 const MAX_QUESTION = 300;
 // Un saludo no necesita datos ni modelo (antes el modelo contestaba un saludo con el pronóstico).
 const GREETING = /^\s*(¡)?(hola|buenas|buenos d[ií]as|buenas tardes|buenas noches|gracias|ok|adi[oó]s)[\s!.¡]*$/i;
 const HELLO = '¡Hola! Soy tu asistente. Pregúntame por la lluvia de tu parcela, los años secos, el suelo, el pronóstico de la semana, sobre algún cultivo o qué te conviene sembrar.';
-// "¿Qué siembro?", "qué me conviene", "recomiéndame", "rotación"... sin acentos para comparar.
-const RECO = /(que (me )?(siembro|sembrar|conviene|cultivo|cultivar|planto|plantar)|recomiend|rotacion|que cultivo)/;
-const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 const ASK = {
   agua: {
@@ -75,12 +73,15 @@ router.post('/', async (req, res) => {
   }
 
   const estado = perfil.estado ?? inferEstado(lon);
-  const reco = agua && prioridad
+  // El recomendador solo corre si piden una recomendación o un seguimiento de ella. El dock manda agua y prioridad
+  // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
+  const needsReco = pregunta && (wantsRecommendation(pregunta) || isFollowUp(pregunta));
+  const reco = agua && prioridad && needsReco
     ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, hectareas: perfil.hectareas, encharca: perfil.encharca })
     : null;
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
-  if (pregunta && RECO.test(strip(pregunta))) {
+  if (pregunta && wantsRecommendation(pregunta)) {
     if (!agua) return res.json(asking('agua'));
     if (!prioridad) return res.json(asking('prioridad'));
     if (reco) {
@@ -106,7 +107,7 @@ router.post('/', async (req, res) => {
     conocimiento: contexto.items,
     siap: pregunta ? cropFacts(pregunta) : null,
     recomendacion: reco ? compactReco(reco) : null,
-    agricultor: perfil,
+    agricultor: reco ? perfil : {}, // lo que dijo el agricultor solo importa si hay recomendación que explicar
   });
   const result = await answer({ ficha, pregunta, historial });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.
