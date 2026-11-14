@@ -1,6 +1,12 @@
-import { useState } from 'react';
+import { Suspense, lazy, useRef, useState } from 'react';
 import { getClima, getSuelo } from './api.js';
 import { EXAMPLE_POINTS } from './examplePoints.js';
+import { createParcel, farmPoint, nextParcelId } from './map/parcels.js';
+import Vista3DSection from './Vista3DSection.jsx';
+import { useYearPlayer } from './year.jsx';
+
+// MapLibre (~1 MB) loads in its own chunk, after the page is already on screen.
+const ParcelMap = lazy(() => import('./map/ParcelMap.jsx'));
 
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -10,15 +16,35 @@ const ORIGIN_LABEL = {
   fixture: 'copia de respaldo (sin internet)',
 };
 
-// Phase 1 screen: proves the whole path works (button -> server -> NASA POWER / SoilGrids).
-// Phase 2 replaces the button with the map and the form, and adds the recommendation.
+// Progress at the top: each step lights up when the farmer gets there, and jumps to its section.
+function Steps({ steps }) {
+  const current = steps.findIndex((s) => !s.done);
+  return (
+    <ol className="steps">
+      {steps.map((step, i) => (
+        <li key={step.href} className={step.done ? 'done' : i === current ? 'current' : undefined}>
+          <a href={step.href}>
+            <span className="steps-dot" aria-hidden="true">{step.done ? '✓' : i + 1}</span>
+            {step.label}
+            {step.done && <span className="visually-hidden"> (listo)</span>}
+          </a>
+        </li>
+      ))}
+    </ol>
+  );
+}
+
+// Phase 2 adds the form and the recommendation below the climate.
 export default function App() {
   const [point, setPoint] = useState(null);
   const [loading, setLoading] = useState(false);
   const [clima, setClima] = useState(null);
   const [suelo, setSuelo] = useState(null);
+  const latestRequest = useRef(0);
 
   async function loadPoint(selected) {
+    // Picking on the globe makes quick successive clicks easy: only the last one may paint.
+    const request = ++latestRequest.current;
     setPoint(selected);
     setLoading(true);
     setClima(null);
@@ -28,6 +54,7 @@ export default function App() {
       getClima(selected.lat, selected.lon),
       getSuelo(selected.lat, selected.lon),
     ]);
+    if (request !== latestRequest.current) return;
     const unwrap = (result) =>
       result.status === 'fulfilled' ? { data: result.value } : { error: result.reason.message };
     setClima(unwrap(climaResult));
@@ -35,30 +62,86 @@ export default function App() {
     setLoading(false);
   }
 
+  // The farmer's drawn parcels, each with its own crop. Climate and soil are asked for the center
+  // of all of them (the API takes one point); changing a crop does not ask again.
+  const [parcelas, setParcelas] = useState([]);
+
+  function setFarm(next) {
+    setParcelas(next);
+    if (next.length) loadPoint(farmPoint(next));
+  }
+  const addParcela = (contorno) => setFarm([...parcelas, createParcel(nextParcelId(parcelas), contorno)]);
+  const removeParcela = (id) => setFarm(parcelas.filter((p) => p.id !== id));
+  // A corrected outline: same id and crop, new corners and hectares.
+  const updateParcela = (id, contorno) =>
+    setFarm(parcelas.map((p) => (p.id === id ? createParcel(id, contorno, p.cultivo) : p)));
+
+  // The year shown on the map and in the 3D view (one slider moves both).
+  const year = useYearPlayer(clima?.data ?? null);
+  const setCultivo = (id, cultivo) => setParcelas((list) => list.map((p) => (p.id === id ? { ...p, cultivo } : p)));
+
+  // A point chosen without drawing (example button, 3D globe) is another place: parcels are cleared.
+  function choosePoint(selected) {
+    setParcelas([]);
+    loadPoint(selected);
+  }
+
   return (
     <div className="page">
-      <header className="page-header">
+      <header className="hero">
+        <p className="hero-kicker">NASA Space Apps · Bajío</p>
         <h1>Field Shift Bajío</h1>
-        <p>Rotación de cultivos para tu parcela de temporal, con datos de la NASA.</p>
+        <p className="hero-lead">Dibuja tu parcela, mírala en 3D y descubre cómo le ha ido a tu tierra con la lluvia de los últimos 25 años.</p>
+        <Steps
+          steps={[
+            { href: '#paso-1', label: 'Dibuja tu parcela', done: parcelas.length > 0 || Boolean(point) },
+            { href: '#paso-2', label: 'Mírala en 3D', done: Boolean(point) },
+            { href: '#paso-3', label: 'Conoce tu clima', done: Boolean(clima?.data) },
+          ]}
+        />
       </header>
 
       <main>
-        <section className="card">
-          <h2>1. Elige tu parcela</h2>
-          <p className="hint">Por ahora hay una parcela de ejemplo. El mapa llega en la siguiente fase.</p>
+        <section className="card" id="paso-1">
+          <h2>
+            <span className="step-badge">1</span> Dibuja tu parcela
+          </h2>
+          <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
+            <ParcelMap
+              point={point}
+              parcelas={parcelas}
+              suelo={suelo?.data ?? null}
+              clima={clima?.data ?? null}
+              year={year}
+              onAddParcela={addParcela}
+              onUpdateParcela={updateParcela}
+              onRemoveParcela={removeParcela}
+              onSetCultivo={setCultivo}
+            />
+          </Suspense>
           <div className="button-row">
+            <span className="hint">O usa la parcela de ejemplo:</span>
             {EXAMPLE_POINTS.map((example) => (
-              <button key={example.nombre} type="button" disabled={loading} onClick={() => loadPoint(example)}>
+              <button key={example.nombre} type="button" className="secondary" onClick={() => choosePoint(example)}>
                 {example.nombre}
               </button>
             ))}
           </div>
           {point && (
             <p className="hint">
-              Parcela: {point.nombre} ({point.lat}, {point.lon})
+              Parcela: {point.nombre} (centro en {point.lat.toFixed(4)}, {point.lon.toFixed(4)})
             </p>
           )}
         </section>
+
+        <Vista3DSection
+          point={point}
+          parcelas={parcelas}
+          clima={clima}
+          suelo={suelo}
+          year={year}
+          onSelectPoint={choosePoint}
+        />
 
         {loading && (
           <p className="status" role="status">
@@ -66,6 +149,7 @@ export default function App() {
           </p>
         )}
 
+        <div id="paso-3" />
         {clima && <ClimateCard result={clima} />}
         {suelo && <SoilCard result={suelo} />}
       </main>
@@ -73,6 +157,10 @@ export default function App() {
       <footer className="page-footer">
         <p>
           Clima: NASA POWER (NASA Langley Research Center). Suelo: SoilGrids 2.0 (ISRIC World Soil Information).
+        </p>
+        <p>
+          Globo: NASA Blue Marble vía NASA GIBS. Relieve: AWS Terrain Tiles (Mapzen), con alturas de NASA SRTM. Modelos
+          3D hechos por el equipo en Blender.
         </p>
         <p>NASA Space Apps Challenge 2026, Querétaro. Reto Field Shift.</p>
       </footer>
@@ -84,7 +172,9 @@ function ClimateCard({ result }) {
   if (result.error) {
     return (
       <section className="card">
-        <h2>Lluvia y temperatura</h2>
+        <h2>
+          <span className="step-badge">3</span> Lluvia y temperatura
+        </h2>
         <p className="error" role="alert">{result.error}</p>
       </section>
     );
@@ -98,7 +188,9 @@ function ClimateCard({ result }) {
 
   return (
     <section className="card">
-      <h2>Lluvia y temperatura</h2>
+      <h2>
+          <span className="step-badge">3</span> Lluvia y temperatura
+        </h2>
       <ul className="facts">
         <li>
           En un año normal llueven <strong>{Math.round(clima.lluvia_pv_mediana_mm)} mm</strong> de junio a septiembre.

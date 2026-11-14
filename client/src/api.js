@@ -21,6 +21,8 @@ export const getClima = (lat, lon) => request(`/api/clima?${pointQuery(lat, lon)
 
 export const getSuelo = (lat, lon) => request(`/api/suelo?${pointQuery(lat, lon)}`);
 
+export const getTerreno = (lat, lon) => request(`/api/terreno?${pointQuery(lat, lon)}`);
+
 // payload: { lat, lon, agua: "temporal" | "riego", prioridad: "ganar" | "suelo" | "agua" | "riesgo" }
 export const postRecomendar = (payload) =>
   request('/api/recomendar', {

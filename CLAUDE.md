@@ -18,11 +18,10 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
 - Haz commits pequeños y con mensajes claros.
 
 ## Stack (decidido, no cambiar sin preguntar)
-- `client/`: React + Vite, Leaflet (react-leaflet) para el mapa y Recharts para las gráficas.
-- Vista 3D (extra, la lleva un compañero): mapa de **MapLibre GL** con el dibujo en **Three.js** encima. Va en su propia carpeta dentro de `client/src/`.
-  - Leaflet sigue siendo el mapa 2D donde se dibuja la parcela. La vista 3D solo muestra; recibe el mismo contorno y el resultado de `/api/recomendar`.
-  - Ojo: Leaflet usa `[lat, lon]` y MapLibre usa `[lon, lat]`. Hay que voltear las coordenadas del contorno al pasarlo.
-  - La app debe funcionar completa en 2D si el 3D falla o va lento.
+- `client/`: React + Vite, **MapLibre GL** para el mapa (satélite Esri + relieve 3D; cambio del 14 de noviembre,
+  antes era react-leaflet) y Recharts para las gráficas.
+  Vista 3D en `client/src/three/` con three.js + @react-three/fiber + @react-three/drei (aprobado por el equipo).
+  Modelos generados con Blender desde `assets/blender/build_models.py`.
 - `server/`: Node + Express. Sin base de datos y sin login.
 - Caché en disco: `server/cache/<fuente>_<lat2>_<lon2>.json`, con lat/lon redondeados a 2 decimales.
 - Fixtures en `server/fixtures/` del punto demo, para que la demo funcione aunque falle el internet.
@@ -80,7 +79,8 @@ Debe ser simple, explicable y con pruebas unitarias.
 ## Pantallas (una sola página)
 1. Mapa: el agricultor **dibuja el contorno de su parcela** (un polígono: cada clic agrega una esquina, mínimo 3). No es un solo punto.
    - El front calcula el **centro del polígono** y eso es lo que manda como `lat` y `lon`. La API no cambia: NASA POWER y SoilGrids se consultan por punto.
-   - Se hace con react-leaflet, sin librería nueva. Detalle en `docs/api-contract.md`.
+   - Se hace con MapLibre GL (`client/src/map/`). Al terminar, el mapa se ajusta a la parcela y la vista 3D
+     la encuadra con su contorno. Detalle en `docs/api-contract.md`.
    - Botones de ejemplo: "Celaya, Gto." (20.47, -100.81), que manda ese punto directo, sin dibujar.
      El punto es zona de cultivo, 5.5 km al sur del centro. El centro (20.52, -100.81) no sirve de ejemplo: SoilGrids lo enmascara como zona urbana y no devuelve suelo.
 2. Formulario: temporal o riego, y la prioridad.

@@ -6,6 +6,7 @@ import recomendarRouter from './routes/recomendar.js';
 import asistenteRouter from './routes/asistente.js';
 import pronosticoRouter from './routes/pronostico.js';
 import vozRouter from './routes/voz.js';
+import terrenoRouter from './routes/terreno.js';
 import { HttpError } from './lib/errors.js';
 
 // All routes are mounted here so nobody else needs to edit this file.
@@ -23,6 +24,7 @@ export function createApp() {
   app.use('/api/pronostico', pronosticoRouter);
   app.use('/api/asistente', asistenteRouter);
   app.use('/api/voz', vozRouter);
+  app.use('/api/terreno', terrenoRouter);
 
   app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Esa ruta no existe.' });

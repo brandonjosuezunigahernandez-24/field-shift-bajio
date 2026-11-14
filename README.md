@@ -73,6 +73,7 @@ Cualquier punto que ya se consultó una vez queda en `server/cache/` y también 
 |------|--------------|
 | `GET /api/clima?lat&lon` | Lluvia de junio a septiembre por año, años secos, y temperatura y lluvia promedio por mes. |
 | `GET /api/suelo?lat&lon` | pH, arcilla, arena, limo, carbono orgánico y nitrógeno de 0 a 30 cm. |
+| `GET /api/terreno?lat&lon` | Relieve (malla de 65 × 65 alturas) del cuadro de 1 km alrededor de la parcela, para la vista 3D. |
 | `POST /api/recomendar` | Cultivos con puntaje y riesgo, y la rotación de 3 años. *Pendiente (fase 2).* |
 
 Las formas exactas de cada respuesta, con ejemplos reales, están en [docs/api-contract.md](docs/api-contract.md).
@@ -92,10 +93,33 @@ server/
   scripts/             fetch-fixtures.js
   test/                pruebas
 client/
-  src/                 React + Vite; Leaflet y Recharts ya instalados para la fase 2
+  src/                 React + Vite; Recharts ya instalado para la fase 2
+  src/map/             mapa MapLibre donde se dibuja la parcela, y cálculos del polígono
+  src/three/           vista 3D: globo, maqueta de la parcela, cámara (three.js + react-three-fiber)
+  public/models/       bajio.glb, generado con Blender (no se edita a mano)
+  public/textures/     textura del globo (NASA Blue Marble), bajada con `npm run textura`
+assets/blender/        build_models.py: script que genera los modelos 3D
 docs/
   api-contract.md      contrato entre front, back y motor
 ```
+
+### Vista 3D
+
+Arriba de los datos hay un globo de la Tierra. Lo giras, tocas tu región y la parcela se levanta del globo como una maqueta de 1 km por lado, con:
+
+- el **relieve real** del terreno (exagerado para que se note; la página dice cuántas veces),
+- los lados del bloque con el **color del suelo** según SoilGrids (más arcilla, más oscuro),
+- un control de **años 2000–2024**: en años secos la tierra se ve café, las plantas chaparras y amarillas y casi no llueve.
+
+Cuidados de rendimiento: three.js se descarga solo si el navegador tiene WebGL y en un archivo aparte; la escena se dibuja solo cuando algo cambia (`frameloop="demand"`); cada cultivo es un único `InstancedMesh`; la resolución se limita a 1.5×; si el 3D falla, el resto de la página sigue funcionando. Con "reducir movimiento" activado en el sistema, no hay animaciones.
+
+**Modelos 3D.** Salen de [assets/blender/build_models.py](assets/blender/build_models.py). Para cambiarlos, edita el script y vuelve a generar `client/public/models/bajio.glb` (Blender 4.2 o más nuevo):
+
+```bash
+blender --background --factory-startup --python assets/blender/build_models.py
+```
+
+Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de objeto: `maiz`, `sorgo`, `trigo`, `cebada`, `frijol`, `garbanzo`, `brocoli`, `casa`, `arbol`.
 
 ## Credits
 
@@ -106,12 +130,17 @@ docs/
 - **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 30 cm. <https://soilgrids.org/>
   Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B. M., Kempen, B., Ribeiro, E., and Rossiter, D. (2021). SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty. *SOIL*, 7, 217–240. <https://doi.org/10.5194/soil-7-217-2021>
 - **INEGI, Censo Agropecuario 2022**: en Guanajuato el 63.9 % de la superficie agrícola es de temporal.
+- **NASA Blue Marble** (capa `BlueMarble_ShadedRelief_Bathymetry`) vía **NASA GIBS** (Global Imagery Browse Services), textura del globo 3D. <https://www.earthdata.nasa.gov/gibs>
+  *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS).*
+- **Terrain Tiles** en el Registry of Open Data on AWS (formato *terrarium* de Mapzen), relieve de la vista 3D. En México las alturas provienen de **NASA SRTM** (Shuttle Radar Topography Mission). <https://registry.opendata.aws/terrain-tiles/>
 
-Por agregar en las siguientes fases: FAO Ecocrop (requerimientos de los cultivos) y, si se usan, MODIS NDVI (ORNL DAAC) y NASA GIBS.
+- **Esri World Imagery** y **World Imagery (Clarity)**, la versión sin nubes, más **World Boundaries and Places** y **World Transportation** (imagen satelital, nombres de lugares y calles del mapa donde se dibuja la parcela; el agricultor elige "Sin nubes" o "Más rápida"). *Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS.* Se usan sin API key para este prototipo; para un uso en producción hay que revisar los términos de Esri.
+
+Por agregar en las siguientes fases: FAO Ecocrop (requerimientos de los cultivos) y, si se usa, MODIS NDVI (ORNL DAAC).
 
 **Software**
 
-React, Vite, Express, Leaflet, react-leaflet y Recharts, todos de código abierto.
+React, Vite, Express, MapLibre GL JS, Recharts, three.js, @react-three/fiber y @react-three/drei, todos de código abierto. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
 
 **Uso de inteligencia artificial**
 
