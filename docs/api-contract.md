@@ -236,3 +236,8 @@ Próximos 7 días, de Open-Meteo (gratis, CC BY 4.0, solo uso no comercial). Es 
 ### Campos extra de `/api/asistente` (recomendador y conversación)
 Petición: `agua` ("temporal"|"riego"), `prioridad` ("ganar"|"suelo"|"agua"|"riesgo"), `estado` ("Guanajuato"|"Querétaro"; si falta se supone por la longitud), `costos` ({ cultivo: pesos por hectárea y ciclo }) e `historial` (últimas 2 vueltas `{pregunta, respuesta}`).
 Respuesta nueva para "¿qué me conviene sembrar?": `origen: "motor"`. Si falta `agua` o `prioridad` trae `preguntar: { campo, opciones: [{valor, texto}] }` (mostrar botones y repetir la petición con ese campo). Con los dos trae `recomendacion` con la forma de `/api/recomendar` (`cultivos`, `rotacion`, `fuentes`) más `prediccion` y `notas`. Es **provisional** hasta que exista el motor del equipo.
+
+### Perfil de la parcela (propuesta del rol LLM)
+`GET /api/perfil/preguntas` → `{ preguntas: [{ campo, pregunta, porque, opciones: [{valor, texto}], obligatoria?, tipo?, min?, max? }] }`.
+En `POST /api/asistente` se manda `perfil: { agua, prioridad, estado, ultimo_cultivo, hectareas, textura, encharca }` (todos opcionales; "no_se" se ignora; valor inválido = 400). La respuesta de recomendación trae `afinar` (las preguntas opcionales que faltan) y `recomendacion.perfil_usado`. Con `hectareas`, `prediccion` trae también los totales de la parcela.
+`GET /api/pronostico`: cada día trae `codigo_clima` (código WMO del día, o null) para la vista 3D.

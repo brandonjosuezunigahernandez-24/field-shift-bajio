@@ -11,13 +11,14 @@ const raw = {
     precipitation_probability_max: [18, 31],
     temperature_2m_max: [23.2, 24.5],
     temperature_2m_min: [12.3, 11.3],
+    weather_code: [1, 61],
   },
 };
 
 test('parseForecast arma un elemento por día', () => {
   const dias = parseForecast(raw);
   assert.equal(dias.length, 2);
-  assert.deepEqual(dias[1], { fecha: '2026-11-15', lluvia_mm: 1.1, prob_lluvia_pct: 31, t_max_c: 24.5, t_min_c: 11.3 });
+  assert.deepEqual(dias[1], { fecha: '2026-11-15', lluvia_mm: 1.1, prob_lluvia_pct: 31, t_max_c: 24.5, t_min_c: 11.3, codigo_clima: 61 });
 });
 
 test('parseForecast rechaza una respuesta rara', () => {

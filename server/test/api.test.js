@@ -88,3 +88,14 @@ test('un saludo se contesta sin datos ni modelo', async () => {
   assert.equal(body.origen, 'plantilla');
   assert.match(body.respuesta, /Hola/);
 });
+
+test('GET /api/perfil/preguntas devuelve el cuestionario', async () => {
+  const { status, body } = await get('/api/perfil/preguntas');
+  assert.equal(status, 200);
+  assert.equal(body.preguntas[0].campo, 'agua');
+});
+
+test('POST /api/asistente con perfil inválido -> 400', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat: 20.47, lon: -100.81, pregunta: 'hola', perfil: { agua: 'mar' } }) });
+  assert.equal(res.status, 400);
+});

@@ -93,6 +93,7 @@ function razones(c, estado) {
     ? `En ${c.malos.length} de ${n} años (${desde}-${hasta}) se perdió más del ${PERDIDA_ALTA} % de la superficie sembrada en ${estado}.`
     : `En ${estado}, de ${desde} a ${hasta} no hubo años con pérdidas mayores al ${PERDIDA_ALTA} % de la superficie.`;
   return [
+    ...(c.nota ? [c.nota] : []),
     malos,
     `Rinde en promedio ${Math.round(c.rend * 10) / 10} toneladas por hectárea y el precio medio rural fue de ${c.precio} pesos por tonelada.`,
     `Ingreso bruto promedio: unos ${money(c.ingresoMedio)} pesos por hectárea (sin costos).`,
@@ -100,10 +101,11 @@ function razones(c, estado) {
 }
 
 // Rotación de 3 años: no repetir cultivo ni familia en temporadas seguidas y al menos una leguminosa.
-function buildPlan(ranked, agua) {
+function buildPlan(ranked, agua, ultimoCultivo) {
   const ciclos = seasonsFor(agua).map(([ciclo]) => ciclo);
   const plan = [];
-  let prev = null;
+  // Lo último que sembró el agricultor cuenta como la temporada anterior (no repetir cultivo ni familia).
+  let prev = ultimoCultivo && FAMILIA[ultimoCultivo] ? { cultivo: ultimoCultivo } : null;
   const lastSeason = {}; // ciclo -> lo que se sembró en esa misma temporada el año anterior
   const differs = (c, o) => !o || (c.cultivo !== o.cultivo && FAMILIA[c.cultivo] !== FAMILIA[o.cultivo]);
   for (let anio = 1; anio <= 3; anio++) {
@@ -182,11 +184,31 @@ export function simulate(plan, { nSim = 2000, seed = 1, costos = null } = {}) {
   return out;
 }
 
-export function recommend({ estado, agua, prioridad, costos = null, incluirHortalizas = false, filas = loadSiap()?.filas }) {
+// Si el agricultor dijo cuántas hectáreas son, se agrega el total de su parcela.
+function withHectares(p, ha) {
+  if (!p || !ha) return p;
+  const out = {
+    ...p, hectareas: ha,
+    ingreso_bruto_3_anios_esperado_total: money(p.ingreso_bruto_3_anios_esperado_por_ha * ha),
+    ingreso_bruto_3_anios_peor_10_pct_total: money(p.ingreso_bruto_3_anios_peor_10_pct_por_ha * ha),
+    ingreso_bruto_3_anios_mejor_10_pct_total: money(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha * ha),
+  };
+  if (p.ganancia_3_anios_esperada_por_ha != null) out.ganancia_3_anios_esperada_total = money(p.ganancia_3_anios_esperada_por_ha * ha);
+  return out;
+}
+
+export function recommend({ estado, agua, prioridad, costos = null, incluirHortalizas = false, ultimoCultivo = null, hectareas = null, encharca = null, filas = loadSiap()?.filas }) {
   if (!filas || !ESTADOS.includes(estado) || !['temporal', 'riego'].includes(agua) || !PRIORIDADES.includes(prioridad)) return null;
   const ranked = score(candidates(filas, estado, agua).filter((c) => incluirHortalizas || !HORTALIZAS.has(c.cultivo)), prioridad);
   if (!ranked.length) return null;
-  const plan = buildPlan(ranked, agua);
+  if (encharca === 'si') {
+    // Tarjeta verificada: el garbanzo es sensible al encharcamiento.
+    for (const c of ranked) {
+      if (c.cultivo === 'garbanzo') { c.puntaje = Math.round(c.puntaje * 0.7); c.nota = 'Dijiste que tu parcela se encharca y el garbanzo es sensible al encharcamiento.'; }
+    }
+    ranked.sort((a, b) => b.puntaje - a.puntaje);
+  }
+  const plan = buildPlan(ranked, agua, ultimoCultivo);
   return {
     estado, agua, prioridad,
     cultivos: ranked.map((c) => ({
@@ -196,7 +218,8 @@ export function recommend({ estado, agua, prioridad, costos = null, incluirHorta
       anio: p.anio, temporada: CODIGO[p.ciclo], cultivo: p.cand.cultivo,
       porque: `Puntaje ${p.cand.puntaje}.${FAMILIA[p.cand.cultivo] === 'leguminosa' ? ' Es leguminosa: deja algo de nitrógeno para el siguiente cultivo.' : ''}`,
     })),
-    prediccion: simulate(plan, { costos }),
+    prediccion: withHectares(simulate(plan, { costos }), hectareas),
+    perfil_usado: { ultimo_cultivo: ultimoCultivo, hectareas, encharca },
     fuentes: ['SIAP, Cierre de la producción agrícola (datos abiertos), 2018-2024'],
     notas: [
       ...(incluirHortalizas ? ['Las hortalizas (jitomate, brócoli) necesitan mucha más inversión: sus ingresos brutos no son comparables con los de los granos sin conocer los costos.'] : ['No se incluyeron hortalizas (jitomate, brócoli): necesitan mucha más inversión y no tenemos sus costos.']),
@@ -222,10 +245,14 @@ export function explainRecommendation(r, estadoInferido = false) {
     partes.push(
       `Si la sigues, el ingreso bruto esperado en 3 años es de unos ${peso(p.ingreso_bruto_3_anios_esperado_por_ha)} por hectárea (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_por_ha)} en un caso malo a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha)} en uno bueno), ${p.probabilidad_al_menos_un_anio_con_perdida_pct === 0 ? `y en los ${p.anios_base} años de datos no se vio ninguno con pérdidas mayores al ${PERDIDA_ALTA} %, aunque eso no garantiza que no pase` : `y en ${p.probabilidad_al_menos_un_anio_con_perdida_pct} de cada 100 casos hay al menos un año con pérdidas mayores al ${PERDIDA_ALTA} %`}. [SIAP]`,
     );
+    if (p.hectareas) {
+      partes.push(`En tus ${p.hectareas} hectáreas serían unos ${peso(p.ingreso_bruto_3_anios_esperado_total)} en total (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_total)} a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_total)}).`);
+    }
     if (p.ganancia_3_anios_esperada_por_ha != null) {
       partes.push(`Con los costos que diste, la ganancia esperada es de ${peso(p.ganancia_3_anios_esperada_por_ha)} por hectárea y hay ${p.probabilidad_de_perder_dinero_pct} de cada 100 casos de perder dinero.`);
     }
   }
+  if (r.perfil_usado?.ultimo_cultivo) partes.push(`Tomé en cuenta que lo último que sembraste fue ${NOMBRE[r.perfil_usado.ultimo_cultivo] ?? r.perfil_usado.ultimo_cultivo}, para no repetir el mismo tipo de cultivo.`);
   partes.push(`${r.notas[0]} Es una estimación con datos de 7 años del estado, sin costos ni inflación; no sustituye a un técnico.`);
   return partes.join(' ');
 }
