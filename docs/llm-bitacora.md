@@ -93,3 +93,25 @@ Prueba con la ficha de Celaya (4 preguntas, una sola corrida, muestra chica):
 **Conclusión provisional:** el 1B se pasa de cauteloso y rechaza hasta lo que sí está en la ficha, así que no sirve como asistente; el 4B sí. Tiempos: ~2 s por respuesta con el modelo ya cargado; la primera carga tardó 10 s (1B) y 31 s (4B). Si una laptop del rancho no aguanta el 4B, la opción es la plantilla del motor, no el 1B.
 
 Pendiente: probar el 4B con el set de 15 preguntas y medir RAM/velocidad en una laptop débil.
+
+## Paso 4: voz (Whisper local)
+- Dependencia nueva en `server/`: `@huggingface/transformers` (**ojo: `CLAUDE.md` dice no cambiar el stack sin preguntar; avisar al equipo**).
+- `server/llm/voz.js`: voz a texto con `Xenova/whisper-base` (multilingüe). Los modelos se guardan en `server/models/` (281 MB, en `.gitignore`).
+- Prueba: audio en español sintetizado con la voz Sabina de Windows → transcribió *"¿Por qué no me recomienda asembrar maíz en mi parcela?"* (error: "asembrar"). **Sin internet (OFFLINE=1): 3.6 s** (la primera vez incluye la descarga: 46 s).
+- Esa prueba es con voz sintética; con voces reales de campo (ruido, acentos) puede fallar más. Por eso el texto transcrito se muestra al usuario antes de enviarse.
+- Voz de respuesta: Windows trae **Microsoft Sabina (es-MX)**, así que `speechSynthesis` del navegador debería hablar en español sin internet en esta laptop. Otras laptops pueden no tenerla.
+- Falta: ruta que reciba audio (`POST /api/voz`) y el micrófono en el front.
+
+## Cómo trabaja con datos de NASA e internet (ya existe en el servidor)
+Orden de búsqueda por parcela: **caché → API → fixture → error**.
+- Con internet y parcela nueva: baja de NASA/SoilGrids y **guarda en `server/cache/`**. La próxima vez no necesita internet.
+- Sin internet: usa la caché; si no hay, solo funciona el punto demo de Celaya (fixture).
+- Pendiente (idea): botón "preparar parcela" que baje y guarde todo antes de ir al rancho.
+
+## Ventana de contexto: cómo no gastarla
+La ventana es lo que el modelo ve en cada pregunta (ficha + pregunta + respuesta; hoy 2048 tokens).
+1. **Ficha compacta**: solo números, sin texto sobrante.
+2. **Ficha por tema**: si preguntan por suelo, mandar solo la parte de suelo.
+3. **Historial corto**: guardar solo las últimas 2 preguntas, o un resumen.
+4. **Ficha descargable**: la ficha es un JSON; se puede guardar en un archivo y cargar en otro chat o dispositivo sin recalcular. Es fácil porque ya es un objeto simple.
+5. **Resultados ya calculados** (pronósticos, motor) en lugar de datos crudos.
