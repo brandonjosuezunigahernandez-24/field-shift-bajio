@@ -25,3 +25,12 @@
 - Búsqueda en Wikipedia con una palabra: a veces devuelve un homónimo ("calabacita" trajo la página de la calabaza, que sí sirve, pero un caso así puede fallar).
 - Se manda a Wikipedia una palabra de la pregunta del agricultor (sin ubicación ni nombre).
 - No hay búsqueda semántica (embeddings): una pregunta con palabras distintas a las de la base no la encuentra.
+
+## Arreglos tras la primera prueba en el navegador (14 nov)
+Problemas vistos en capturas de pantalla:
+- **"hola" se contestaba con el pronóstico.** Ahora un saludo ("hola", "gracias", "buenas tardes"…) se contesta con un mensaje fijo, sin datos ni modelo (0.1 s).
+- **"qué es un jitomate" → "No tengo ese dato".** La búsqueda en internet solo se activaba con palabras como "cultivar" o "sembrar". Se quitó ese filtro: ahora se consulta Wikipedia y la página solo se acepta si habla de plantas y menciona la palabra buscada. Resultado: explica el jitomate con enlace.
+- **Acciones de mapa en un "No tengo ese dato".** Se activaba `zoom_parcela` porque el texto decía "parcela". Ya no hay acciones cuando el modelo se niega.
+- **Las capturas del amaranto eran de un servidor en modo sin internet** (`OFFLINE=1`), por eso no usaba Wikipedia. Ya se reinició con internet.
+
+**Todavía mal:** con Wikipedia el modelo mezcla ("La ficha indica que su área de distribución…" cuando venía de Wikipedia) y a veces termina con un "No tengo ese dato" de más.

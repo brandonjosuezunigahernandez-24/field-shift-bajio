@@ -80,3 +80,11 @@ test('POST /api/voz sin audio -> 400', async () => {
   const res = await fetch(`${baseUrl}/api/voz`, { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: new Uint8Array(0) });
   assert.equal(res.status, 400);
 });
+
+test('un saludo se contesta sin datos ni modelo', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat: 20.47, lon: -100.81, pregunta: 'hola' }) });
+  const body = await res.json();
+  assert.equal(res.status, 200);
+  assert.equal(body.origen, 'plantilla');
+  assert.match(body.respuesta, /Hola/);
+});

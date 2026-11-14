@@ -4,6 +4,7 @@ import { templateAnswer } from './plantilla.js';
 import { verifyNumbers } from './verificador.js';
 
 const SOURCES = ['NASA POWER', 'SoilGrids', 'Open-Meteo', 'Base local', 'Wikipedia'];
+export const REFUSAL = /^no tengo ese dato[^.]*.?$/i;
 const SUMMARY_QUESTION = 'Explícame cómo es mi parcela: lluvia, años secos y suelo.';
 
 // Nunca lanza: si el modelo falla o inventa un número, responde con la plantilla.
@@ -16,7 +17,8 @@ export async function answer({ ficha, pregunta, ask = askModel }) {
     if (texto && verifyNumbers(texto, ficha).ok) {
       return {
         respuesta: texto,
-        acciones: actionsFor(texto),
+        // Si el modelo se niega, no hay nada que mostrar en el mapa.
+        acciones: REFUSAL.test(texto) ? [] : actionsFor(texto),
         fuentes: (r.fuentes ?? []).filter((f) => SOURCES.includes(f)),
         verificado: true,
         origen: 'llm',

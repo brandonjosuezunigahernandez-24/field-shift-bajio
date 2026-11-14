@@ -6,10 +6,13 @@ import { getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { getForecast } from '../sources/openMeteo.js';
 import { findContext } from '../llm/contexto.js';
 import { buildFicha } from '../llm/ficha.js';
-import { answer } from '../llm/responder.js';
+import { REFUSAL, answer } from '../llm/responder.js';
 
 const router = Router();
 const MAX_QUESTION = 300;
+// Un saludo no necesita datos ni modelo (antes el modelo contestaba un saludo con el pronóstico).
+const GREETING = /^s*(hola|buenas|buenos d[ií]as|buenas tardes|buenas noches|gracias|ok|adi[oó]s)[s!.¡]*$/i;
+const HELLO = '¡Hola! Soy tu asistente. Pregúntame por la lluvia de tu parcela, los años secos, el suelo, el pronóstico de la semana o sobre algún cultivo.';
 
 // POST /api/asistente { lat, lon, pregunta? } -> { respuesta, acciones, fuentes, verificado, origen }
 // Sin pregunta devuelve el resumen inicial de la parcela.
@@ -18,6 +21,9 @@ router.post('/', async (req, res) => {
   const { pregunta } = req.body;
   if (pregunta != null && (typeof pregunta !== 'string' || pregunta.length > MAX_QUESTION)) {
     throw new HttpError(400, `La pregunta debe ser texto de máximo ${MAX_QUESTION} letras.`);
+  }
+  if (GREETING.test(pregunta ?? '')) {
+    return res.json({ respuesta: HELLO, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [] });
   }
   const [{ rows }, { soil }, pronostico, contexto] = await Promise.all([
     getClimate(lat, lon),
@@ -33,7 +39,7 @@ router.post('/', async (req, res) => {
   });
   const result = await answer({ ficha, pregunta });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.
-  const usedExtra = result.origen === 'llm' && !/^no tengo ese dato[^.]*.?$/i.test(result.respuesta);
+  const usedExtra = result.origen === 'llm' && !REFUSAL.test(result.respuesta);
   res.json({ ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [] });
 });
 

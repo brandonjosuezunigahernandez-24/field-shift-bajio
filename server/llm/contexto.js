@@ -10,9 +10,6 @@ const LOCAL_SOURCE = 'Base local';
 const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const words = (s) => strip(s).match(/[a-z0-9]+/g) ?? [];
 
-// Solo se sale a internet si la pregunta parece de agricultura; así "¿quién ganó el futbol?" no se contesta.
-const AGRO = /\b(cultiv|siembr|sembr|cosech|plaga|fertiliz|abono|riego|regar|suelo|semilla|maiz|sorgo|frijol|trigo|cebada|garbanzo|brocoli|invernadero|helada|rotacion|agricult|parcela|cosecha)/;
-
 export function findLocal(question, limit = 3) {
   const q = new Set(words(question));
   return KNOWLEDGE.map((e) => ({ e, score: e.palabras.filter((p) => q.has(p)).length }))
@@ -36,7 +33,7 @@ export function parseWikipedia(raw) {
 }
 
 async function findInternet(question) {
-  if (process.env.OFFLINE === '1' || !AGRO.test(strip(question))) return null;
+  if (process.env.OFFLINE === '1') return null;
   const keys = keywords(question);
   if (!keys.length) return null;
   const url = 'https://es.wikipedia.org/w/api.php?' + new URLSearchParams({
