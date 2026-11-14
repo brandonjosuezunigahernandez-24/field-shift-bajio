@@ -39,7 +39,9 @@ export function parseForecast(raw) {
 export async function getForecast(lat, lon) {
   const key = cacheKey('forecast', lat, lon);
   const cached = await readCache(key);
-  const ageHours = cached ? (Date.now() - Date.parse(cached.obtenido)) / 3.6e6 : Infinity;
+  // Una caché de antes de agregar codigo_clima se considera vieja para volver a consultar (si no hay internet se usa igual).
+  const oldShape = cached && !('codigo_clima' in (cached.dias?.[0] ?? {}));
+  const ageHours = cached && !oldShape ? (Date.now() - Date.parse(cached.obtenido)) / 3.6e6 : Infinity;
 
   if (cached && ageHours < FRESH_HOURS) return { ...cached, origen: 'cache' };
 
