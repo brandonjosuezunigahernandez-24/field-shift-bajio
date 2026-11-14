@@ -25,7 +25,7 @@ import {
   WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { MODELS_URL, modelGeometries } from '../three/mergeModels.js';
+import { MODELS_URL, modelGeometries, modelMaterial } from '../three/mergeModels.js';
 import { allCorners, mapPlantSpots } from './parcels.js';
 import { polygonCenter } from './polygon.js';
 
@@ -65,7 +65,6 @@ export function createCropLayer() {
   let models = null;
   const scene = new Scene();
   const camera = new Camera();
-  const material = new MeshStandardMaterial({ vertexColors: true, roughness: 0.9, flatShading: true });
   const meshes = new Map(); // cultivo -> InstancedMesh
   const spotCache = new Map(); // parcel key -> { spots, spacing }
   let origin = null; // { lat, lon, merc, scale }
@@ -276,7 +275,7 @@ export function createCropLayer() {
       if (!geometry.boundingBox) geometry.computeBoundingBox();
       const modelHeight = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
       const count = groups.reduce((n, g) => n + g.spots.length, 0);
-      const mesh = new InstancedMesh(geometry, material, count);
+      const mesh = new InstancedMesh(geometry, modelMaterial(geometry), count); // baked texture
       mesh.frustumCulled = false;
       let i = 0;
       for (const { spots, spacing, base } of groups) {
@@ -343,7 +342,6 @@ export function createCropLayer() {
     onRemove() {
       for (const mesh of meshes.values()) mesh.dispose();
       meshes.clear();
-      material.dispose();
       cloudMaterial.dispose();
       clouds.dispose();
       rainGeometry.dispose();

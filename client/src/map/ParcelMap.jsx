@@ -16,6 +16,7 @@ import { YearControl } from '../year.jsx';
 import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
 import { createCropLayer } from './cropLayer.js';
 import FarmSummary from './FarmSummary.jsx';
+import { ensurePattern } from './patterns.js';
 import {
   areaHectares,
   bounds,
@@ -171,7 +172,8 @@ function addParcelLayers(map) {
     type: 'fill-extrusion',
     source: 'parcelas-3d',
     paint: {
-      'fill-extrusion-color': ['get', 'tierra'],
+      // Textured sides: clods and soil layers in the SoilGrids color (patterns.js).
+      'fill-extrusion-pattern': ['get', 'patron_suelo'],
       'fill-extrusion-base': 0,
       'fill-extrusion-height': ['get', 'suelo_m'],
       'fill-extrusion-opacity': 0.95,
@@ -182,7 +184,8 @@ function addParcelLayers(map) {
     type: 'fill-extrusion',
     source: 'parcelas-3d',
     paint: {
-      'fill-extrusion-color': ['get', 'cultivo'],
+      // Textured top: furrow rows with plants in the crop color for the year (patterns.js).
+      'fill-extrusion-pattern': ['get', 'patron_cultivo'],
       'fill-extrusion-base': ['get', 'suelo_m'],
       'fill-extrusion-height': ['get', 'tope_m'],
       'fill-extrusion-opacity': 0.95,
@@ -460,6 +463,10 @@ export default function ParcelMap({
       if (onlyIfGroundChanged && key === lastGround) return; // nothing new: avoid a repaint loop
       lastGround = key;
       const raised = raisedParcelsGeoJSON(shown, rise, soilRgb, CROP_COLORS, ground, plantLook);
+      for (const feature of raised.features) {
+        feature.properties.patron_suelo = ensurePattern(map, 'suelo', feature.properties.tierra);
+        feature.properties.patron_cultivo = ensurePattern(map, 'cultivo', feature.properties.cultivo);
+      }
       source.setData(raised);
       // Plants stand on the top of each raised block (ground height + block, as the map draws it).
       cropLayerRef.current?.update({

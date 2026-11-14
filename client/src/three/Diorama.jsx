@@ -15,7 +15,9 @@ import {
 } from 'three';
 import { pointInPolygon } from '../map/polygon.js';
 import { clamp, surfaceFrame } from './geo.js';
+import { modelMaterial } from './mergeModels.js';
 import { useModelGeometries } from './models.js';
+import { soilTexture, strataTexture } from './textures.js';
 import { reliefExaggeration, soilColors, yearState } from './parcelState.js';
 
 // The diorama is built in local units: the 1 km square goes from -0.5 to 0.5 on x (east)
@@ -28,6 +30,8 @@ const FIELD = 0.84; // planted share of the side
 const RISE_SECONDS = 1.4;
 const MORPH_SECONDS = 0.9;
 const MAX_RAIN = 500;
+const TERRAIN_REPEAT = 10; // the soil texture tiles 10 times across the 1 km block
+const SKIRT_REPEAT = 6; // strata texture tiles per block side
 const MAX_PLANTS = 900;
 const OUTSIDE_GROUND = [0.55, 0.5, 0.36]; // land around a drawn parcel: brush and dirt roads
 const EDGE = 0.49; // keep plants and the outline on the block
@@ -111,8 +115,15 @@ function makeTerrainGeometry(tam) {
       index.push(a, c, b, b, c, d);
     }
   }
+  const uvs = new Float32Array(tam * tam * 2);
+  for (let row = 0; row < tam; row++) {
+    for (let col = 0; col < tam; col++) {
+      uvs.set([(col / (tam - 1)) * TERRAIN_REPEAT, (1 - row / (tam - 1)) * TERRAIN_REPEAT], (row * tam + col) * 2);
+    }
+  }
   geometry.setIndex(index);
   geometry.setAttribute('position', new BufferAttribute(positions, 3));
+  geometry.setAttribute('uv', new BufferAttribute(uvs, 2));
   geometry.setAttribute('color', new BufferAttribute(new Float32Array(tam * tam * 3), 3));
   return geometry;
 }
@@ -135,6 +146,7 @@ function makeSkirtGeometry(tam) {
   const geometry = new BufferGeometry();
   geometry.setAttribute('position', new BufferAttribute(new Float32Array(vertices * 3), 3));
   geometry.setAttribute('color', new BufferAttribute(new Float32Array(vertices * 3), 3));
+  geometry.setAttribute('uv', new BufferAttribute(new Float32Array(vertices * 2), 2));
   return geometry;
 }
 
@@ -142,28 +154,36 @@ function writeSkirt(geometry, terrainPositions, tam, colors) {
   const ring = perimeter(tam);
   const pos = geometry.attributes.position.array;
   const col = geometry.attributes.color.array;
+  const uv = geometry.attributes.uv.array;
   let k = 0;
-  const put = (x, y, z, c) => {
+  // u: distance along the edge (so the strata tile around the block); v: 0 bottom, 1 top.
+  const put = (x, y, z, c, u = 0, v = 0) => {
     pos.set([x, y, z], k * 3);
     col.set([c.r, c.g, c.b], k * 3);
+    uv.set([u, v], k * 2);
     k++;
   };
+  let along = 0;
   const top = (id) => [terrainPositions[id * 3], terrainPositions[id * 3 + 1], terrainPositions[id * 3 + 2]];
   for (let n = 0; n < ring.length - 1; n++) {
     const [ax, ay, az] = top(ring[n]);
     const [bx, by, bz] = top(ring[n + 1]);
-    put(ax, ay, az, colors.top);
-    put(ax, -BASE, az, colors.sub);
-    put(bx, by, bz, colors.top);
-    put(bx, by, bz, colors.top);
-    put(ax, -BASE, az, colors.sub);
-    put(bx, -BASE, bz, colors.sub);
+    const ua = along * SKIRT_REPEAT;
+    along += Math.hypot(bx - ax, bz - az);
+    const ub = along * SKIRT_REPEAT;
+    put(ax, ay, az, colors.top, ua, 1);
+    put(ax, -BASE, az, colors.sub, ua, 0);
+    put(bx, by, bz, colors.top, ub, 1);
+    put(bx, by, bz, colors.top, ub, 1);
+    put(ax, -BASE, az, colors.sub, ua, 0);
+    put(bx, -BASE, bz, colors.sub, ub, 0);
   }
   for (const [x, z] of [[-0.5, -0.5], [0.5, 0.5], [0.5, -0.5], [-0.5, -0.5], [-0.5, 0.5], [0.5, 0.5]]) {
     put(x, -BASE, z, colors.sub);
   }
   geometry.attributes.position.needsUpdate = true;
   geometry.attributes.color.needsUpdate = true;
+  geometry.attributes.uv.needsUpdate = true;
   geometry.computeVertexNormals();
   geometry.computeBoundingSphere();
 }
@@ -309,9 +329,14 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     return clamp(realHeight * 0.022, 0.022, 0.045) / realHeight;
   };
 
-  const material = useMemo(() => new MeshStandardMaterial({ vertexColors: true, roughness: 0.9, flatShading: true }), []);
-  const soilMaterial = useMemo(() => new MeshStandardMaterial({ vertexColors: true, roughness: 1, side: DoubleSide }), []);
-  useEffect(() => () => { material.dispose(); soilMaterial.dispose(); }, [material, soilMaterial]);
+  // Ground: tilled soil on top, soil layers on the sides (procedural, see textures.js), tinted by
+  // the vertex colors. Models: the texture baked in Blender (modelMaterial, shared and cached).
+  const groundMaterial = useMemo(() => new MeshStandardMaterial({ vertexColors: true, map: soilTexture(), roughness: 1 }), []);
+  const soilMaterial = useMemo(
+    () => new MeshStandardMaterial({ vertexColors: true, map: strataTexture(), roughness: 1, side: DoubleSide }),
+    []
+  );
+  useEffect(() => () => { groundMaterial.dispose(); soilMaterial.dispose(); }, [groundMaterial, soilMaterial]);
 
   const state = useMemo(() => yearState(clima, anio), [clima, anio]);
   const soil = useMemo(() => soilColors(suelo), [suelo]);
@@ -416,7 +441,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
       <mesh
         key={`${id}${x}${z}`}
         geometry={models[id]}
-        material={material}
+        material={modelMaterial(models[id])}
         position={[x, heightAt(targetY, tam, x, z), z]}
         rotation={[0, yaw, 0]}
         scale={scale}
@@ -427,7 +452,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
   return (
     // Clicks on the diorama must not fall through to the globe behind it.
     <group ref={groupRef} quaternion={quaternion} scale={SIZE} onClick={(e) => e.stopPropagation()}>
-      <mesh geometry={terrainGeometry} material={material} />
+      <mesh geometry={terrainGeometry} material={groundMaterial} />
       <mesh geometry={skirtGeometry} material={soilMaterial} raycast={() => null} />
       {/* One InstancedMesh per field: one draw call per parcel, whatever its number of plants. */}
       {fields.map((field) => (
@@ -437,7 +462,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
             if (mesh) cropMeshes.current.set(field.key, mesh);
             else cropMeshes.current.delete(field.key);
           }}
-          args={[cropGeometry(field.cultivo), material, field.plants.length]}
+          args={[cropGeometry(field.cultivo), modelMaterial(cropGeometry(field.cultivo)), field.plants.length]}
           raycast={() => null}
           frustumCulled={false}
           onUpdate={redraw}

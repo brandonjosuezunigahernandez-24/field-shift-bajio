@@ -1,4 +1,4 @@
-import { BufferAttribute, Matrix4 } from 'three';
+import { BufferAttribute, Matrix4, MeshStandardMaterial, SRGBColorSpace } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 import { CROP_IDS } from '../crops.js';
 
@@ -9,18 +9,25 @@ export const MODELS_URL = '/models/bajio.glb';
 export const SCENERY_IDS = ['casa', 'arbol'];
 
 // Each model may come as several meshes (one per material). For instancing we want ONE
-// geometry per model: bake each material color into a vertex color and merge.
+// geometry per model: bake each material color into a vertex color and merge. Since the models
+// carry a baked texture (assets/blender/build_models.py), UVs are kept and the texture rides on
+// geometry.userData.map; modelMaterial() turns it into the material to draw with.
 function mergeModel(node) {
   node.updateWorldMatrix(true, true);
   const toNode = new Matrix4().copy(node.matrixWorld).invert();
   const parts = [];
+  let map = null;
   node.traverse((child) => {
     if (!child.isMesh) return;
     const geometry = child.geometry.clone().toNonIndexed();
     geometry.applyMatrix4(new Matrix4().multiplyMatrices(toNode, child.matrixWorld));
     for (const name of Object.keys(geometry.attributes)) {
-      if (name !== 'position' && name !== 'normal') geometry.deleteAttribute(name);
+      if (name !== 'position' && name !== 'normal' && name !== 'uv') geometry.deleteAttribute(name);
     }
+    if (!geometry.attributes.uv) {
+      geometry.setAttribute('uv', new BufferAttribute(new Float32Array(geometry.attributes.position.count * 2), 2));
+    }
+    map = map ?? child.material.map ?? null;
     const { r, g, b } = child.material.color; // linear, as three expects for vertex colors
     const count = geometry.attributes.position.count;
     const colors = new Float32Array(count * 3);
@@ -30,7 +37,24 @@ function mergeModel(node) {
   });
   const merged = mergeGeometries(parts);
   parts.forEach((p) => p.dispose());
+  if (map) {
+    map.colorSpace = SRGBColorSpace;
+    map.anisotropy = 4;
+    merged.userData.map = map;
+  }
   return merged;
+}
+
+// One material per model (cached): its baked texture, tinted by the vertex/instance colors.
+const materialByGeometry = new WeakMap();
+export function modelMaterial(geometry) {
+  if (!materialByGeometry.has(geometry)) {
+    materialByGeometry.set(
+      geometry,
+      new MeshStandardMaterial({ vertexColors: true, map: geometry.userData.map ?? null, roughness: 0.85, flatShading: true })
+    );
+  }
+  return materialByGeometry.get(geometry);
 }
 
 // Merged once per loaded file (a new parcel or diorama does not re-merge).

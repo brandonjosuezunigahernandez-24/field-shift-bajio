@@ -7,10 +7,14 @@ Run from the repo root (Blender 4.2+ or 5.x, no GUI needed):
     blender --background --factory-startup --python assets/blender/build_models.py
 
 Budget, so hundreds of instances stay smooth on a school laptop or a phone:
-  - crops under ~300 triangles each, flat shaded, one simple material per part;
+  - crops under ~300 triangles each, flat shaded;
   - sizes in real meters (Z up in Blender, Y up in the .glb); the web view scales them.
-The client merges each model into a single geometry with vertex colors and draws every crop
-type with one InstancedMesh (one draw call per crop, whatever the number of plants).
+
+Textures: every part gets a procedural material (leaf veins, stalk fibers, kernels, florets,
+bark, adobe plaster, clay roof tiles, wood grain). Each finished model is then UV-unwrapped and
+its colors are BAKED (Cycles) into ONE image, exported as JPEG inside the .glb. One texture per
+model keeps the client fast: every crop type is still one InstancedMesh, one draw call, whatever
+the number of plants. Nothing is downloaded: the textures are made here, so no license to check.
 """
 
 import math
@@ -43,11 +47,55 @@ C = {
     "roof": (0.70, 0.30, 0.18),
     "wood": (0.40, 0.25, 0.12),
     "canopy": (0.33, 0.45, 0.20),
+    "bark": (0.34, 0.23, 0.14),
 }
+
+# Which procedural pattern each part gets.
+KIND = {
+    "leaf": "veins", "leaf_dark": "veins", "leaf_blue": "veins", "canopy": "veins",
+    "chickpea": "veins", "pod": "veins", "husk": "veins",
+    "stalk": "fiber",
+    "tassel": "kernels", "wheat": "kernels", "barley": "kernels", "grain_red": "kernels",
+    "broccoli": "florets",
+    "wall": "plaster", "roof": "tiles", "wood": "woodgrain", "bark": "bark",
+}
+TEXTURE_SIZE = 512
 _materials = {}
 
 
+def _shade(rgb, k):
+    return tuple(min(1.0, c * k) for c in rgb) + (1.0,)
+
+
+def _ramp(nodes, links, fac_socket, stops):
+    """ColorRamp from a 0..1 factor; stops = [(position, rgba), ...]."""
+    ramp = nodes.new("ShaderNodeValToRGB")
+    elements = ramp.color_ramp.elements
+    while len(elements) < len(stops):
+        elements.new(0.5)
+    for element, (pos, color) in zip(elements, stops):
+        element.position = pos
+        element.color = color
+    links.new(fac_socket, ramp.inputs["Fac"])
+    return ramp.outputs["Color"]
+
+
+def _mix(nodes, links, a, b, wa=0.5):
+    """a * wa + b * (1 - wa), with Math nodes (stable across Blender versions)."""
+    m1 = nodes.new("ShaderNodeMath")
+    m1.operation = "MULTIPLY"
+    m1.inputs[1].default_value = wa
+    links.new(a, m1.inputs[0])
+    m2 = nodes.new("ShaderNodeMath")
+    m2.operation = "MULTIPLY_ADD"
+    m2.inputs[1].default_value = 1 - wa
+    links.new(b, m2.inputs[0])
+    links.new(m1.outputs[0], m2.inputs[2])
+    return m2.outputs[0]
+
+
 def material(name):
+    """Procedural material for one part. It only lives until the model is baked."""
     if name in _materials:
         return _materials[name]
     mat = bpy.data.materials.new(name)
@@ -57,12 +105,122 @@ def material(name):
         mat.use_nodes = True  # always on (and deprecated) in Blender 5
     except AttributeError:
         pass
-    bsdf = mat.node_tree.nodes.get("Principled BSDF") if mat.node_tree else None
-    if bsdf:
-        bsdf.inputs["Base Color"].default_value = (*rgb, 1.0)
-        bsdf.inputs["Roughness"].default_value = 0.9
+    nodes = mat.node_tree.nodes
+    links = mat.node_tree.links
+    bsdf = nodes.get("Principled BSDF")
+    bsdf.inputs["Roughness"].default_value = 0.85
+    coord = nodes.new("ShaderNodeTexCoord").outputs["Object"]
+    kind = KIND[name]
+
+    def noise(scale, detail=4.0, rough=0.6):
+        n = nodes.new("ShaderNodeTexNoise")
+        n.inputs["Scale"].default_value = scale
+        n.inputs["Detail"].default_value = detail
+        n.inputs["Roughness"].default_value = rough
+        links.new(coord, n.inputs["Vector"])
+        return n.outputs["Fac"]
+
+    def wave(scale, distortion, kind_="BANDS", direction="X"):
+        w = nodes.new("ShaderNodeTexWave")
+        w.wave_type = kind_
+        if kind_ == "BANDS":
+            w.bands_direction = direction
+        else:
+            w.rings_direction = "Z"
+        w.inputs["Scale"].default_value = scale
+        w.inputs["Distortion"].default_value = distortion
+        w.inputs["Detail"].default_value = 3.0
+        links.new(coord, w.inputs["Vector"])
+        return w.outputs["Fac"]
+
+    def voronoi(scale):
+        v = nodes.new("ShaderNodeTexVoronoi")
+        v.inputs["Scale"].default_value = scale
+        links.new(coord, v.inputs["Vector"])
+        return v.outputs["Distance"]
+
+    if kind == "veins":  # fine parallel veins and soft mottling on leaves
+        fac = _mix(nodes, links, wave(55, 2.5), noise(14), 0.55)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.62)), (0.5, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.3))])
+    elif kind == "fiber":  # vertical fibers along stalks and stems
+        fac = _mix(nodes, links, wave(70, 1.5, direction="Z"), noise(30), 0.6)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.7)), (0.6, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.2))])
+    elif kind == "kernels":  # packed grains: bright kernels, dark gaps
+        fac = voronoi(110)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 1.3)), (0.35, _shade(rgb, 1.0)), (0.75, _shade(rgb, 0.55))])
+    elif kind == "florets":  # broccoli head: small bumps
+        fac = _mix(nodes, links, voronoi(70), noise(40), 0.7)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 1.6)), (0.4, _shade(rgb, 1.0)), (0.9, _shade(rgb, 0.5))])
+    elif kind == "plaster":  # hand-applied adobe plaster with speckles
+        fac = _mix(nodes, links, noise(4, 8, 0.7), noise(80, 2, 0.5), 0.7)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.82)), (0.5, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.08))])
+    elif kind == "tiles":  # clay roof tiles in rows
+        brick = nodes.new("ShaderNodeTexBrick")
+        brick.inputs["Color1"].default_value = _shade(rgb, 1.0)
+        brick.inputs["Color2"].default_value = _shade(rgb, 0.78)
+        brick.inputs["Mortar"].default_value = _shade(rgb, 0.45)
+        brick.inputs["Scale"].default_value = 6.0
+        brick.inputs["Mortar Size"].default_value = 0.015
+        brick.inputs["Brick Width"].default_value = 0.35
+        brick.inputs["Row Height"].default_value = 0.18
+        links.new(coord, brick.inputs["Vector"])
+        color = brick.outputs["Color"]
+    elif kind == "woodgrain":  # planks of the door and windows
+        fac = _mix(nodes, links, wave(6, 8, "RINGS"), noise(40), 0.75)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.7)), (0.5, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.25))])
+    else:  # bark: deep vertical cracks
+        fac = _mix(nodes, links, wave(18, 10, direction="Z"), noise(10, 8, 0.7), 0.5)
+        color = _ramp(nodes, links, fac, [(0.0, _shade(rgb, 0.45)), (0.45, _shade(rgb, 1.0)), (1.0, _shade(rgb, 1.25))])
+
+    links.new(color, bsdf.inputs["Base Color"])
     _materials[name] = mat
     return mat
+
+
+def bake_texture(obj, size=TEXTURE_SIZE):
+    """UV-unwrap the model and bake all its procedural colors into one image and one material."""
+    scene = bpy.context.scene
+    bpy.ops.object.select_all(action="DESELECT")
+    obj.select_set(True)
+    bpy.context.view_layer.objects.active = obj
+    bpy.ops.object.mode_set(mode="EDIT")
+    bpy.ops.mesh.select_all(action="SELECT")
+    bpy.ops.uv.smart_project(angle_limit=math.radians(66), island_margin=0.03)
+    bpy.ops.object.mode_set(mode="OBJECT")
+
+    image = bpy.data.images.new(f"{obj.name}_textura", size, size)
+    added = []
+    for slot in obj.material_slots:
+        tree = slot.material.node_tree
+        node = tree.nodes.new("ShaderNodeTexImage")
+        node.image = image
+        tree.nodes.active = node  # Cycles bakes into the active image node of each material
+        added.append((tree, node))
+
+    scene.render.engine = "CYCLES"
+    scene.cycles.device = "CPU"
+    scene.cycles.samples = 1  # a color pass has no noise to clean up
+    scene.render.bake.margin = 6
+    bpy.ops.object.bake(type="DIFFUSE", pass_filter={"COLOR"}, use_clear=True)
+    for tree, node in added:
+        tree.nodes.remove(node)
+    image.pack()  # embedded in the .glb
+
+    baked = bpy.data.materials.new(f"{obj.name}_material")
+    try:
+        baked.use_nodes = True
+    except AttributeError:
+        pass
+    tree = baked.node_tree
+    bsdf = tree.nodes.get("Principled BSDF")
+    bsdf.inputs["Roughness"].default_value = 0.85
+    tex = tree.nodes.new("ShaderNodeTexImage")
+    tex.image = image
+    tree.links.new(tex.outputs["Color"], bsdf.inputs["Base Color"])
+    obj.data.materials.clear()
+    obj.data.materials.append(baked)
+    for poly in obj.data.polygons:
+        poly.material_index = 0
 
 
 def finish(obj, color):
@@ -217,7 +375,7 @@ def farmhouse():
 
 
 def mesquite():
-    parts = [cylinder("wood", 0.18, 2.2, (0, 0, 1.1), rot=(0.12, 0.05, 0), radius_top=0.1)]
+    parts = [cylinder("bark", 0.18, 2.2, (0, 0, 1.1), rot=(0.12, 0.05, 0), radius_top=0.1)]
     for loc, s in (((0.4, 0, 2.6), 1.6), ((-0.8, 0.4, 2.3), 1.3), ((0.2, -0.9, 2.4), 1.2)):
         parts.append(blob("canopy", s, loc, scale=(1, 1, 0.45)))
     return join("arbol", parts)
@@ -240,19 +398,19 @@ def main():
     ]
 
     # Spread them on X so the .blend/.glb is easy to inspect; the web view only reads geometry.
+    for obj in models:
+        bake_texture(obj)
     for i, obj in enumerate(models):
         obj.location = (i * 3.0 if obj.name not in ("casa", "arbol") else 30 + i * 6.0, 0, 0)
         tris = sum(len(p.vertices) - 2 for p in obj.data.polygons)
-        print(f"  {obj.name:<9} {tris:>5} triangles")
+        print(f"  {obj.name:<9} {tris:>5} triangles, textura {TEXTURE_SIZE} px")
 
     os.makedirs(os.path.dirname(OUT), exist_ok=True)
-    bpy.ops.export_scene.gltf(
-        filepath=OUT,
-        export_format="GLB",
-        use_selection=False,
-        export_apply=True,
-        export_yup=True,
-    )
+    options = dict(filepath=OUT, export_format="GLB", use_selection=False, export_apply=True, export_yup=True)
+    try:  # JPEG keeps 9 textures small (the option names changed across Blender versions)
+        bpy.ops.export_scene.gltf(**options, export_image_format="JPEG", export_jpeg_quality=85)
+    except TypeError:
+        bpy.ops.export_scene.gltf(**options, export_image_format="JPEG")
     print(f"OK {OUT}")
 
 
