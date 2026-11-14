@@ -206,11 +206,13 @@ function Rain({ intensity, animate }) {
   );
 }
 
-export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, outline, showRain, reducedMotion }) {
+// sections: drawn parcels [{ id, cultivo, color, outline: [[x, z], ...] }] in diorama units.
+// Without sections the whole block is one field of `cultivo`.
+export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, sections = [], showRain, reducedMotion }) {
   const invalidate = useThree((s) => s.invalidate);
   const models = useModelGeometries();
   const groupRef = useRef();
-  const cropsRef = useRef();
+  const cropMeshes = useRef(new Map()); // field key -> InstancedMesh
 
   const frame = useMemo(() => surfaceFrame(lat, lon), [lat, lon]);
   const quaternion = useMemo(() => {
@@ -249,11 +251,21 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     return Float32Array.from({ length: tam * tam }, () => (random() - 0.5) * 0.08);
   }, [lat, lon, tam]);
 
-  // --- plants: fixed positions per plot. A drawn parcel is planted only inside its outline;
-  // otherwise the whole square is planted, minus the farmhouse corner ---
-  const plants = useMemo(() => {
-    const random = mulberry32(Math.round(lat * 1000) ^ Math.round(lon * 1000));
-    if (outline) return plantsInside(outline, random);
+  // --- fields: each drawn parcel with its own crop, or the whole block as one field ---
+  // Plant positions depend only on the shapes, so changing a crop keeps the same plants.
+  const shapesKey = sections.map((sec) => sec.outline.flat().join(',')).join('|');
+  const outlines = useMemo(() => sections.map((sec) => sec.outline), [shapesKey]); // eslint-disable-line react-hooks/exhaustive-deps
+  const plantsByField = useMemo(() => {
+    const seed = Math.round(lat * 1000) ^ Math.round(lon * 1000);
+    if (outlines.length) {
+      // Where two parcels overlap, the most recent one is the one planted.
+      return outlines.map((outline, i) =>
+        plantsInside(outline, mulberry32(seed + i * 7919)).filter(
+          (p) => !outlines.slice(i + 1).some((later) => pointInPolygon([p.x, p.z], later))
+        )
+      );
+    }
+    const random = mulberry32(seed);
     const list = [];
     for (let r = 0; r < GRID; r++) {
       for (let c = 0; c < GRID; c++) {
@@ -263,33 +275,39 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
         list.push({ x, z, yaw: random() * Math.PI * 2, size: 0.85 + random() * 0.3 });
       }
     }
-    return list;
-  }, [lat, lon, outline]);
+    return [list];
+  }, [lat, lon, outlines]);
+  const fields = (sections.length ? sections : [{ id: 0, cultivo, color: null }]).map((sec, i) => ({
+    key: `${sec.id}:${sec.cultivo}`,
+    cultivo: sec.cultivo,
+    plants: plantsByField[i] ?? [],
+  }));
 
-  // Which terrain vertices fall inside the drawn parcel (null: no outline, all are "field").
+  // Which terrain vertices fall inside any drawn parcel (null: no parcels, all is "field").
   const insideMask = useMemo(() => {
-    if (!outline) return null;
+    if (!outlines.length) return null;
     const mask = new Uint8Array(tam * tam);
     for (let row = 0; row < tam; row++) {
       for (let col = 0; col < tam; col++) {
-        mask[row * tam + col] = pointInPolygon([col / (tam - 1) - 0.5, row / (tam - 1) - 0.5], outline) ? 1 : 0;
+        const pt = [col / (tam - 1) - 0.5, row / (tam - 1) - 0.5];
+        mask[row * tam + col] = outlines.some((o) => pointInPolygon(pt, o)) ? 1 : 0;
       }
     }
     return mask;
-  }, [outline, tam]);
+  }, [outlines, tam]);
 
   const sceneryAt = useMemo(() => {
-    const free = SCENERY_SPOTS.filter(([x, z]) => !outline || !pointInPolygon([x, z], outline));
+    const free = SCENERY_SPOTS.filter(([x, z]) => !outlines.some((o) => pointInPolygon([x, z], o)));
     return { casa: free[0], arboles: free.slice(1, 4) };
-  }, [outline]);
+  }, [outlines]);
 
-  const cropGeometry = models[cultivo] ?? models.maiz;
-  const cropScale = useMemo(() => {
-    cropGeometry.computeBoundingBox();
-    const realHeight = cropGeometry.boundingBox.max.y - cropGeometry.boundingBox.min.y;
-    // Exaggerated like the relief, so a 0.5 m bean is still visible: 0.022 to 0.045 of the side.
+  // Exaggerated like the relief, so a 0.5 m bean is still visible: 0.022 to 0.045 of the side.
+  const cropGeometry = (id) => models[id] ?? models.maiz;
+  const cropScale = (geometry) => {
+    if (!geometry.boundingBox) geometry.computeBoundingBox();
+    const realHeight = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
     return clamp(realHeight * 0.022, 0.022, 0.045) / realHeight;
-  }, [cropGeometry]);
+  };
 
   const material = useMemo(() => new MeshStandardMaterial({ vertexColors: true, roughness: 0.9, flatShading: true }), []);
   const soilMaterial = useMemo(() => new MeshStandardMaterial({ vertexColors: true, roughness: 1, side: DoubleSide }), []);
@@ -322,16 +340,18 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     terrainGeometry.computeBoundingSphere();
     writeSkirt(skirtGeometry, pos, tam, { top: linear(soil.top), sub: linear(soil.sub) });
 
-    const mesh = cropsRef.current;
-    if (mesh) {
-      const dummy = new Object3D();
-      const tint = linear(state.tint);
-      const g = state.growth;
-      plants.forEach((p, i) => {
-        const s = cropScale * p.size;
+    const dummy = new Object3D();
+    const tint = linear(state.tint);
+    const g = state.growth;
+    for (const field of fields) {
+      const mesh = cropMeshes.current.get(field.key);
+      if (!mesh) continue;
+      const scale = cropScale(cropGeometry(field.cultivo));
+      field.plants.forEach((p, i) => {
+        const sz = scale * p.size;
         dummy.position.set(p.x, heightAt(currentY, tam, p.x, p.z), p.z);
         dummy.rotation.set(0, p.yaw, 0);
-        dummy.scale.set(s * (0.75 + 0.25 * g), s * g, s * (0.75 + 0.25 * g));
+        dummy.scale.set(sz * (0.75 + 0.25 * g), sz * g, sz * (0.75 + 0.25 * g));
         dummy.updateMatrix();
         mesh.setMatrixAt(i, dummy.matrix);
         mesh.setColorAt(i, tint);
@@ -342,12 +362,12 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     invalidate();
   };
 
-  // Redraw when the year, crop, soil or relief change.
-  useLayoutEffect(redraw, [state, soil, cultivo, cropScale, terrainGeometry, plants, targetY, insideMask]); // eslint-disable-line react-hooks/exhaustive-deps
+  // Redraw when the year, crops, soil or relief change.
+  const fieldsKey = fields.map((fld) => fld.key).join('|');
+  useLayoutEffect(redraw, [state, soil, fieldsKey, terrainGeometry, plantsByField, targetY, insideMask]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Parcel outline draped on the final relief, a little above it so it never hides in the ground.
-  const outlinePoints = useMemo(() => {
-    if (!outline) return null;
+  // Parcel outlines draped on the final relief, a little above so they never hide in the ground.
+  const drape = (outline) => {
     const pts = [];
     const ring = [...outline, outline[0]];
     for (let i = 0; i < ring.length - 1; i++) {
@@ -362,7 +382,8 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     }
     pts.push(pts[0]);
     return pts;
-  }, [outline, targetY, tam]);
+  };
+  const outlinePoints = useMemo(() => outlines.map(drape), [outlines, targetY, tam]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // --- rise out of the globe + relief morph, both only while they are running ---
   const rise = useRef(reducedMotion ? 1 : 0);
@@ -408,17 +429,25 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     <group ref={groupRef} quaternion={quaternion} scale={SIZE} onClick={(e) => e.stopPropagation()}>
       <mesh geometry={terrainGeometry} material={material} />
       <mesh geometry={skirtGeometry} material={soilMaterial} raycast={() => null} />
-      <instancedMesh
-        key={cultivo}
-        ref={cropsRef}
-        args={[cropGeometry, material, plants.length]}
-        raycast={() => null}
-        frustumCulled={false}
-        onUpdate={redraw}
-      />
+      {/* One InstancedMesh per field: one draw call per parcel, whatever its number of plants. */}
+      {fields.map((field) => (
+        <instancedMesh
+          key={field.key}
+          ref={(mesh) => {
+            if (mesh) cropMeshes.current.set(field.key, mesh);
+            else cropMeshes.current.delete(field.key);
+          }}
+          args={[cropGeometry(field.cultivo), material, field.plants.length]}
+          raycast={() => null}
+          frustumCulled={false}
+          onUpdate={redraw}
+        />
+      ))}
       {sceneryAt.casa && scenery('casa', ...sceneryAt.casa, 0.008, 0.3)}
       {sceneryAt.arboles.map(([x, z], i) => scenery('arbol', x, z, 0.01 + i * 0.001, i * 1.3))}
-      {outlinePoints && <Line points={outlinePoints} color="#f2c94c" lineWidth={3} raycast={() => null} />}
+      {outlinePoints.map((points, i) => (
+        <Line key={sections[i]?.id ?? i} points={points} color={sections[i]?.color ?? '#f2c94c'} lineWidth={3} raycast={() => null} />
+      ))}
       {/* North arrow, just outside the north edge. */}
       <mesh position={[0, 0.01, -0.57]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
         <coneGeometry args={[0.03, 0.07, 3]} />

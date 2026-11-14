@@ -9,7 +9,9 @@ import {
 } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
-import { areaHectares, bounds, checkGpsCorner, outlineGeoJSON, polygonCenter } from './polygon.js';
+import { CROP_IDS, CROP_NAMES } from '../crops.js';
+import { allCorners, parcelColor, parcelsGeoJSON } from './parcels.js';
+import { areaHectares, bounds, checkGpsCorner, outlineGeoJSON, polygonCenter, polygonsOverlap } from './polygon.js';
 
 // The browser only gives the location on https (or localhost) and with the farmer's permission.
 const CAN_LOCATE = typeof navigator !== 'undefined' && 'geolocation' in navigator && window.isSecureContext;
@@ -40,22 +42,40 @@ export const IMAGERY = {
   claro: { label: 'Sin nubes', note: 'imagen más clara, carga un poco más lento' },
   rapido: { label: 'Más rápida', note: 'carga más rápido, puede tener nubes' },
 };
-const IMAGERY_KEY = 'fieldshift.imagen';
 const CLARITY_ERRORS_BEFORE_FALLBACK = 6;
 const ESRI_CREDIT = 'Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS';
 
-function savedImagery() {
+// How the map is looked at.
+//  - aerea:   straight from above, no tilt and no 3D relief. Best for drawing: what you tap is
+//             exactly where the corner goes. Tilting/rotating is switched off.
+//  - relieve: tilted, with the 3D relief (AWS Terrain Tiles / NASA SRTM). Best to look at the land.
+export const VIEWS = {
+  aerea: { label: 'Aérea', note: 'desde arriba, para dibujar' },
+  relieve: { label: 'Relieve 3D', note: 'inclinada, para ver lomas y bajadas' },
+};
+const VIEW_PITCH = { aerea: 0, relieve: 55 };
+const TERRAIN = { source: 'relieve', exaggeration: 1.5 };
+
+function saved(key, options, fallback) {
   try {
-    const value = localStorage.getItem(IMAGERY_KEY);
-    return value in IMAGERY ? value : 'claro';
+    const value = localStorage.getItem(key);
+    return value in options ? value : fallback;
   } catch {
-    return 'claro';
+    return fallback;
   }
 }
 
-// Satellite imagery + place names (Esri) and 3D relief (the same AWS Terrain Tiles / NASA SRTM
-// heights that /api/terreno uses). All free, no API key. Raster only: no glyphs or sprites to fetch.
-const buildStyle = (imagery) => ({
+function remember(key, value) {
+  try {
+    localStorage.setItem(key, value);
+  } catch {
+    // private mode: the choice just isn't remembered
+  }
+}
+
+// Satellite imagery + place names and streets (Esri) and 3D relief (the same heights that
+// /api/terreno uses). All free, no API key. Raster only: no glyphs or sprites to fetch.
+const buildStyle = (imagery, view) => ({
   version: 8,
   sources: {
     claro: {
@@ -107,27 +127,56 @@ const buildStyle = (imagery) => ({
     { id: 'calles', type: 'raster', source: 'calles', minzoom: STREETS_MIN_ZOOM, paint: { 'raster-opacity': 0.85 } },
     { id: 'lugares', type: 'raster', source: 'lugares' },
   ],
-  terrain: { source: 'relieve', exaggeration: 1.5 },
+  // The relief only downloads its tiles in the 3D view.
+  ...(view === 'relieve' ? { terrain: TERRAIN } : {}),
 });
 
 const EMPTY = { type: 'FeatureCollection', features: [] };
 
 function addParcelLayers(map) {
+  // Finished parcels, each in its own color.
+  map.addSource('parcelas', { type: 'geojson', data: EMPTY });
+  map.addLayer({
+    id: 'parcelas-relleno',
+    type: 'fill',
+    source: 'parcelas',
+    paint: { 'fill-color': ['get', 'color'], 'fill-opacity': 0.28 },
+  });
+  map.addLayer({
+    id: 'parcelas-borde',
+    type: 'line',
+    source: 'parcelas',
+    paint: { 'line-color': ['get', 'color'], 'line-width': 3 },
+  });
+  // The parcel being drawn: white and dashed, so it reads as "not finished yet".
   map.addSource('parcela', { type: 'geojson', data: EMPTY });
   map.addLayer({
     id: 'parcela-relleno',
     type: 'fill',
     source: 'parcela',
     filter: ['==', ['geometry-type'], 'Polygon'],
-    paint: { 'fill-color': '#f2c94c', 'fill-opacity': 0.25 },
+    paint: { 'fill-color': '#ffffff', 'fill-opacity': 0.18 },
   });
   map.addLayer({
     id: 'parcela-borde',
     type: 'line',
     source: 'parcela',
     filter: ['!=', ['geometry-type'], 'Point'],
-    paint: { 'line-color': '#f2c94c', 'line-width': 3 },
+    paint: { 'line-color': '#ffffff', 'line-width': 3, 'line-dasharray': [2, 1] },
   });
+}
+
+// Puts the map in the chosen view. Aerial switches off tilt and rotation so a tap is a tap.
+function applyView(map, view, { animate = true } = {}) {
+  const aerial = view === 'aerea';
+  map.setTerrain(aerial ? null : TERRAIN);
+  for (const handler of [map.dragRotate, map.touchPitch]) {
+    if (aerial) handler.disable();
+    else handler.enable();
+  }
+  if (aerial) map.touchZoomRotate.disableRotation();
+  else map.touchZoomRotate.enableRotation();
+  map.easeTo({ pitch: VIEW_PITCH[view], ...(aerial ? { bearing: 0 } : {}), duration: animate && !reducedMotion() ? 900 : 0 });
 }
 
 // Corners are numbered HTML markers (1, 2, 3...) so the farmer sees the order they were placed.
@@ -140,30 +189,49 @@ function cornerMarker(index) {
   return new Marker({ element: el });
 }
 
+// "1 · Trigo" tag in the middle of each finished parcel, in the parcel's color.
+function parcelTag(parcela, index) {
+  const el = document.createElement('div');
+  el.className = 'parcel-tag';
+  el.style.setProperty('--parcel-color', parcelColor(parcela.id));
+  el.textContent = `${index + 1} · ${CROP_NAMES[parcela.cultivo]}`;
+  el.setAttribute('aria-hidden', 'true');
+  const { lat, lon } = polygonCenter(parcela.contorno);
+  return new Marker({ element: el }).setLngLat([lon, lat]);
+}
+
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 10 ? 1 : 0 });
 
 // Props:
-//   point     the plot App is showing ({ nombre, lat, lon, contorno? }) or null
-//   onParcel  ({ nombre, lat, lon, contorno, hectareas }) => void, when the farmer finishes drawing
-export default function ParcelMap({ point, onParcel }) {
+//   point            the place App is showing ({ nombre, lat, lon }) or null
+//   parcelas         the drawn parcels [{ id, contorno, hectareas, cultivo }] (App owns them)
+//   onAddParcela     (contorno) => void, when the farmer finishes drawing one
+//   onRemoveParcela  (id) => void
+//   onSetCultivo     (id, cultivo) => void
+export default function ParcelMap({ point, parcelas, onAddParcela, onRemoveParcela, onSetCultivo }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [corners, setCorners] = useState([]);
-  const [drawing, setDrawing] = useState(true);
+  const [drawing, setDrawing] = useState(parcelas.length === 0);
   const [hint, setHint] = useState(null);
-  const [imagery, setImagery] = useState(savedImagery);
+  const [imagery, setImagery] = useState(() => saved('fieldshift.imagen', IMAGERY, 'claro'));
   const [imageryNotice, setImageryNotice] = useState(null);
+  const [view, setView] = useState(() => saved('fieldshift.vista', VIEWS, 'aerea'));
 
-  // Latest values for the map handlers, which are registered once.
+  // Latest values for the map handlers and effects that must not re-run on every change.
   const drawingRef = useRef(drawing);
   drawingRef.current = drawing;
   const imageryRef = useRef(imagery);
   imageryRef.current = imagery;
+  const viewRef = useRef(view);
+  viewRef.current = view;
+  const parcelasRef = useRef(parcelas);
+  parcelasRef.current = parcelas;
 
-  // GPS: last position from the browser ({ lon, lat, accuracy }), and whether it is being followed.
+  // GPS: last position from the browser ({ lon, lat, accuracy, at }), and whether it is followed.
   const geolocateRef = useRef(null);
   const [gps, setGps] = useState(null);
   const [gpsError, setGpsError] = useState(null);
@@ -175,7 +243,7 @@ export default function ParcelMap({ point, onParcel }) {
     try {
       map = new MapLibreMap({
         container: containerRef.current,
-        style: buildStyle(imageryRef.current),
+        style: buildStyle(imageryRef.current, viewRef.current),
         ...BAJIO,
         maxPitch: 70,
         maxZoom: MAX_ZOOM,
@@ -216,6 +284,7 @@ export default function ParcelMap({ point, onParcel }) {
     }
     map.on('load', () => {
       addParcelLayers(map);
+      applyView(map, viewRef.current, { animate: false });
       setReady(true);
     });
     // If the cloud-free imagery keeps failing (slow or blocked network), switch to the fast one
@@ -231,8 +300,8 @@ export default function ParcelMap({ point, onParcel }) {
     });
     map.on('click', (event) => {
       if (!drawingRef.current) return;
-      // A tap on a numbered corner must not add another corner on top of it.
-      if (event.originalEvent?.target?.closest?.('.corner-marker')) return;
+      // A tap on a corner number or a parcel tag must not add a corner on top of it.
+      if (event.originalEvent?.target?.closest?.('.corner-marker, .parcel-tag')) return;
       if (map.getZoom() < MIN_DRAW_ZOOM) {
         setHint('Te acercamos para que marques las esquinas con precisión.');
         map.flyTo({ center: event.lngLat, zoom: 15.5, duration: reducedMotion() ? 0 : 1500 });
@@ -249,7 +318,7 @@ export default function ParcelMap({ point, onParcel }) {
     };
   }, []);
 
-  // Paint the outline and the numbered corners whenever they change.
+  // The parcel being drawn: dashed outline and numbered corners.
   useEffect(() => {
     if (!ready) return undefined;
     const map = mapRef.current;
@@ -258,9 +327,23 @@ export default function ParcelMap({ point, onParcel }) {
     return () => markers.forEach((m) => m.remove());
   }, [ready, corners]);
 
+  // Finished parcels: colored outlines and a "number · crop" tag on each.
+  useEffect(() => {
+    if (!ready) return undefined;
+    const map = mapRef.current;
+    map.getSource('parcelas').setData(parcelsGeoJSON(parcelas));
+    const tags = parcelas.map((p, i) => parcelTag(p, i).addTo(map));
+    return () => tags.forEach((t) => t.remove());
+  }, [ready, parcelas]);
+
   useEffect(() => {
     if (ready) mapRef.current.getCanvas().style.cursor = drawing ? 'crosshair' : '';
   }, [ready, drawing]);
+
+  // With every parcel deleted, go back to drawing.
+  useEffect(() => {
+    if (parcelas.length === 0) setDrawing(true);
+  }, [parcelas.length]);
 
   // Show only the chosen imagery (a hidden layer downloads nothing) and remember the choice.
   useEffect(() => {
@@ -269,36 +352,58 @@ export default function ParcelMap({ point, onParcel }) {
         mapRef.current.setLayoutProperty(id, 'visibility', id === imagery ? 'visible' : 'none');
       }
     }
-    try {
-      localStorage.setItem(IMAGERY_KEY, imagery);
-    } catch {
-      // private mode: the choice just isn't remembered
-    }
+    remember('fieldshift.imagen', imagery);
   }, [ready, imagery]);
 
-  // Follow the plot chosen anywhere in the page (this map, the example button or the 3D globe).
-  // A drawn parcel is framed tilted, so the relief shows; a bare point gets a closer look.
+  const changeView = (next) => {
+    setView(next);
+    remember('fieldshift.vista', next);
+    if (ready) applyView(mapRef.current, next);
+  };
+
+  // Follow the place chosen anywhere in the page. With drawn parcels, frame all of them;
+  // with a bare point (example button, 3D globe), fly to it and start drawing there.
   useEffect(() => {
     const map = mapRef.current;
     if (!ready || !point) return;
     const duration = reducedMotion() ? 0 : 1800;
-    if (point.contorno?.length >= 3) {
-      setCorners(point.contorno);
-      setDrawing(false);
-      map.fitBounds(bounds(point.contorno), { padding: 60, pitch: 40, maxZoom: 17.5, duration });
+    const pitch = VIEW_PITCH[viewRef.current];
+    const farm = parcelasRef.current;
+    if (farm.length) {
+      map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration });
     } else {
       setCorners([]);
       setDrawing(true);
-      map.flyTo({ center: [point.lon, point.lat], zoom: 15, pitch: 30, duration });
+      map.flyTo({ center: [point.lon, point.lat], zoom: 15, pitch, duration });
     }
   }, [ready, point]);
 
   const area = areaHectares(corners);
+  // Parcels the one being drawn lands on top of (only a warning: it may be on purpose).
+  const overlapping =
+    corners.length >= 3
+      ? parcelas.map((p, i) => (polygonsOverlap(corners, p.contorno) ? i + 1 : null)).filter(Boolean)
+      : [];
 
   const finish = () => {
-    const { lat, lon } = polygonCenter(corners);
-    const hectareas = Math.round(area * 10) / 10;
-    onParcel({ nombre: `Tu parcela (${fmtHa(area)} ha)`, lat, lon, contorno: corners, hectareas });
+    onAddParcela(corners);
+    setCorners([]);
+    setDrawing(false);
+    setHint(null);
+  };
+
+  // "Dibujar otra parcela": back to the aerial view, so the next outline is drawn precisely.
+  const startNewParcel = () => {
+    setCorners([]);
+    setDrawing(true);
+    setHint(null);
+    changeView('aerea');
+  };
+
+  const cancelDrawing = () => {
+    setCorners([]);
+    setDrawing(false);
+    setHint(null);
   };
 
   // "Walk the edge": the farmer stands on each corner and adds it with the GPS.
@@ -313,12 +418,6 @@ export default function ParcelMap({ point, onParcel }) {
     setCorners((current) => [...current, [gps.lon, gps.lat]]);
   };
 
-  const restart = () => {
-    setCorners([]);
-    setDrawing(true);
-    setHint(null);
-  };
-
   if (failed) {
     return (
       <p className="error" role="alert">
@@ -327,47 +426,100 @@ export default function ParcelMap({ point, onParcel }) {
     );
   }
 
+  const number = parcelas.length + 1;
+
   return (
     <div className="parcel-map">
       <div ref={containerRef} className="parcel-map-canvas" />
-      <fieldset className="imagery-switch">
-        <legend>Imagen del mapa</legend>
-        {Object.entries(IMAGERY).map(([id, { label, note }]) => (
-          <label key={id}>
-            <input
-              type="radio"
-              name="imagen-mapa"
-              value={id}
-              checked={imagery === id}
-              onChange={() => {
-                setImagery(id);
-                setImageryNotice(null);
-              }}
-            />
-            <span>
-              <strong>{label}</strong> <span className="imagery-note">({note})</span>
-            </span>
-          </label>
-        ))}
-      </fieldset>
-      {imageryNotice && (
-        <p className="hint" role="status">
-          {imageryNotice}
-        </p>
+
+      <div className="map-options">
+        <fieldset className="option-switch">
+          <legend>Tipo de vista</legend>
+          {Object.entries(VIEWS).map(([id, { label, note }]) => (
+            <label key={id}>
+              <input type="radio" name="vista-mapa" value={id} checked={view === id} onChange={() => changeView(id)} />
+              <span>
+                <strong>{label}</strong> <span className="option-note">({note})</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        <fieldset className="option-switch">
+          <legend>Imagen del mapa</legend>
+          {Object.entries(IMAGERY).map(([id, { label, note }]) => (
+            <label key={id}>
+              <input
+                type="radio"
+                name="imagen-mapa"
+                value={id}
+                checked={imagery === id}
+                onChange={() => {
+                  setImagery(id);
+                  setImageryNotice(null);
+                }}
+              />
+              <span>
+                <strong>{label}</strong> <span className="option-note">({note})</span>
+              </span>
+            </label>
+          ))}
+        </fieldset>
+        {imageryNotice && (
+          <p className="hint" role="status">
+            {imageryNotice}
+          </p>
+        )}
+      </div>
+
+      {parcelas.length > 0 && (
+        <div className="parcel-list">
+          <h3>Tus parcelas</h3>
+          <ul>
+            {parcelas.map((p, i) => (
+              <li key={p.id} style={{ '--parcel-color': parcelColor(p.id) }}>
+                <span className="parcel-swatch" aria-hidden="true" />
+                <span className="parcel-name">
+                  Parcela {i + 1} <span className="option-note">({fmtHa(p.hectareas)} ha)</span>
+                </span>
+                <label>
+                  <span className="visually-hidden">Cultivo de la parcela {i + 1}</span>
+                  <select value={p.cultivo} onChange={(e) => onSetCultivo(p.id, e.target.value)}>
+                    {CROP_IDS.map((id) => (
+                      <option key={id} value={id}>
+                        {CROP_NAMES[id]}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+                <button type="button" className="secondary small" onClick={() => onRemoveParcela(p.id)}>
+                  Borrar
+                </button>
+              </li>
+            ))}
+          </ul>
+        </div>
       )}
+
       <div className="parcel-map-tools">
         {drawing ? (
           <>
             <p className="hint" aria-live="polite">
+              <strong>{parcelas.length ? `Dibujando la parcela ${number}. ` : ''}</strong>
               {hint ??
                 (corners.length === 0
                   ? 'Busca tu parcela y toca sus esquinas en orden, siguiendo la orilla.'
                   : corners.length < 3
                     ? `Llevas ${corners.length} ${corners.length === 1 ? 'esquina' : 'esquinas'}. Faltan ${3 - corners.length} como mínimo.`
-                    : `Llevas ${corners.length} esquinas. Tu parcela mide ${fmtHa(area)} hectáreas.`)}
+                    : `Llevas ${corners.length} esquinas. Esta parcela mide ${fmtHa(area)} hectáreas.`)}
             </p>
             {area > BIG_PARCEL_HA && (
               <p className="error">Es muy grande para una parcela. Revisa que las esquinas estén bien.</p>
+            )}
+            {overlapping.length > 0 && (
+              <p className="error" aria-live="polite">
+                Esta parcela se encima con la {overlapping.length === 1 ? 'parcela' : 'parcelas'}{' '}
+                {overlapping.join(' y ')}. Si no es a propósito, usa «Deshacer esquina» y corrígela.
+              </p>
             )}
             {CAN_LOCATE ? (
               <div className="gps-tools">
@@ -404,22 +556,32 @@ export default function ParcelMap({ point, onParcel }) {
             )}
             <div className="button-row">
               <button type="button" disabled={corners.length < 3} onClick={finish}>
-                Usar esta parcela
+                {parcelas.length ? `Guardar parcela ${number}` : 'Usar esta parcela'}
               </button>
-              <button type="button" className="secondary" disabled={corners.length === 0} onClick={() => setCorners((c) => c.slice(0, -1))}>
+              <button
+                type="button"
+                className="secondary"
+                disabled={corners.length === 0}
+                onClick={() => setCorners((c) => c.slice(0, -1))}
+              >
                 Deshacer esquina
               </button>
-              <button type="button" className="secondary" disabled={corners.length === 0} onClick={restart}>
-                Borrar
+              <button type="button" className="secondary" disabled={corners.length === 0} onClick={() => setCorners([])}>
+                Borrar esquinas
               </button>
+              {parcelas.length > 0 && (
+                <button type="button" className="secondary" onClick={cancelDrawing}>
+                  Cancelar
+                </button>
+              )}
             </div>
           </>
         ) : (
           <div className="button-row">
-            <p className="hint">Parcela lista: {fmtHa(area)} hectáreas.</p>
-            <button type="button" className="secondary" onClick={restart}>
+            <button type="button" onClick={startNewParcel}>
               Dibujar otra parcela
             </button>
+            <span className="hint">Cada parcela puede tener su propio cultivo.</span>
           </div>
         )}
       </div>

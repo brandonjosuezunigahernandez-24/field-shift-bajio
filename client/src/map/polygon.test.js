@@ -8,6 +8,7 @@ import {
   outlineGeoJSON,
   pointInPolygon,
   polygonCenter,
+  polygonsOverlap,
   toDiorama,
 } from './polygon.js';
 
@@ -76,4 +77,12 @@ test('checkGpsCorner rejects weak signal and repeated corners, accepts a good ne
   assert.match(checkGpsCorner({ lon: -100.81, lat: 20.47002, accuracy: 6 }, corners).message, /Esquina 1 marcada/);
   assert.deepEqual(checkGpsCorner({ lon: -100.809, lat: 20.47, accuracy: 6 }, corners), { ok: true, code: null, message: null });
   assert.equal(checkGpsCorner({ lon: -100.809, lat: 20.47, accuracy: 6 }, []).ok, true);
+});
+
+test('polygonsOverlap: inside, crossing, apart and side by side', () => {
+  const box = (x, y, w, h) => [[x, y], [x + w, y], [x + w, y + h], [x, y + h]];
+  assert.equal(polygonsOverlap(box(0, 0, 4, 4), box(1, 1, 1, 1)), true, 'one inside the other');
+  assert.equal(polygonsOverlap(box(0, 1, 4, 1), box(1, 0, 1, 4)), true, 'a cross, no corner inside');
+  assert.equal(polygonsOverlap(box(0, 0, 1, 1), box(3, 3, 1, 1)), false, 'apart');
+  assert.equal(polygonsOverlap(box(0, 0, 1, 1), box(1, 0, 1, 1)), false, 'sharing an edge');
 });

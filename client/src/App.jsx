@@ -1,6 +1,7 @@
 import { Suspense, lazy, useRef, useState } from 'react';
 import { getClima, getSuelo } from './api.js';
 import { EXAMPLE_POINTS } from './examplePoints.js';
+import { createParcel, farmPoint, nextParcelId } from './map/parcels.js';
 import Vista3DSection from './Vista3DSection.jsx';
 
 // MapLibre (~1 MB) loads in its own chunk, after the page is already on screen.
@@ -43,6 +44,24 @@ export default function App() {
     setLoading(false);
   }
 
+  // The farmer's drawn parcels, each with its own crop. Climate and soil are asked for the center
+  // of all of them (the API takes one point); changing a crop does not ask again.
+  const [parcelas, setParcelas] = useState([]);
+
+  function setFarm(next) {
+    setParcelas(next);
+    if (next.length) loadPoint(farmPoint(next));
+  }
+  const addParcela = (contorno) => setFarm([...parcelas, createParcel(nextParcelId(parcelas), contorno)]);
+  const removeParcela = (id) => setFarm(parcelas.filter((p) => p.id !== id));
+  const setCultivo = (id, cultivo) => setParcelas((list) => list.map((p) => (p.id === id ? { ...p, cultivo } : p)));
+
+  // A point chosen without drawing (example button, 3D globe) is another place: parcels are cleared.
+  function choosePoint(selected) {
+    setParcelas([]);
+    loadPoint(selected);
+  }
+
   return (
     <div className="page">
       <header className="page-header">
@@ -54,12 +73,18 @@ export default function App() {
         <section className="card">
           <h2>1. Dibuja tu parcela</h2>
           <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
-            <ParcelMap point={point} onParcel={loadPoint} />
+            <ParcelMap
+              point={point}
+              parcelas={parcelas}
+              onAddParcela={addParcela}
+              onRemoveParcela={removeParcela}
+              onSetCultivo={setCultivo}
+            />
           </Suspense>
           <div className="button-row">
             <span className="hint">O usa la parcela de ejemplo:</span>
             {EXAMPLE_POINTS.map((example) => (
-              <button key={example.nombre} type="button" className="secondary" onClick={() => loadPoint(example)}>
+              <button key={example.nombre} type="button" className="secondary" onClick={() => choosePoint(example)}>
                 {example.nombre}
               </button>
             ))}
@@ -71,7 +96,7 @@ export default function App() {
           )}
         </section>
 
-        <Vista3DSection point={point} clima={clima} suelo={suelo} onSelectPoint={loadPoint} />
+        <Vista3DSection point={point} parcelas={parcelas} clima={clima} suelo={suelo} onSelectPoint={choosePoint} />
 
         {loading && (
           <p className="status" role="status">

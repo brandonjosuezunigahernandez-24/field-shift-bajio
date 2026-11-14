@@ -2,10 +2,11 @@ import { useGLTF } from '@react-three/drei';
 import { useMemo } from 'react';
 import { BufferAttribute, Matrix4 } from 'three';
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
+import { CROP_IDS } from '../crops.js';
 
 // Made in Blender by assets/blender/build_models.py. One named node per model, sizes in meters.
 export const MODELS_URL = '/models/bajio.glb';
-export const CROP_IDS = ['maiz', 'sorgo', 'trigo', 'cebada', 'frijol', 'garbanzo', 'brocoli'];
+export { CROP_IDS } from '../crops.js';
 const SCENERY_IDS = ['casa', 'arbol'];
 
 // Each model may come as several meshes (one per material). For instancing we want ONE

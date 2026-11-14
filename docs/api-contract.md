@@ -39,7 +39,10 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - **Con GPS ("caminar la orilla"):** "Usar mi ubicación" lleva el mapa a donde está el agricultor (punto azul con círculo de precisión). Parado en cada esquina de su parcela toca "Marcar esquina donde estoy". No deja marcar si el GPS da más de ±30 m de error ni si está a menos de 5 m de la esquina anterior (`checkGpsCorner` en `client/src/map/polygon.js`).
 - El navegador solo da la ubicación en **https** o en `localhost`. Abierto desde un celular con `http://192.168...` el botón no aparece y se explica por qué.
 - Al tocar "Usar esta parcela", el mapa se ajusta al contorno (`fitBounds`, inclinado para ver el relieve).
-- El objeto que recibe la app es `{ nombre, lat, lon, contorno: [[lon, lat], ...], hectareas }`. `contorno` y `hectareas` solo son para el front (mapa y vista 3D); a la API se mandan `lat` y `lon`.
+- **Varias parcelas.** El agricultor puede dibujar más de una ("Dibujar otra parcela") y elegir el cultivo de cada una. La app guarda `parcelas: [{ id, contorno: [[lon, lat], ...], hectareas, cultivo }]` (`client/src/map/parcels.js`). A la API se manda **un solo punto**: el promedio de todas las esquinas. Cambiar el cultivo de una parcela no vuelve a pedir clima ni suelo.
+- Si una parcela nueva se encima con otra, se avisa (no se bloquea). En la vista 3D, donde se enciman, se siembra la más reciente.
+- **Tipo de vista:** "Aérea" (desde arriba, sin inclinación ni giro, para dibujar) o "Relieve 3D" (inclinada con relieve). Al tocar "Dibujar otra parcela" el mapa regresa a "Aérea".
+- `cultivo` en cada parcela es solo para mostrar en el mapa y la maqueta. **No es la recomendación del motor** (fase 2).
 - Los botones de ejemplo (Celaya, Gto.) siguen mandando su `lat` y `lon` directo.
 
 ## GET /api/health

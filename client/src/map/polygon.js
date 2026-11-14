@@ -105,3 +105,39 @@ export function checkGpsCorner(gps, corners) {
   }
   return { ok: true, code: null, message: null };
 }
+
+function segmentsCross([ax, ay], [bx, by], [cx, cy], [dx, dy]) {
+  const cross = (px, py, qx, qy, rx, ry) => (qx - px) * (ry - py) - (qy - py) * (rx - px);
+  const d1 = cross(cx, cy, dx, dy, ax, ay);
+  const d2 = cross(cx, cy, dx, dy, bx, by);
+  const d3 = cross(ax, ay, bx, by, cx, cy);
+  const d4 = cross(ax, ay, bx, by, dx, dy);
+  return d1 * d2 < 0 && d3 * d4 < 0;
+}
+
+// Is the point on one of the polygon's edges (within a tiny tolerance)?
+function onEdge([x, y], poly) {
+  for (let i = 0; i < poly.length; i++) {
+    const [ax, ay] = poly[i];
+    const [bx, by] = poly[(i + 1) % poly.length];
+    const len = Math.hypot(bx - ax, by - ay);
+    const dist = Math.abs((bx - ax) * (y - ay) - (by - ay) * (x - ax)) / (len || 1);
+    const within = (x - ax) * (x - bx) + (y - ay) * (y - by) <= 0;
+    if (dist <= len * 1e-9 && within) return true;
+  }
+  return false;
+}
+
+const strictlyInside = (p, poly) => pointInPolygon(p, poly) && !onEdge(p, poly);
+
+// Do two outlines (same coordinates, 3+ corners each) share any area? A corner inside the other,
+// or two edges crossing. Touching along a shared edge does not count.
+export function polygonsOverlap(a, b) {
+  if (a.some((p) => strictlyInside(p, b)) || b.some((p) => strictlyInside(p, a))) return true;
+  for (let i = 0; i < a.length; i++) {
+    for (let j = 0; j < b.length; j++) {
+      if (segmentsCross(a[i], a[(i + 1) % a.length], b[j], b[(j + 1) % b.length])) return true;
+    }
+  }
+  return false;
+}

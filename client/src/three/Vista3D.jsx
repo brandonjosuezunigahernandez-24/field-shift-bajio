@@ -1,21 +1,14 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { getTerreno } from '../api.js';
+import { CROP_IDS, CROP_NAMES, DEFAULT_CROP } from '../crops.js';
+import { parcelColor } from '../map/parcels.js';
 import { toDiorama } from '../map/polygon.js';
 import { latLonToXYZ, round2, wrapLon } from './geo.js';
-import { CROP_IDS, preloadModels } from './models.js';
+import { preloadModels } from './models.js';
 import { reliefExaggeration, yearState } from './parcelState.js';
 import Scene from './Scene.jsx';
 
-const CROP_NAMES = {
-  maiz: 'Maíz',
-  sorgo: 'Sorgo',
-  trigo: 'Trigo',
-  cebada: 'Cebada',
-  frijol: 'Frijol',
-  garbanzo: 'Garbanzo',
-  brocoli: 'Brócoli',
-};
 const STEP_DEG = 0.01; // ~1 km, the same resolution as the server cache
 const PLAY_MS = 900;
 
@@ -38,13 +31,13 @@ const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 //   point          { nombre, lat, lon } or null
 //   clima, suelo   { data } | { error } | null, as App keeps them
 //   onSelectPoint  ({ nombre, lat, lon }) => void
-export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
+export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint }) {
   const reducedMotion = usePrefersReducedMotion();
   const [view, setView] = useState('globe');
   const [terreno, setTerreno] = useState(null);
   const [anio, setAnio] = useState(null);
   const [playing, setPlaying] = useState(false);
-  const [cultivo, setCultivo] = useState('maiz');
+  const [cultivo, setCultivo] = useState(DEFAULT_CROP);
   const [contextLost, setContextLost] = useState(false);
 
   // A new plot always flies down to it.
@@ -103,28 +96,42 @@ export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
     () => (centerLat === null ? null : { lat: centerLat, lon: centerLon }),
     [centerLat, centerLon]
   );
-  const outline = useMemo(
-    () => (point?.contorno?.length >= 3 ? toDiorama(point.contorno, centerLat, centerLon) : null),
-    [point, centerLat, centerLon]
+  // Drawn parcels in diorama units, each with its own crop and color.
+  const sections = useMemo(
+    () =>
+      centerLat === null
+        ? []
+        : parcelas.map((p) => ({
+            id: p.id,
+            cultivo: p.cultivo,
+            color: parcelColor(p.id),
+            outline: toDiorama(p.contorno, centerLat, centerLon),
+          })),
+    [parcelas, centerLat, centerLon]
   );
+  // Parts of a parcel farther than 500 m from the center fall off the 1 km block.
+  const offBlock = sections.some((s) => s.outline.some(([x, z]) => Math.abs(x) > 0.5 || Math.abs(z) > 0.5));
 
-  // Camera framing for a drawn parcel: its bounding box center and half diagonal, on the block.
+  // Camera framing for the drawn parcels: bounding box center and half diagonal, on the block.
+  // Only the shapes matter: changing a crop must not move the camera.
+  const shapesKey = sections.map((s) => s.outline.flat().join(',')).join('|');
   const focus = useMemo(() => {
-    if (!outline) return null;
+    if (!sections.length) return null;
     const clampEdge = (v) => Math.max(-0.5, Math.min(0.5, v));
-    const xs = outline.map((p) => clampEdge(p[0]));
-    const zs = outline.map((p) => clampEdge(p[1]));
+    const pts = sections.flatMap((s) => s.outline);
+    const xs = pts.map((p) => clampEdge(p[0]));
+    const zs = pts.map((p) => clampEdge(p[1]));
     const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
     return { x: (x0 + x1) / 2, z: (z0 + z1) / 2, radius: Math.hypot(x1 - x0, z1 - z0) / 2 };
-  }, [outline]);
+  }, [shapesKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const pick = ({ lat, lon }) =>
     onSelectPoint({ nombre: 'Punto elegido en el globo', lat: round2(lat), lon: round2(wrapLon(lon)) });
 
-  // Moving leaves the drawn outline behind: the new square is just a point.
+  // Only offered without drawn parcels (moving would leave them behind).
   const move = (dLat, dLon) =>
     onSelectPoint({
-      nombre: point.contorno ? 'Cerca de tu parcela' : point.nombre,
+      nombre: point.nombre,
       lat: round2(Math.max(-89, Math.min(89, centerLat + dLat))),
       lon: round2(wrapLon(centerLon + dLon)),
     });
@@ -140,7 +147,7 @@ export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
   const exaggeration = terrenoData ? reliefExaggeration(terrenoData.desnivel_m, terrenoData.lado_m) : 1;
   const inParcel = view === 'parcel' && point;
 
-  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, outline };
+  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, sections };
 
   if (contextLost) {
     return (
@@ -189,13 +196,15 @@ export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
             )}
           </div>
 
-          <fieldset className="vista3d-move">
-            <legend>Mover la parcela 1 km</legend>
-            <button type="button" className="secondary" onClick={() => move(STEP_DEG, 0)}>Norte</button>
-            <button type="button" className="secondary" onClick={() => move(-STEP_DEG, 0)}>Sur</button>
-            <button type="button" className="secondary" onClick={() => move(0, -STEP_DEG)}>Oeste</button>
-            <button type="button" className="secondary" onClick={() => move(0, STEP_DEG)}>Este</button>
-          </fieldset>
+          {sections.length === 0 && (
+            <fieldset className="vista3d-move">
+              <legend>Mover la parcela 1 km</legend>
+              <button type="button" className="secondary" onClick={() => move(STEP_DEG, 0)}>Norte</button>
+              <button type="button" className="secondary" onClick={() => move(-STEP_DEG, 0)}>Sur</button>
+              <button type="button" className="secondary" onClick={() => move(0, -STEP_DEG)}>Oeste</button>
+              <button type="button" className="secondary" onClick={() => move(0, STEP_DEG)}>Este</button>
+            </fieldset>
+          )}
 
           {years.length > 0 ? (
             <div className="vista3d-year">
@@ -228,17 +237,35 @@ export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
             <p className="hint">{clima?.error ?? 'Cargando la lluvia de tu parcela…'}</p>
           )}
 
-          <label className="vista3d-crop">
-            Cultivo en la maqueta{' '}
-            <select value={cultivo} onChange={(e) => setCultivo(e.target.value)}>
-              {CROP_IDS.map((id) => (
-                <option key={id} value={id}>
-                  {CROP_NAMES[id]}
-                </option>
-              ))}
-            </select>
-          </label>
-          <p className="hint">Solo es para ver cómo se vería. Todavía no es la recomendación.</p>
+          {sections.length > 0 ? (
+            <>
+              <ul className="vista3d-legend">
+                {sections.map((s, i) => (
+                  <li key={s.id} style={{ '--parcel-color': s.color }}>
+                    <span className="parcel-swatch" aria-hidden="true" /> Parcela {i + 1}: {CROP_NAMES[s.cultivo]}
+                  </li>
+                ))}
+              </ul>
+              <p className="hint">Cambia el cultivo de cada parcela arriba, en «Tus parcelas». Todavía no es la recomendación.</p>
+              {offBlock && (
+                <p className="hint">Una parte de tus parcelas queda fuera de la maqueta, que muestra 1 km alrededor del centro.</p>
+              )}
+            </>
+          ) : (
+            <>
+              <label className="vista3d-crop">
+                Cultivo en la maqueta{' '}
+                <select value={cultivo} onChange={(e) => setCultivo(e.target.value)}>
+                  {CROP_IDS.map((id) => (
+                    <option key={id} value={id}>
+                      {CROP_NAMES[id]}
+                    </option>
+                  ))}
+                </select>
+              </label>
+              <p className="hint">Solo es para ver cómo se vería. Todavía no es la recomendación.</p>
+            </>
+          )}
 
           <ul className="facts">
             {sueloData && !sueloData.sin_datos && (
