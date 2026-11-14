@@ -71,12 +71,16 @@ Debe ser simple, explicable y con pruebas unitarias.
 ## API
 - `GET /api/clima?lat&lon`: serie anual de lluvia de PV, temperatura media mensual y años secos.
 - `GET /api/suelo?lat&lon`: pH, arcilla, arena, limo y carbono orgánico de 0 a 30 cm.
+- En las tres rutas, `lat` y `lon` son el centro de la parcela que dibujó el agricultor.
 - `POST /api/recomendar` con `{ lat, lon, agua: "temporal"|"riego", prioridad: "ganar"|"suelo"|"agua"|"riesgo" }`
   responde `{ clima, suelo, cultivos: [{ id, puntaje, riesgo, razones }], rotacion: [{ anio, temporada, cultivo, porque }], fuentes }`.
 
 ## Pantallas (una sola página)
-1. Mapa: clic marca la parcela; botones de ejemplo "Celaya, Gto." (20.47, -100.81).
-   El punto es zona de cultivo, 5.5 km al sur del centro. El centro (20.52, -100.81) no sirve de ejemplo: SoilGrids lo enmascara como zona urbana y no devuelve suelo.
+1. Mapa: el agricultor **dibuja el contorno de su parcela** (un polígono: cada clic agrega una esquina, mínimo 3). No es un solo punto.
+   - El front calcula el **centro del polígono** y eso es lo que manda como `lat` y `lon`. La API no cambia: NASA POWER y SoilGrids se consultan por punto.
+   - Se hace con react-leaflet, sin librería nueva. Detalle en `docs/api-contract.md`.
+   - Botones de ejemplo: "Celaya, Gto." (20.47, -100.81), que manda ese punto directo, sin dibujar.
+     El punto es zona de cultivo, 5.5 km al sur del centro. El centro (20.52, -100.81) no sirve de ejemplo: SoilGrids lo enmascara como zona urbana y no devuelve suelo.
 2. Formulario: temporal o riego, y la prioridad.
 3. Resultado:
    - tarjetas de la rotación año por año, cada una con su "por qué",
