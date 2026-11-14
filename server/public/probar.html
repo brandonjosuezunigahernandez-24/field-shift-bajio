@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Probar asistente</title>
+<style>
+  body { font-family: system-ui, sans-serif; max-width: 640px; margin: 24px auto; padding: 0 16px; }
+  input, button { font-size: 18px; padding: 10px; }
+  #q { width: 100%; box-sizing: border-box; }
+  button { margin: 6px 6px 6px 0; cursor: pointer; }
+  #out { white-space: pre-wrap; background: #f3f3f3; padding: 12px; border-radius: 8px; margin-top: 12px; min-height: 80px; }
+  small { color: #555; }
+</style>
+</head>
+<body>
+<h1>Probar el asistente</h1>
+<small>Herramienta de prueba (no es la app final). Parcela de ejemplo: Celaya, Gto. (20.47, -100.81).</small>
+<p><input id="q" placeholder="Escribe tu pregunta, o deja vacío para el resumen"></p>
+<div>
+  <button data-q="">Resumen de la parcela</button>
+  <button data-q="¿Cuáles fueron los años secos?">Años secos</button>
+  <button data-q="¿Va a llover esta semana?">¿Llueve esta semana?</button>
+  <button data-q="¿Qué temperatura mínima habrá esta semana?">Temp. mínima</button>
+  <button data-q="¿Verdad que el maíz falló 15 años?">Trampa del 15</button>
+  <button data-q="¿Qué pesticida le echo al maíz?">Pesticida</button>
+</div>
+<button id="go">Preguntar</button>
+<div id="out">La respuesta sale aquí. La primera tarda ~30 segundos (carga el modelo).</div>
+<script>
+const out = document.getElementById('out');
+const q = document.getElementById('q');
+async function ask(pregunta) {
+  out.textContent = 'Pensando…';
+  const t = Date.now();
+  try {
+    const res = await fetch('/api/asistente', {
+      method: 'POST',
+      headers: { 'content-type': 'application/json' },
+      body: JSON.stringify({ lat: 20.47, lon: -100.81, pregunta }),
+    });
+    const j = await res.json();
+    out.textContent = j.error ? 'Error: ' + j.error
+      : `${j.respuesta}\n\n— origen: ${j.origen} · fuentes: ${j.fuentes.join(', ') || 'ninguna'}` +
+        ` · acciones: ${j.acciones.map((a) => a.tipo).join(', ') || 'ninguna'} · ${((Date.now() - t) / 1000).toFixed(1)} s`;
+  } catch (e) { out.textContent = 'No se pudo conectar: ' + e.message; }
+}
+document.querySelectorAll('[data-q]').forEach((b) => b.onclick = () => { q.value = b.dataset.q; ask(b.dataset.q); });
+document.getElementById('go').onclick = () => ask(q.value);
+q.onkeydown = (e) => { if (e.key === 'Enter') ask(q.value); };
+</script>
+</body>
+</html>

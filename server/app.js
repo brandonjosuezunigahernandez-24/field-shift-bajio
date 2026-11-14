@@ -1,4 +1,5 @@
 import express from 'express';
+import { fileURLToPath } from 'node:url';
 import climaRouter from './routes/clima.js';
 import sueloRouter from './routes/suelo.js';
 import recomendarRouter from './routes/recomendar.js';
@@ -11,6 +12,9 @@ import { HttpError } from './lib/errors.js';
 export function createApp() {
   const app = express();
   app.use(express.json());
+
+  // Página de prueba del asistente (herramienta de desarrollo, no es la app final).
+  app.get('/probar', (req, res) => res.sendFile(fileURLToPath(new URL('./public/probar.html', import.meta.url))));
 
   app.get('/api/health', (req, res) => res.json({ ok: true }));
   app.use('/api/clima', climaRouter);
