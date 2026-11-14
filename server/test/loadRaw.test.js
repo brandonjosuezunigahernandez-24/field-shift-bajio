@@ -1,54 +1,79 @@
 import assert from 'node:assert/strict';
 import { rm } from 'node:fs/promises';
 import { afterEach, test } from 'node:test';
-import { writeCache } from '../lib/cache.js';
+import { readCache, writeCache, writeFixture } from '../lib/cache.js';
 import { HttpError } from '../lib/errors.js';
 import { loadRaw } from '../lib/loadRaw.js';
 
-// No real network: global fetch is replaced by a fake that fails the first calls.
+// No real network: global fetch is replaced by a fake. The cache and fixture files written
+// here use a test-only key and are removed after each test.
 delete process.env.OFFLINE;
 const realFetch = globalThis.fetch;
-const CACHE_FILE = new URL('../cache/test-retry_0.00_0.00.json', import.meta.url);
-const options = { source: 'test-retry', label: 'una prueba', lat: 0, lon: 0, buildUrl: () => 'https://example.test/' };
+const KEY = 'test-loadraw_0.00_0.00';
+const TEST_FILES = ['../cache/', '../fixtures/'].map((dir) => new URL(`${dir}${KEY}.json`, import.meta.url));
+const validate = (raw) => {
+  if (!raw.ok) throw new Error('missing ok');
+};
+const options = { source: 'test-loadraw', label: 'una prueba', lat: 0, lon: 0, buildUrl: () => 'https://example.test/', validate };
 
 afterEach(async () => {
   globalThis.fetch = realFetch;
-  await rm(CACHE_FILE, { force: true });
+  for (const file of TEST_FILES) await rm(file, { force: true });
 });
 
-// Fails the first `failures` calls, then answers { ok: true }.
-function flakyFetch(failures) {
+// Fails the first `failures` calls with a network error, then answers `body`.
+function fakeFetch({ failures = 0, body = { ok: true } } = {}) {
   const calls = { count: 0 };
   globalThis.fetch = async () => {
     calls.count += 1;
     if (calls.count <= failures) throw new Error('connection reset');
-    return new Response(JSON.stringify({ ok: true }));
+    return new Response(JSON.stringify(body));
   };
   return calls;
 }
 
-test('loadRaw retries once when the first call fails', async () => {
-  const calls = flakyFetch(1);
+test('loadRaw returns a good response and saves it to the cache', async () => {
+  const calls = fakeFetch();
   const { raw, origen } = await loadRaw(options);
-  assert.equal(calls.count, 2);
+  assert.equal(calls.count, 1);
   assert.equal(origen, 'api');
   assert.deepEqual(raw, { ok: true });
+  assert.deepEqual(await readCache(KEY), { ok: true });
+});
+
+test('loadRaw never saves a response that fails validate', async () => {
+  fakeFetch({ body: { error: 'garbage' } });
+  await assert.rejects(loadRaw(options), (err) => err instanceof HttpError && err.status === 502);
+  assert.equal(await readCache(KEY), null);
+});
+
+test('loadRaw retries once when the first call fails', async () => {
+  const calls = fakeFetch({ failures: 1 });
+  const { origen } = await loadRaw(options);
+  assert.equal(calls.count, 2);
+  assert.equal(origen, 'api');
 });
 
 test('loadRaw downloads again a cache file that no longer passes validate', async () => {
-  await writeCache('test-retry_0.00_0.00', { old: true });
-  const calls = flakyFetch(0);
-  const validate = (raw) => {
-    if (!raw.ok) throw new Error('missing ok');
-  };
-  const { raw, origen } = await loadRaw({ ...options, validate });
+  await writeCache(KEY, { old: true });
+  const calls = fakeFetch();
+  const { raw, origen } = await loadRaw(options);
   assert.equal(calls.count, 1);
   assert.equal(origen, 'api');
   assert.deepEqual(raw, { ok: true });
 });
 
+test('loadRaw uses the fixture when the network fails twice', async () => {
+  await writeFixture(KEY, { ok: true, fixture: true });
+  const calls = fakeFetch({ failures: 2 });
+  const { raw, origen } = await loadRaw(options);
+  assert.equal(calls.count, 2);
+  assert.equal(origen, 'fixture');
+  assert.deepEqual(raw, { ok: true, fixture: true });
+});
+
 test('loadRaw gives up after two failed calls (502 when there is no fixture)', async () => {
-  const calls = flakyFetch(2);
+  const calls = fakeFetch({ failures: 2 });
   await assert.rejects(loadRaw(options), (err) => err instanceof HttpError && err.status === 502);
   assert.equal(calls.count, 2);
 });
