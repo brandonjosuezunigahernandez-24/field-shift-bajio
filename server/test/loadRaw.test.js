@@ -72,6 +72,18 @@ test('loadRaw uses the fixture when the network fails twice', async () => {
   assert.deepEqual(raw, { ok: true, fixture: true });
 });
 
+test('loadRaw passes the rounded point to a custom fetcher', async () => {
+  const seen = [];
+  const fetcher = async (lat, lon) => {
+    seen.push([lat, lon]);
+    return { ok: true };
+  };
+  const { origen } = await loadRaw({ ...options, lat: 0.0004, lon: -0.0004, decimals: 3, fetcher });
+  assert.equal(origen, 'api');
+  assert.deepEqual(seen, [[0, 0]]);
+  await rm(new URL(`../cache/test-loadraw_0.000_0.000.json`, import.meta.url), { force: true });
+});
+
 test('loadRaw gives up after two failed calls (502 when there is no fixture)', async () => {
   const calls = fakeFetch({ failures: 2 });
   await assert.rejects(loadRaw(options), (err) => err instanceof HttpError && err.status === 502);

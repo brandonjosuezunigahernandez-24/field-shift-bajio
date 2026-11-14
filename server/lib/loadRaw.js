@@ -9,8 +9,10 @@ import { DEMO_POINT } from './seasons.js';
 // `validate(raw)` must throw when the response is not usable, so bad payloads are never cached
 // and stale cache files are downloaded again.
 // `decimals` is the source's resolution: the point is rounded once, so the URL and the cache key always match.
+// Pass `buildUrl(lat, lon)` for a plain JSON API, or `fetcher(lat, lon)` (async, returns the data to cache)
+// when the source needs several requests or binary files (e.g. elevation tiles for /api/terreno).
 // Set OFFLINE=1 to skip the network (demo rehearsal without internet).
-export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl, timeoutMs, validate }) {
+export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl, fetcher, timeoutMs, validate }) {
   lat = roundTo(lat, decimals);
   lon = roundTo(lon, decimals);
   const key = cacheKey(source, lat, lon, decimals);
@@ -30,7 +32,7 @@ export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl,
     // Two tries: SoilGrids drops about 1 call in 5 and only the demo point has a fixture.
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
-        const raw = await fetchJson(buildUrl(lat, lon), { timeoutMs });
+        const raw = fetcher ? await fetcher(lat, lon) : await fetchJson(buildUrl(lat, lon), { timeoutMs });
         validate?.(raw);
         await writeCache(key, raw);
         return { raw, origen: 'api' };

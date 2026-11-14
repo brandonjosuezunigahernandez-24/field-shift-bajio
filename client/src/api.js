@@ -15,9 +15,6 @@ async function request(path, options) {
   return body;
 }
 
-// [{ nombre, lat, lon }]: the example plots, all with offline fixtures on the server.
-export const getEjemplos = () => request('/api/ejemplos');
-
 const pointQuery = (lat, lon) => new URLSearchParams({ lat: String(lat), lon: String(lon) });
 
 export const getClima = (lat, lon) => request(`/api/clima?${pointQuery(lat, lon)}`);

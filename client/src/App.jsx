@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
-import { getClima, getEjemplos, getSuelo } from './api.js';
+import { useState } from 'react';
+import { getClima, getSuelo } from './api.js';
+import { EXAMPLE_POINTS } from './examplePoints.js';
 
 const MONTHS = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
 
@@ -12,17 +13,10 @@ const ORIGIN_LABEL = {
 // Phase 1 screen: proves the whole path works (button -> server -> NASA POWER / SoilGrids).
 // Phase 2 replaces the button with the map and the form, and adds the recommendation.
 export default function App() {
-  const [examples, setExamples] = useState([]);
-  const [examplesError, setExamplesError] = useState(null);
   const [point, setPoint] = useState(null);
   const [loading, setLoading] = useState(false);
   const [clima, setClima] = useState(null);
   const [suelo, setSuelo] = useState(null);
-
-  // The server owns the example list, so a button never points to a plot without offline data.
-  useEffect(() => {
-    getEjemplos().then(setExamples, (err) => setExamplesError(err.message));
-  }, []);
 
   async function loadPoint(selected) {
     setPoint(selected);
@@ -51,14 +45,9 @@ export default function App() {
       <main>
         <section className="card">
           <h2>1. Elige tu parcela</h2>
-          <p className="hint">Por ahora hay parcelas de ejemplo. El mapa llega en la siguiente fase.</p>
-          {examplesError && (
-            <p className="error" role="alert">
-              {examplesError}
-            </p>
-          )}
+          <p className="hint">Por ahora hay una parcela de ejemplo. El mapa llega en la siguiente fase.</p>
           <div className="button-row">
-            {examples.map((example) => (
+            {EXAMPLE_POINTS.map((example) => (
               <button key={example.nombre} type="button" disabled={loading} onClick={() => loadPoint(example)}>
                 {example.nombre}
               </button>

@@ -8,6 +8,7 @@ import { FIXTURE_POINTS } from '../lib/seasons.js';
 import { POWER_SOURCE, buildPowerUrl, validatePower } from '../sources/nasaPower.js';
 import { SOILGRIDS_DECIMALS, SOILGRIDS_SOURCE, buildSoilGridsUrl, validateSoilGrids } from '../sources/soilGrids.js';
 
+// Each source gives `buildUrl(lat, lon)` for a JSON API or `fetcher(lat, lon)`, like loadRaw.
 const sources = [
   { source: POWER_SOURCE, buildUrl: buildPowerUrl, validate: validatePower },
   { source: SOILGRIDS_SOURCE, buildUrl: buildSoilGridsUrl, validate: validateSoilGrids, decimals: SOILGRIDS_DECIMALS },
@@ -15,11 +16,11 @@ const sources = [
 
 let failed = false;
 for (const { lat, lon, nombre } of FIXTURE_POINTS) {
-  for (const { source, buildUrl, validate, decimals } of sources) {
+  for (const { source, buildUrl, fetcher, validate, decimals } of sources) {
     const key = cacheKey(source, lat, lon, decimals);
-    const url = buildUrl(lat, lon);
+    const url = buildUrl?.(lat, lon) ?? source;
     try {
-      const raw = await fetchJson(url, { timeoutMs: 60000 });
+      const raw = fetcher ? await fetcher(lat, lon) : await fetchJson(url, { timeoutMs: 60000 });
       validate(raw);
       await writeFixture(key, raw);
       console.log(`OK   fixtures/${key}.json  (${nombre})`);
