@@ -11,6 +11,7 @@ import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
 import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
 import { soilColors, yearState } from '../three/parcelState.js';
+import { WEATHER_OPTIONS, weatherScene } from '../weather.js';
 import { YearControl } from '../year.jsx';
 import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
 import { createCropLayer } from './cropLayer.js';
@@ -287,11 +288,19 @@ export default function ParcelMap({
   const [editingId, setEditingId] = useState(null); // a saved parcel being corrected, or null
   // Plants + weather standing on the satellite map, and whether the weather moves.
   const cropLayerRef = useRef(null);
-  const [showWeather, setShowWeather] = useState(() => saved('fieldshift.clima', { si: 1, no: 1 }, 'si') === 'si');
+  const weatherIds = Object.fromEntries(WEATHER_OPTIONS.map((o) => [o.id, true]));
+  const [weatherChoice, setWeatherChoice] = useState(() => saved('fieldshift.clima', weatherIds, 'auto'));
   const [onScreen, setOnScreen] = useState(true);
-  const animateWeather = showWeather && onScreen && !reducedMotion();
   const shown = editingId === null ? parcelas : parcelas.filter((p) => p.id !== editingId);
   const yearNow = yearState(clima, year?.anio ?? null);
+  // Weather drawn over the map: from the real year ("auto") or picked by hand (marked as example).
+  const weather = weatherScene(weatherChoice, yearNow);
+  const weatherOption = WEATHER_OPTIONS.find((o) => o.id === weather.id) ?? WEATHER_OPTIONS[0];
+  // Crops follow the real year, unless a hand-picked scene brings its own look (e.g. drought).
+  const plantLook = weather.plant
+    ? { ...weather.plant, tint: [1, 0.8 + 0.2 * weather.plant.wet, 0.45 + 0.55 * weather.plant.wet] }
+    : yearNow;
+  const animateWeather = weather.id !== 'apagado' && onScreen && !reducedMotion();
 
   // Latest values for the map handlers and effects that must not re-run on every change.
   const drawingRef = useRef(drawing);
@@ -450,7 +459,7 @@ export default function ParcelMap({
       const key = ground ? [...ground.values()].map((g) => (g ?? 'x').toString()).join(',') : 'plano';
       if (onlyIfGroundChanged && key === lastGround) return; // nothing new: avoid a repaint loop
       lastGround = key;
-      const raised = raisedParcelsGeoJSON(shown, rise, soilRgb, CROP_COLORS, ground, yearNow);
+      const raised = raisedParcelsGeoJSON(shown, rise, soilRgb, CROP_COLORS, ground, plantLook);
       source.setData(raised);
       // Plants stand on the top of each raised block (ground height + block, as the map draws it).
       cropLayerRef.current?.update({
@@ -460,8 +469,8 @@ export default function ParcelMap({
           contorno: p.contorno,
           base: (ground?.get(p.id) ?? 0) + raised.features[i].properties.tope_m,
         })),
-        year: yearNow,
-        weather: showWeather,
+        plants: plantLook,
+        weather: weather.id === 'apagado' ? null : weather,
         animate: animateWeather,
       });
     };
@@ -486,7 +495,7 @@ export default function ParcelMap({
       cancelAnimationFrame(frame);
       fresh.forEach((id) => rise.set(id, 1)); // never leave a parcel half way up
     };
-  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, showWeather, animateWeather]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, weather.id, weather.example, animateWeather]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pause the weather animation while the map is scrolled out of view (no wasted battery).
   useEffect(() => {
@@ -619,9 +628,21 @@ export default function ParcelMap({
     <div className="parcel-map">
       <div className="parcel-map-frame">
         <div ref={containerRef} className="parcel-map-canvas" />
-        {parcelas.length > 0 && yearNow.lluvia_mm !== null && (
+        {parcelas.length > 0 && weather.id !== 'apagado' && (
+          <div className={`weather-overlay wx-${weather.id}`} aria-hidden="true">
+            <span className="wx-sun" />
+            <span className="wx-flash" />
+          </div>
+        )}
+        {parcelas.length > 0 && weather.example && (
+          <p className="map-year-badge map-year-example" aria-hidden="true">
+            {weatherOption.icon} {weather.label} · vista de ejemplo
+          </p>
+        )}
+        {parcelas.length > 0 && !weather.example && yearNow.lluvia_mm !== null && (
           <p className={yearNow.seco ? 'map-year-badge map-year-dry' : 'map-year-badge'} aria-hidden="true">
-            {year.anio} · {yearNow.seco ? 'año seco' : 'año bueno'} · {Math.round(yearNow.lluvia_mm)} mm
+            {year.anio} · {weather.id !== 'apagado' ? `${weatherOption.icon} ${weather.label}` : yearNow.seco ? 'año seco' : 'año bueno'} ·{' '}
+            {Math.round(yearNow.lluvia_mm)} mm
           </p>
         )}
       </div>
@@ -658,20 +679,31 @@ export default function ParcelMap({
             </label>
           ))}
         </fieldset>
-        <label className="weather-switch">
-          <input
-            type="checkbox"
-            checked={showWeather}
-            onChange={(e) => {
-              setShowWeather(e.target.checked);
-              remember('fieldshift.clima', e.target.checked ? 'si' : 'no');
-            }}
-          />
-          <span>
-            <strong>Clima animado</strong>{' '}
-            <span className="option-note">(lluvia en años buenos, polvo en años secos, según el año que elijas)</span>
-          </span>
-        </label>
+        <fieldset className="weather-picker">
+          <legend>Clima en el mapa</legend>
+          {WEATHER_OPTIONS.map((o) => (
+            <label key={o.id} className={weatherChoice === o.id ? 'chip chip-on' : 'chip'}>
+              <input
+                type="radio"
+                name="clima-mapa"
+                value={o.id}
+                checked={weatherChoice === o.id}
+                onChange={() => {
+                  setWeatherChoice(o.id);
+                  remember('fieldshift.clima', o.id);
+                }}
+              />
+              <span aria-hidden="true">{o.icon}</span> {o.label}
+            </label>
+          ))}
+          <p className="hint">
+            {weatherChoice === 'auto'
+              ? 'Según el año: el clima sale de la lluvia real de junio a septiembre de ese año (NASA POWER).'
+              : weatherChoice === 'apagado'
+                ? 'Sin animaciones de clima sobre el mapa.'
+                : 'Vista de ejemplo para explorar: no son datos de tu parcela.'}
+          </p>
+        </fieldset>
         {imageryNotice && (
           <p className="hint" role="status">
             {imageryNotice}

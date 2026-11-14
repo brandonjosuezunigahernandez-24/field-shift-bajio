@@ -866,3 +866,160 @@ button:disabled {
   width: 18px;
   height: 18px;
 }
+
+/* --- Weather picker (chips) --- */
+.weather-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+
+.weather-picker legend {
+  float: left;
+  margin: 6px 10px 0 0;
+  color: var(--muted);
+}
+
+.weather-picker .hint {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+}
+
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 2px solid #d5e3cf;
+  background: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+
+.chip:hover {
+  transform: translateY(-1px);
+}
+
+.chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+
+.chip-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+
+.chip:focus-within {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+
+.map-year-example {
+  background: rgba(43, 143, 214, 0.92);
+}
+
+/* --- Weather overlay over the map (CSS only: sun glow, heat haze, cloud shade, lightning) --- */
+.weather-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  pointer-events: none;
+  transition: background 0.8s;
+}
+
+.wx-sun {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255, 236, 160, 0.95) 0%, rgba(255, 214, 102, 0.55) 22%, rgba(255, 200, 80, 0) 60%),
+    repeating-conic-gradient(rgba(255, 230, 150, 0.22) 0deg 6deg, rgba(255, 230, 150, 0) 6deg 18deg);
+  transition: opacity 0.8s;
+}
+
+.wx-soleado .wx-sun,
+.wx-sequia .wx-sun {
+  opacity: 1;
+  animation: sun-turn 40s linear infinite;
+}
+
+.wx-normal .wx-sun {
+  opacity: 0.45;
+  animation: sun-turn 40s linear infinite;
+}
+
+.wx-soleado {
+  background: linear-gradient(200deg, rgba(255, 210, 120, 0.12), rgba(255, 210, 120, 0) 60%);
+}
+
+.wx-sequia {
+  background:
+    linear-gradient(200deg, rgba(255, 170, 70, 0.22), rgba(230, 160, 80, 0.12) 70%);
+  animation: heat-haze 3s ease-in-out infinite;
+}
+
+.wx-nublado {
+  background: linear-gradient(180deg, rgba(110, 120, 135, 0.28), rgba(110, 120, 135, 0.12));
+}
+
+.wx-lluvia {
+  background: linear-gradient(180deg, rgba(70, 90, 115, 0.32), rgba(70, 90, 115, 0.16));
+}
+
+.wx-tormenta {
+  background: linear-gradient(180deg, rgba(30, 38, 55, 0.5), rgba(30, 38, 55, 0.28));
+}
+
+.wx-flash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: rgba(235, 240, 255, 0.85);
+}
+
+.wx-tormenta .wx-flash {
+  animation: lightning 7s infinite;
+}
+
+@keyframes sun-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@keyframes heat-haze {
+  50% {
+    background-color: rgba(255, 190, 90, 0.06);
+  }
+}
+
+@keyframes lightning {
+  0%, 88%, 92%, 95%, 100% {
+    opacity: 0;
+  }
+  89%, 94% {
+    opacity: 0.85;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .wx-sun,
+  .wx-sequia,
+  .wx-tormenta .wx-flash {
+    animation: none !important;
+  }
+}

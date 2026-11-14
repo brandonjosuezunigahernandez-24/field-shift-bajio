@@ -1,6 +1,7 @@
 // Crops and weather standing on the satellite map: a MapLibre custom layer drawn with three.js.
 // Same Blender models as the 3D diorama, one InstancedMesh per crop (one draw call per crop,
-// whatever the number of plants). The map only redraws every frame while the weather animates.
+// whatever the number of plants). Clouds are one InstancedMesh of puffs. The map only redraws
+// every frame while something moves (clouds, rain or dust).
 import { MercatorCoordinate } from 'maplibre-gl';
 import {
   AmbientLight,
@@ -9,6 +10,7 @@ import {
   Camera,
   Color,
   DirectionalLight,
+  IcosahedronGeometry,
   InstancedMesh,
   LineBasicMaterial,
   LineSegments,
@@ -29,18 +31,34 @@ import { polygonCenter } from './polygon.js';
 
 const MAX_DROPS = 1400;
 const MAX_DUST = 700;
+const MAX_CLOUDS = 14;
+const PUFFS = 5; // spheres per cloud
 const DROP_LEN_M = 7;
 const RAIN_SPEED = 55; // m/s, exaggerated like everything else on the map
 const RAIN_TOP_M = 160; // rain starts this high over the parcels
+const CLOUD_SPEED = 7; // m/s drifting east
 const ROT_X = new Matrix4().makeRotationAxis(new Vector3(1, 0, 0), Math.PI / 2);
 
 const srgb = (rgb) => new Color().setRGB(rgb[0], rgb[1], rgb[2], SRGBColorSpace);
 
+// Seeded random, so clouds are the same every time for the same farm.
+function seeded(seed) {
+  let a = seed >>> 0;
+  return () => {
+    a = (a + 0x6d2b79f5) >>> 0;
+    let t = a;
+    t = Math.imul(t ^ (t >>> 15), t | 1);
+    t ^= t + Math.imul(t ^ (t >>> 7), t | 61);
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
 // layer: add it with map.addLayer(layer, beforeId).
-// update({ parcels: [{ id, cultivo, contorno, base }], year, weather, animate }):
-//   base    absolute height (m) of the top of the parcel's raised block, where plants stand
-//   year    { growth, tint, rain, seco } from parcelState.yearState (or null)
-//   weather show rain / dust;  animate  false with "reduce motion" or when the map is off screen
+// update({ parcels: [{ id, cultivo, contorno, base }], plants, weather, animate }):
+//   base     absolute height (m) of the top of the parcel's raised block, where plants stand
+//   plants   { growth, tint } how the crops look (yearState, or the hand-picked weather's look)
+//   weather  scene from weather.js weatherScene() (clouds, rain, dust, light, warm)
+//   animate  false with "reduce motion" or when the map is off screen
 export function createCropLayer() {
   let map = null;
   let renderer = null;
@@ -51,14 +69,14 @@ export function createCropLayer() {
   const meshes = new Map(); // cultivo -> InstancedMesh
   const spotCache = new Map(); // parcel key -> { spots, spacing }
   let origin = null; // { lat, lon, merc, scale }
-  let state = { parcels: [], year: null, weather: true, animate: true };
+  let state = { parcels: [], plants: null, weather: null, animate: true };
 
-  scene.add(new AmbientLight(0xffffff, 0.9));
+  const ambient = new AmbientLight(0xffffff, 0.9);
   const sun = new DirectionalLight(0xffffff, 1.7);
   sun.position.set(0.4, 1, 0.3);
-  scene.add(sun);
+  scene.add(ambient, sun);
 
-  // --- weather: rain streaks and dry-year dust, inside the parcels' bounding box ---
+  // --- rain streaks and dry-year dust ---
   const rainGeometry = new BufferGeometry();
   rainGeometry.setAttribute('position', new BufferAttribute(new Float32Array(MAX_DROPS * 6), 3));
   const rain = new LineSegments(
@@ -73,10 +91,17 @@ export function createCropLayer() {
     new PointsMaterial({ color: '#c99752', size: 4, sizeAttenuation: false, transparent: true, opacity: 0.85, depthWrite: false })
   );
   dust.frustumCulled = false;
-  scene.add(rain, dust);
+
+  // --- clouds: puffy low-poly spheres, all in one InstancedMesh ---
+  const cloudMaterial = new MeshStandardMaterial({ color: '#ffffff', roughness: 1, flatShading: true, transparent: true, opacity: 0.82, depthWrite: false });
+  const clouds = new InstancedMesh(new IcosahedronGeometry(1, 1), cloudMaterial, MAX_CLOUDS * PUFFS);
+  clouds.frustumCulled = false;
+  clouds.count = 0;
+  let cloudData = []; // [{ x, y, z, r, puffs: [[dx, dy, dz, s]] }]
+  scene.add(rain, dust, clouds);
+
   let box = null; // { x0, x1, z0, z1, top }
   let lastTime = 0;
-
   const random = (lo, hi) => lo + Math.random() * (hi - lo);
 
   function seedWeather() {
@@ -94,18 +119,68 @@ export function createCropLayer() {
       d.set([random(box.x0, box.x1), random(box.top + 0.5, box.top + 14), random(box.z0, box.z1)], i * 3);
     }
     dustGeometry.attributes.position.needsUpdate = true;
+
+    // Clouds spread over a margin around the farm, sized to it (a small plot gets small clouds).
+    const size = Math.max(box.x1 - box.x0, box.z1 - box.z0, 120);
+    const rnd = seeded(Math.round(size));
+    cloudData = Array.from({ length: MAX_CLOUDS }, () => {
+      const r = Math.min(70, Math.max(18, size * 0.08)) * (0.7 + rnd() * 0.6);
+      return {
+        x: box.x0 - size * 0.3 + rnd() * size * 1.6,
+        y: box.top + 230 + rnd() * 90, // high enough not to hide the parcel in the tilted view
+        z: box.z0 - size * 0.3 + rnd() * size * 1.6,
+        r,
+        puffs: Array.from({ length: PUFFS }, (_, k) => [
+          (k - 2) * r * 0.75 + (rnd() - 0.5) * r * 0.4,
+          (rnd() - 0.3) * r * 0.35,
+          (rnd() - 0.5) * r * 0.6,
+          (k === 2 ? 1.15 : 0.7 + rnd() * 0.35) * r,
+        ]),
+      };
+    });
   }
 
-  function weatherCounts() {
-    const year = state.year;
-    if (!state.weather || !year || year.lluvia_mm === null || !box) return { drops: 0, motes: 0 };
-    if (year.seco) return { drops: 0, motes: Math.round(MAX_DUST * 0.8) };
-    return { drops: Math.round(MAX_DROPS * Math.min(1, year.rain)), motes: 0 };
+  const dummy = new Object3D();
+  function placeClouds() {
+    const visible = Math.round(MAX_CLOUDS * (state.weather?.clouds ?? 0));
+    clouds.count = visible * PUFFS;
+    for (let c = 0; c < visible; c++) {
+      const cloud = cloudData[c];
+      if (!cloud) continue;
+      cloud.puffs.forEach(([dx, dy, dz, s], k) => {
+        dummy.position.set(cloud.x + dx, cloud.y + dy, cloud.z + dz);
+        dummy.rotation.set(0, 0, 0);
+        dummy.scale.set(s, s * 0.6, s);
+        dummy.updateMatrix();
+        clouds.setMatrixAt(c * PUFFS + k, dummy.matrix);
+      });
+    }
+    clouds.instanceMatrix.needsUpdate = true;
   }
 
+  // Light and colors for the scene: sunny is bright and golden, a storm is dark and grey.
+  function applyLight() {
+    const w = state.weather;
+    const light = w?.light ?? 1;
+    ambient.intensity = 0.9 * light;
+    sun.intensity = 1.7 * light;
+    sun.color.set(w?.warm ? '#ffd9a0' : '#ffffff');
+    const dark = w?.id === 'tormenta' ? 0.45 : w?.id === 'lluvia' || w?.id === 'nublado' ? 0.78 : 1;
+    cloudMaterial.color.setRGB(dark, dark, Math.min(1, dark + 0.04));
+  }
+
+  // Moves rain, dust and clouds by dt seconds. Returns true while anything is visible and moving.
   function stepWeather(dt) {
-    const { drops, motes } = weatherCounts();
-    if (drops) {
+    const w = state.weather;
+    if (!w || !box) {
+      rainGeometry.setDrawRange(0, 0);
+      dustGeometry.setDrawRange(0, 0);
+      clouds.count = 0;
+      return false;
+    }
+    const drops = Math.round(MAX_DROPS * w.rain);
+    const motes = Math.round(MAX_DUST * w.dust);
+    if (drops && dt) {
       const r = rainGeometry.attributes.position.array;
       for (let i = 0; i < drops; i++) {
         const k = i * 6;
@@ -119,7 +194,7 @@ export function createCropLayer() {
       }
       rainGeometry.attributes.position.needsUpdate = true;
     }
-    if (motes) {
+    if (motes && dt) {
       const d = dustGeometry.attributes.position.array;
       const t = performance.now() / 1000;
       for (let i = 0; i < motes; i++) {
@@ -130,9 +205,17 @@ export function createCropLayer() {
       }
       dustGeometry.attributes.position.needsUpdate = true;
     }
+    if (w.clouds && dt) {
+      const span = Math.max(box.x1 - box.x0, 120);
+      for (const cloud of cloudData) {
+        cloud.x += CLOUD_SPEED * dt;
+        if (cloud.x > box.x1 + span * 0.5) cloud.x = box.x0 - span * 0.5;
+      }
+    }
+    placeClouds();
     rainGeometry.setDrawRange(0, drops * 2);
     dustGeometry.setDrawRange(0, motes);
-    return drops > 0 || motes > 0;
+    return drops > 0 || motes > 0 || w.clouds > 0;
   }
 
   // Rebuilds plant instances (cheap: a few thousand matrices) after any change.
@@ -142,9 +225,12 @@ export function createCropLayer() {
       mesh.dispose();
     }
     meshes.clear();
-    box = null;
+    applyLight();
     const parcels = state.parcels;
-    if (!parcels.length) return;
+    if (!parcels.length) {
+      box = null;
+      return;
+    }
 
     const center = polygonCenter(allCorners(parcels));
     const sameOrigin = origin && Math.abs(origin.lat - center.lat) < 0.01 && Math.abs(origin.lon - center.lon) < 0.01;
@@ -154,9 +240,9 @@ export function createCropLayer() {
       spotCache.clear();
     }
 
-    const year = state.year;
-    const growth = year?.growth ?? 1;
-    const tint = srgb(year?.tint ?? [1, 1, 1]);
+    const plants = state.plants;
+    const growth = plants?.growth ?? 1;
+    const tint = srgb(plants?.tint ?? [1, 1, 1]);
     const byCrop = new Map();
     let x0 = Infinity;
     let x1 = -Infinity;
@@ -178,13 +264,13 @@ export function createCropLayer() {
       top = Math.max(top, p.base);
     });
     if (Number.isFinite(x0)) {
-      const changed = !box || box.x0 !== x0 || box.x1 !== x1 || box.z0 !== z0 || box.z1 !== z1 || box.top !== top;
+      const changed = !box || box.x0 !== x0 || box.x1 !== x1 || box.z0 !== z0 || box.z1 !== z1 || Math.abs(box.top - top) > 2;
       box = { x0, x1, z0, z1, top };
       if (changed) seedWeather();
     }
+    stepWeather(0);
 
     if (!models) return; // the .glb is still loading; rebuild() runs again when it arrives
-    const dummy = new Object3D();
     for (const [cultivo, groups] of byCrop) {
       const geometry = models[cultivo] ?? models.maiz;
       if (!geometry.boundingBox) geometry.computeBoundingBox();
@@ -238,9 +324,9 @@ export function createCropLayer() {
     render(gl, args) {
       if (!origin || !state.parcels.length) return;
       const now = performance.now();
-      const dt = Math.min(0.1, (now - (lastTime || now)) / 1000);
+      const dt = state.animate ? Math.min(0.1, (now - (lastTime || now)) / 1000) : 0;
       lastTime = now;
-      const moving = state.animate ? stepWeather(dt) : stepWeather(0);
+      const moving = stepWeather(dt);
 
       const projection = new Matrix4().fromArray(args.defaultProjectionData.mainMatrix);
       const local = new Matrix4()
@@ -258,6 +344,8 @@ export function createCropLayer() {
       for (const mesh of meshes.values()) mesh.dispose();
       meshes.clear();
       material.dispose();
+      cloudMaterial.dispose();
+      clouds.dispose();
       rainGeometry.dispose();
       dustGeometry.dispose();
       map = null;
