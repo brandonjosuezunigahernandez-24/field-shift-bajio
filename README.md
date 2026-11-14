@@ -40,7 +40,7 @@ npm install
 npm run dev
 ```
 
-Abre <http://localhost:5173> y presiona **Celaya, Gto.** Debes ver la lluvia por año, los años secos y los datos de suelo.
+Abre <http://localhost:5173>, haz clic en el mapa sobre tu parcela (o presiona **Celaya, Gto.**). Debes ver la gráfica de lluvia por año con los años secos marcados y los datos de suelo. El botón **Recomendar rotación** responde con un aviso hasta que el motor esté listo (fase 2).
 
 ### Pruebas
 
@@ -64,6 +64,10 @@ En PowerShell:
 ```powershell
 $env:OFFLINE = "1"; npm run dev
 ```
+
+### Pantalla de resultado sin el motor
+
+Mientras `POST /api/recomendar` responde 501 (fase 2), el client puede usar una respuesta de prueba. Copia `client/.env.example` a `client/.env`, pon `VITE_USE_MOCK=1` y reinicia Vite. Los bloques de clima y suelo del mock son reales (fixture de Celaya); los cultivos y la rotación son de relleno y la pantalla lo avisa.
 
 Cualquier punto que ya se consultó una vez queda en `server/cache/` y también funciona sin internet. Para volver a bajar los fixtures del punto demo: `npm run fixtures` (dentro de `server/`).
 
@@ -92,7 +96,18 @@ server/
   scripts/             fetch-fixtures.js
   test/                pruebas
 client/
-  src/                 React + Vite; Leaflet y Recharts ya instalados para la fase 2
+  src/
+    App.jsx            una sola página: mapa, formulario y resultado
+    api/               client.js (llamadas al server) y mock.js (bandera VITE_USE_MOCK)
+    hooks/             useParcela.js: estado de la parcela, el formulario y los resultados
+    config/            textos en español, puntos de ejemplo
+    components/
+      mapa/            MapaParcela (Leaflet): clic marca la parcela
+      formulario/      FormularioParcela: temporal o riego y prioridad
+      resultado/       Resultado, RotacionCards, GraficaLluvia (Recharts), TablaCultivos, ClimaCard, SueloCard
+      comunes/         estados de carga y error, créditos
+    three/             Parcela3D: contenedor aislado para la maqueta 3D (hoy, vista previa 2D)
+    mocks/             recomendar.celaya.json: respuesta de prueba de /api/recomendar
 docs/
   api-contract.md      contrato entre front, back y motor
 ```
@@ -111,7 +126,7 @@ Por agregar en las siguientes fases: FAO Ecocrop (requerimientos de los cultivos
 
 **Software**
 
-React, Vite, Express, Leaflet, react-leaflet y Recharts, todos de código abierto.
+React, Vite, Express, Leaflet, react-leaflet y Recharts, todos de código abierto. Mapa base: © colaboradores de OpenStreetMap (ODbL).
 
 **Uso de inteligencia artificial**
 
