@@ -99,3 +99,10 @@ test('POST /api/asistente con perfil inválido -> 400', async () => {
   const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat: 20.47, lon: -100.81, pregunta: 'hola', perfil: { agua: 'mar' } }) });
   assert.equal(res.status, 400);
 });
+
+test('GET /api/asistente/temas devuelve la guía de preguntas', async () => {
+  const { status, body } = await get('/api/asistente/temas');
+  assert.equal(status, 200);
+  assert.ok(body.temas.length >= 4 && body.temas.every((t) => t.titulo && t.preguntas.length > 0));
+  assert.ok(body.nota.includes('No doy marcas'));
+});
