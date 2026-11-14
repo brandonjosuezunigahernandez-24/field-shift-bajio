@@ -2,7 +2,7 @@
 
 Proyecto del **NASA Space Apps Challenge 2026**, sede Querétaro. Reto: *Field Shift: Adapting Farms with NASA Data*.
 
-Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Querétaro): marca tu parcela, di qué te importa más, y te propone una rotación de cultivos de 3 años que cuida el suelo y aguanta el clima. El riesgo se calcula con los **años secos reales** de tu parcela (25 años de datos de la NASA), no con un promedio.
+Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Querétaro): dibuja el contorno de tu parcela en el mapa, di qué te importa más, y te propone una rotación de cultivos de 3 años que cuida el suelo y aguanta el clima. El riesgo se calcula con los **años secos reales** de tu parcela (25 años de datos de la NASA), no con un promedio.
 
 > Este README está en español mientras dura el evento. La versión final de entrega irá en inglés.
 

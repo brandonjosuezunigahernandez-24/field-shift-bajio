@@ -7,6 +7,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 ## Reglas generales
 
 - Base: `http://localhost:3001`. Desde el client se llama como `/api/...` (Vite lo redirige).
+- **`lat` y `lon` son el centro de la parcela que dibujó el agricultor** (ver "Selección de la parcela" abajo). El servidor sigue recibiendo un punto.
 - `lat` y `lon` se redondean a 2 decimales (más o menos 1 km). Esa es también la resolución de la caché.
 - Las claves del JSON van en español; el código (variables y funciones) en inglés.
 - **Errores:** siempre `{ "error": "mensaje en español que se le puede mostrar al agricultor" }`.
@@ -24,6 +25,17 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
   - `"cache"`: guardado en `server/cache/` por una consulta anterior.
   - `"fixture"`: copia de respaldo versionada en `server/fixtures/` (solo existe para el punto demo).
 - El orden de búsqueda es caché → API → fixture → 502. Con `OFFLINE=1` se salta la API.
+
+## Selección de la parcela (front)
+
+**Cambio del 14 de noviembre:** el agricultor ya no marca un punto. **Dibuja el contorno de su parcela** en el mapa.
+
+- Cada clic en el mapa agrega una esquina. Con 3 o más esquinas ya hay parcela.
+- Debe poder deshacer la última esquina y borrar todo para empezar de nuevo.
+- El front calcula el centro y lo manda como `lat` y `lon`. Basta el promedio de las esquinas: el servidor redondea a 2 decimales (más o menos 1 km), así que un centro más exacto no cambia el resultado.
+- **El back, el motor y el asistente no cambian.** NASA POWER y SoilGrids se consultan por punto y una parcela es mucho más chica que su resolución.
+- Sin librería nueva: con react-leaflet alcanza (`useMapEvents` para los clics y `<Polygon>` para pintarla).
+- Los botones de ejemplo (Celaya, Gto.) siguen mandando su `lat` y `lon` directo.
 
 ## GET /api/health
 
