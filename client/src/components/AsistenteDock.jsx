@@ -5,7 +5,7 @@ import { useParcelaContext } from '../context/ParcelaContext.jsx';
 // Asistente siempre a la mano: botón flotante en todas las pantallas. Una sola respuesta a la vez
 // (cada pregunta nueva borra la anterior) y una guía de temas para no salirse de lo que sabe contestar.
 export default function AsistenteDock() {
-  const { point, agua, prioridad, setAgua, setPrioridad } = useParcelaContext();
+  const { point, agua, prioridad, setAgua, setPrioridad, parcelas } = useParcelaContext();
   // ?asistente=abierto lo deja abierto al cargar (sirve para revisar cómo se ve).
   const [open, setOpen] = useState(() => new URLSearchParams(window.location.search).get('asistente') === 'abierto');
   const [temas, setTemas] = useState(null);
@@ -30,7 +30,7 @@ export default function AsistenteDock() {
     setTexto(pregunta);
     setEstado({ fase: 'pensando' }); // esto borra la respuesta anterior
     try {
-      const r = await postAsistente({ lat: point.lat, lon: point.lon, pregunta, perfil: { ...extra, agua, prioridad } });
+      const r = await postAsistente({ lat: point.lat, lon: point.lon, pregunta, perfil: { ...extra, agua, prioridad }, parcelas: parcelas.map((p) => ({ id: p.id, hectareas: p.hectareas })) });
       setEstado({ fase: 'listo', r });
     } catch (e) {
       setEstado({ fase: 'error', mensaje: e.message });
