@@ -18,6 +18,7 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [12](../limitaciones-chat.md) | Limitaciones del chat y borrador de PR (`docs/pr-asistente.md`) | Hecho |
 | [12](12-recomendador-provisional.md) | Recomendador provisional y simulación de ingresos (SIAP) | Hecho (provisional) |
 | [13](13-memoria-y-conversacion-guiada.md) | Memoria corta y conversación guiada | Hecho (poco probado) |
-| 14 | Citas y plantillas por código, set de 15 preguntas, solo CPU, modelo con clima NASA + pérdidas SIAP | Siguiente |
+| [14](../integracion-prueba.md) | Prueba de integración con las ramas de 3D y frontend (qué corrige cada quien) | Hecho |
+| 15 | Citas y plantillas por código, set de 15 preguntas, solo CPU, modelo con clima NASA + pérdidas SIAP | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.
