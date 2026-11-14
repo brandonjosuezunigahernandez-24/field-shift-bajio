@@ -1,3 +1,5 @@
+import { USE_MOCK, mockPostRecomendar } from './mock.js';
+
 // All calls to the server go through here. Errors always carry a message in plain Spanish.
 const SERVER_DOWN = 'No pudimos conectar con el servidor. Revisa que esté encendido e intenta de nuevo.';
 
@@ -23,8 +25,10 @@ export const getSuelo = (lat, lon) => request(`/api/suelo?${pointQuery(lat, lon)
 
 // payload: { lat, lon, agua: "temporal" | "riego", prioridad: "ganar" | "suelo" | "agua" | "riesgo" }
 export const postRecomendar = (payload) =>
-  request('/api/recomendar', {
-    method: 'POST',
-    headers: { 'content-type': 'application/json' },
-    body: JSON.stringify(payload),
-  });
+  USE_MOCK
+    ? mockPostRecomendar(payload)
+    : request('/api/recomendar', {
+        method: 'POST',
+        headers: { 'content-type': 'application/json' },
+        body: JSON.stringify(payload),
+      });
