@@ -1,33 +1,14 @@
-import { useState } from 'react';
-import { getClima, getSuelo } from './api/client.js';
-import { EXAMPLE_POINTS } from './config/examplePoints.js';
-import ClimaCard from './components/resultado/ClimaCard.jsx';
-import SueloCard from './components/resultado/SueloCard.jsx';
+import { useParcela } from './hooks/useParcela.js';
+import MapaParcela from './components/mapa/MapaParcela.jsx';
+import FormularioParcela from './components/formulario/FormularioParcela.jsx';
+import Resultado from './components/resultado/Resultado.jsx';
+import { Cargando } from './components/comunes/Estado.jsx';
+import Creditos from './components/comunes/Creditos.jsx';
 
-// Phase 1 screen: proves the whole path works (button -> server -> NASA POWER / SoilGrids).
-// Phase 2 replaces the button with the map and the form, and adds the recommendation.
+// One page, three steps: plot (map), what the farmer wants (form), result (rotation + charts).
+// All state lives in useParcela; this file only lays things out.
 export default function App() {
-  const [point, setPoint] = useState(null);
-  const [loading, setLoading] = useState(false);
-  const [clima, setClima] = useState(null);
-  const [suelo, setSuelo] = useState(null);
-
-  async function loadPoint(selected) {
-    setPoint(selected);
-    setLoading(true);
-    setClima(null);
-    setSuelo(null);
-    // Climate and soil are independent: if one fails, the other is still shown.
-    const [climaResult, sueloResult] = await Promise.allSettled([
-      getClima(selected.lat, selected.lon),
-      getSuelo(selected.lat, selected.lon),
-    ]);
-    const unwrap = (result) =>
-      result.status === 'fulfilled' ? { data: result.value } : { error: result.reason.message };
-    setClima(unwrap(climaResult));
-    setSuelo(unwrap(sueloResult));
-    setLoading(false);
-  }
+  const parcela = useParcela();
 
   return (
     <div className="page">
@@ -36,40 +17,39 @@ export default function App() {
         <p>Rotación de cultivos para tu parcela de temporal, con datos de la NASA.</p>
       </header>
 
-      <main>
-        <section className="card">
-          <h2>1. Elige tu parcela</h2>
-          <p className="hint">Por ahora hay una parcela de ejemplo. El mapa llega en la siguiente fase.</p>
-          <div className="button-row">
-            {EXAMPLE_POINTS.map((example) => (
-              <button key={example.nombre} type="button" disabled={loading} onClick={() => loadPoint(example)}>
-                {example.nombre}
-              </button>
-            ))}
-          </div>
-          {point && (
-            <p className="hint">
-              Parcela: {point.nombre} ({point.lat}, {point.lon})
-            </p>
-          )}
-        </section>
+      <main className="layout">
+        <div className="columna-entrada">
+          <section className="card">
+            <h2>1. Marca tu parcela</h2>
+            <MapaParcela point={parcela.point} onSelect={parcela.selectPoint} disabled={parcela.loading} />
+          </section>
 
-        {loading && (
-          <p className="status" role="status">
-            Consultando el clima y el suelo de tu parcela…
-          </p>
-        )}
+          <section className="card">
+            <h2>2. Cuéntanos de tu parcela</h2>
+            <FormularioParcela
+              agua={parcela.agua}
+              prioridad={parcela.prioridad}
+              onAguaChange={parcela.setAgua}
+              onPrioridadChange={parcela.setPrioridad}
+              onSubmit={parcela.recomendar}
+              disabled={!parcela.point || parcela.loading}
+            />
+          </section>
+        </div>
 
-        <ClimaCard result={clima} />
-        <SueloCard result={suelo} />
+        <div className="columna-resultado">
+          <h2 className="titulo-resultado">3. Tu resultado</h2>
+          {parcela.loading && <Cargando />}
+          <Resultado
+            point={parcela.point}
+            clima={parcela.clima}
+            suelo={parcela.suelo}
+            recomendacion={parcela.recomendacion}
+          />
+        </div>
       </main>
 
-      <footer className="page-footer">
-        <p>
-          Clima: NASA POWER (NASA Langley Research Center). Suelo: SoilGrids 2.0 (ISRIC World Soil Information).
-        </p>
-        <p>NASA Space Apps Challenge 2026, Querétaro. Reto Field Shift.</p>
-      </footer>
+      <Creditos fuentes={parcela.recomendacion?.data?.fuentes} />
     </div>
   );
 }
