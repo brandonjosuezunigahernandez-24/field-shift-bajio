@@ -18,13 +18,16 @@ export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl,
   if (cached) return { raw: cached, origen: 'cache' };
 
   if (process.env.OFFLINE !== '1') {
-    try {
-      const raw = await fetchJson(buildUrl(lat, lon), { timeoutMs });
-      validate?.(raw);
-      await writeCache(key, raw);
-      return { raw, origen: 'api' };
-    } catch (err) {
-      console.warn(`[${source}] no se pudo consultar ${lat}, ${lon}: ${err.message}`);
+    // Two tries: SoilGrids drops about 1 call in 5 and only the demo point has a fixture.
+    for (let attempt = 1; attempt <= 2; attempt++) {
+      try {
+        const raw = await fetchJson(buildUrl(lat, lon), { timeoutMs });
+        validate?.(raw);
+        await writeCache(key, raw);
+        return { raw, origen: 'api' };
+      } catch (err) {
+        console.warn(`[${source}] intento ${attempt} de 2, no se pudo consultar ${lat}, ${lon}: ${err.message}`);
+      }
     }
   }
 
