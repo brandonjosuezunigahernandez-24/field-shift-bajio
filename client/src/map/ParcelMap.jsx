@@ -1,5 +1,5 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Map as MapLibreMap, NavigationControl, ScaleControl, setWorkerUrl } from 'maplibre-gl';
+import { Map as MapLibreMap, Marker, NavigationControl, ScaleControl, setWorkerUrl } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
 import { areaHectares, bounds, outlineGeoJSON, polygonCenter } from './polygon.js';
@@ -11,6 +11,8 @@ setWorkerUrl(workerUrl);
 const BAJIO = { center: [-100.8, 20.65], zoom: 8 };
 const MIN_DRAW_ZOOM = 13; // below this a click is too imprecise to be a corner: zoom in instead
 const BIG_PARCEL_HA = 500;
+const STREETS_MIN_ZOOM = 14;
+const MAX_ZOOM = 19.5; // the satellite imagery has no more detail beyond this
 
 // Satellite imagery + place names (Esri) and 3D relief (the same AWS Terrain Tiles / NASA SRTM
 // heights that /api/terreno uses). All free, no API key. Raster only: no glyphs or sprites to fetch.
@@ -30,6 +32,13 @@ const STYLE = {
       tileSize: 256,
       maxzoom: 19,
     },
+    // Streets and roads with their names, transparent so the satellite shows underneath.
+    calles: {
+      type: 'raster',
+      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}'],
+      tileSize: 256,
+      maxzoom: 19,
+    },
     relieve: {
       type: 'raster-dem',
       tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
@@ -41,6 +50,8 @@ const STYLE = {
   },
   layers: [
     { id: 'satelite', type: 'raster', source: 'satelite' },
+    // Only when zoomed in (from neighborhood level), so the far view stays clean and light.
+    { id: 'calles', type: 'raster', source: 'calles', minzoom: STREETS_MIN_ZOOM, paint: { 'raster-opacity': 0.85 } },
     { id: 'lugares', type: 'raster', source: 'lugares' },
   ],
   terrain: { source: 'relieve', exaggeration: 1.5 },
@@ -64,13 +75,16 @@ function addParcelLayers(map) {
     filter: ['!=', ['geometry-type'], 'Point'],
     paint: { 'line-color': '#f2c94c', 'line-width': 3 },
   });
-  map.addLayer({
-    id: 'parcela-esquinas',
-    type: 'circle',
-    source: 'parcela',
-    filter: ['==', ['geometry-type'], 'Point'],
-    paint: { 'circle-radius': 6, 'circle-color': '#ffffff', 'circle-stroke-color': '#2f6b3a', 'circle-stroke-width': 2 },
-  });
+}
+
+// Corners are numbered HTML markers (1, 2, 3...) so the farmer sees the order they were placed.
+// HTML instead of a map text layer: no font files to download, and there are only a few corners.
+function cornerMarker(index) {
+  const el = document.createElement('div');
+  el.className = index === 0 ? 'corner-marker corner-marker-first' : 'corner-marker';
+  el.textContent = String(index + 1);
+  el.setAttribute('aria-hidden', 'true');
+  return new Marker({ element: el });
 }
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
@@ -101,6 +115,7 @@ export default function ParcelMap({ point, onParcel }) {
         style: STYLE,
         ...BAJIO,
         maxPitch: 70,
+        maxZoom: MAX_ZOOM,
         doubleClickZoom: false, // a double tap would add two corners
         pixelRatio: Math.min(window.devicePixelRatio || 1, 2),
         attributionControl: { compact: true },
@@ -119,6 +134,8 @@ export default function ParcelMap({ point, onParcel }) {
     });
     map.on('click', (event) => {
       if (!drawingRef.current) return;
+      // A tap on a numbered corner must not add another corner on top of it.
+      if (event.originalEvent?.target?.closest?.('.corner-marker')) return;
       if (map.getZoom() < MIN_DRAW_ZOOM) {
         setHint('Te acercamos para que marques las esquinas con precisión.');
         map.flyTo({ center: event.lngLat, zoom: 15.5, duration: reducedMotion() ? 0 : 1500 });
@@ -134,9 +151,13 @@ export default function ParcelMap({ point, onParcel }) {
     };
   }, []);
 
-  // Paint the outline whenever it changes.
+  // Paint the outline and the numbered corners whenever they change.
   useEffect(() => {
-    if (ready) mapRef.current.getSource('parcela').setData(outlineGeoJSON(corners));
+    if (!ready) return undefined;
+    const map = mapRef.current;
+    map.getSource('parcela').setData(outlineGeoJSON(corners));
+    const markers = corners.map((corner, i) => cornerMarker(i).setLngLat(corner).addTo(map));
+    return () => markers.forEach((m) => m.remove());
   }, [ready, corners]);
 
   useEffect(() => {
@@ -191,7 +212,7 @@ export default function ParcelMap({ point, onParcel }) {
             <p className="hint" aria-live="polite">
               {hint ??
                 (corners.length === 0
-                  ? 'Busca tu parcela y toca el mapa en cada esquina.'
+                  ? 'Busca tu parcela y toca sus esquinas en orden, siguiendo la orilla.'
                   : corners.length < 3
                     ? `Llevas ${corners.length} ${corners.length === 1 ? 'esquina' : 'esquinas'}. Faltan ${3 - corners.length} como mínimo.`
                     : `Llevas ${corners.length} esquinas. Tu parcela mide ${fmtHa(area)} hectáreas.`)}

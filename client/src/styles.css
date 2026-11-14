@@ -254,3 +254,24 @@ button.secondary {
 button:disabled {
   cursor: not-allowed;
 }
+
+/* Numbered parcel corners on the map */
+.corner-marker {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  font: 700 14px/22px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  cursor: default;
+  user-select: none;
+}
+
+.corner-marker-first {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: #ffffff;
+}
