@@ -190,7 +190,7 @@ export function recommend({ estado, agua, prioridad, costos = null, incluirHorta
   return {
     estado, agua, prioridad,
     cultivos: ranked.map((c) => ({
-      id: c.cultivo, nombre: NOMBRE[c.cultivo], temporada: CODIGO[c.ciclo], puntaje: c.puntaje, riesgo: c.riesgo, razones: razones(c, estado),
+      id: c.cultivo, nombre: NOMBRE[c.cultivo][0].toUpperCase() + NOMBRE[c.cultivo].slice(1), temporada: CODIGO[c.ciclo], puntaje: c.puntaje, riesgo: c.riesgo, razones: razones(c, estado),
     })),
     rotacion: plan.map((p) => ({
       anio: p.anio, temporada: CODIGO[p.ciclo], cultivo: p.cand.cultivo,
