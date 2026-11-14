@@ -213,3 +213,17 @@ Respuesta:
 ## POST /api/voz (propuesta del rol LLM)
 
 `Content-Type: application/octet-stream`. Cuerpo: audio **mono a 16 kHz en Float32 little-endian** (el front lo remuestrea con `AudioContext`). Máx. 30 s. Respuesta: `{ "texto": "..." }`. Mostrar el texto al usuario antes de mandarlo a `/api/asistente`.
+
+## GET /api/pronostico?lat=20.47&lon=-100.81 (propuesta del rol LLM)
+
+Próximos 7 días, de Open-Meteo (gratis, CC BY 4.0, solo uso no comercial). Es un extra: **sin internet ni caché no es error**, responde `disponible: false`.
+
+```json
+{ "lat": 20.47, "lon": -100.81, "disponible": true, "origen": "api",
+  "obtenido": "2026-11-14T18:59:01.279Z",
+  "dias": [ { "fecha": "2026-11-14", "lluvia_mm": 0, "prob_lluvia_pct": 18, "t_max_c": 23.2, "t_min_c": 12.3 } ],
+  "fuente": "Open-Meteo.com (datos CC BY 4.0)" }
+```
+- `origen`: `"api"` o `"cache"` (la caché se reusa 3 horas; sin internet se usa la última, mira `obtenido`).
+- Con `disponible: false` solo vienen `lat`, `lon` y `aviso`.
+- El asistente usa este pronóstico dentro de su ficha; `fuentes` puede traer `"Open-Meteo"`.

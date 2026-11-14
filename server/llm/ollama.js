@@ -8,8 +8,9 @@ REGLAS:
 1. Usa SOLO la FICHA. No uses conocimiento propio.
 2. Si la respuesta no está en la FICHA, responde exactamente: "No tengo ese dato para tu parcela."
 3. No cambies ningún número. Cópialo tal como está en la FICHA.
-4. Después de cada dato pon su fuente entre corchetes: [NASA POWER] o [SoilGrids].
-5. No recomiendes químicos, dosis ni marcas.`;
+4. Después de cada dato pon su fuente entre corchetes: [NASA POWER], [SoilGrids] u [Open-Meteo] (el pronóstico de los próximos días viene de Open-Meteo).
+5. No recomiendes químicos, dosis ni marcas.
+6. Para máximos, mínimos y totales del pronóstico usa "resumen"; no los busques tú en "dias".`;
 
 const SCHEMA = {
   type: 'object',

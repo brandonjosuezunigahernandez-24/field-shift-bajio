@@ -6,7 +6,7 @@
 3. Opcional, para probar sin internet: `OFFLINE=1`. En PowerShell: `$env:OFFLINE=1; npm run dev`.
 
 ## Pruebas automáticas
-`cd server && npm test` → deben pasar todas (36 al escribir esto). No necesitan Ollama.
+`cd server && npm test` → deben pasar todas (40 al escribir esto). No necesitan Ollama.
 
 ## Pruebas a mano (con el servidor corriendo en el puerto 3001)
 Usa **Node o PowerShell**, no `curl` desde Git Bash (daña la ñ y los acentos).
@@ -42,3 +42,16 @@ Preguntas para probar y qué esperar:
 
 ## Voz
 `POST /api/voz` con audio Float32 16 kHz. Probado con voz **sintética** de Windows (transcribió con 1 error). Con voz real y ruido puede fallar más; probar con tu micrófono cuando el front lo tenga. La primera llamada tarda más (carga Whisper).
+
+## Pronóstico (nuevo)
+Con internet (sin `OFFLINE=1`):
+
+| Pregunta | Esperado |
+|---|---|
+| ¿Va a llover esta semana? | Habla de lluvia de los próximos días con `[Open-Meteo]` |
+| ¿Cuánta lluvia se espera en total? | Un total en mm (compáralo con `GET /api/pronostico`: suma de `lluvia_mm`) |
+| ¿Qué temperatura mínima habrá? | La mínima más baja de la lista `dias` y su fecha |
+
+**Cómo verificar que no inventa:** abre `http://localhost:3001/api/pronostico?lat=20.47&lon=-100.81` en el navegador y compara fechas y números con lo que dijo el asistente.
+**Sin internet:** repite con `OFFLINE=1`. Debe usar la caché (`origen: "cache"`, mira `obtenido`). Con una parcela que nunca consultaste, el asistente no debe hablar del pronóstico.
+**Fallas que sí se ven:** a veces cita la fuente equivocada (`[SoilGrids]` en una temperatura) y mete frases de relleno. Anótalas.

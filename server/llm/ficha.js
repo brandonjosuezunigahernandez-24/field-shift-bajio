@@ -1,8 +1,33 @@
 // Ficha de la parcela: lo ÚNICO que el modelo puede usar para responder.
 // Recibe lo que ya devuelven /api/clima y /api/suelo (sin lat/lon/origen extra).
-export function buildFicha({ clima, suelo }) {
+const r1 = (n) => Math.round(n * 10) / 10;
+const extreme = (dias, key, pick) => dias.reduce((a, d) => (pick(d[key], a[key]) ? d : a), dias[0]);
+
+// Gemma 4B se equivoca al buscar máximos y mínimos en una lista; el código los calcula.
+export function summarizeForecast(dias) {
+  const wet = extreme(dias, 'lluvia_mm', (x, y) => x > y);
+  const cold = extreme(dias, 't_min_c', (x, y) => x < y);
+  const hot = extreme(dias, 't_max_c', (x, y) => x > y);
+  return {
+    lluvia_total_mm: r1(dias.reduce((s, d) => s + d.lluvia_mm, 0)),
+    dia_con_mas_lluvia: { fecha: wet.fecha, lluvia_mm: wet.lluvia_mm, prob_lluvia_pct: wet.prob_lluvia_pct },
+    temperatura_minima_mas_baja: { fecha: cold.fecha, c: cold.t_min_c },
+    temperatura_maxima_mas_alta: { fecha: hot.fecha, c: hot.t_max_c },
+  };
+}
+
+export function buildFicha({ clima, suelo, pronostico = null }) {
   const secos = clima.anios_secos ?? [];
   return {
+    // Solo si hay pronóstico (internet o caché reciente). `obtenido` dice qué tan viejo es.
+    ...(pronostico && {
+      pronostico_7_dias: {
+        obtenido: pronostico.obtenido,
+        resumen: summarizeForecast(pronostico.dias),
+        dias: pronostico.dias,
+        fuente: 'Open-Meteo',
+      },
+    }),
     lluvia_verano: {
       mediana_mm: clima.lluvia_pv_mediana_mm,
       umbral_seco_mm: clima.umbral_seco_mm,

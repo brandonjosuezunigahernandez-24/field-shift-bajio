@@ -3,6 +3,7 @@ import climaRouter from './routes/clima.js';
 import sueloRouter from './routes/suelo.js';
 import recomendarRouter from './routes/recomendar.js';
 import asistenteRouter from './routes/asistente.js';
+import pronosticoRouter from './routes/pronostico.js';
 import vozRouter from './routes/voz.js';
 import { HttpError } from './lib/errors.js';
 
@@ -15,6 +16,7 @@ export function createApp() {
   app.use('/api/clima', climaRouter);
   app.use('/api/suelo', sueloRouter);
   app.use('/api/recomendar', recomendarRouter);
+  app.use('/api/pronostico', pronosticoRouter);
   app.use('/api/asistente', asistenteRouter);
   app.use('/api/voz', vozRouter);
 
