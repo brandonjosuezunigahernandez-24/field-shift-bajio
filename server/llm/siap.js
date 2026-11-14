@@ -10,6 +10,9 @@ const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const ALIASES = {
   maiz: ['maiz'], sorgo: ['sorgo'], frijol: ['frijol', 'frijoles'], trigo: ['trigo'], cebada: ['cebada'],
   garbanzo: ['garbanzo', 'garbanzos'], brocoli: ['brocoli'], jitomate: ['jitomate', 'jitomates', 'tomate', 'tomates'],
+  avena: ['avena'], girasol: ['girasol'], cacahuate: ['cacahuate', 'cacahuates'], calabaza: ['calabaza', 'calabazas', 'calabacita'],
+  papa: ['papa', 'papas'], cebolla: ['cebolla', 'cebollas'], chile: ['chile', 'chiles'], fresa: ['fresa', 'fresas'],
+  alfalfa: ['alfalfa'], agave: ['agave'], nopal: ['nopal', 'nopales', 'nopalitos'], aguacate: ['aguacate', 'aguacates'],
 };
 
 export function detectCrop(question) {

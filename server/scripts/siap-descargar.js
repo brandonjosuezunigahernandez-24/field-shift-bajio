@@ -17,6 +17,11 @@ const EXPECTED_COLUMNS = 24;
 const CROPS = {
   'Maíz grano': 'maiz', 'Sorgo grano': 'sorgo', Frijol: 'frijol', 'Trigo grano': 'trigo',
   'Cebada grano': 'cebada', 'Garbanzo grano': 'garbanzo', Brócoli: 'brocoli', 'Tomate rojo (jitomate)': 'jitomate',
+  // Los demás cultivos de la pantalla "Probar cultivo" (solo informativos: el recomendador usa los 8 de arriba).
+  // Amaranto y arroz no aparecen en el SIAP de Guanajuato ni Querétaro.
+  'Avena forrajera en verde': 'avena', Girasol: 'girasol', Cacahuate: 'cacahuate', Calabaza: 'calabaza', Papa: 'papa',
+  Cebolla: 'cebolla', 'Chile verde': 'chile', Fresa: 'fresa', 'Alfalfa verde': 'alfalfa', Agave: 'agave',
+  Nopalitos: 'nopal', Aguacate: 'aguacate',
 };
 
 const sleep = (ms) => new Promise((r) => setTimeout(r, ms));
