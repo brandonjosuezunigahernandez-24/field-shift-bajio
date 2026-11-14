@@ -10,6 +10,8 @@ test('detectCrop reconoce el cultivo aunque venga en plural o con sinónimo', ()
   assert.equal(detectCrop('precio de los frijoles'), 'frijol');
   assert.equal(detectCrop('cuánto rinde el tomate'), 'jitomate');
   assert.equal(detectCrop('¿Quién ganó el futbol?'), null);
+  assert.equal(detectCrop('¿Cuánto rinden las papas?'), 'papa');
+  assert.equal(detectCrop('precio del aguacate'), 'aguacate');
 });
 
 test('cropFacts devuelve null si la pregunta no habla de un cultivo', () => {

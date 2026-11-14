@@ -45,6 +45,7 @@ function candidates(filas, estado, agua) {
       }
     }
     for (const [cultivo, rows] of porCultivo) {
+      if (!FAMILIA[cultivo]) continue; // el resumen trae más cultivos (solo informativos)
       rows.sort((a, b) => a.anio - b.anio);
       if (rows.length < MIN_ANIOS || rows.at(-1).sembrada_ha < MIN_HA) continue;
       // Ingreso bruto por hectárea sembrada del año: lo que se produjo (ya con pérdidas) por el precio medio rural.
