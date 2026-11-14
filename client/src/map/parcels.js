@@ -1,7 +1,7 @@
 // A farm is a list of drawn parcels, each with its own crop. Pure functions, tested with node --test.
 // parcela: { id, contorno: [[lon, lat], ...], hectareas, cultivo }
 import { CROP_NAMES, DEFAULT_CROP } from '../crops.js';
-import { areaHectares, polygonCenter } from './polygon.js';
+import { areaHectares, polygonCenter, toMeters } from './polygon.js';
 
 // One color per parcel, the same on the map and in the 3D view. Picked to stand out on satellite
 // imagery (no greens, which disappear over fields).
@@ -44,4 +44,33 @@ export function parcelsGeoJSON(parcelas) {
       geometry: { type: 'Polygon', coordinates: [[...p.contorno, p.contorno[0]]] },
     })),
   };
+}
+
+// --- 3D sections: each parcel in its own diorama, or all of them together ---
+
+export const ALL_SECTIONS = 'todas';
+const BLOCK_HALF_M = 500; // the 3D block is 1 km per side
+// The server centers /api/terreno to 3 decimals (~110 m); the diorama uses the same center.
+const round3 = (v) => Math.round(v * 1000) / 1000 + 0;
+
+// Parcels shown in a section: one parcel (by id) or all of them.
+export function sectionParcels(parcelas, seccion) {
+  if (seccion === ALL_SECTIONS) return parcelas;
+  const one = parcelas.find((p) => p.id === seccion);
+  return one ? [one] : parcelas;
+}
+
+// Center of a section's 1 km block, rounded like the server rounds /api/terreno.
+export function sectionCenter(members) {
+  const { lat, lon } = polygonCenter(allCorners(members));
+  return { lat: round3(lat), lon: round3(lon) };
+}
+
+// Do all these parcels fit in one 1 km block around their common center?
+export function fitsOneBlock(members) {
+  if (!members.length) return true;
+  const { lat, lon } = sectionCenter(members);
+  return toMeters(allCorners(members), lat, lon).every(
+    ([east, north]) => Math.abs(east) <= BLOCK_HALF_M && Math.abs(north) <= BLOCK_HALF_M
+  );
 }

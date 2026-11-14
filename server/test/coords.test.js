@@ -27,3 +27,8 @@ test('cacheKey follows <source>_<lat2>_<lon2>', () => {
 test('round2 never returns negative zero', () => {
   assert.ok(Object.is(round2(-0.001), 0));
 });
+
+test('terrain uses 3 decimals: cache key and parsed coordinates', () => {
+  assert.equal(cacheKey('terrain', 20.4712, -100.8149, 3), 'terrain_20.471_-100.815');
+  assert.deepEqual(parseCoords({ lat: '20.4712', lon: '-100.8149' }, { decimals: 3 }), { lat: 20.471, lon: -100.815 });
+});

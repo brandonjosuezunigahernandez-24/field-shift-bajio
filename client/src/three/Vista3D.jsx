@@ -1,8 +1,8 @@
 import { Canvas } from '@react-three/fiber';
-import { useEffect, useMemo, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { getTerreno } from '../api.js';
 import { CROP_IDS, CROP_NAMES, DEFAULT_CROP } from '../crops.js';
-import { parcelColor } from '../map/parcels.js';
+import { ALL_SECTIONS, fitsOneBlock, parcelColor, sectionCenter, sectionParcels } from '../map/parcels.js';
 import { toDiorama } from '../map/polygon.js';
 import { latLonToXYZ, round2, wrapLon } from './geo.js';
 import { preloadModels } from './models.js';
@@ -10,6 +10,20 @@ import { reliefExaggeration, yearState } from './parcelState.js';
 import Scene from './Scene.jsx';
 
 const STEP_DEG = 0.01; // ~1 km, the same resolution as the server cache
+
+// Relief already downloaded, by block center: going back to a section is instant and asks the
+// server nothing. A plain Map: a farm has a handful of parcels, each grid is ~30 KB.
+const terrainCache = new Map();
+function loadTerreno(lat, lon) {
+  const key = `${lat},${lon}`;
+  if (!terrainCache.has(key)) {
+    const request = getTerreno(lat, lon);
+    request.catch(() => terrainCache.delete(key)); // a failure can be retried later
+    terrainCache.set(key, request);
+  }
+  return terrainCache.get(key);
+}
+const round3 = (v) => Math.round(v * 1000) / 1000 + 0;
 const PLAY_MS = 900;
 
 function usePrefersReducedMotion() {
@@ -40,6 +54,21 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
   const [cultivo, setCultivo] = useState(DEFAULT_CROP);
   const [contextLost, setContextLost] = useState(false);
 
+  // Section shown in 3D: one parcel id, or ALL_SECTIONS. Each section is its own diorama,
+  // centered on its parcels, so a parcel never falls off a block centered somewhere else.
+  const [seccion, setSeccion] = useState(ALL_SECTIONS);
+  const lastIdRef = useRef(0);
+  useEffect(() => {
+    const newest = parcelas.reduce((max, p) => Math.max(max, p.id), 0);
+    if (newest > lastIdRef.current) setSeccion(newest); // a parcel was just added: show it
+    else if (seccion !== ALL_SECTIONS && !parcelas.some((p) => p.id === seccion)) {
+      setSeccion(ALL_SECTIONS); // the shown parcel was deleted
+    }
+    lastIdRef.current = newest;
+  }, [parcelas]); // eslint-disable-line react-hooks/exhaustive-deps
+  const members = useMemo(() => sectionParcels(parcelas, seccion), [parcelas, seccion]);
+  const allFit = useMemo(() => fitsOneBlock(parcelas), [parcelas]);
+
   // A new plot always flies down to it.
   useEffect(() => {
     if (point) setView('parcel');
@@ -49,19 +78,6 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
     preloadModels();
   }, []);
 
-  // Relief of the 1 km square around the plot. Stale answers are ignored.
-  useEffect(() => {
-    if (!point) return undefined;
-    let current = true;
-    setTerreno(null);
-    getTerreno(point.lat, point.lon).then(
-      (data) => current && setTerreno({ data }),
-      (err) => current && setTerreno({ error: err.message })
-    );
-    return () => {
-      current = false;
-    };
-  }, [point]);
 
   const climaData = clima?.data ?? null;
   const years = useMemo(() => climaData?.lluvia_pv_anual.map((y) => y.anio) ?? [], [climaData]);
@@ -88,10 +104,25 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
     return () => clearInterval(id);
   }, [playing, years]);
 
-  // The diorama is centered where the server centers /api/terreno: the point rounded to
-  // 2 decimals. A drawn outline is placed relative to that same center, so it sits on the relief.
-  const centerLat = point ? round2(point.lat) : null;
-  const centerLon = point ? round2(point.lon) : null;
+  // The diorama is centered where the server centers /api/terreno (3 decimals, ~110 m): on the
+  // section's parcels, or on the chosen point. Outlines are placed relative to that same center.
+  const center = members.length ? sectionCenter(members) : point ? { lat: round3(point.lat), lon: round3(point.lon) } : null;
+  const centerLat = center?.lat ?? null;
+  const centerLon = center?.lon ?? null;
+
+  // Relief of the section's 1 km block. Stale answers are ignored.
+  useEffect(() => {
+    if (centerLat === null) return undefined;
+    let current = true;
+    setTerreno(null);
+    loadTerreno(centerLat, centerLon).then(
+      (data) => current && setTerreno({ data }),
+      (err) => current && setTerreno({ error: err.message })
+    );
+    return () => {
+      current = false;
+    };
+  }, [centerLat, centerLon]);
   const place = useMemo(
     () => (centerLat === null ? null : { lat: centerLat, lon: centerLon }),
     [centerLat, centerLon]
@@ -101,13 +132,14 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
     () =>
       centerLat === null
         ? []
-        : parcelas.map((p) => ({
+        : members.map((p) => ({
             id: p.id,
+            numero: parcelas.indexOf(p) + 1,
             cultivo: p.cultivo,
             color: parcelColor(p.id),
             outline: toDiorama(p.contorno, centerLat, centerLon),
           })),
-    [parcelas, centerLat, centerLon]
+    [members, parcelas, centerLat, centerLon]
   );
   // Parts of a parcel farther than 500 m from the center fall off the 1 km block.
   const offBlock = sections.some((s) => s.outline.some(([x, z]) => Math.abs(x) > 0.5 || Math.abs(z) > 0.5));
@@ -148,6 +180,7 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
   const inParcel = view === 'parcel' && point;
 
   const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, sections };
+  const sectionName = (id) => `Parcela ${parcelas.findIndex((p) => p.id === id) + 1}`;
 
   if (contextLost) {
     return (
@@ -196,6 +229,32 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
             )}
           </div>
 
+          {parcelas.length > 1 && (
+            <fieldset className="vista3d-sections">
+              <legend>Ver en la maqueta</legend>
+              {parcelas.map((p) => (
+                <label key={p.id} style={{ '--parcel-color': parcelColor(p.id) }}>
+                  <input type="radio" name="seccion3d" checked={seccion === p.id} onChange={() => { setSeccion(p.id); setView('parcel'); }} />
+                  <span className="parcel-swatch" aria-hidden="true" /> {sectionName(p.id)}
+                </label>
+              ))}
+              <label>
+                <input
+                  type="radio"
+                  name="seccion3d"
+                  checked={seccion === ALL_SECTIONS}
+                  onChange={() => { setSeccion(ALL_SECTIONS); setView('parcel'); }}
+                />
+                Todas juntas
+              </label>
+              {!allFit && (
+                <p className="hint">
+                  Tus parcelas están a más de 1 km entre sí: juntas no caben en una maqueta. Mírala una por una.
+                </p>
+              )}
+            </fieldset>
+          )}
+
           {sections.length === 0 && (
             <fieldset className="vista3d-move">
               <legend>Mover la parcela 1 km</legend>
@@ -240,15 +299,19 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
           {sections.length > 0 ? (
             <>
               <ul className="vista3d-legend">
-                {sections.map((s, i) => (
+                {sections.map((s) => (
                   <li key={s.id} style={{ '--parcel-color': s.color }}>
-                    <span className="parcel-swatch" aria-hidden="true" /> Parcela {i + 1}: {CROP_NAMES[s.cultivo]}
+                    <span className="parcel-swatch" aria-hidden="true" /> Parcela {s.numero}: {CROP_NAMES[s.cultivo]}
                   </li>
                 ))}
               </ul>
               <p className="hint">Cambia el cultivo de cada parcela arriba, en «Tus parcelas». Todavía no es la recomendación.</p>
               {offBlock && (
-                <p className="hint">Una parte de tus parcelas queda fuera de la maqueta, que muestra 1 km alrededor del centro.</p>
+                <p className="hint">
+                  {seccion === ALL_SECTIONS
+                    ? 'Una parte de tus parcelas queda fuera de la maqueta (1 km). Elige una parcela arriba para verla completa.'
+                    : 'Esta parcela mide más de 1 km: la maqueta muestra solo el centro.'}
+                </p>
               )}
             </>
           ) : (

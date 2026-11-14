@@ -13,6 +13,9 @@ export const TERRAIN_CREDIT =
 export const TERRAIN_ZOOM = 14; // ~2.2 km per tile at the Bajío latitude
 export const GRID_SIZE = 65; // vertices per side (64 x 64 squares)
 export const SIDE_M = 1000; // square side in meters, centered on the plot
+// The block is centered to ~110 m (3 decimals), not ~1.1 km like climate and soil: with 2 decimals
+// a parcel could sit up to ~550 m off center and fall off its own 1 km diorama.
+export const TERRAIN_DECIMALS = 3;
 
 const TILE_PX = 256;
 const METERS_PER_DEG_LAT = 111320;
@@ -144,6 +147,7 @@ export async function getTerrain(lat, lon) {
     lon,
     fetcher: () => fetchTerrainGrid(lat, lon),
     validate: validateTerrain,
+    decimals: TERRAIN_DECIMALS,
   });
   return { terrain: raw, origen };
 }

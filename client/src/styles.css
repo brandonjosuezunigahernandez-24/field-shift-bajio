@@ -419,3 +419,39 @@ button.small {
   gap: 6px;
   font-weight: 600;
 }
+
+/* 3D: which parcel (section) the diorama shows */
+.vista3d-sections {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 12px 0;
+  padding: 8px 10px 10px;
+}
+
+.vista3d-sections legend {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+
+.vista3d-sections label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.vista3d-sections input {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
+}
+
+.vista3d-sections .hint {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+}

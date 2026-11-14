@@ -8,7 +8,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 
 - Base: `http://localhost:3001`. Desde el client se llama como `/api/...` (Vite lo redirige).
 - **`lat` y `lon` son el centro de la parcela que dibujó el agricultor** (ver "Selección de la parcela" abajo). El servidor sigue recibiendo un punto.
-- `lat` y `lon` se redondean a 2 decimales (más o menos 1 km). Esa es también la resolución de la caché.
+- `lat` y `lon` se redondean a 2 decimales (más o menos 1 km). Esa es también la resolución de la caché. **Excepción:** `/api/terreno` redondea a 3 decimales (unos 110 m), ver abajo.
 - Las claves del JSON van en español; el código (variables y funciones) en inglés.
 - **Errores:** siempre `{ "error": "mensaje en español que se le puede mostrar al agricultor" }`.
 
@@ -41,6 +41,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - Al tocar "Usar esta parcela", el mapa se ajusta al contorno (`fitBounds`, inclinado para ver el relieve).
 - **Varias parcelas.** El agricultor puede dibujar más de una ("Dibujar otra parcela") y elegir el cultivo de cada una. La app guarda `parcelas: [{ id, contorno: [[lon, lat], ...], hectareas, cultivo }]` (`client/src/map/parcels.js`). A la API se manda **un solo punto**: el promedio de todas las esquinas. Cambiar el cultivo de una parcela no vuelve a pedir clima ni suelo.
 - Si una parcela nueva se encima con otra, se avisa (no se bloquea). En la vista 3D, donde se enciman, se siembra la más reciente.
+- **Secciones en 3D:** con 2 o más parcelas, la vista 3D deja elegir "Parcela 1", "Parcela 2"… o "Todas juntas". Cada sección es su propia maqueta de 1 km **centrada en sus parcelas** y con su propio `/api/terreno`; solo se dibuja la sección elegida. Al guardar una parcela nueva se muestra esa. Si las parcelas están a más de 1 km entre sí, se avisa que juntas no caben y conviene verlas una por una.
 - **Tipo de vista:** "Aérea" (desde arriba, sin inclinación ni giro, para dibujar) o "Relieve 3D" (inclinada con relieve). Al tocar "Dibujar otra parcela" el mapa regresa a "Aérea".
 - `cultivo` en cada parcela es solo para mostrar en el mapa y la maqueta. **No es la recomendación del motor** (fase 2).
 - Los botones de ejemplo (Celaya, Gto.) siguen mandando su `lat` y `lon` directo.
@@ -142,7 +143,8 @@ Relieve del cuadro de 1 km alrededor de la parcela, para la vista 3D. Fuente: AW
 ```
 
 - `alturas[fila * tam + col]`: la fila 0 es el borde **norte** y la columna 0 el borde **oeste**.
-- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat2>_<lon2>.json`.
+- **Se centra a 3 decimales (unos 110 m), no a 2 como clima y suelo.** El bloque mide 1 km: con 2 decimales una parcela podía quedar hasta ~550 m fuera del centro y salirse de su propia maqueta.
+- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat3>_<lon3>.json` (el fixture de Celaya es `terrain_20.470_-100.810.json`).
 
 ## POST /api/recomendar (fase 2, hoy responde 501)
 

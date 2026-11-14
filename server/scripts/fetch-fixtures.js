@@ -7,7 +7,7 @@ import { fetchJson } from '../lib/fetchJson.js';
 import { DEMO_POINT } from '../lib/seasons.js';
 import { POWER_SOURCE, buildPowerUrl, validatePower } from '../sources/nasaPower.js';
 import { SOILGRIDS_SOURCE, buildSoilGridsUrl, validateSoilGrids } from '../sources/soilGrids.js';
-import { TERRAIN_SOURCE, fetchTerrainGrid, validateTerrain } from '../sources/terrain.js';
+import { TERRAIN_DECIMALS, TERRAIN_SOURCE, fetchTerrainGrid, validateTerrain } from '../sources/terrain.js';
 
 const { lat, lon, nombre } = DEMO_POINT;
 const timeoutMs = 60000;
@@ -19,15 +19,21 @@ const jobs = [
     fetch: () => fetchJson(buildSoilGridsUrl(lat, lon), { timeoutMs }),
     validate: validateSoilGrids,
   },
-  { source: TERRAIN_SOURCE, fetch: () => fetchTerrainGrid(lat, lon, { timeoutMs }), validate: validateTerrain },
+  // Terrain is centered to 3 decimals, so its fixture is named with 3 (see terrain.js).
+  {
+    source: TERRAIN_SOURCE,
+    fetch: () => fetchTerrainGrid(lat, lon, { timeoutMs }),
+    validate: validateTerrain,
+    decimals: TERRAIN_DECIMALS,
+  },
 ];
 
 // Pass source names to refresh only those, e.g. `npm run fixtures -- terrain`.
 const only = process.argv.slice(2);
 let failed = false;
-for (const { source, fetch, validate } of jobs) {
+for (const { source, fetch, validate, decimals } of jobs) {
   if (only.length && !only.includes(source)) continue;
-  const key = cacheKey(source, lat, lon);
+  const key = cacheKey(source, lat, lon, decimals);
   try {
     const raw = await fetch();
     validate(raw);

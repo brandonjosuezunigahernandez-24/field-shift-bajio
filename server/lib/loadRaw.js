@@ -10,8 +10,8 @@ import { DEMO_POINT } from './seasons.js';
 // several requests or binary files (e.g. elevation tiles); what it returns is what gets cached.
 // `validate(raw)` must throw when the response is not usable, so bad payloads are never cached.
 // Set OFFLINE=1 to skip the network (demo rehearsal without internet).
-export async function loadRaw({ source, label, lat, lon, url, fetcher, timeoutMs, validate }) {
-  const key = cacheKey(source, lat, lon);
+export async function loadRaw({ source, label, lat, lon, url, fetcher, timeoutMs, validate, decimals = 2 }) {
+  const key = cacheKey(source, lat, lon, decimals);
 
   const cached = await readCache(key);
   if (cached) return { raw: cached, origen: 'cache' };

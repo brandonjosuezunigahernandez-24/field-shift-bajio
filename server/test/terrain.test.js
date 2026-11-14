@@ -148,7 +148,7 @@ test('sampleGrid: column 0 is west, row 0 is north, and the grid stays inside th
 
 test('real Celaya terrain fixture: Bajío heights and a mostly flat plot', async () => {
   const raw = JSON.parse(
-    await readFile(new URL('../fixtures/terrain_20.47_-100.81.json', import.meta.url), 'utf8')
+    await readFile(new URL('../fixtures/terrain_20.470_-100.810.json', import.meta.url), 'utf8')
   );
   validateTerrain(raw);
   const summary = summarizeTerrain(raw);

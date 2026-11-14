@@ -1,13 +1,17 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import {
+  ALL_SECTIONS,
   PARCEL_COLORS,
   createParcel,
   farmPoint,
+  fitsOneBlock,
   nextParcelId,
   parcelColor,
   parcelLabel,
   parcelsGeoJSON,
+  sectionCenter,
+  sectionParcels,
 } from './parcels.js';
 
 // Two ~200 m squares side by side (~4 ha each).
@@ -56,4 +60,20 @@ test('parcelsGeoJSON closes each ring and carries the color', () => {
   const ring = fc.features[1].geometry.coordinates[0];
   assert.deepEqual(ring[0], ring[ring.length - 1]);
   assert.equal(fc.features[1].properties.color, parcelColor(2));
+});
+
+test('sections: one parcel or all, centered like /api/terreno (3 decimals)', () => {
+  assert.deepEqual(sectionParcels([west, east], ALL_SECTIONS), [west, east]);
+  assert.deepEqual(sectionParcels([west, east], 2), [east]);
+  assert.deepEqual(sectionParcels([west, east], 99), [west, east], 'a deleted parcel falls back to all');
+  const c = sectionCenter([east]);
+  assert.equal(c.lat, Math.round((lat0 + dLat / 2) * 1000) / 1000);
+  assert.equal(String(c.lon).split('.')[1].length <= 3, true);
+});
+
+test('fitsOneBlock: neighbors fit, parcels 3 km apart do not', () => {
+  assert.equal(fitsOneBlock([west, east]), true);
+  const far = createParcel(3, square(-100.81 + 0.03)); // ~3 km east
+  assert.equal(fitsOneBlock([west, far]), false);
+  assert.equal(fitsOneBlock([far]), true);
 });
