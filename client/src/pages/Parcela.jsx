@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
 // MapLibre (~1 MB) se carga aparte, cuando la pantalla ya se ve.
 const ParcelMap = lazy(() => import('../map/ParcelMap.jsx'));
+import Ubicacion from '../components/Ubicacion.jsx';
 import { useParcelaContext } from '../context/ParcelaContext.jsx';
 import { EXAMPLE_POINTS } from '../config/examplePoints.js';
 import { MAP_LAYERS } from '../config/mapLayers.js';
@@ -61,73 +62,44 @@ export default function Parcela() {
           </span>
         </section>
 
+        <section className="fs-card fs-up fs-d1 fs-hero-map" aria-labelledby="t-mapa">
+          <div className="fs-card-head">
+            <div>
+              <div className="fs-eyebrow">Paso 1 · Tu parcela</div>
+              <h1 className="fs-card-title" id="t-mapa">¿Dónde está tu parcela?</h1>
+              <p className="fs-hero-sub">Escribe tu pueblo o dirección, usa tu ubicación o las coordenadas. Después dibuja tu parcela sobre la imagen de satélite y mírala levantarse en 3D.</p>
+            </div>
+          </div>
+
+          <Ubicacion onPick={choosePoint} />
+
+          <div className="v3d v3d-embed v3d-hero" role="application" aria-label="Mapa de satélite para dibujar tu parcela">
+            <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
+              <ParcelMap
+                point={point}
+                parcelas={parcelas}
+                suelo={suelo?.data ?? null}
+                clima={clima?.data ?? null}
+                year={year}
+                onAddParcela={addParcela}
+                onUpdateParcela={updateParcela}
+                onRemoveParcela={removeParcela}
+                onSetCultivo={setCultivo}
+              />
+            </Suspense>
+          </div>
+
+          <div className="fs-stats" aria-live="polite">
+            <span>Lluvia jun–sep <strong>{climaData ? `${Math.round(climaData.lluvia_pv_mediana_mm)} mm` : loading ? '…' : '—'}</strong></span>
+            <span>Años secos <strong>{loading ? '…' : dryLabel}</strong></span>
+            <span>pH del suelo (0–30 cm) <strong>{loading ? '…' : ph}</strong></span>
+          </div>
+          {clima?.error && <p className="fs-note" role="alert">{clima.error}</p>}
+          {soil?.sin_datos && <p className="fs-note">{soil.aviso}</p>}
+        </section>
+
         <div className="fs-row">
-          <section className="fs-card fs-map-col fs-up fs-d1" aria-labelledby="t-mapa">
-            <div className="fs-card-head">
-              <div>
-                <div className="fs-eyebrow">Paso 1 · Observación terrestre</div>
-                <h1 className="fs-card-title" id="t-mapa">Selecciona tu parcela en el mapa del Bajío</h1>
-              </div>
-              
-            </div>
-
-            <div className="fs-map" role="application" aria-label="Mapa del Bajío. Haz clic sobre tu parcela o elige una parcela de ejemplo con los botones de abajo.">
-              <div className="v3d v3d-embed">
-                <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
-                  <ParcelMap
-                    point={point}
-                    parcelas={parcelas}
-                    suelo={suelo?.data ?? null}
-                    clima={clima?.data ?? null}
-                    year={year}
-                    onAddParcela={addParcela}
-                    onUpdateParcela={updateParcela}
-                    onRemoveParcela={removeParcela}
-                    onSetCultivo={setCultivo}
-                  />
-                </Suspense>
-              </div>
-              <div className="fs-scan" aria-hidden="true"></div>
-
-              <div className="fs-hud">
-                <b>{MAP_LAYERS[capa].titulo}</b>
-                <span>{MAP_LAYERS[capa].sub}</span>
-              </div>
-
-              {!point && (
-                <div className="fs-hint">
-                  <i className="bi bi-geo-alt" aria-hidden="true"></i>
-                  <b>Toca una parcela para empezar</b>
-                  <p>El asistente IA se activa en cuanto el punto queda marcado.</p>
-                </div>
-              )}
-
-              <div className="fs-hud-b" aria-live="polite">
-                <span>
-                  Lluvia jun–sep:<strong>{climaData ? `${Math.round(climaData.lluvia_pv_mediana_mm)} mm` : loading ? '…' : '—'}</strong>
-                </span>
-                <span>
-                  Años secos:<strong>{loading ? '…' : dryLabel}</strong>
-                </span>
-                <span>
-                  pH suelo 0–30 cm:<strong>{loading ? '…' : ph}</strong>
-                </span>
-              </div>
-            </div>
-
-            <div className="fs-demo">
-              <span className="fs-demo-l">Parcelas de ejemplo para la demo:</span>
-              {EXAMPLE_POINTS.map((p) => (
-                <button key={p.id} type="button" className={`fs-btn fs-btn-pill${point?.id === p.id ? ' is-selected' : ''}`} aria-pressed={point?.id === p.id} onClick={() => choosePoint(p)}>
-                  {p.boton}
-                </button>
-              ))}
-            </div>
-            {clima?.error && <p className="fs-note" role="alert">{clima.error}</p>}
-            {soil?.sin_datos && <p className="fs-note">{soil.aviso}</p>}
-          </section>
-
-          <div className="fs-col fs-side-col">
+          <div className="fs-col fs-side-col fs-full">
             <section className="fs-card fs-up fs-d2" aria-labelledby="t-perfil">
               <div>
                 <div className="fs-eyebrow">Paso 2 · Perfil del agricultor</div>
@@ -159,8 +131,6 @@ export default function Parcela() {
                 <i className="bi bi-cpu" aria-hidden="true"></i>Simular rotación a 3 años y vista 3D
               </Link>
             </section>
-
-            <Chat point={point} onAsk={() => navigate('/analisis')} />
           </div>
         </div>
       </main>

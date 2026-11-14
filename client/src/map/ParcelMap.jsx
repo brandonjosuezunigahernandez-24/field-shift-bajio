@@ -282,7 +282,7 @@ export default function ParcelMap({
   const [corners, setCorners] = useState([]);
   const [drawing, setDrawing] = useState(parcelas.length === 0);
   const [hint, setHint] = useState(null);
-  const [imagery, setImagery] = useState(() => saved('fieldshift.imagen', IMAGERY, 'claro'));
+  const [imagery, setImagery] = useState(() => saved('fieldshift.imagen2', IMAGERY, 'rapido'));
   const [imageryNotice, setImageryNotice] = useState(null);
   const [view, setView] = useState(() => saved('fieldshift.vista', VIEWS, 'aerea'));
   const [editingId, setEditingId] = useState(null); // a saved parcel being corrected, or null
@@ -531,7 +531,7 @@ export default function ParcelMap({
         mapRef.current.setLayoutProperty(id, 'visibility', id === imagery ? 'visible' : 'none');
       }
     }
-    remember('fieldshift.imagen', imagery);
+    remember('fieldshift.imagen2', imagery);
   }, [ready, imagery]);
 
   const changeView = (next) => {
@@ -553,7 +553,7 @@ export default function ParcelMap({
     } else {
       setCorners([]);
       setDrawing(true);
-      map.flyTo({ center: [point.lon, point.lat], zoom: 15, pitch, duration });
+      map.flyTo({ center: [point.lon, point.lat], zoom: 16, pitch, duration }); // a esta distancia ya se puede dibujar la parcela
     }
   }, [ready, point]);
 
