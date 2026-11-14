@@ -12,6 +12,7 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [06](06-pronostico-open-meteo.md) | Pronóstico de 7 días (Open-Meteo) | Hecho |
 | [07](07-preguntas-generales.md) | Preguntas generales (base local + Wikipedia) | Hecho (textos locales sin verificar) |
 | [08](08-mas-lenguaje.md) | Más lenguaje, tarjetas de cultivos y respuestas más completas | Hecho (tarjetas sin verificar) |
-| 09 | Catálogo de cultivos de México y costos | Siguiente |
+| [09](09-datos-siap.md) | Datos del SIAP: prueba de descarga | Hecho (la descarga se corta, falta el script) |
+| 10 | Catálogo de cultivos y costos con datos SIAP | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.

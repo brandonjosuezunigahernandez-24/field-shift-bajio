@@ -126,7 +126,7 @@
       "brocoli",
       "brecol"
     ],
-    "texto": "El brócoli es un cultivo de clima fresco y el calor fuerte lo daña. En el Bajío se siembra casi siempre con riego, en otoño-invierno."
+    "texto": "El brócoli es un cultivo de clima fresco y el calor fuerte lo daña. En Guanajuato se siembra con riego, tanto en primavera-verano como en otoño-invierno."
   },
   {
     "id": "cereales-invierno",
@@ -134,7 +134,7 @@
       "trigo",
       "cebada"
     ],
-    "texto": "El trigo y la cebada son cereales de clima fresco. En el Bajío se siembran en otoño-invierno, normalmente con riego."
+    "texto": "El trigo y la cebada son cereales de clima fresco. En Guanajuato se siembran sobre todo en otoño-invierno y con riego."
   },
   {
     "id": "garbanzo",
