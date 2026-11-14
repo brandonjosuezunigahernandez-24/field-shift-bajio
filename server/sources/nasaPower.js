@@ -154,7 +154,7 @@ export async function getClimate(lat, lon) {
     label: 'el clima de la NASA',
     lat,
     lon,
-    url: buildPowerUrl(lat, lon),
+    buildUrl: buildPowerUrl,
     timeoutMs: 20000,
     validate: validatePower,
   });

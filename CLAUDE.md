@@ -24,7 +24,7 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
   - Ojo: Leaflet usa `[lat, lon]` y MapLibre usa `[lon, lat]`. Hay que voltear las coordenadas del contorno al pasarlo.
   - La app debe funcionar completa en 2D si el 3D falla o va lento.
 - `server/`: Node + Express. Sin base de datos y sin login.
-- Caché en disco: `server/cache/<fuente>_<lat2>_<lon2>.json`, con lat/lon redondeados a 2 decimales.
+- Caché en disco: `server/cache/<fuente>_<lat>_<lon>.json`. Clima (NASA POWER) a 2 decimales (~1 km); suelo (SoilGrids, cuadros de 250 m) a 3 decimales (~110 m).
 - Fixtures en `server/fixtures/` del punto demo, para que la demo funcione aunque falle el internet.
 - Correr: `cd server && npm run dev` (puerto 3001) y `cd client && npm run dev` (Vite proxy `/api` → 3001).
 

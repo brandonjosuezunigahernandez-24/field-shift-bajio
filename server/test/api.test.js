@@ -65,6 +65,14 @@ test('a point without cache or fixture answers 502 offline, never data from anot
   assert.match(body.error, /Celaya/);
 });
 
+test('a plot 760 m from the demo point shares its climate but never borrows its soil', async () => {
+  const query = 'lat=20.4749&lon=-100.8149';
+  const clima = await get(`/api/clima?${query}`);
+  assert.equal(clima.status, 200);
+  const suelo = await get(`/api/suelo?${query}`);
+  assert.equal(suelo.status, 502);
+});
+
 test('unknown /api routes answer 404 as JSON', async () => {
   const { status, body } = await get('/api/nope');
   assert.equal(status, 404);
