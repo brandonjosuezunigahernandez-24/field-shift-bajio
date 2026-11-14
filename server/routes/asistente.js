@@ -10,6 +10,7 @@ import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
 import { compactReco, explainRecommendation, inferEstado, recommend } from '../llm/recomendador.js';
 import { parsePerfil, pendientes } from '../llm/perfil.js';
+import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 
 const router = Router();
 const MAX_QUESTION = 300;
@@ -49,6 +50,9 @@ function parseHistory(h) {
     return { pregunta: t.pregunta.slice(0, MAX_QUESTION), respuesta: t.respuesta.slice(0, 600) };
   });
 }
+
+// GET /api/asistente/temas -> los temas y preguntas de ejemplo que el asistente sabe contestar (botones del chat).
+router.get('/temas', (req, res) => res.json({ temas: TEMAS, nota: NOTA_FUERA_DE_TEMA }));
 
 // POST /api/asistente { lat, lon, pregunta?, agua?, prioridad?, estado?, costos?, historial? }
 //   -> { respuesta, acciones, fuentes, verificado, origen, base, enlaces, preguntar?, recomendacion? }
