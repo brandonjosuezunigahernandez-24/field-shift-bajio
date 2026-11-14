@@ -18,6 +18,8 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 | F4 | Explicaciones, gráfica, errores y estados de carga | Pendiente |
 | F5 | README en inglés con capturas y créditos completos | Pendiente |
 
+Las tareas de cada fase y el reparto del equipo están en [docs/plan.md](docs/plan.md).
+
 ## Cómo correrlo
 
 Necesitas **Node.js 20 o más nuevo** (probado con Node 24). No hace falta ninguna API key ni base de datos.
