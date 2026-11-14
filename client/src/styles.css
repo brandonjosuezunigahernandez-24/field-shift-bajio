@@ -310,3 +310,17 @@ button:disabled {
   color: var(--muted);
   font-size: 0.85rem;
 }
+
+/* GPS: walk the edge of the parcel */
+.gps-tools {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--accent);
+  background: #eef4ec;
+  border-radius: 6px;
+}
+
+.gps-tools .hint,
+.gps-tools .error {
+  margin: 6px 0 0;
+}

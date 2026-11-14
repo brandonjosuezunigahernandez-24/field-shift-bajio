@@ -73,3 +73,35 @@ export function outlineGeoJSON(corners) {
   }
   return { type: 'FeatureCollection', features };
 }
+
+// Straight-line distance in meters between two [lon, lat] points (flat-earth, fine under ~10 km).
+export function distanceMeters(a, b) {
+  const [[dx, dy]] = toMeters([b], a[1], a[0]);
+  return Math.hypot(dx, dy);
+}
+
+export const GPS_MAX_ACCURACY_M = 30; // worse than this, a corner would land in the neighbor's field
+export const GPS_MIN_STEP_M = 5; // closer than this to the previous corner, it is the same corner
+
+// Can the farmer's current GPS position be the next corner? Returns { ok, code, message } in Spanish.
+// code: 'sin-gps' | 'senal-debil' | 'misma-esquina' (normal right after marking: not an error).
+// gps: { lon, lat, accuracy } (accuracy in meters, 95%), corners: [[lon, lat], ...] so far.
+export function checkGpsCorner(gps, corners) {
+  if (!gps) return { ok: false, code: 'sin-gps', message: 'Todavía no tenemos tu ubicación.' };
+  if (gps.accuracy > GPS_MAX_ACCURACY_M) {
+    return {
+      ok: false,
+      code: 'senal-debil',
+      message: `La señal del GPS es débil (±${Math.round(gps.accuracy)} m). Sal a cielo abierto y espera unos segundos.`,
+    };
+  }
+  const last = corners.at(-1);
+  if (last && distanceMeters(last, [gps.lon, gps.lat]) < GPS_MIN_STEP_M) {
+    return {
+      ok: false,
+      code: 'misma-esquina',
+      message: `Esquina ${corners.length} marcada. Camina a la siguiente esquina, siguiendo la orilla.`,
+    };
+  }
+  return { ok: true, code: null, message: null };
+}

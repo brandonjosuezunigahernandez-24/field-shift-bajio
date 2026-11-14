@@ -1,8 +1,26 @@
 import 'maplibre-gl/dist/maplibre-gl.css';
-import { Map as MapLibreMap, Marker, NavigationControl, ScaleControl, setWorkerUrl } from 'maplibre-gl';
+import {
+  GeolocateControl,
+  Map as MapLibreMap,
+  Marker,
+  NavigationControl,
+  ScaleControl,
+  setWorkerUrl,
+} from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
-import { areaHectares, bounds, outlineGeoJSON, polygonCenter } from './polygon.js';
+import { areaHectares, bounds, checkGpsCorner, outlineGeoJSON, polygonCenter } from './polygon.js';
+
+// The browser only gives the location on https (or localhost) and with the farmer's permission.
+const CAN_LOCATE = typeof navigator !== 'undefined' && 'geolocation' in navigator && window.isSecureContext;
+
+const GPS_STALE_MS = 30000;
+
+const GPS_ERRORS = {
+  1: 'No diste permiso para usar tu ubicación. Puedes activarlo en el candado junto a la dirección de la página.',
+  2: 'No pudimos saber dónde estás. Revisa que el GPS (ubicación) del teléfono esté encendido.',
+  3: 'El GPS tardó demasiado. Sal a cielo abierto e intenta otra vez.',
+};
 
 // MapLibre looks for its worker next to its own file; Vite moves that file, so we hand it the
 // URL Vite gives the (self-contained) worker. Works in `npm run dev` and in the build.
@@ -12,7 +30,7 @@ const BAJIO = { center: [-100.8, 20.65], zoom: 8 };
 const MIN_DRAW_ZOOM = 13; // below this a click is too imprecise to be a corner: zoom in instead
 const BIG_PARCEL_HA = 500;
 const STREETS_MIN_ZOOM = 14;
-const MAX_ZOOM = 19.5; // the satellite imagery has no more detail beyond this
+const MAX_ZOOM = 19; // closer than this the (enlarged) imagery is just blur
 
 // Two aerial images from Esri, both free and without API key. Only the visible one downloads tiles.
 //  - claro:  "World Imagery (Clarity)": older captures chosen to be cloud free and sharp. Each tile
@@ -44,14 +62,16 @@ const buildStyle = (imagery) => ({
       type: 'raster',
       tiles: ['https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
       tileSize: 256,
-      maxzoom: 19,
+      // Clarity has no tiles past z17 in the Bajío (404). Above it MapLibre enlarges the z17 tile.
+      maxzoom: 17,
       attribution: ESRI_CREDIT,
     },
     rapido: {
       type: 'raster',
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
       tileSize: 256,
-      maxzoom: 19,
+      // At z19 rural Bajío gets Esri's gray "Map data not yet available" tile: stop at z18.
+      maxzoom: 18,
       attribution: ESRI_CREDIT,
     },
     lugares: {
@@ -143,6 +163,12 @@ export default function ParcelMap({ point, onParcel }) {
   const imageryRef = useRef(imagery);
   imageryRef.current = imagery;
 
+  // GPS: last position from the browser ({ lon, lat, accuracy }), and whether it is being followed.
+  const geolocateRef = useRef(null);
+  const [gps, setGps] = useState(null);
+  const [gpsError, setGpsError] = useState(null);
+  const [tracking, setTracking] = useState(false);
+
   // Create the map once. StrictMode mounts twice in development: cleanup removes the first one.
   useEffect(() => {
     let map;
@@ -165,6 +191,29 @@ export default function ParcelMap({ point, onParcel }) {
     mapRef.current = map;
     map.addControl(new NavigationControl({ visualizePitch: true }), 'top-right');
     map.addControl(new ScaleControl({ unit: 'metric' }), 'bottom-left');
+    if (CAN_LOCATE) {
+      // Blue dot + accuracy circle; keeps following the farmer while they walk the edge.
+      const geolocate = new GeolocateControl({
+        positionOptions: { enableHighAccuracy: true, timeout: 20000, maximumAge: 0 },
+        trackUserLocation: true,
+        showAccuracyCircle: true,
+        fitBoundsOptions: { maxZoom: 17.5 },
+      });
+      map.addControl(geolocate, 'top-right');
+      geolocate.on('geolocate', (event) => {
+        setGpsError(null);
+        setGps({
+          lon: event.coords.longitude,
+          lat: event.coords.latitude,
+          accuracy: event.coords.accuracy,
+          at: Date.now(),
+        });
+      });
+      geolocate.on('error', (event) => setGpsError(GPS_ERRORS[event.code] ?? GPS_ERRORS[2]));
+      geolocate.on('trackuserlocationstart', () => setTracking(true));
+      geolocate.on('trackuserlocationend', () => setTracking(false));
+      geolocateRef.current = geolocate;
+    }
     map.on('load', () => {
       addParcelLayers(map);
       setReady(true);
@@ -195,6 +244,7 @@ export default function ParcelMap({ point, onParcel }) {
     return () => {
       map.remove();
       mapRef.current = null;
+      geolocateRef.current = null;
       setReady(false);
     };
   }, []);
@@ -249,6 +299,18 @@ export default function ParcelMap({ point, onParcel }) {
     const { lat, lon } = polygonCenter(corners);
     const hectareas = Math.round(area * 10) / 10;
     onParcel({ nombre: `Tu parcela (${fmtHa(area)} ha)`, lat, lon, contorno: corners, hectareas });
+  };
+
+  // "Walk the edge": the farmer stands on each corner and adds it with the GPS.
+  const gpsCheck = checkGpsCorner(gps, corners);
+  const addGpsCorner = () => {
+    if (!gps || Date.now() - gps.at > GPS_STALE_MS) {
+      setGpsError('Tu ubicación ya no está al día. Toca «Usar mi ubicación» otra vez.');
+      return;
+    }
+    if (!gpsCheck.ok) return;
+    setHint(null);
+    setCorners((current) => [...current, [gps.lon, gps.lat]]);
   };
 
   const restart = () => {
@@ -306,6 +368,39 @@ export default function ParcelMap({ point, onParcel }) {
             </p>
             {area > BIG_PARCEL_HA && (
               <p className="error">Es muy grande para una parcela. Revisa que las esquinas estén bien.</p>
+            )}
+            {CAN_LOCATE ? (
+              <div className="gps-tools">
+                <div className="button-row">
+                  <button type="button" className="secondary" onClick={() => geolocateRef.current?.trigger()}>
+                    {tracking ? 'Dejar de seguirme' : 'Usar mi ubicación'}
+                  </button>
+                  {gps && (
+                    <button type="button" disabled={!gpsCheck.ok} onClick={addGpsCorner}>
+                      Marcar esquina donde estoy
+                    </button>
+                  )}
+                  {gps && <span className="hint">Precisión del GPS: ±{Math.round(gps.accuracy)} m</span>}
+                </div>
+                {gps && (
+                  <p className="hint">
+                    ¿Estás en tu parcela? Camina a cada esquina, siguiendo la orilla, y toca «Marcar esquina donde
+                    estoy». También puedes tocar el mapa.
+                  </p>
+                )}
+                {gps && !gpsCheck.ok && (
+                  <p className={gpsCheck.code === 'misma-esquina' ? 'hint' : 'error'} aria-live="polite">
+                    {gpsCheck.message}
+                  </p>
+                )}
+                {gpsError && (
+                  <p className="error" role="alert">
+                    {gpsError}
+                  </p>
+                )}
+              </div>
+            ) : (
+              <p className="hint">Para usar tu ubicación, abre la página desde una dirección segura (https).</p>
             )}
             <div className="button-row">
               <button type="button" disabled={corners.length < 3} onClick={finish}>

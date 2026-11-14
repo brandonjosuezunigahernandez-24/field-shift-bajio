@@ -36,6 +36,8 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - **El back, el motor y el asistente no cambian.** NASA POWER y SoilGrids se consultan por punto y una parcela es mucho más chica que su resolución.
 - Se hace con **MapLibre GL** (`client/src/map/ParcelMap.jsx`), con imagen satelital de Esri y el relieve de AWS Terrain Tiles. Cambio del 14 de noviembre: antes decía react-leaflet.
 - Si el mapa está muy lejos (zoom < 13), el clic acerca el mapa en lugar de poner una esquina.
+- **Con GPS ("caminar la orilla"):** "Usar mi ubicación" lleva el mapa a donde está el agricultor (punto azul con círculo de precisión). Parado en cada esquina de su parcela toca "Marcar esquina donde estoy". No deja marcar si el GPS da más de ±30 m de error ni si está a menos de 5 m de la esquina anterior (`checkGpsCorner` en `client/src/map/polygon.js`).
+- El navegador solo da la ubicación en **https** o en `localhost`. Abierto desde un celular con `http://192.168...` el botón no aparece y se explica por qué.
 - Al tocar "Usar esta parcela", el mapa se ajusta al contorno (`fitBounds`, inclinado para ver el relieve).
 - El objeto que recibe la app es `{ nombre, lat, lon, contorno: [[lon, lat], ...], hectareas }`. `contorno` y `hectareas` solo son para el front (mapa y vista 3D); a la API se mandan `lat` y `lon`.
 - Los botones de ejemplo (Celaya, Gto.) siguen mandando su `lat` y `lon` directo.

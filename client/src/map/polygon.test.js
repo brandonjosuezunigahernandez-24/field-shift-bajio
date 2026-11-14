@@ -1,6 +1,15 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
-import { areaHectares, bounds, outlineGeoJSON, pointInPolygon, polygonCenter, toDiorama } from './polygon.js';
+import {
+  areaHectares,
+  bounds,
+  checkGpsCorner,
+  distanceMeters,
+  outlineGeoJSON,
+  pointInPolygon,
+  polygonCenter,
+  toDiorama,
+} from './polygon.js';
 
 // ~200 m x ~200 m square south of Celaya (0.0018 deg lat ~ 200 m).
 const lat0 = 20.47;
@@ -53,4 +62,18 @@ test('outlineGeoJSON closes the ring and keeps corners as points', () => {
   assert.deepEqual(polygon.geometry.coordinates[0][0], polygon.geometry.coordinates[0][4]);
   assert.equal(fc.features.filter((f) => f.geometry.type === 'Point').length, 4);
   assert.equal(outlineGeoJSON(square.slice(0, 2)).features.at(-1).geometry.type, 'LineString');
+});
+
+test('distanceMeters: ~111 m per 0.001 deg of latitude', () => {
+  const d = distanceMeters([-100.81, 20.47], [-100.81, 20.471]);
+  assert.ok(Math.abs(d - 111.3) < 0.5, `${d}`);
+});
+
+test('checkGpsCorner rejects weak signal and repeated corners, accepts a good new corner', () => {
+  const corners = [[-100.81, 20.47]];
+  assert.equal(checkGpsCorner(null, corners).ok, false);
+  assert.match(checkGpsCorner({ lon: -100.809, lat: 20.47, accuracy: 120 }, corners).message, /débil \(±120 m\)/);
+  assert.match(checkGpsCorner({ lon: -100.81, lat: 20.47002, accuracy: 6 }, corners).message, /Esquina 1 marcada/);
+  assert.deepEqual(checkGpsCorner({ lon: -100.809, lat: 20.47, accuracy: 6 }, corners), { ok: true, code: null, message: null });
+  assert.equal(checkGpsCorner({ lon: -100.809, lat: 20.47, accuracy: 6 }, []).ok, true);
 });
