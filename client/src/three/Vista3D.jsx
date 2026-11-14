@@ -1,6 +1,7 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useState } from 'react';
 import { getTerreno } from '../api.js';
+import { toDiorama } from '../map/polygon.js';
 import { latLonToXYZ, round2, wrapLon } from './geo.js';
 import { CROP_IDS, preloadModels } from './models.js';
 import { reliefExaggeration, yearState } from './parcelState.js';
@@ -94,14 +95,38 @@ export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
     return () => clearInterval(id);
   }, [playing, years]);
 
+  // The diorama is centered where the server centers /api/terreno: the point rounded to
+  // 2 decimals. A drawn outline is placed relative to that same center, so it sits on the relief.
+  const centerLat = point ? round2(point.lat) : null;
+  const centerLon = point ? round2(point.lon) : null;
+  const place = useMemo(
+    () => (centerLat === null ? null : { lat: centerLat, lon: centerLon }),
+    [centerLat, centerLon]
+  );
+  const outline = useMemo(
+    () => (point?.contorno?.length >= 3 ? toDiorama(point.contorno, centerLat, centerLon) : null),
+    [point, centerLat, centerLon]
+  );
+
+  // Camera framing for a drawn parcel: its bounding box center and half diagonal, on the block.
+  const focus = useMemo(() => {
+    if (!outline) return null;
+    const clampEdge = (v) => Math.max(-0.5, Math.min(0.5, v));
+    const xs = outline.map((p) => clampEdge(p[0]));
+    const zs = outline.map((p) => clampEdge(p[1]));
+    const [x0, x1, z0, z1] = [Math.min(...xs), Math.max(...xs), Math.min(...zs), Math.max(...zs)];
+    return { x: (x0 + x1) / 2, z: (z0 + z1) / 2, radius: Math.hypot(x1 - x0, z1 - z0) / 2 };
+  }, [outline]);
+
   const pick = ({ lat, lon }) =>
     onSelectPoint({ nombre: 'Punto elegido en el globo', lat: round2(lat), lon: round2(wrapLon(lon)) });
 
+  // Moving leaves the drawn outline behind: the new square is just a point.
   const move = (dLat, dLon) =>
     onSelectPoint({
-      nombre: point.nombre,
-      lat: round2(Math.max(-89, Math.min(89, point.lat + dLat))),
-      lon: round2(wrapLon(point.lon + dLon)),
+      nombre: point.contorno ? 'Cerca de tu parcela' : point.nombre,
+      lat: round2(Math.max(-89, Math.min(89, centerLat + dLat))),
+      lon: round2(wrapLon(centerLon + dLon)),
     });
 
   const startPlaying = () => {
@@ -115,7 +140,7 @@ export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
   const exaggeration = terrenoData ? reliefExaggeration(terrenoData.desnivel_m, terrenoData.lado_m) : 1;
   const inParcel = view === 'parcel' && point;
 
-  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo };
+  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, outline };
 
   if (contextLost) {
     return (
@@ -140,7 +165,7 @@ export default function Vista3D({ point, clima, suelo, onSelectPoint }) {
             });
           }}
         >
-          <Scene view={view} point={point} onPick={pick} diorama={diorama} reducedMotion={reducedMotion} />
+          <Scene view={view} point={place} focus={focus} onPick={pick} diorama={diorama} reducedMotion={reducedMotion} />
         </Canvas>
         <p className="vista3d-hint" aria-hidden="true">
           {inParcel

@@ -11,23 +11,32 @@ const HOME = latLonToXYZ(21, -101, 2.8); // start with Mexico facing the farmer
 const WORLD_UP = new Vector3(0, 1, 0);
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
-// Where the camera goes for each view.
-function destinationFor(view, point) {
+// Where the camera goes for each view. `focus` ({ x, z, radius } in diorama units) frames a
+// drawn parcel instead of the whole 1 km block.
+function destinationFor(view, point, focus) {
   if (!point) return { pos: new Vector3(...HOME), target: new Vector3(), up: WORLD_UP.clone() };
   const frame = surfaceFrame(point.lat, point.lon);
   const up = new Vector3(...frame.up);
   if (view === 'globe') {
     return { pos: up.clone().multiplyScalar(2.6), target: new Vector3(), up: WORLD_UP.clone() };
   }
+  const east = new Vector3(...frame.east);
   const south = new Vector3(...frame.south);
   const center = up.clone().multiplyScalar(1 + BASE * SIZE);
+  let distance = 0.11; // whole block
+  if (focus) {
+    center.addScaledVector(east, focus.x * SIZE).addScaledVector(south, focus.z * SIZE);
+    distance = Math.min(0.11, Math.max(MIN_PARCEL_DISTANCE, focus.radius * SIZE * 3.2));
+  }
   return {
-    // Looking at the diorama from the south and above, so north is "up" on screen.
-    pos: center.clone().addScaledVector(up, 0.07).addScaledVector(south, 0.085),
+    // Looking from the south and above, so north is "up" on screen.
+    pos: center.clone().addScaledVector(up, distance * 0.64).addScaledVector(south, distance * 0.77),
     target: center,
     up,
   };
 }
+
+const MIN_PARCEL_DISTANCE = 0.015;
 
 // Flies the camera between views. While flying there are no OrbitControls mounted, so
 // nothing fights the animation. Directions are slerped around the globe center, so the path
@@ -94,9 +103,10 @@ function CameraLight() {
   );
 }
 
-export default function Scene({ view, point, onPick, diorama, reducedMotion }) {
-  const flightKey = point ? `${view}:${point.lat}:${point.lon}` : 'home';
-  const destination = useMemo(() => destinationFor(view, point), [flightKey]); // eslint-disable-line react-hooks/exhaustive-deps
+export default function Scene({ view, point, focus, onPick, diorama, reducedMotion }) {
+  const focusKey = focus ? `${focus.x.toFixed(4)}:${focus.z.toFixed(4)}:${focus.radius.toFixed(4)}` : '';
+  const flightKey = point ? `${view}:${point.lat}:${point.lon}:${focusKey}` : 'home';
+  const destination = useMemo(() => destinationFor(view, point, focus), [flightKey]); // eslint-disable-line react-hooks/exhaustive-deps
   const [arrivedKey, setArrivedKey] = useState(null);
   const flying = arrivedKey !== flightKey;
   const inParcel = view === 'parcel' && point;
@@ -131,7 +141,7 @@ export default function Scene({ view, point, onPick, diorama, reducedMotion }) {
           dampingFactor={0.12}
           rotateSpeed={inParcel ? 0.6 : 0.4}
           zoomSpeed={0.8}
-          minDistance={inParcel ? 0.03 : 1.25}
+          minDistance={inParcel ? MIN_PARCEL_DISTANCE : 1.25}
           maxDistance={inParcel ? 0.4 : 5}
           maxPolarAngle={inParcel ? 1.35 : Math.PI}
         />

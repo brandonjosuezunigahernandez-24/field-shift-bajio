@@ -1,3 +1,4 @@
+import { Line } from '@react-three/drei';
 import { useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useLayoutEffect, useMemo, useRef } from 'react';
 import {
@@ -12,6 +13,7 @@ import {
   SRGBColorSpace,
   Vector3,
 } from 'three';
+import { pointInPolygon } from '../map/polygon.js';
 import { clamp, surfaceFrame } from './geo.js';
 import { useModelGeometries } from './models.js';
 import { reliefExaggeration, soilColors, yearState } from './parcelState.js';
@@ -26,6 +28,41 @@ const FIELD = 0.84; // planted share of the side
 const RISE_SECONDS = 1.4;
 const MORPH_SECONDS = 0.9;
 const MAX_RAIN = 500;
+const MAX_PLANTS = 900;
+const OUTSIDE_GROUND = [0.55, 0.5, 0.36]; // land around a drawn parcel: brush and dirt roads
+const EDGE = 0.49; // keep plants and the outline on the block
+
+// Plants for a drawn parcel: a grid over its bounding box, kept only inside the outline.
+// The spacing adapts so a small 2 ha plot and a large 60 ha one both look planted.
+function plantsInside(outline, random) {
+  let area = 0;
+  for (let i = 0; i < outline.length; i++) {
+    const [x1, z1] = outline[i];
+    const [x2, z2] = outline[(i + 1) % outline.length];
+    area += x1 * z2 - x2 * z1;
+  }
+  area = Math.abs(area) / 2;
+  const step = clamp(Math.sqrt(area / 350), 0.009, 0.04);
+  const xs = outline.map((p) => p[0]);
+  const zs = outline.map((p) => p[1]);
+  const list = [];
+  for (let z = Math.max(Math.min(...zs), -EDGE); z <= Math.min(Math.max(...zs), EDGE); z += step) {
+    for (let x = Math.max(Math.min(...xs), -EDGE); x <= Math.min(Math.max(...xs), EDGE); x += step) {
+      const px = x + (random() - 0.5) * step * 0.3;
+      const pz = z + (random() - 0.5) * step * 0.3;
+      if (list.length < MAX_PLANTS && pointInPolygon([px, pz], outline)) {
+        list.push({ x: px, z: pz, yaw: random() * Math.PI * 2, size: 0.85 + random() * 0.3 });
+      }
+    }
+  }
+  return list;
+}
+
+// Farmhouse and trees go on the first free spots outside the parcel.
+const SCENERY_SPOTS = [
+  [0.36, -0.36], [-0.36, -0.36], [0.36, 0.36], [-0.36, 0.36],
+  [-0.46, 0.46], [0.47, 0.2], [-0.47, -0.3], [0.2, 0.47], [-0.2, -0.47], [0.46, -0.1],
+];
 
 const ease = (t) => (t < 0.5 ? 4 * t * t * t : 1 - (-2 * t + 2) ** 3 / 2);
 
@@ -169,7 +206,7 @@ function Rain({ intensity, animate }) {
   );
 }
 
-export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, showRain, reducedMotion }) {
+export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, outline, showRain, reducedMotion }) {
   const invalidate = useThree((s) => s.invalidate);
   const models = useModelGeometries();
   const groupRef = useRef();
@@ -212,9 +249,11 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     return Float32Array.from({ length: tam * tam }, () => (random() - 0.5) * 0.08);
   }, [lat, lon, tam]);
 
-  // --- plants: fixed positions per plot, minus the farmhouse corner ---
+  // --- plants: fixed positions per plot. A drawn parcel is planted only inside its outline;
+  // otherwise the whole square is planted, minus the farmhouse corner ---
   const plants = useMemo(() => {
     const random = mulberry32(Math.round(lat * 1000) ^ Math.round(lon * 1000));
+    if (outline) return plantsInside(outline, random);
     const list = [];
     for (let r = 0; r < GRID; r++) {
       for (let c = 0; c < GRID; c++) {
@@ -225,7 +264,24 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
       }
     }
     return list;
-  }, [lat, lon]);
+  }, [lat, lon, outline]);
+
+  // Which terrain vertices fall inside the drawn parcel (null: no outline, all are "field").
+  const insideMask = useMemo(() => {
+    if (!outline) return null;
+    const mask = new Uint8Array(tam * tam);
+    for (let row = 0; row < tam; row++) {
+      for (let col = 0; col < tam; col++) {
+        mask[row * tam + col] = pointInPolygon([col / (tam - 1) - 0.5, row / (tam - 1) - 0.5], outline) ? 1 : 0;
+      }
+    }
+    return mask;
+  }, [outline, tam]);
+
+  const sceneryAt = useMemo(() => {
+    const free = SCENERY_SPOTS.filter(([x, z]) => !outline || !pointInPolygon([x, z], outline));
+    return { casa: free[0], arboles: free.slice(1, 4) };
+  }, [outline]);
 
   const cropGeometry = models[cultivo] ?? models.maiz;
   const cropScale = useMemo(() => {
@@ -249,14 +305,16 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     for (let i = 0; i < currentY.length; i++) currentY[i] = targetY[i] * t;
 
     const ground = linear(state.ground);
+    const outside = linear(OUTSIDE_GROUND.map((v, k) => v * 0.7 + state.ground[k] * 0.3));
     const pos = terrainGeometry.attributes.position.array;
     const col = terrainGeometry.attributes.color.array;
     for (let i = 0; i < currentY.length; i++) {
       pos[i * 3 + 1] = currentY[i];
       const shade = 0.92 + currentY[i] * 1.5 + noise[i];
-      col[i * 3] = ground.r * shade;
-      col[i * 3 + 1] = ground.g * shade;
-      col[i * 3 + 2] = ground.b * shade;
+      const c = !insideMask || insideMask[i] ? ground : outside;
+      col[i * 3] = c.r * shade;
+      col[i * 3 + 1] = c.g * shade;
+      col[i * 3 + 2] = c.b * shade;
     }
     terrainGeometry.attributes.position.needsUpdate = true;
     terrainGeometry.attributes.color.needsUpdate = true;
@@ -285,7 +343,26 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
   };
 
   // Redraw when the year, crop, soil or relief change.
-  useLayoutEffect(redraw, [state, soil, cultivo, cropScale, terrainGeometry, plants, targetY]); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(redraw, [state, soil, cultivo, cropScale, terrainGeometry, plants, targetY, insideMask]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Parcel outline draped on the final relief, a little above it so it never hides in the ground.
+  const outlinePoints = useMemo(() => {
+    if (!outline) return null;
+    const pts = [];
+    const ring = [...outline, outline[0]];
+    for (let i = 0; i < ring.length - 1; i++) {
+      const [x1, z1] = ring[i];
+      const [x2, z2] = ring[i + 1];
+      const steps = Math.max(2, Math.ceil(Math.hypot(x2 - x1, z2 - z1) / 0.02));
+      for (let s = 0; s < steps; s++) {
+        const x = clamp(x1 + ((x2 - x1) * s) / steps, -EDGE, EDGE);
+        const z = clamp(z1 + ((z2 - z1) * s) / steps, -EDGE, EDGE);
+        pts.push([x, heightAt(targetY, tam, x, z) + 0.006, z]);
+      }
+    }
+    pts.push(pts[0]);
+    return pts;
+  }, [outline, targetY, tam]);
 
   // --- rise out of the globe + relief morph, both only while they are running ---
   const rise = useRef(reducedMotion ? 1 : 0);
@@ -339,10 +416,9 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
         frustumCulled={false}
         onUpdate={redraw}
       />
-      {scenery('casa', 0.36, -0.36, 0.008, 0.3)}
-      {scenery('arbol', -0.46, 0.46, 0.012)}
-      {scenery('arbol', 0.47, 0.2, 0.01, 1.2)}
-      {scenery('arbol', -0.47, -0.3, 0.011, 2.1)}
+      {sceneryAt.casa && scenery('casa', ...sceneryAt.casa, 0.008, 0.3)}
+      {sceneryAt.arboles.map(([x, z], i) => scenery('arbol', x, z, 0.01 + i * 0.001, i * 1.3))}
+      {outlinePoints && <Line points={outlinePoints} color="#f2c94c" lineWidth={3} raycast={() => null} />}
       {/* North arrow, just outside the north edge. */}
       <mesh position={[0, 0.01, -0.57]} rotation={[-Math.PI / 2, 0, 0]} raycast={() => null}>
         <coneGeometry args={[0.03, 0.07, 3]} />
