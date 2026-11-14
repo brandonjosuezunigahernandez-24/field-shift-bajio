@@ -14,17 +14,45 @@ const BIG_PARCEL_HA = 500;
 const STREETS_MIN_ZOOM = 14;
 const MAX_ZOOM = 19.5; // the satellite imagery has no more detail beyond this
 
+// Two aerial images from Esri, both free and without API key. Only the visible one downloads tiles.
+//  - claro:  "World Imagery (Clarity)": older captures chosen to be cloud free and sharp. Each tile
+//            goes through 2 redirects (Esri Wayback), so it is ~3x slower: ~1 s vs ~0.4 s per tile.
+//  - rapido: the current World Imagery: newest and fastest, but has clouds in parts of the Bajío.
+export const IMAGERY = {
+  claro: { label: 'Sin nubes', note: 'imagen más clara, carga un poco más lento' },
+  rapido: { label: 'Más rápida', note: 'carga más rápido, puede tener nubes' },
+};
+const IMAGERY_KEY = 'fieldshift.imagen';
+const CLARITY_ERRORS_BEFORE_FALLBACK = 6;
+const ESRI_CREDIT = 'Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS';
+
+function savedImagery() {
+  try {
+    const value = localStorage.getItem(IMAGERY_KEY);
+    return value in IMAGERY ? value : 'claro';
+  } catch {
+    return 'claro';
+  }
+}
+
 // Satellite imagery + place names (Esri) and 3D relief (the same AWS Terrain Tiles / NASA SRTM
 // heights that /api/terreno uses). All free, no API key. Raster only: no glyphs or sprites to fetch.
-const STYLE = {
+const buildStyle = (imagery) => ({
   version: 8,
   sources: {
-    satelite: {
+    claro: {
+      type: 'raster',
+      tiles: ['https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      tileSize: 256,
+      maxzoom: 19,
+      attribution: ESRI_CREDIT,
+    },
+    rapido: {
       type: 'raster',
       tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
       tileSize: 256,
       maxzoom: 19,
-      attribution: 'Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS',
+      attribution: ESRI_CREDIT,
     },
     lugares: {
       type: 'raster',
@@ -49,13 +77,18 @@ const STYLE = {
     },
   },
   layers: [
-    { id: 'satelite', type: 'raster', source: 'satelite' },
+    ...Object.keys(IMAGERY).map((id) => ({
+      id,
+      type: 'raster',
+      source: id,
+      layout: { visibility: id === imagery ? 'visible' : 'none' },
+    })),
     // Only when zoomed in (from neighborhood level), so the far view stays clean and light.
     { id: 'calles', type: 'raster', source: 'calles', minzoom: STREETS_MIN_ZOOM, paint: { 'raster-opacity': 0.85 } },
     { id: 'lugares', type: 'raster', source: 'lugares' },
   ],
   terrain: { source: 'relieve', exaggeration: 1.5 },
-};
+});
 
 const EMPTY = { type: 'FeatureCollection', features: [] };
 
@@ -101,10 +134,14 @@ export default function ParcelMap({ point, onParcel }) {
   const [corners, setCorners] = useState([]);
   const [drawing, setDrawing] = useState(true);
   const [hint, setHint] = useState(null);
+  const [imagery, setImagery] = useState(savedImagery);
+  const [imageryNotice, setImageryNotice] = useState(null);
 
-  // Latest values for the map click handler, which is registered once.
+  // Latest values for the map handlers, which are registered once.
   const drawingRef = useRef(drawing);
   drawingRef.current = drawing;
+  const imageryRef = useRef(imagery);
+  imageryRef.current = imagery;
 
   // Create the map once. StrictMode mounts twice in development: cleanup removes the first one.
   useEffect(() => {
@@ -112,7 +149,7 @@ export default function ParcelMap({ point, onParcel }) {
     try {
       map = new MapLibreMap({
         container: containerRef.current,
-        style: STYLE,
+        style: buildStyle(imageryRef.current),
         ...BAJIO,
         maxPitch: 70,
         maxZoom: MAX_ZOOM,
@@ -131,6 +168,17 @@ export default function ParcelMap({ point, onParcel }) {
     map.on('load', () => {
       addParcelLayers(map);
       setReady(true);
+    });
+    // If the cloud-free imagery keeps failing (slow or blocked network), switch to the fast one
+    // by itself, so the farmer never stares at an empty map.
+    let clarityErrors = 0;
+    map.on('error', (event) => {
+      if (event.sourceId !== 'claro' || imageryRef.current !== 'claro') return;
+      clarityErrors += 1;
+      if (clarityErrors === CLARITY_ERRORS_BEFORE_FALLBACK) {
+        setImagery('rapido');
+        setImageryNotice('La imagen sin nubes no cargó bien con esta conexión. Cambiamos a la imagen más rápida.');
+      }
     });
     map.on('click', (event) => {
       if (!drawingRef.current) return;
@@ -164,6 +212,20 @@ export default function ParcelMap({ point, onParcel }) {
     if (ready) mapRef.current.getCanvas().style.cursor = drawing ? 'crosshair' : '';
   }, [ready, drawing]);
 
+  // Show only the chosen imagery (a hidden layer downloads nothing) and remember the choice.
+  useEffect(() => {
+    if (ready) {
+      for (const id of Object.keys(IMAGERY)) {
+        mapRef.current.setLayoutProperty(id, 'visibility', id === imagery ? 'visible' : 'none');
+      }
+    }
+    try {
+      localStorage.setItem(IMAGERY_KEY, imagery);
+    } catch {
+      // private mode: the choice just isn't remembered
+    }
+  }, [ready, imagery]);
+
   // Follow the plot chosen anywhere in the page (this map, the example button or the 3D globe).
   // A drawn parcel is framed tilted, so the relief shows; a bare point gets a closer look.
   useEffect(() => {
@@ -173,11 +235,11 @@ export default function ParcelMap({ point, onParcel }) {
     if (point.contorno?.length >= 3) {
       setCorners(point.contorno);
       setDrawing(false);
-      map.fitBounds(bounds(point.contorno), { padding: 60, pitch: 50, maxZoom: 17.5, duration });
+      map.fitBounds(bounds(point.contorno), { padding: 60, pitch: 40, maxZoom: 17.5, duration });
     } else {
       setCorners([]);
       setDrawing(true);
-      map.flyTo({ center: [point.lon, point.lat], zoom: 15, pitch: 45, duration });
+      map.flyTo({ center: [point.lon, point.lat], zoom: 15, pitch: 30, duration });
     }
   }, [ready, point]);
 
@@ -206,6 +268,31 @@ export default function ParcelMap({ point, onParcel }) {
   return (
     <div className="parcel-map">
       <div ref={containerRef} className="parcel-map-canvas" />
+      <fieldset className="imagery-switch">
+        <legend>Imagen del mapa</legend>
+        {Object.entries(IMAGERY).map(([id, { label, note }]) => (
+          <label key={id}>
+            <input
+              type="radio"
+              name="imagen-mapa"
+              value={id}
+              checked={imagery === id}
+              onChange={() => {
+                setImagery(id);
+                setImageryNotice(null);
+              }}
+            />
+            <span>
+              <strong>{label}</strong> <span className="imagery-note">({note})</span>
+            </span>
+          </label>
+        ))}
+      </fieldset>
+      {imageryNotice && (
+        <p className="hint" role="status">
+          {imageryNotice}
+        </p>
+      )}
       <div className="parcel-map-tools">
         {drawing ? (
           <>

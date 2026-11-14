@@ -275,3 +275,38 @@ button:disabled {
   color: #ffffff;
   border-color: #ffffff;
 }
+
+/* Map imagery choice */
+.imagery-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  border: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 0.95rem;
+}
+
+.imagery-switch legend {
+  float: left;
+  margin-right: 10px;
+  color: var(--muted);
+}
+
+.imagery-switch label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+
+.imagery-switch input {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
+}
+
+.imagery-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
