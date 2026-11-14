@@ -154,3 +154,6 @@ server/cache/*
 
 # Modelos de voz descargados (pesan cientos de MB)
 server/models/
+
+# CSV crudos del SIAP (varios MB cada uno)
+server/data/siap_raw/
