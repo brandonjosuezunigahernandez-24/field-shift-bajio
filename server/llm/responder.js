@@ -3,7 +3,7 @@ import { askModel } from './ollama.js';
 import { templateAnswer } from './plantilla.js';
 import { verifyNumbers } from './verificador.js';
 
-const SOURCES = ['NASA POWER', 'SoilGrids', 'Open-Meteo', 'Base local', 'Wikipedia'];
+const SOURCES = ['NASA POWER', 'SoilGrids', 'Open-Meteo', 'Base local', 'Wikipedia', 'SIAP'];
 export const REFUSAL = /^no tengo ese dato[^.]*.?$/i;
 const SUMMARY_QUESTION = 'Explícame cómo es mi parcela: lluvia, años secos y suelo.';
 

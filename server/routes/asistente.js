@@ -5,6 +5,7 @@ import { getClimate, summarizeClimate } from '../sources/nasaPower.js';
 import { getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { getForecast } from '../sources/openMeteo.js';
 import { findContext } from '../llm/contexto.js';
+import { cropFacts } from '../llm/siap.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
 
@@ -36,6 +37,7 @@ router.post('/', async (req, res) => {
     suelo: summarizeSoil(soil),
     pronostico,
     conocimiento: contexto.items,
+    siap: pregunta ? cropFacts(pregunta) : null,
   });
   const result = await answer({ ficha, pregunta });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.

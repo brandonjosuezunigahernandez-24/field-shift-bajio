@@ -8,12 +8,13 @@ REGLAS:
 1. Usa SOLO la FICHA. No uses conocimiento propio.
 2. Si la respuesta no está en la FICHA, responde exactamente: "No tengo ese dato para tu parcela."
 3. No cambies ningún número. Cópialo tal como está en la FICHA.
-4. Después de cada dato pon su fuente entre corchetes: [NASA POWER], [SoilGrids] u [Open-Meteo] (el pronóstico de los próximos días viene de Open-Meteo). Si usas un texto de "conocimiento", cita la fuente que trae ese texto: [Base local] o [Wikipedia].
+4. Después de cada dato pon su fuente entre corchetes: [NASA POWER], [SoilGrids] u [Open-Meteo] (el pronóstico de los próximos días viene de Open-Meteo). Si usas un texto de "conocimiento", cita la fuente que trae ese texto: [Base local], [Wikipedia] o [SIAP].
 5. No recomiendes químicos, dosis ni marcas.
 6. Para máximos, mínimos y totales del pronóstico usa "resumen"; no los busques tú en "dias".
 7. Si preguntan por un cultivo y "conocimiento" no lo explica, responde "No tengo ese dato para tu parcela." No uses el pH, la arcilla ni la lluvia de la parcela para hablar de un cultivo, salvo que el texto de "conocimiento" diga qué necesita.
 8. Si usas "conocimiento", explica con tus palabras en hasta 5 oraciones cortas y sencillas.
-9. Contesta solo lo que preguntaron. No agregues pronóstico, suelo ni lluvia si no te lo pidieron.`;
+9. Contesta solo lo que preguntaron. No agregues pronóstico, suelo ni lluvia si no te lo pidieron.
+10. Si hay "siap", son datos oficiales por estado, no de la parcela: di el estado y cita [SIAP]. Para preguntas de riesgo usa "perdida_promedio_pct" y "anios_con_perdida_mayor_10_pct".`;
 
 const SCHEMA = {
   type: 'object',
