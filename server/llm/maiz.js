@@ -45,13 +45,13 @@ export function intencionMaiz(pregunta = '') {
   if (/(cuanta|cuanto|que cantidad de) (lluvia|agua)|necesita (de )?(agua|lluvia)|requiere|cada cuanto (riego|rego|se riega)|cuantas veces (riego|se riega)|frecuencia de riego/.test(q)) return 'agua';
   if (/(mi )?(suelo|tierra)|\bph\b/.test(q) && /(sirve|sirva|bueno|buena|apto|adecuad|sembrar|para maiz)/.test(q)) return 'suelo';
   if (/(sembre|siembre|sembraba|tenia|antes tuve|ano pasado)/.test(q) && (otro || /ahorita|ahora|este ano|puedo|se puede/.test(q))) return 'rotacion';
-  if (/riego/.test(q) && /temporal/.test(q) && !/saco|sacar|cosech|queda/.test(q)) return 'riego';
-  if (!otro && /dinero|ganancia|ingreso|pesos|cuanto (gano|voy a ganar)/.test(q)) return 'precio';
-  if (/cuant[oa]s? (maiz |cosecha |toneladas )?(\w+ ){0,3}(saco|sacar|cosech|levant|produc|rinde|rendira|queda|dara)|cuanto puedo (sacar|producir|cosechar)|mal ano.*(queda|saco|cosech)/.test(q) || alguna(ws, ['produc']) || (alguna(ws, ['rend', 'rind']) && !otro)) return 'produccion';
+  if (/riego|regar/.test(q) && (/temporal/.test(q) || /conviene|vale la pena|meter|poner|instalar/.test(q)) && !/saco|sacar|cosech|queda/.test(q)) return 'riego';
+  if (!otro && /dinero|ganancia|ingreso|pesos|cuanto (gano|voy a ganar)|cuanto (me )?(deja|dejaria)/.test(q)) return 'precio';
+  if (/cuant[oa]s? (maiz |cosecha |toneladas )?(\w+ ){0,3}(saco|sacar|saca|cosech|levant|produc|rinde|rendira|queda|dara)|cuanto puedo (sacar|producir|cosechar)|mal ano.*(queda|saco|cosech)/.test(q) || alguna(ws, ['produc']) || (alguna(ws, ['rend', 'rind']) && !otro)) return 'produccion';
   if (otro && (alguna(ws, ['compar', 'mejor', 'contra', 'conviene', 'recomiend', 'vs']) || /(o|que|en vez de|en lugar de) (el )?(sorgo|frijol|trigo|cebada|garbanzo|avena)/.test(q))) return 'comparar';
-  if (alguna(ws, ['recomiend', 'conviene', 'aconsej', 'espero', 'esperar', 'siguiente']) || /ano (bueno|malo)|bueno o malo|vale la pena|ano que viene|proximo ano|este ano o|le entro|me animo|me aviento|buen (ano|momento)/.test(q)) return 'decision';
+  if (alguna(ws, ['recomiend', 'conviene', 'aconsej', 'espero', 'esperar', 'siguiente']) || /ano (bueno|malo)|bueno o malo|vale la pena|ano que viene|proximo ano|este ano o|le entro|me animo|me aviento|buen (ano|momento)|(ira|va a ir) bien/.test(q)) return 'decision';
   if (/cuando (esta|sube|baja|se paga|esta mas)|mas caro|mejor precio|por mes|que mes/.test(q) && alguna(ws, ['caro', 'precio', 'pagan', 'paga', 'barato', 'sube', 'baja'])) return 'precio_mes';
-  if (alguna(ws, ['rapid', 'tarda', 'tardan', 'demor', 'crece', 'crecer', 'crecimiento', 'madur', 'ciclo', 'dias', 'meses', 'semanas']) || /cuanto tiempo|cuando (se )?cosech|cuando (esta|queda|llega) list|en cuanto|cuando se coseche/.test(q)) return 'ciclo';
+  if (alguna(ws, ['rapid', 'tarda', 'tardan', 'demor', 'crece', 'crecer', 'crecimiento', 'madur', 'ciclo', 'dias', 'meses', 'semanas']) || /cuanto tiempo|cuando (se |lo )?cosech|cuando (esta|queda|llega) list|en cuanto|cuando se coseche/.test(q)) return 'ciclo';
   if (/cuando (se )?(siembr|plant|debo sembrar|puedo sembrar)|mejor (mes|fecha|epoca)|fecha de siembra/.test(q)) return 'siembra';
   if (/llueve poco|poca lluvia|llueve menos|sin lluvia|no llueve|sequia|ano seco/.test(q)) return 'riesgo';
   if (/peor ano|ano mas (malo|seco)|mal ano/.test(q)) return 'riesgo';
@@ -128,18 +128,21 @@ function salida(titular, frases, fuentes, datos, extra = {}) {
 const sinDato = (que) => salida(`No tengo ${que}.`, [`Lo que sí te puedo contestar: ${SUGERENCIAS.join(' ')}`], [], {});
 
 function escoge(perfil, estado, q = '') {
-  const agua = /riego/.test(q) && perfil.agua === 'temporal' ? ['Temporal', 'Riego'] : perfil.agua === 'riego' ? ['Riego'] : perfil.agua === 'temporal' ? ['Temporal'] : ['Temporal', 'Riego'];
+  // "maíz de riego" pide solo riego; "¿y con riego?" con parcela de temporal compara los dos.
+  const agua = /de riego/.test(q) && !/temporal/.test(q) ? ['Riego'] : /riego/.test(q) && perfil.agua === 'temporal' ? ['Temporal', 'Riego'] : perfil.agua === 'riego' ? ['Riego'] : perfil.agua === 'temporal' ? ['Temporal'] : ['Temporal', 'Riego'];
   return agua.map((m) => serie(estado, m)).filter(Boolean);
 }
+// "con 25 hectáreas" en la pregunta gana sobre las del perfil (pregunta por otra superficie).
+const haDelTexto = (q) => { const m = q.match(/(\d+(?:[.,]\d+)?)\s*(?:ha\b|hect)/); const n = m && Number(m[1].replace(',', '.')); return n >= 0.1 && n <= 5000 ? n : undefined; };
 const nom = (s) => (s.modalidad === 'Riego' ? 'de riego' : 'de temporal');
 
 const REDACTORES = {
   produccion: (q, { estado, perfil = {}, rows, lat, lon }) => {
     const ss = escoge(perfil, estado, q);
     if (!ss.length) return null;
-    const ha = perfil.hectareas;
+    const ha = haDelTexto(q) ?? perfil.hectareas;
     const [a] = ss;
-    const malo = /mal ano|peor|me queda/.test(q) && ha;
+    const malo = /mal ano|peor|me queda|llueve poco|ano seco/.test(q) && ha;
     const titular = malo
       ? `En un mal año, con tus ${ha} ha te quedarían unas ${tons(ha * a.peor.t_ha)} t de maíz ${nom(a)}.`
       : `El maíz ${ss.map((s) => `${nom(s)} rinde en promedio ${s.t_ha} t por hectárea`).join(' y el ')} en ${estado}.`;
@@ -166,7 +169,7 @@ const REDACTORES = {
     if (!perfil.agua) return { preguntar: 'agua' };
     const ss = escoge(perfil, estado);
     if (!ss.length) return null;
-    const s = ss[0], aviso = 'Es riesgo estimado, no pronóstico.';
+    const s = ss[0];
     if (perfil.agua === 'riego') {
       return salida('Con riego el maíz depende menos de la lluvia; lo que decide es el agua y el costo.', [
         `En ${estado} el maíz de riego rindió entre ${s.peor.t_ha} y ${s.mejor.t_ha} t/ha (${s.desde}-${s.hasta}) y tuvo pérdidas altas en ${s.anios_danos_altos.length} de ${s.n} años.`,
@@ -178,9 +181,9 @@ const REDACTORES = {
       riesgo ? `Daño estimado a la superficie en año seco, normal y lluvioso: ${riesgo.escenarios.map((e) => `${e.siniestro_pct} %`).join(', ')} (con ${riesgo.escenarios.map((e) => e.lluvia_mm).join(', ')} mm de lluvia).` : 'No pude consultar la lluvia de tu parcela para calcular el riesgo.',
       badY.length === 3 ? `Probabilidad de año malo (más de 10 % dañado): ${badY.map((b) => `${Math.round(b.probabilidad * 100)} %`).join(', ')}.` : null,
       `De ${s.desde} a ${s.hasta}, ${s.anios_danos_altos.length} de ${s.n} años ${s.anios_danos_altos.length === 1 ? 'tuvo' : 'tuvieron'} pérdidas altas en ${estado}.`,
-      `Observa las primeras lluvias de la temporada y el pronóstico de la semana. ${aviso}`,
+      'Observa las primeras lluvias de la temporada y el pronóstico de la semana; es riesgo estimado, no pronóstico (modelo entrenado con SIAP y NASA POWER). [SIAP, NASA POWER]',
     ];
-    return salida('No te puedo decir sí o no: la lluvia de esta temporada no se puede pronosticar con estos datos.', [...frases, '(Modelo entrenado con SIAP y NASA POWER.) [SIAP, NASA POWER]'], ['SIAP', 'NASA POWER'], { s, riesgo: riesgo?.escenarios, badY: badY.map((b) => Math.round(b.probabilidad * 100)), pct: badY.map((b) => b.probabilidad) }, { origen: 'modelo' });
+    return salida('No te puedo decir sí o no: la lluvia de esta temporada no se puede pronosticar con estos datos.', frases, ['SIAP', 'NASA POWER'], { s, riesgo: riesgo?.escenarios, badY: badY.map((b) => Math.round(b.probabilidad * 100)), pct: badY.map((b) => b.probabilidad) }, { origen: 'modelo' });
   },
 
   riesgo: (q, ctx) => {
@@ -201,9 +204,9 @@ const REDACTORES = {
   },
 
   precio: (q, { estado, perfil = {} }) => {
-    const ss = escoge(perfil, estado);
+    const ss = escoge(perfil, estado, q);
     if (!ss.length) return null;
-    const ha = perfil.hectareas;
+    const ha = haDelTexto(q) ?? perfil.hectareas;
     const f = ss.map((s) => `${nom(s)} se pagó a ${money(s.precio)} la tonelada en ${s.anio_precio}`).join(' y el ');
     const ing = ss.map((s) => ({ s, ha_: Math.round(s.t_ha * s.precio) }));
     return salida(`En ${estado} el maíz ${f}.`, [
@@ -286,7 +289,8 @@ const REDACTORES = {
   plaga: () => salida('No doy productos ni dosis para plagas ni abonos: una dosis mala daña el cultivo y la salud.', [
     `${CARTAS.plagas} [Base local]`, 'También puedes preguntar al Comité Estatal de Sanidad Vegetal de tu estado.'], ['Base local'], {}),
 
-  semilla: () => salida('No tengo datos de qué semilla o variedad de maíz te conviene.', [
+  semilla: (q) => /cuant|por hectarea|densidad/.test(q) ? salida('La Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT) recomienda en temporal de 60 a 70 mil semillas de maíz por hectárea.', [
+    'El detalle y la fuente van abajo, en «Qué hacer». Qué variedad te conviene no lo tengo verificado: pregunta a INIFAP o al técnico de tu zona.'], ['Mesa Técnica Agroclimática'], {}) : salida('No tengo datos de qué semilla o variedad de maíz te conviene.', [
     'Eso depende de tu altura, tu lluvia y tu suelo, y yo no tengo variedades verificadas.', 'Pregunta a INIFAP o al técnico de tu zona.'], [], {}),
 
   seguro: (q, { estado, perfil = {} }) => {
@@ -325,6 +329,9 @@ const REDACTORES = {
 // -> { respuesta, fuentes, datos, enlaces?, origen? } | { preguntar: 'agua' } | null
 export function redactarMaiz(id, pregunta, ctx) {
   const q = strip(pregunta);
+  // "¿Qué rendimiento da el maíz en Querétaro?" habla de ese estado aunque la parcela esté en el otro.
+  const dicho = ESTADOS.find((e) => q.includes(strip(e)));
+  if (dicho) ctx = { ...ctx, estado: dicho };
   const r = REDACTORES[id]?.(q, ctx) ?? null;
   if (!r || r.preguntar) return r;
   // Trampa de número: "¿verdad que rinde 15 t/ha?". Si dicen una cantidad que no aparece en los datos, se corrige antes.

@@ -6,7 +6,7 @@ import { POWER_CREDIT, getClimate, summarizeClimate } from '../sources/nasaPower
 import { SOILGRIDS_CREDIT, getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { PRIORIDADES, recommend } from '../engine/index.js';
 import { incomeByCrop } from '../llm/siap.js';
-import { ESTADOS, ETIQUETA } from '../llm/recomendador.js';
+import { ESTADOS, ETIQUETA, predictionSentences } from '../llm/recomendador.js';
 import { stateAt } from '../lib/state.js';
 
 const router = Router();
@@ -63,6 +63,7 @@ export function explainPlot(r) {
   return (
     `Para sembrar de ${r.agua} y con la meta de ${ETIQUETA[r.prioridad]}, en tu parcela te salen mejor: ${top}. ` +
     `Rotación de 3 años: ${rotation}. Sobre ${first.nombre.toLowerCase()}: ${first.razones[0]} ` +
+    predictionSentences(r.prediccion).map((s) => `${s} `).join('') +
     'Los requerimientos de cada cultivo son aproximados y falta confirmarlos; esto no sustituye a un técnico.'
   );
 }
@@ -73,6 +74,7 @@ export const compactPlot = (r) => ({
   prioridad: r.prioridad,
   mejores: r.cultivos.slice(0, 3).map(({ nombre, temporada, puntaje, razones }) => ({ cultivo: nombre, temporada, puntaje, razones })),
   rotacion: r.rotacion,
+  ...(r.prediccion && { prediccion: r.prediccion }),
   fuente: 'NASA POWER, SoilGrids y SIAP',
 });
 

@@ -1,0 +1,652 @@
+{
+ "fuente": "FAO EcoCrop (Ecocrop database, FAO). Copia pública del scrape: https://raw.githubusercontent.com/supersistence/EcoCrop-ScrapeR/HEAD/cropbasics_scrape.csv",
+ "nota": "Rangos de la planta en general (no de una variedad ni de México). La página de FAO respondió 503 al verificarla; los valores salen de la copia y cada cultivo trae el enlace a su ficha en FAO. temp_*: °C; lluvia_*: mm por ciclo de cultivo (EcoCrop); helada_mortal_reposo: °C que mata a la planta en reposo (null = EcoCrop no lo trae).",
+ "generado": "2026-11-15",
+ "cultivos": {
+  "fresa": {
+   "nombre": "Fresa",
+   "especie_ecocrop": "Fragaria x ananassa",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    11,
+    24
+   ],
+   "temp_absoluta": [
+    6,
+    28
+   ],
+   "lluvia_optima_mm": [
+    600,
+    900
+   ],
+   "lluvia_absoluta_mm": [
+    300,
+    1700
+   ],
+   "ph_optimo": [
+    6,
+    6.8
+   ],
+   "ph_absoluto": [
+    4.5,
+    8.2
+   ],
+   "helada_mortal_reposo": null,
+   "ciclo_dias": [
+    180,
+    270
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1112",
+   "verificado": true
+  },
+  "aguacate": {
+   "nombre": "Aguacate",
+   "especie_ecocrop": "Persea americana",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    14,
+    40
+   ],
+   "temp_absoluta": [
+    10,
+    45
+   ],
+   "lluvia_optima_mm": [
+    500,
+    2000
+   ],
+   "lluvia_absoluta_mm": [
+    300,
+    2500
+   ],
+   "ph_optimo": [
+    5,
+    5.8
+   ],
+   "ph_absoluto": [
+    4.5,
+    7
+   ],
+   "helada_mortal_reposo": -4,
+   "ciclo_dias": null,
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1659",
+   "verificado": true
+  },
+  "uva": {
+   "nombre": "Uva",
+   "especie_ecocrop": "Vitis vinifera",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    18,
+    30
+   ],
+   "temp_absoluta": [
+    10,
+    38
+   ],
+   "lluvia_optima_mm": [
+    700,
+    850
+   ],
+   "lluvia_absoluta_mm": [
+    400,
+    1200
+   ],
+   "ph_optimo": [
+    5.5,
+    7.5
+   ],
+   "ph_absoluto": [
+    4.5,
+    8.5
+   ],
+   "helada_mortal_reposo": -20,
+   "ciclo_dias": [
+    160,
+    270
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=2160",
+   "verificado": true
+  },
+  "durazno": {
+   "nombre": "Durazno",
+   "especie_ecocrop": "Prunus persica",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    20,
+    33
+   ],
+   "temp_absoluta": [
+    7,
+    35
+   ],
+   "lluvia_optima_mm": [
+    900,
+    1100
+   ],
+   "lluvia_absoluta_mm": [
+    750,
+    1600
+   ],
+   "ph_optimo": [
+    5.5,
+    6.3
+   ],
+   "ph_absoluto": [
+    4.5,
+    7.5
+   ],
+   "helada_mortal_reposo": -5,
+   "ciclo_dias": [
+    240,
+    270
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1796",
+   "verificado": true
+  },
+  "guayaba": {
+   "nombre": "Guayaba",
+   "especie_ecocrop": "Psidium guajava",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    20,
+    33
+   ],
+   "temp_absoluta": [
+    10,
+    45
+   ],
+   "lluvia_optima_mm": [
+    1000,
+    3000
+   ],
+   "lluvia_absoluta_mm": [
+    400,
+    5000
+   ],
+   "ph_optimo": [
+    5.5,
+    7.5
+   ],
+   "ph_absoluto": [
+    4,
+    8.5
+   ],
+   "helada_mortal_reposo": -5,
+   "ciclo_dias": [
+    150,
+    365
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1804",
+   "verificado": true
+  },
+  "tuna": {
+   "nombre": "Tuna y nopalitos",
+   "especie_ecocrop": "Opuntia ficus-indica",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    18,
+    26
+   ],
+   "temp_absoluta": [
+    10,
+    30
+   ],
+   "lluvia_optima_mm": [
+    700,
+    1300
+   ],
+   "lluvia_absoluta_mm": [
+    300,
+    1700
+   ],
+   "ph_optimo": [
+    7,
+    7.5
+   ],
+   "ph_absoluto": [
+    6.5,
+    8.2
+   ],
+   "helada_mortal_reposo": null,
+   "ciclo_dias": [
+    140,
+    270
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=8094",
+   "verificado": true
+  },
+  "limon": {
+   "nombre": "Limón",
+   "especie_ecocrop": "Citrus limon",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    15,
+    28
+   ],
+   "temp_absoluta": [
+    12,
+    36
+   ],
+   "lluvia_optima_mm": [
+    1000,
+    2300
+   ],
+   "lluvia_absoluta_mm": [
+    300,
+    4000
+   ],
+   "ph_optimo": [
+    6.5,
+    7
+   ],
+   "ph_absoluto": [
+    5.5,
+    8
+   ],
+   "helada_mortal_reposo": -6,
+   "ciclo_dias": [
+    210,
+    365
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=714",
+   "verificado": true
+  },
+  "naranja": {
+   "nombre": "Naranja",
+   "especie_ecocrop": "Citrus sinensis",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    20,
+    30
+   ],
+   "temp_absoluta": [
+    13,
+    38
+   ],
+   "lluvia_optima_mm": [
+    1200,
+    2000
+   ],
+   "lluvia_absoluta_mm": [
+    450,
+    2700
+   ],
+   "ph_optimo": [
+    5,
+    6
+   ],
+   "ph_absoluto": [
+    4,
+    8.3
+   ],
+   "helada_mortal_reposo": -10,
+   "ciclo_dias": [
+    180,
+    365
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=720",
+   "verificado": true
+  },
+  "manzana": {
+   "nombre": "Manzana",
+   "especie_ecocrop": "Malus domestica",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    14,
+    27
+   ],
+   "temp_absoluta": [
+    8,
+    33
+   ],
+   "lluvia_optima_mm": [
+    700,
+    2500
+   ],
+   "lluvia_absoluta_mm": [
+    500,
+    3200
+   ],
+   "ph_optimo": [
+    6,
+    7
+   ],
+   "ph_absoluto": [
+    4.5,
+    8
+   ],
+   "helada_mortal_reposo": -30,
+   "ciclo_dias": [
+    180,
+    320
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1407",
+   "verificado": true
+  },
+  "arandano": {
+   "nombre": "Arándano",
+   "especie_ecocrop": "Vaccinium corymbosum",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    18,
+    30
+   ],
+   "temp_absoluta": [
+    7,
+    42
+   ],
+   "lluvia_optima_mm": [
+    900,
+    1100
+   ],
+   "lluvia_absoluta_mm": [
+    700,
+    1300
+   ],
+   "ph_optimo": [
+    4,
+    5
+   ],
+   "ph_absoluto": [
+    3,
+    5.5
+   ],
+   "helada_mortal_reposo": -29,
+   "ciclo_dias": [
+    160,
+    200
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=10704",
+   "verificado": true
+  },
+  "frambuesa": {
+   "nombre": "Frambuesa",
+   "especie_ecocrop": "Rubus idaeus ssp. idaeus",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    17,
+    23
+   ],
+   "temp_absoluta": [
+    5,
+    28
+   ],
+   "lluvia_optima_mm": [
+    800,
+    1200
+   ],
+   "lluvia_absoluta_mm": [
+    300,
+    1700
+   ],
+   "ph_optimo": [
+    5.5,
+    6.5
+   ],
+   "ph_absoluto": [
+    4.5,
+    7.8
+   ],
+   "helada_mortal_reposo": -35,
+   "ciclo_dias": [
+    120,
+    180
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1877",
+   "verificado": true
+  },
+  "nuez": {
+   "nombre": "Nuez",
+   "especie_ecocrop": "Carya illinoensis",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    15,
+    35
+   ],
+   "temp_absoluta": [
+    5,
+    40
+   ],
+   "lluvia_optima_mm": [
+    600,
+    1200
+   ],
+   "lluvia_absoluta_mm": [
+    400,
+    1800
+   ],
+   "ph_optimo": [
+    5.5,
+    7
+   ],
+   "ph_absoluto": [
+    5,
+    7.5
+   ],
+   "helada_mortal_reposo": -20,
+   "ciclo_dias": [
+    140,
+    210
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=2231",
+   "verificado": true
+  },
+  "esparrago": {
+   "nombre": "Espárrago",
+   "especie_ecocrop": "Asparagus officinalis",
+   "ciclo_vida": "perennial",
+   "temp_optima": [
+    15,
+    30
+   ],
+   "temp_absoluta": [
+    6,
+    38
+   ],
+   "lluvia_optima_mm": [
+    800,
+    1200
+   ],
+   "lluvia_absoluta_mm": [
+    500,
+    4000
+   ],
+   "ph_optimo": [
+    6,
+    6.7
+   ],
+   "ph_absoluto": [
+    4.5,
+    8.2
+   ],
+   "helada_mortal_reposo": -5,
+   "ciclo_dias": [
+    210,
+    270
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=468",
+   "verificado": true
+  },
+  "jitomate": {
+   "nombre": "Jitomate",
+   "especie_ecocrop": "Lycopersicon esculentum",
+   "ciclo_vida": "annual",
+   "temp_optima": [
+    20,
+    27
+   ],
+   "temp_absoluta": [
+    7,
+    35
+   ],
+   "lluvia_optima_mm": [
+    600,
+    1300
+   ],
+   "lluvia_absoluta_mm": [
+    400,
+    1800
+   ],
+   "ph_optimo": [
+    5.5,
+    6.8
+   ],
+   "ph_absoluto": [
+    5,
+    7.5
+   ],
+   "helada_mortal_reposo": null,
+   "ciclo_dias": [
+    70,
+    150
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1379",
+   "verificado": true
+  },
+  "chile": {
+   "nombre": "Chile",
+   "especie_ecocrop": "Capsicum annuum",
+   "ciclo_vida": "annual",
+   "temp_optima": [
+    17,
+    30
+   ],
+   "temp_absoluta": [
+    8,
+    35
+   ],
+   "lluvia_optima_mm": [
+    600,
+    1250
+   ],
+   "lluvia_absoluta_mm": [
+    500,
+    1700
+   ],
+   "ph_optimo": [
+    5.5,
+    6.8
+   ],
+   "ph_absoluto": [
+    4.5,
+    7
+   ],
+   "helada_mortal_reposo": null,
+   "ciclo_dias": [
+    60,
+    180
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=618",
+   "verificado": true
+  },
+  "cebolla": {
+   "nombre": "Cebolla",
+   "especie_ecocrop": "Allium cepa",
+   "ciclo_vida": "biennial",
+   "temp_optima": [
+    12,
+    25
+   ],
+   "temp_absoluta": [
+    4,
+    30
+   ],
+   "lluvia_optima_mm": [
+    350,
+    600
+   ],
+   "lluvia_absoluta_mm": [
+    300,
+    2800
+   ],
+   "ph_optimo": [
+    6,
+    7
+   ],
+   "ph_absoluto": [
+    4.3,
+    8.3
+   ],
+   "helada_mortal_reposo": null,
+   "ciclo_dias": [
+    85,
+    175
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=364",
+   "verificado": true
+  },
+  "papa": {
+   "nombre": "Papa",
+   "especie_ecocrop": "Solanum tuberosum",
+   "ciclo_vida": "annual",
+   "temp_optima": [
+    15,
+    25
+   ],
+   "temp_absoluta": [
+    7,
+    30
+   ],
+   "lluvia_optima_mm": [
+    500,
+    800
+   ],
+   "lluvia_absoluta_mm": [
+    250,
+    2000
+   ],
+   "ph_optimo": [
+    5,
+    6.2
+   ],
+   "ph_absoluto": [
+    4.2,
+    8.5
+   ],
+   "helada_mortal_reposo": -1,
+   "ciclo_dias": [
+    90,
+    160
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=1971",
+   "verificado": true
+  },
+  "brocoli": {
+   "nombre": "Brócoli",
+   "especie_ecocrop": "Brassica oleracea var. italica",
+   "ciclo_vida": "biennial",
+   "temp_optima": [
+    15,
+    24
+   ],
+   "temp_absoluta": [
+    3,
+    35
+   ],
+   "lluvia_optima_mm": [
+    900,
+    1500
+   ],
+   "lluvia_absoluta_mm": [
+    350,
+    2000
+   ],
+   "ph_optimo": [
+    6,
+    6.8
+   ],
+   "ph_absoluto": [
+    5.5,
+    8.5
+   ],
+   "helada_mortal_reposo": -5,
+   "ciclo_dias": [
+    80,
+    120
+   ],
+   "url": "https://ecocrop.fao.org/ecocrop/srv/en/dataSheet?id=556",
+   "verificado": true
+  }
+ }
+}

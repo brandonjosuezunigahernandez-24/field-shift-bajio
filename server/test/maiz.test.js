@@ -69,3 +69,9 @@ test('el verificador de la evaluación revisa incluye, excluye, cita y largo', (
   assert.equal(check({ excluye: ['hola'] }, 'hola').length, 1);
   assert.equal(check({ cita: ['SIAP'] }, 'hola').length, 1);
 });
+
+test('producción: las hectáreas dichas en la pregunta cuentan si el perfil no las trae', () => {
+  const r = redactarMaiz('produccion', '¿Cuánto maíz voy a cosechar en mis 3 hectáreas?', { estado: 'Guanajuato', perfil: { agua: 'temporal' }, lat: 20.47, lon: -100.81 });
+  assert.match(r.respuesta, /Con tus 3 ha/);
+  assert.doesNotMatch(r.respuesta, /Dime cuántas hectáreas/);
+});

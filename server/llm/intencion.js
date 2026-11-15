@@ -18,3 +18,20 @@ const FOLLOW_UP = /(por que|porque|ingreso|ganancia|mejor cultivo|cual cultivo|m
 export function isFollowUp(question = '') {
   return FOLLOW_UP.test(strip(question));
 }
+
+// "¿Por qué ese cultivo?", "¿por qué el frijol primero?", "¿por qué sorgo y no maíz?": después de "por qué" solo hay palabras
+// de la recomendación. "¿Por qué se encharca mi parcela?" o "¿por qué está cara la urea?" traen su propio tema: no es esto.
+const WHY_CROP_WORDS = new Set(
+  ('ese este esa esta eso esto el la lo los las y me te cultivo cultivos primero primera primer plan rotacion ano anio en de del al ' +
+    'grano recomiendas recomendaste recomienda pusiste pones sugieres sugeriste elegiste escogiste conviene ' +
+    'maiz sorgo frijol trigo cebada garbanzo brocoli').split(' ')
+);
+
+export function asksWhyThisCrop(question = '') {
+  const words = strip(question).replace(/[^a-z0-9\s]/g, ' ').split(/\s+/).filter(Boolean);
+  const i = words.findIndex((w, k) => w === 'porque' || (w === 'por' && words[k + 1] === 'que'));
+  if (i < 0) return false;
+  const rest = words.slice(words[i] === 'porque' ? i + 1 : i + 2);
+  // "no" solo en "y no maíz" o al final ("¿por qué el maíz no?"); "¿por qué no me sale el maíz?" es un problema del cultivo.
+  return rest.every((w, k) => WHY_CROP_WORDS.has(w) || /^\d+$/.test(w) || (w === 'no' && (rest[k - 1] === 'y' || k === rest.length - 1)));
+}
