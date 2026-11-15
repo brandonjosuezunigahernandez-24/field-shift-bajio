@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getClima, getPronostico, getSuelo, postRecomendar } from '../api/client.js';
 import { readSelection, saveSelection } from '../lib/fs.js';
 import { CUSTOM_POINT, DEFAULT_POINT } from '../config/examplePoints.js';
@@ -7,6 +7,24 @@ import { useYearPlayer } from '../year.jsx';
 
 // Server and cache work at 2 decimals (about 1 km). Round here so the UI shows the same point.
 export const roundCoord = (value) => Math.round(value * 100) / 100;
+
+// Lo que el agricultor contestó al asistente (ultimo_cultivo, hectareas, textura…). agua y prioridad viven aparte (arriba).
+const PERFIL_KEY = 'fieldshift.perfil.v1';
+const leerPerfil = () => {
+  try {
+    const o = JSON.parse(localStorage.getItem(PERFIL_KEY));
+    return o && typeof o === 'object' && !Array.isArray(o) ? o : {};
+  } catch {
+    return {};
+  }
+};
+const guardarPerfil = (o) => {
+  try {
+    localStorage.setItem(PERFIL_KEY, JSON.stringify(o));
+  } catch {
+    /* sin localStorage: sigue funcionando en memoria */
+  }
+};
 
 const settle = (result) => (result.status === 'fulfilled' ? { data: result.value } : { error: result.reason.message });
 
@@ -19,6 +37,7 @@ export function useParcela() {
   const [point, setPoint] = useState(saved.parcela || null); // { id, nombre, boton, lat, lon }
   const [agua, setAguaState] = useState(saved.agua || 'temporal');
   const [prioridad, setPrioridadState] = useState(saved.prioridad || 'riesgo');
+  const [perfilGuardado, setPerfilGuardado] = useState(leerPerfil);
   const [loading, setLoading] = useState(false);
   const [clima, setClima] = useState(null);
   const [suelo, setSuelo] = useState(null);
@@ -79,6 +98,25 @@ export function useParcela() {
     saveSelection({ prioridad: value });
   }, []);
 
+  // Guarda (o borra, con valor vacío o "no_se") un dato de la ficha. agua y prioridad van a su estado de siempre.
+  const setPerfilCampo = useCallback((campo, valor) => {
+    if (campo === 'agua' || campo === 'prioridad') {
+      if (valor && valor !== 'no_se') (campo === 'agua' ? setAgua : setPrioridad)(valor);
+      return;
+    }
+    setPerfilGuardado((antes) => {
+      const { [campo]: _quitado, ...resto } = antes;
+      const nuevo = valor === '' || valor == null || valor === 'no_se' ? resto : { ...resto, [campo]: valor };
+      guardarPerfil(nuevo);
+      return nuevo;
+    });
+  }, [setAgua, setPrioridad]);
+  const reiniciarPerfil = useCallback(() => {
+    setPerfilGuardado({});
+    guardarPerfil({});
+  }, []);
+  const perfil = useMemo(() => ({ ...perfilGuardado, agua, prioridad }), [perfilGuardado, agua, prioridad]);
+
   // POST /api/recomendar for the current plot and answers. If it fails (today: 501 until the
   // engine lands, unless VITE_USE_MOCK=1) the error is kept and the screens fall back to demo data.
   const recomendar = useCallback(async () => {
@@ -121,7 +159,7 @@ export function useParcela() {
   const year = useYearPlayer(clima?.data ?? null);
 
   return {
-    point, agua, prioridad, loading, clima, suelo, recomendacion, selectPoint, ensurePoint, setAgua, setPrioridad, recomendar,
+    perfil, setPerfilCampo, reiniciarPerfil, point, agua, prioridad, loading, clima, suelo, recomendacion, selectPoint, ensurePoint, setAgua, setPrioridad, recomendar,
     parcelas, setParcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year, pronostico,
   };
 }

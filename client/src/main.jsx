@@ -8,6 +8,7 @@ import 'leaflet/dist/leaflet.css';
 import './styles/fieldshift.css';
 import './styles/vista3d.css';
 import './styles/asistente.css';
+import './styles/an.css';
 
 createRoot(document.getElementById('root')).render(
   <StrictMode>

@@ -1,0 +1,29 @@
+/* ---- Análisis IA (pantalla 3): botones grandes, letra >= 16 px ---- */
+.an-bloque { margin: 12px 0; }
+.an-tabs { display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 10px; }
+.an-qs { display: flex; flex-direction: column; gap: 8px; }
+.an-tabs button, .an-qs button, .an-opts button, .an-btn, .an-dato button {
+  min-height: 48px; padding: 10px 16px; font-size: 16px; font-family: inherit; border-radius: 12px; border: 2px solid #1f7a45; background: #fff; color: #14532d; cursor: pointer; text-align: left;
+}
+.an-tabs button.on { background: #14532d; color: #fff; }
+.an-tabs button:hover, .an-qs button:hover, .an-opts button:hover, .an-btn:hover, .an-dato button:hover { background: #e3f1e6; }
+.an-tabs button.on:hover { background: #1f7a45; }
+.an-ask { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
+.an-ask input { min-height: 52px; font-size: 18px; padding: 10px 14px; border: 2px solid #b9cbb9; border-radius: 12px; }
+.an-mic, .an-go { min-height: 52px; font-size: 18px; font-weight: 700; font-family: inherit; border-radius: 12px; cursor: pointer; border: 2px solid #14532d; }
+.an-mic { background: #fff; color: #14532d; }
+.an-mic.rec { background: #b3261e; border-color: #b3261e; color: #fff; }
+.an-go { background: #14532d; color: #fff; }
+.an-estado { font-size: 17px; min-height: 28px; }
+.an-estado .err { color: #9b2c1f; }
+.an-texto { font-size: 18px; line-height: 1.55; margin: 6px 0 0; }
+.an-opts { display: flex; flex-wrap: wrap; gap: 8px; margin: 14px 0; font-size: 17px; }
+.an-opts p { flex-basis: 100%; margin: 0; }
+.an-notas { font-size: 16px; line-height: 1.5; padding-left: 20px; }
+.an-tabla-wrap { overflow-x: auto; }
+.an-tabla { font-size: 16px; border-collapse: collapse; min-width: 100%; }
+.an-tabla th, .an-tabla td { padding: 6px 10px; border-bottom: 1px solid #d5e0d5; text-align: left; }
+.an-peq { font-size: 16px; color: #3f4f3f; margin: 6px 0; }
+.an-dato { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; font-size: 16px; }
+.an-dato select, .an-dato input { min-height: 48px; font-size: 16px; padding: 8px 10px; border: 2px solid #b9cbb9; border-radius: 10px; }
+.an-btn { width: 100%; margin-top: 8px; text-align: center; }

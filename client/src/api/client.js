@@ -43,3 +43,6 @@ export const postAsistente = (payload) =>
 // Voz a texto: audio mono a 16 kHz como Float32 (ver AsistenteDock). Responde { texto }.
 export const postVoz = (samples) =>
   request('/api/voz', { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: samples.buffer.slice(samples.byteOffset, samples.byteOffset + samples.byteLength) });
+
+// Preguntas del perfil (agua, prioridad, hectareas...): el servidor decide cuales hay y que opciones tienen.
+export const getPerfilPreguntas = () => request('/api/perfil/preguntas');
