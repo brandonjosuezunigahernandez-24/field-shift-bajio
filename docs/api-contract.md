@@ -16,7 +16,6 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 |--------|--------|
 | 400 | Falta `lat`/`lon`, no son números o están fuera de rango. |
 | 404 | La ruta no existe. |
-| 501 | `/api/recomendar` todavía no está implementado (fase 2). |
 | 502 | No se pudo consultar la fuente externa y no hay caché ni fixture para ese punto. |
 | 500 | Error inesperado del servidor. |
 
@@ -48,8 +47,11 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - **Cultivos y clima sobre el satélite:** encima de cada bloque levantado se paran los modelos de Blender del cultivo de esa parcela (capa propia de MapLibre con three.js, `client/src/map/cropLayer.js`), más grandes que en la vida real para que se lean desde el aire. Siguen el año: en años secos son más chaparros y color paja. Con "Clima animado" llueve sobre las parcelas en años normales o buenos (más fuerte entre más llovió) y hay polvo en años secos; la animación se detiene si el mapa no está en pantalla y no existe con "reducir movimiento".
 - **Climas en el mapa** (`client/src/weather.js`): Soleado, Normal, Nublado, Lluvia, Tormenta y Sequía, más "Sin clima". Con **"Según el año"** (el predeterminado) se elige con la lluvia real de junio a septiembre comparada con la mediana de la parcela: seco (< 80 %) → Sequía, < 90 % → Soleado, < 110 % → Normal, < 130 % → Lluvia, más → Tormenta. Los climas elegidos a mano se marcan en el mapa como "vista de ejemplo": no son datos.
 - **Tipo de vista:** "Aérea" (desde arriba, sin inclinación ni giro, para dibujar) o "Relieve 3D" (inclinada con relieve). Al tocar "Dibujar otra parcela" el mapa regresa a "Aérea".
-- `cultivo` en cada parcela es solo para mostrar en el mapa y la maqueta. **No es la recomendación del motor** (fase 2).
-- Los botones de ejemplo (Celaya, Gto.) siguen mandando su `lat` y `lon` directo.
+- `cultivo` en cada parcela es solo para mostrar en el mapa y la maqueta. En la pantalla de Rotación las parcelas toman el cultivo del año elegido del plan.
+- Los botones de ejemplo salen de `GET /api/ejemplos` y mandan su `lat` y `lon` directo, sin dibujar.
+- **Varias parcelas, un solo punto:** a la API se manda el centro de la **parcela más grande** (`farmPoint` en `client/src/map/parcels.js`), para que el clima y el suelo se lean dentro de una parcela real. Hay una sola recomendación por terreno.
+- **El front no redondea las coordenadas:** las manda tal cual y el servidor redondea por fuente.
+- **Capas de la NASA sobre el mapa** (`client/src/config/mapLayers.js`): color real y NDVI de MODIS Terra y humedad de SMAP, desde NASA GIBS. Solo son visuales y muestran la región (cuadros de 250 m o de 9 km), no el detalle de la parcela.
 
 ## GET /api/health
 
@@ -115,7 +117,7 @@ Fuente: NASA POWER, serie mensual 2000–2024.
 **Ojo con dos cosas:**
 
 1. **`t_max_c` y `t_min_c` son extremos, no promedios diarios.** En la API mensual de POWER, `T2M_MAX` y `T2M_MIN` son la temperatura horaria más alta y más baja de todo el mes. Para el ajuste de temperatura de un cultivo usen `t_media_c`. Los extremos sirven para heladas o golpes de calor.
-2. **"Año seco" aquí es general, sin cultivo.** El riesgo de cada cultivo (motor, fase 2) no usa este umbral: compara la lluvia de cada año contra el mínimo de ese cultivo, como pide CLAUDE.md.
+2. **"Año seco" aquí es general, sin cultivo.** El riesgo de cada cultivo (motor) no usa este umbral: compara la lluvia de cada año contra el mínimo de ese cultivo, como pide CLAUDE.md.
 
 ## GET /api/suelo?lat=20.47&lon=-100.81
 
@@ -165,7 +167,9 @@ Relieve del cuadro de 1 km alrededor de la parcela, para la vista 3D. Fuente: AW
 - **Se centra a 3 decimales (unos 110 m), no a 2 como clima y suelo.** El bloque mide 1 km: con 2 decimales una parcela podía quedar hasta ~550 m fuera del centro y salirse de su propia maqueta.
 - Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat3>_<lon3>.json` (el fixture de Celaya es `terrain_20.470_-100.810.json`).
 
-## POST /api/recomendar (fase 2, hoy responde 501)
+## POST /api/recomendar
+
+Lo calcula el motor de reglas (`server/engine/`) con el clima de NASA POWER, el suelo de SoilGrids y `server/data/cultivos.json`.
 
 Petición:
 
@@ -175,71 +179,90 @@ Petición:
 
 - `agua`: `"temporal"` o `"riego"`.
 - `prioridad`: `"ganar"`, `"suelo"`, `"agua"` o `"riesgo"`.
+- `estado` (opcional): `"Guanajuato"` o `"Querétaro"`, para el ingreso del SIAP. Si no viene, se supone por la longitud.
 
-Respuesta (forma tomada de CLAUDE.md; **los valores de este ejemplo son de relleno, no son resultados reales**):
+Respuesta (valores reales del punto demo, recortados):
 
 ```jsonc
 {
   "clima": { /* igual que GET /api/clima */ },
   "suelo": { /* igual que GET /api/suelo */ },
+  "estado": "Guanajuato",
+  "agua": "temporal",
+  "prioridad": "riesgo",
   "cultivos": [
     {
-      "id": "sorgo",
-      "nombre": "Sorgo grano",
-      "puntaje": 0,          // 0 a 100, más alto es mejor
-      "riesgo": 0,           // 0 a 1: parte de los años en que la lluvia de PV no alcanzó el mínimo del cultivo
-      "razones": ["En X de 25 años llovió menos de lo que el sorgo necesita aquí."]
+      "id": "frijol",
+      "nombre": "Frijol",
+      "temporada": "PV",     // la temporada en que mejor sale
+      "puntaje": 90,         // 0 a 100, más alto es mejor
+      "riesgo": 0.12,        // 0 a 1: parte de los años en que la lluvia de su ciclo no alcanzó su mínimo
+      "razones": [
+        "En 3 de 25 años llovió menos de lo que este cultivo necesita aquí (300 mm de junio a agosto).",
+        "En un año normal llueven 399 mm en su ciclo; necesita entre 300 y 500 mm.",
+        "La temperatura media está en su rango (18 a 26 °C) en 3 de 3 meses de su ciclo (de junio a agosto).",
+        "El pH de tu suelo (7.4) está dentro de lo que prefiere (6 a 7.5)."
+        // ... textura, leguminosa e ingreso bruto del SIAP
+      ]
     }
+    // ... sorgo (81) y maíz (64, riesgo 0.48)
   ],
   "rotacion": [
-    { "anio": 1, "temporada": "PV", "cultivo": "sorgo", "porque": "..." }
+    { "anio": 1, "temporada": "PV", "cultivo": "frijol", "porque": "Es el que mejor queda en tu parcela para lo que pediste (90 de 100). ..." },
+    { "anio": 2, "temporada": "PV", "cultivo": "sorgo", "porque": "Va después de frijol: cambiar de familia ayuda a cortar plagas y enfermedades. ..." },
+    { "anio": 3, "temporada": "PV", "cultivo": "frijol", "porque": "..." }
   ],
-  "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "FAO Ecocrop"]
+  "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "SIAP ...", "Requerimientos de los cultivos: valores aproximados (estilo FAO Ecocrop), sin verificar"]
 }
 ```
 
-`cultivos` va ordenado de mayor a menor `puntaje`. `rotacion` trae 3 años; con riego también hay filas de `"temporada": "OI"`.
+- `cultivos` va ordenado de mayor a menor `puntaje`, una fila por cultivo. Solo salen los que se pueden sembrar con esa `agua`.
+- `rotacion` trae 3 años; con riego hay 6 filas (PV y OI de cada año).
+- **Sin suelo también responde:** si SoilGrids falla o no tiene dato, `suelo.sin_datos` es `true`, `suelo.aviso` lo explica y el pH no cambia el puntaje.
+- Errores: 400 si falta `agua` o `prioridad`; 502 si no se pudo consultar el clima.
+- El asistente (`POST /api/asistente`) contesta "¿qué siembro?" con esta misma recomendación.
 
-## Contrato interno del motor (`server/engine/`)
+## Motor de reglas (`server/engine/index.js`)
 
-Propuesta de firmas para que P2 y P3 trabajen en paralelo. **P2 y P3: confírmenla o cámbienla aquí antes de empezar.** Todas son funciones puras, sin red ni disco.
-
-Entradas que ya existen (fase 1):
+Funciones puras, sin red ni disco, con pruebas en `server/test/engine.test.js`.
 
 | Dato | De dónde sale | Forma |
 |------|---------------|-------|
 | `rows` | `getClimate(lat, lon)` en `server/sources/nasaPower.js` | Una fila por mes: `{ year, month, t_mean_c, t_max_c, t_min_c, rain_mm, solar, root_wetness }`. Los faltantes vienen en `null`. |
-| lluvia por año | `seasonRainByYear(rows, months)` | `[{ year, rain_mm }]`; deja fuera los años incompletos. |
-| `soil` | `summarizeSoil(soil)` en `server/sources/soilGrids.js` | El mismo objeto de `/api/suelo` (`ph`, `arcilla_pct`…, pueden ser `null`). |
-| `crops` | `server/data/cultivos.json` (fase 2) | Esquema de CLAUDE.md. |
-
-Funciones:
+| `soil` | el resumen de `/api/suelo` | `ph`, `arcilla_pct`… pueden ser `null`. |
+| `crops` | `server/data/cultivos.json` | Esquema de CLAUDE.md. |
+| `ingresos` | `incomeByCrop(estado, agua)` en `server/llm/siap.js` | `{ "<id>|<PV u OI>": pesos por hectárea }`, promedio 2018 a 2024 del estado. |
 
 ```js
-// fit.js (P2). Cada ajuste va de 0 (malo) a 1 (ideal).
-scoreCrop(crop, season, { rows, soil, agua }) // -> { temp, lluvia, suelo, notas: string[] }
-
-// risk.js (P2)
-dryYearRisk(crop, rows) // -> { riesgo: 0..1, anios_bajo_minimo: number[], anios_total: number }
-
-// weights.js (P2)
-totalScore(parts, risk, crop, prioridad) // -> puntaje de 0 a 100
-
-// rotation.js (P3). ranked: cultivos ya ordenados por puntaje.
-buildRotation(ranked, { agua }) // -> [{ anio, temporada, cultivo, porque }]
-
-// reasons.js (P3)
-buildReasons(crop, parts, risk) // -> string[] en español con números reales
-
-// index.js (P3). Lo llama routes/recomendar.js.
-recommend({ rows, soil, crops, agua, prioridad }) // -> { cultivos, rotacion }
+cycleMonths(crop, temporada)   // meses del ciclo: PV se siembra en junio y OI en noviembre
+scoreCrop(crop, temporada, { rows, soil, agua }) // -> { temp, lluvia, suelo, ... } cada ajuste de 0 a 1
+dryYearRisk(crop, rows)        // -> { riesgo: 0..1, anios_bajo_minimo: number[], anios_total }
+totalScore(components, prioridad) // -> puntaje de 0 a 100
+buildRotation(candidates, { agua }) // -> [{ anio, temporada, cand }]
+buildReasons(candidate, { agua, soil, estado }) // -> string[] en español con números reales
+recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cultivos, rotacion }
 ```
 
-## Puntos abiertos (decidir en equipo)
+**Cómo califica**
 
-1. **Ventana de lluvia.** PV está definido como junio a septiembre, pero el ciclo de varios cultivos es más largo (mayo a octubre). Hay que decidir contra qué meses se compara `lluvia_ciclo_min_mm`.
-2. **Prioridad `ganar`.** El esquema de `cultivos.json` no tiene dato de rendimiento ni de precio. Propuesta: un campo `valor_relativo` con datos de SIAP, sin verificar hasta que alguien lo confirme.
-3. **Suelo sin datos.** Cuando `sin_datos` es `true`, ¿el motor recomienda sin pH (con una nota) o pide otro punto?
+- **Temperatura:** parte de los meses del ciclo cuya temperatura media (promedio de todos los años) cae en el rango del cultivo.
+- **Lluvia** (solo en temporal): la lluvia de un año normal (mediana) en los meses del ciclo, contra el rango del cultivo.
+- **Suelo:** el pH contra el rango; un punto de pH fuera lo lleva a cero. La textura va solo como nota.
+- **Riesgo:** años en que la lluvia del ciclo quedó bajo el mínimo del cultivo. Con riego no se calcula.
+- **Puntaje:** 30 % es qué tan bien se da el cultivo ahí (los tres ajustes) y de 40 a 50 % es la prioridad del agricultor: `riesgo` (menos años malos), `suelo` (leguminosas), `agua` (menor mínimo de lluvia) o `ganar` (ingreso bruto por hectárea del SIAP, sin descontar costos).
+- **Rotación:** en cada temporada entra el mejor cultivo que no repita la familia de la temporada anterior, primero los que aún no se usan. Si no quedó ninguna leguminosa, se mete la mejor donde menos puntos cueste.
+
+**Pendientes de `cultivos.json`** (todo está con `"verificado": false`)
+
+1. Confirmar contra FAO Ecocrop los rangos de temperatura, lluvia y pH y la duración del ciclo. Hoy son los valores ilustrativos de la maqueta del diseño. Ojo: con el rango actual el sorgo sale bajo en temperatura (1 de 4 meses en rango en Celaya).
+2. `temporadas` y `agua` salen de lo que el SIAP reporta sembrado en Guanajuato. Trigo, cebada y garbanzo quedaron como OI con riego; hay trigo y cebada de temporal (unas 13 mil ha cada uno) que el esquema actual no puede expresar.
+3. El brócoli gana en `ganar` con riego porque su ingreso bruto es muy alto; no hay costos para compararlo con los granos.
+
+## Puntos que estaban abiertos (ya resueltos)
+
+1. **Ventana de lluvia.** La lluvia se compara contra los meses del ciclo de cada cultivo, empezando en junio.
+2. **Prioridad `ganar`.** Usa el ingreso bruto promedio por hectárea del SIAP (2018 a 2024, por estado).
+3. **Suelo sin datos.** El motor recomienda sin pH y lo dice en las razones.
 
 ## POST /api/asistente (propuesta del rol LLM, avisar al equipo)
 
@@ -286,10 +309,10 @@ Próximos 7 días, de Open-Meteo (gratis, CC BY 4.0, solo uso no comercial). Es 
 - `fuentes` ahora puede incluir `"Base local"` y `"Wikipedia"`.
 
 ### Campos extra de `/api/asistente` (recomendador y conversación)
-Petición: `agua` ("temporal"|"riego"), `prioridad` ("ganar"|"suelo"|"agua"|"riesgo"), `estado` ("Guanajuato"|"Querétaro"; si falta se supone por la longitud), `costos` ({ cultivo: pesos por hectárea y ciclo }) e `historial` (últimas 2 vueltas `{pregunta, respuesta}`).
-Respuesta nueva para "¿qué me conviene sembrar?": `origen: "motor"`. Si falta `agua` o `prioridad` trae `preguntar: { campo, opciones: [{valor, texto}] }` (mostrar botones y repetir la petición con ese campo). Con los dos trae `recomendacion` con la forma de `/api/recomendar` (`cultivos`, `rotacion`, `fuentes`) más `prediccion` y `notas`. Es **provisional** hasta que exista el motor del equipo.
+Petición: `agua` ("temporal"|"riego"), `prioridad` ("ganar"|"suelo"|"agua"|"riesgo"), `estado` ("Guanajuato"|"Querétaro"; si falta se supone por la longitud) e `historial` (últimas 2 vueltas `{pregunta, respuesta}`).
+Respuesta nueva para "¿qué me conviene sembrar?": `origen: "motor"`. Si falta `agua` o `prioridad` trae `preguntar: { campo, opciones: [{valor, texto}] }` (mostrar botones y repetir la petición con ese campo). Con los dos trae `recomendacion`, que es **la misma respuesta de `/api/recomendar`** (el motor de reglas), y en temporal `corroboracion` (años secos de NASA contra años de pérdidas del SIAP).
 
 ### Perfil de la parcela (propuesta del rol LLM)
 `GET /api/perfil/preguntas` → `{ preguntas: [{ campo, pregunta, porque, opciones: [{valor, texto}], obligatoria?, tipo?, min?, max? }] }`.
-En `POST /api/asistente` se manda `perfil: { agua, prioridad, estado, ultimo_cultivo, hectareas, textura, encharca }` (todos opcionales; "no_se" se ignora; valor inválido = 400). La respuesta de recomendación trae `afinar` (las preguntas opcionales que faltan) y `recomendacion.perfil_usado`. Con `hectareas`, `prediccion` trae también los totales de la parcela.
+En `POST /api/asistente` se manda `perfil: { agua, prioridad, estado, ultimo_cultivo, hectareas, textura, encharca }` (todos opcionales; "no_se" se ignora; valor inválido = 400). Desde que el chat usa el motor de reglas, la recomendación ya no cambia con `ultimo_cultivo`, `hectareas`, `textura` ni `encharca`, y la respuesta ya no trae `afinar`, `prediccion` ni `recomendacion_finca` (con varias parcelas hay una sola recomendación por terreno). El recomendador del SIAP (`server/llm/recomendador.js`) sigue en el repo con sus pruebas, pero ninguna ruta lo usa para recomendar.
 `GET /api/pronostico`: cada día trae `codigo_clima` (código WMO del día, o null) para la vista 3D.

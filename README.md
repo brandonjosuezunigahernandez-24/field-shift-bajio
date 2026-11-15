@@ -8,17 +8,21 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 
 ## Estado
 
-**Fase 1 lista:** esqueleto de server y client, clima y suelo por punto con caché en disco y respaldo sin internet.
+**Integrado de punta a punta** (rama `integracion/final`): dibujas la parcela, eliges temporal o riego y tu prioridad, y recibes la rotación de 3 años con sus razones, la maqueta 3D y el asistente.
 
 | Fase | Qué incluye | Estado |
 |------|-------------|--------|
-| F1 | Esqueleto, `/api/clima`, `/api/suelo`, caché y fixture de Celaya | Lista |
-| F2 | `cultivos.json`, motor de reglas con pruebas, `/api/recomendar`, mapa y formulario | Pendiente |
-| F3 | Integración de punta a punta con una parcela real | Pendiente |
-| F4 | Explicaciones, gráfica, errores y estados de carga | Pendiente |
+| F1 | Esqueleto, `/api/clima`, `/api/suelo`, caché y respaldo sin internet | Lista |
+| F2 | `cultivos.json`, motor de reglas con pruebas, `/api/recomendar`, mapa y formulario | Lista (los rangos de los cultivos están sin verificar) |
+| F3 | Integración de punta a punta con una parcela real | Lista en la rama de integración; falta ensayarla en la laptop de la demo |
+| F4 | Explicaciones, gráfica, errores y estados de carga | Parcial |
 | F5 | README en inglés con capturas y créditos completos | Pendiente |
 
-Las tareas de cada fase y el reparto del equipo están en [docs/plan.md](docs/plan.md).
+**Pendientes conocidos**
+
+- Confirmar contra FAO Ecocrop los rangos de `server/data/cultivos.json` (todos tienen `"verificado": false`).
+- Las pantallas "Análisis IA" y "Probar cultivo" todavía usan datos de ejemplo del diseño.
+- La voz (micrófono) no se ha probado con un micrófono real.
 
 ## Cómo correrlo
 
@@ -40,7 +44,9 @@ npm install
 npm run dev
 ```
 
-Abre <http://localhost:5173> y presiona **Celaya, Gto.** Debes ver la lluvia por año, los años secos y los datos de suelo.
+Abre <http://localhost:5173> y presiona **Celaya, Gto. (Temporal)**. Debes ver la lluvia de junio a septiembre, los años secos y el pH del suelo. En "2. Simulador 3D" sale la rotación de 3 años.
+
+El asistente responde mejor con [Ollama](https://ollama.com/) abierto y el modelo `gemma3:4b` descargado; sin Ollama contesta con una plantilla. Detalle en [docs/probar-asistente.md](docs/probar-asistente.md).
 
 ### Pruebas
 
@@ -49,11 +55,16 @@ cd server
 npm test
 ```
 
+```bash
+cd client
+npm test
+```
+
 Las pruebas no usan internet: leen los fixtures.
 
 ### Demo sin internet
 
-El punto de ejemplo (Celaya, Gto., 20.47, -100.81) tiene sus respuestas reales guardadas en `server/fixtures/`, así que funciona aunque falle la red. Para ensayar sin internet, arranca el servidor con `OFFLINE=1`:
+Las tres parcelas de ejemplo (Celaya, El Marqués y Salamanca) y tres más del Bajío tienen sus respuestas reales de clima, suelo y relieve guardadas en `server/fixtures/`, así que funcionan aunque falle la red. Sin internet no hay imagen de satélite, pronóstico ni búsqueda de direcciones. Para ensayar sin internet, arranca el servidor con `OFFLINE=1`:
 
 ```bash
 OFFLINE=1 npm run dev
@@ -65,16 +76,22 @@ En PowerShell:
 $env:OFFLINE = "1"; npm run dev
 ```
 
-Cualquier punto que ya se consultó una vez queda en `server/cache/` y también funciona sin internet. Para volver a bajar los fixtures del punto demo: `npm run fixtures` (dentro de `server/`).
+Cualquier punto que ya se consultó una vez queda en `server/cache/` y también funciona sin internet. Para volver a bajar los fixtures: `npm run fixtures` (dentro de `server/`). La lista de parcelas está en `server/lib/seasons.js`.
+
+Para la demo conviene `npm start` en lugar de `npm run dev`: no reinicia el servidor cuando cambia un archivo.
 
 ## API
 
 | Ruta | Qué responde |
 |------|--------------|
+| `GET /api/ejemplos` | Las parcelas de los botones de ejemplo (todas con respaldo sin internet). |
 | `GET /api/clima?lat&lon` | Lluvia de junio a septiembre por año, años secos, y temperatura y lluvia promedio por mes. |
 | `GET /api/suelo?lat&lon` | pH, arcilla, arena, limo, carbono orgánico y nitrógeno de 0 a 30 cm. |
 | `GET /api/terreno?lat&lon` | Relieve (malla de 65 × 65 alturas) del cuadro de 1 km alrededor de la parcela, para la vista 3D. |
-| `POST /api/recomendar` | Cultivos con puntaje y riesgo, y la rotación de 3 años. *Pendiente (fase 2).* |
+| `POST /api/recomendar` | Cultivos con puntaje, riesgo y razones, y la rotación de 3 años (motor de reglas). |
+| `GET /api/pronostico?lat&lon` | Pronóstico de 7 días. |
+| `POST /api/asistente` | Respuesta del asistente con los datos de la parcela. "¿Qué siembro?" usa el mismo motor que `/api/recomendar`. |
+| `POST /api/voz` | Voz a texto (Whisper local). |
 
 Las formas exactas de cada respuesta, con ejemplos reales, están en [docs/api-contract.md](docs/api-contract.md).
 
@@ -83,17 +100,21 @@ Las formas exactas de cada respuesta, con ejemplos reales, están en [docs/api-c
 ```
 server/
   index.js, app.js     arranque y rutas
-  routes/              clima, suelo, recomendar
-  sources/             NASA POWER y SoilGrids: descarga y normalización
-  lib/                 coordenadas, caché en disco, fetch con timeout, temporadas
-  engine/              motor de reglas (fase 2)
-  data/                cultivos.json (fase 2)
-  fixtures/            respuestas reales del punto demo (respaldo sin internet)
+  routes/              clima, suelo, terreno, recomendar, asistente, pronostico, voz
+  sources/             NASA POWER, SoilGrids, relieve y Open-Meteo: descarga y normalización
+  lib/                 coordenadas, caché en disco, fetch con timeout, temporadas y parcelas de ejemplo
+  engine/              motor de reglas: puntaje, riesgo por años secos y rotación (funciones puras)
+  llm/                 asistente: ficha de la parcela, modelo local (Ollama), verificador, datos del SIAP
+  data/                cultivos.json (7 cultivos, sin verificar) y siap_resumen.json
+  fixtures/            respuestas reales de 6 parcelas (respaldo sin internet)
   cache/               caché en disco, no se versiona
-  scripts/             fetch-fixtures.js
+  scripts/             fetch-fixtures.js, siap-descargar.js
   test/                pruebas
 client/
-  src/                 React + Vite; Recharts ya instalado para la fase 2
+  src/pages/           las 4 pantallas: Parcela, Simulador 3D (rotación), Análisis IA y Probar cultivo
+  src/components/      cabecera, buscador de ubicación, gráficas (Chart.js), asistente flotante
+  src/hooks/           useParcela: el estado que comparten las pantallas
+  src/config/          capas de NASA GIBS del mapa y parcela por defecto
   src/map/             mapa MapLibre donde se dibuja la parcela, y cálculos del polígono
   src/three/           vista 3D: globo, maqueta de la parcela, cámara (three.js + react-three-fiber)
   public/models/       bajio.glb, generado con Blender (no se edita a mano)
@@ -130,21 +151,31 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 - **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 30 cm. <https://soilgrids.org/>
   Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B. M., Kempen, B., Ribeiro, E., and Rossiter, D. (2021). SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty. *SOIL*, 7, 217–240. <https://doi.org/10.5194/soil-7-217-2021>
 - **INEGI, Censo Agropecuario 2022**: en Guanajuato el 63.9 % de la superficie agrícola es de temporal.
-- **NASA Blue Marble** (capa `BlueMarble_ShadedRelief_Bathymetry`) vía **NASA GIBS** (Global Imagery Browse Services), textura del globo 3D. <https://www.earthdata.nasa.gov/gibs>
+- **NASA GIBS** (Global Imagery Browse Services). <https://www.earthdata.nasa.gov/gibs>
+  - **Blue Marble** (capa `BlueMarble_ShadedRelief_Bathymetry`): textura del globo 3D.
+  - Capas que el agricultor puede prender sobre el mapa (solo visuales, imagen del 12 de agosto de 2024): **MODIS Terra, color real** (`MODIS_Terra_CorrectedReflectance_TrueColor`), **MODIS Terra NDVI de 16 días** (`MODIS_Terra_L3_NDVI_16Day`) y **SMAP, humedad en la zona de raíces** (`SMAP_L4_Analyzed_Root_Zone_Soil_Moisture`).
   *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS).*
 - **Terrain Tiles** en el Registry of Open Data on AWS (formato *terrarium* de Mapzen), relieve de la vista 3D. En México las alturas provienen de **NASA SRTM** (Shuttle Radar Topography Mission). <https://registry.opendata.aws/terrain-tiles/>
 
 - **Esri World Imagery** y **World Imagery (Clarity)**, la versión sin nubes, más **World Boundaries and Places** y **World Transportation** (imagen satelital, nombres de lugares y calles del mapa donde se dibuja la parcela; el agricultor elige "Sin nubes" o "Más rápida"). *Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS.* Se usan sin API key para este prototipo; para un uso en producción hay que revisar los términos de Esri.
 
-Por agregar en las siguientes fases: FAO Ecocrop (requerimientos de los cultivos) y, si se usa, MODIS NDVI (ORNL DAAC).
+- **SIAP** (Servicio de Información Agroalimentaria y Pesquera), *Cierre de la producción agrícola* 2018–2024, datos abiertos, agregado por estado: superficie, pérdidas, rendimiento y precio medio rural de Guanajuato y Querétaro. Se usa para el ingreso bruto por hectárea de la prioridad "ganar más" y en el asistente. <https://nube.agricultura.gob.mx/>
+- **Open-Meteo**, pronóstico de 7 días (CC BY 4.0). <https://open-meteo.com/>
+- **OpenStreetMap / Nominatim**, búsqueda de pueblos y direcciones. © colaboradores de OpenStreetMap (ODbL).
+- **Wikipedia en español** (CC BY-SA), textos de apoyo del asistente para preguntas generales; cada respuesta enlaza su página.
+- **Requerimientos de los cultivos** (`server/data/cultivos.json`): valores aproximados al estilo de FAO Ecocrop. **No están verificados**; falta confirmarlos contra FAO Ecocrop.
 
 **Software**
 
-React, Vite, Express, MapLibre GL JS, Recharts, three.js, @react-three/fiber y @react-three/drei, todos de código abierto. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
+React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber, @react-three/drei, Chart.js, Bootstrap y Bootstrap Icons, todos de código abierto. Tipografías Plus Jakarta Sans y JetBrains Mono vía Google Fonts. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
+
+El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. Los rangos de los 22 cultivos de "Probar cultivo" y los datos de la pantalla "Análisis IA" son ilustrativos y no están verificados.
 
 **Uso de inteligencia artificial**
 
-Este proyecto se desarrolla con ayuda de **Claude Code** (Anthropic) para escribir y revisar código. Todo el código se escribió durante el evento y el equipo lo revisa por pull request.
+- Este proyecto se desarrolla con ayuda de **Claude Code** (Anthropic) para escribir y revisar código. Todo el código se escribió durante el evento y el equipo lo revisa por pull request.
+- Dentro de la app, el asistente redacta sus respuestas con **Gemma 3** (Google), que corre en la misma laptop con **Ollama**, y solo con los datos de la parcela; los números los pone el código y un verificador los revisa. La recomendación de cultivos no la hace un modelo de IA: la calcula el motor de reglas.
+- La voz a texto usa **Whisper** (OpenAI, modelo `whisper-base`) con transformers.js, también local.
 
 ## Licencia
 
