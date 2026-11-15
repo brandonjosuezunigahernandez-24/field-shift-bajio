@@ -9,6 +9,7 @@ import {
 } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { NASA_LAYERS } from '../config/mapLayers.js';
 import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
 import { soilColors, yearState } from '../three/parcelState.js';
@@ -275,6 +276,9 @@ const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 1
 //   soloVer          only show (screen 2): never draws, no parcel list nor drawing tools
 //   plantasPorParcela optional { [id]: { growth, tint } }: each parcel's own crop look (else the year's look for all)
 //   actual           the weather right now ({ temp_c, codigo_clima, ... } from /api/pronostico) or null
+//   herramientasEn   where the tools go (parcel list, drawing, GPS, detect): undefined = under the map, as always;
+//                    a DOM element = inside it (the page's side panel); null = that element is not there yet
+//   onDibujando      (bool) => void: true while corners are being placed (a new parcel or a correction)
 export default function ParcelMap({
   point,
   parcelas,
@@ -289,6 +293,8 @@ export default function ParcelMap({
   actual = null,
   soloVer = false,
   plantasPorParcela = null,
+  herramientasEn,
+  onDibujando,
 }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
@@ -605,6 +611,12 @@ export default function ParcelMap({
     }
   }, [ready, nasa]);
 
+  const onDibujandoRef = useRef(onDibujando);
+  onDibujandoRef.current = onDibujando;
+  useEffect(() => {
+    onDibujandoRef.current?.(placing);
+  }, [placing]);
+
   // The camera follows the scene: aerial to draw, 3D relief to look, far away for the NASA pictures.
   const lejos = escena.lejos && !placing;
   useEffect(() => {
@@ -619,6 +631,8 @@ export default function ParcelMap({
       if (!map.isMoving()) map.easeTo({ pitch, bearing: 0, duration });
     } else if (lejos && point) map.flyTo({ center: [point.lon, point.lat], zoom: FAR_ZOOM, pitch, bearing: 0, duration });
     else if (farm.length) map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration });
+    // An example point has no outline: come back to it after the far-away NASA pictures.
+    else if (point) map.flyTo({ center: [point.lon, point.lat], zoom: 16, pitch, duration });
     else map.easeTo({ pitch, duration });
   }, [ready, view, lejos]); // eslint-disable-line react-hooks/exhaustive-deps
 
@@ -731,6 +745,7 @@ export default function ParcelMap({
   }
 
   const number = parcelas.length + 1;
+  const enSuLugar = (tools) => (herramientasEn === undefined ? tools : herramientasEn ? createPortal(tools, herramientasEn) : null);
 
   return (
     <div className="parcel-map">
@@ -755,6 +770,8 @@ export default function ParcelMap({
         )}
       </div>
 
+      {enSuLugar(
+      <>
       {imageryNotice && (
         <p className="hint" role="status">
           {imageryNotice}
@@ -929,6 +946,8 @@ export default function ParcelMap({
           </div>
         )}
       </div>
+      )}
+      </>
       )}
     </div>
   );

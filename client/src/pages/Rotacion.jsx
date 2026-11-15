@@ -1,8 +1,9 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
 import RainChart from '../components/charts/RainChart.jsx';
 import ComparaRotaciones from '../components/ComparaRotaciones.jsx';
+import PanelPasos from '../components/PanelPasos.jsx';
 import { getPrueba } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES } from '../crops.js';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
@@ -52,10 +53,9 @@ function Lista({ titulo, items, abierta = false }) {
     </details>
   );
 }
-const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 // Screen 2: the same satellite map as screen 1 (read only) with the plan's crops on the drawn parcels,
-// next to one card at a time (Anterior/Siguiente). Plan and ranking: POST /api/recomendar (server/engine).
+// next to one step at a time (PanelPasos: Anterior and Siguiente never move). Plan and ranking: POST /api/recomendar (server/engine).
 // How each crop would have done in each real year: GET /api/recomendar/prueba (the engine's backtest).
 export default function Rotacion() {
   const ctx = useParcelaContext();
@@ -64,8 +64,6 @@ export default function Rotacion() {
   const [estrategiaId, setEstrategiaId] = useState('recomendada'); // cuál de las 3 rotaciones se ve (y manda en el mapa)
   const [activa, setActiva] = useState(0); // la única tarjeta que se ve
   const [prueba, setPrueba] = useState(null);
-  const tarjetaRef = useRef(null);
-  const navegado = useRef(false);
   const labels = selectionLabels(ctx);
 
   useEffect(() => {
@@ -82,27 +80,6 @@ export default function Rotacion() {
       vivo = false;
     };
   }, [point?.lat, point?.lon]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // El encabezado es fijo y su alto cambia: el mapa fijo va justo debajo (igual que en «1. Parcela»).
-  useEffect(() => {
-    const header = document.querySelector('.fs-header');
-    if (!header || typeof ResizeObserver === 'undefined') return undefined;
-    const medir = () => document.documentElement.style.setProperty('--fs-head', `${header.offsetHeight}px`);
-    medir();
-    const observer = new ResizeObserver(medir);
-    observer.observe(header);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!navegado.current) return;
-    navegado.current = false;
-    tarjetaRef.current?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
-  }, [activa]);
-  const ir = (i) => {
-    navegado.current = true;
-    setActiva(i);
-  };
 
   const rec = recomendacion?.data;
   const outside = recomendacion?.outsideRegion === true;
@@ -311,14 +288,9 @@ export default function Rotacion() {
         return (
           <>
             <p>Guarda tu plan para enseñarlo o imprimirlo, o pregúntale al asistente lo que quieras de él.</p>
-            <div className="fs-tarjeta-nav">
-              <button type="button" className="fs-btn fs-btn-sec" onClick={() => window.print()}>
-                <i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i>Guardar en PDF
-              </button>
-              <Link className="fs-btn fs-btn-primary" to="/analisis">
-                <i className="bi bi-chat-dots" aria-hidden="true"></i>Preguntarle al asistente
-              </Link>
-            </div>
+            <button type="button" className="fs-btn fs-btn-sec fs-btn-block" onClick={() => window.print()}>
+              <i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i>Guardar en PDF
+            </button>
           </>
         );
       default:
@@ -338,63 +310,44 @@ export default function Rotacion() {
         }
       />
 
-      <main className="fs-container">
-        <section className="fs-card fs-up fs-hero-map" aria-labelledby="t-sim">
-          <div className="fs-card-head">
-            <div>
-              <div className="fs-eyebrow">Tu parcela en 3D</div>
-              <h1 className="fs-card-title" id="t-sim">
-                {pasoPlan ? `Año ${pasoPlan.anio}: ${nombre(pasoPlan.cultivo)}` : point?.nombre ?? 'Tu parcela'}
-              </h1>
-            </div>
+      <main className="fs-container fs-app">
+        <div className="fs-flujo">
+          <div className="fs-flujo-mapa v3d v3d-embed v3d-hero" role="application" aria-label="Mapa de satélite de tu parcela con su cultivo">
+            <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
+              <ParcelMap
+                soloVer
+                point={point}
+                parcelas={parcelas}
+                suelo={suelo?.data ?? null}
+                clima={climaData ?? null}
+                year={year}
+                escena={tarjeta.escena}
+                plantasPorParcela={plantasPorParcela}
+              />
+            </Suspense>
           </div>
 
-          <div className="fs-flujo">
-            <div className="fs-flujo-mapa v3d v3d-embed v3d-hero" role="application" aria-label="Mapa de satélite de tu parcela con su cultivo">
-              <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
-                <ParcelMap
-                  soloVer
-                  point={point}
-                  parcelas={parcelas}
-                  suelo={suelo?.data ?? null}
-                  clima={climaData ?? null}
-                  year={year}
-                  escena={tarjeta.escena}
-                  plantasPorParcela={plantasPorParcela}
-                />
-              </Suspense>
-            </div>
-
-            <section key={tarjeta.id} ref={tarjetaRef} className="fs-card fs-tarjeta fs-up" aria-labelledby="t-tarjeta">
-              <div className="fs-tarjeta-head">
-                <span className="fs-eyebrow">
-                  {activa + 1} de {TARJETAS.length}
-                </span>
-                <h2 className="fs-card-title xs" id="t-tarjeta">
-                  {withYears(tarjeta.titulo, climaData)}
-                </h2>
-                <span className="fs-tarjeta-pasos" aria-hidden="true">
-                  {TARJETAS.map((t, i) => (
-                    <span key={t.id} className={i <= activa ? 'is-on' : undefined} />
-                  ))}
-                </span>
-              </div>
-              {cuerpo(tarjeta.id)}
-              <div className="fs-tarjeta-nav">
-                {activa > 0 && (
-                  <button type="button" className="fs-btn fs-btn-sec" onClick={() => ir(activa - 1)}>
-                    <i className="bi bi-arrow-left" aria-hidden="true"></i>Anterior
-                  </button>
-                )}
-                {activa < TARJETAS.length - 1 && (
-                  <button type="button" className="fs-btn fs-btn-primary" onClick={() => ir(activa + 1)}>
-                    Siguiente<i className="bi bi-arrow-right" aria-hidden="true"></i>
-                  </button>
-                )}
-              </div>
-            </section>
-          </div>
-        </section>
+          <PanelPasos
+            lugar={
+              <>
+                <i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {(point?.nombre ?? 'Tu parcela').replace(/\.$/, '')}
+                {pasoPlan?.cultivo ? ` · en el mapa: año ${pasoPlan.anio}, ${corto(pasoPlan.cultivo).toLowerCase()}` : ''}
+              </>
+            }
+            paso={activa}
+            total={TARJETAS.length}
+            titulo={withYears(tarjeta.titulo, climaData)}
+            onAnterior={() => setActiva(activa - 1)}
+            onSiguiente={() => setActiva(activa + 1)}
+            final={
+              <Link className="fs-btn fs-btn-primary" to="/analisis">
+                <i className="bi bi-chat-dots" aria-hidden="true"></i>Ir al asistente
+              </Link>
+            }
+          >
+            {cuerpo(tarjeta.id)}
+          </PanelPasos>
+        </div>
       </main>
     </>
   );
