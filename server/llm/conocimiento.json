@@ -102,7 +102,8 @@
       "organica",
       "humedad",
       "carbono",
-      "composta"
+      "composta",
+      "abono"
     ],
     "texto": "Un suelo con más materia orgánica guarda mejor la humedad y es más fértil; el efecto se nota más en suelos arenosos que en los arcillosos.",
     "verificado": true,
