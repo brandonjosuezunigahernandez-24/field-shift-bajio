@@ -97,15 +97,18 @@ export default function Rotacion() {
     const [c1, c2, c3] = rotacion;
     return (
       <>
-        Según NASA POWER ({periodo}), en <strong>{dry} de los últimos {total} años</strong> llovió menos de {umbral} mm de junio a septiembre en {placeName}.
-        {c1 && c2 && c3 ? (
+        Según NASA POWER ({periodo}), en <strong>{dry} de los últimos {total} años</strong> llovió menos de {umbral} mm de junio a septiembre en {placeName.replace(/\.$/, '')}.
+        {real ? (
+          // Engine result: say only the rules it follows; each year's card carries its own reasons.
+          <> Esta rotación no repite la misma familia de cultivos en temporadas seguidas y lleva al menos una leguminosa. El porqué de cada año está en su tarjeta.</>
+        ) : c1 && c2 && c3 ? (
           <>
             {' '}Empezar con <strong>{c1.cultivo}</strong> protege tu inversión contra la sequía, <strong>{c2.cultivo}</strong> {c2.texto.charAt(0).toLowerCase() + c2.texto.slice(1).replace(/\.$/, '')} y deja la tierra lista para <strong>{c3.cultivo}</strong> en el tercer año.
           </>
         ) : null}
       </>
     );
-  }, [climaData, rotacion, placeName]);
+  }, [climaData, rotacion, placeName, real]);
 
   return (
     <>
@@ -213,7 +216,7 @@ export default function Rotacion() {
 
           <section className="fs-card fs-rank-col fs-up fs-d3" aria-labelledby="t-rank">
             <div>
-              <div className="fs-eyebrow">Reglas FAO Ecocrop · Bajío</div>
+              <div className="fs-eyebrow">{real ? 'Motor de reglas · NASA POWER + SoilGrids' : 'Reglas FAO Ecocrop · Bajío'}</div>
               <h2 className="fs-card-title xs" id="t-rank">Calificación de cultivos para esta parcela</h2>
             </div>
             <ol className="fs-rank">
@@ -231,7 +234,11 @@ export default function Rotacion() {
                 </li>
               ))}
             </ol>
-            {!real && <p className="fs-note">Calificación de ejemplo del diseño; la real sale del motor de reglas (fase 2).</p>}
+            <p className="fs-note">
+              {real
+                ? 'Puntaje de 0 a 100 con el clima y el suelo de tu parcela. Lo que necesita cada cultivo son valores aproximados que falta confirmar.'
+                : 'Calificación de ejemplo del diseño: no pudimos calcular la de tu parcela.'}
+            </p>
             <Link className="fs-btn fs-btn-sec mt-auto" to="/cultivo">
               <i className="bi bi-search" aria-hidden="true"></i>¿Y otro cultivo? Pruébalo en tu parcela
             </Link>

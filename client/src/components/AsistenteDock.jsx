@@ -143,7 +143,7 @@ export default function AsistenteDock() {
                 <>
                   <p>{r.respuesta}</p>
                   <small>
-                    {r.origen === 'motor' ? 'Calculado con datos del SIAP' : r.origen === 'plantilla' ? 'Respuesta de respaldo' : 'Respuesta del asistente'}
+                    {r.origen === 'motor' ? 'Calculado por el motor de reglas' : r.origen === 'plantilla' ? 'Respuesta de respaldo' : 'Respuesta del asistente'}
                     {r.fuentes?.length ? ` · Fuentes: ${r.fuentes.join(', ')}` : ''}
                     {r.enlaces?.length ? ' · ' : ''}
                     {r.enlaces?.map((u) => <a key={u} href={u} target="_blank" rel="noreferrer">ver fuente</a>)}
