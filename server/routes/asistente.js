@@ -270,7 +270,9 @@ async function conModelo({ ficha, pregunta, historial, contexto, graficas }, ask
   const result = await answer({ ficha, pregunta, historial, ask });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.
   const usedExtra = result.origen === 'llm' && !REFUSAL.test(result.respuesta);
-  const out = { ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [], ...conGraficas(graficas) };
+  // Las tarjetas locales ahora se eligen por parecido en llm/prompt.js: si citó [Base local], la base es el conocimiento.
+  const base = usedExtra ? (contexto.base === 'ficha' && result.fuentes.includes('Base local') ? 'conocimiento' : contexto.base) : 'ficha';
+  const out = { ...result, base, enlaces: usedExtra ? contexto.enlaces : [], ...conGraficas(graficas) };
   return { ...out, proceso: buildProceso(out) };
 }
 
