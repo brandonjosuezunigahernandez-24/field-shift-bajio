@@ -49,8 +49,7 @@ export default function Graficas({ graficas, ejemplo = false }) {
   const lista = Array.isArray(graficas) ? graficas.filter(valida).slice(0, 3) : [];
   if (!lista.length) return null;
   return (
-    <section aria-labelledby="t-graf">
-      <h3 className="fs-sub" id="t-graf">Los datos detrás de esta respuesta</h3>
+    <section aria-label="Gráficas de la respuesta">
       {lista.map((g, i) => (
         <figure key={i} className="gr-fig">
           <figcaption><b>{g.titulo}</b>{ejemplo && <span className="gr-ej"> · ejemplo, no son datos reales</span>}{g.tipo !== 'tabla' && g.unidad ? <span> ({g.unidad})</span> : null}</figcaption>

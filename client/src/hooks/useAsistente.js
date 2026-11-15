@@ -20,7 +20,7 @@ export function useAsistente() {
     }
     ultima.current = pregunta;
     setTexto(pregunta);
-    setEstado({ fase: 'pensando' }); // esto borra la respuesta anterior
+    setEstado({ fase: 'pensando', pregunta }); // esto borra la respuesta anterior
     const t0 = performance.now();
     try {
       const r = await postAsistente({ lat: point.lat, lon: point.lon, pregunta, perfil: { ...perfil, ...extra }, parcelas: parcelas.map((p) => ({ id: p.id, hectareas: p.hectareas })) });
@@ -35,6 +35,9 @@ export function useAsistente() {
     setPerfilCampo(campo, valor);
     preguntar(ultima.current, { ...perfil, [campo]: valor });
   }
+
+  // Tras un error: repite la última pregunta (si hubo).
+  const reintentar = () => ultima.current && preguntar(ultima.current);
 
   function reiniciar() {
     reiniciarPerfil();
@@ -76,5 +79,5 @@ export function useAsistente() {
   }
 
   const r = estado.fase === 'listo' ? estado.r : null;
-  return { pregunta: estado.pregunta, seg: estado.seg, texto, setTexto, estado, grabando, preguntar, contestar, reiniciar, microfono, r, pendiente: r?.preguntar ?? r?.afinar?.[0] ?? null };
+  return { pregunta: estado.pregunta, seg: estado.seg, texto, setTexto, estado, grabando, preguntar, contestar, reiniciar, reintentar: ultima.current ? reintentar : null, microfono, r, pendiente: r?.preguntar ?? r?.afinar?.[0] ?? null };
 }
