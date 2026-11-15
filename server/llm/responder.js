@@ -20,6 +20,10 @@ export function floja(texto, pregunta = '') {
   return tautologia || (!/\d/.test(limpio) && nuevas.size < 3); // con números es un dato, no un eco
 }
 
+// Gemma leyó una vez «Si de plano tienes que quemar…» de la tarjeta y contestó «Es mejor que lo quemes». Ninguna tarjeta
+// recomienda quemar: si el modelo lo dice, se usa la tarjeta tal cual (abajo).
+export const aconsejaQuemar = (texto) => /(es mejor|mejor|conviene|te recomiendo|recomiendo|es bueno|hay que|debes|puedes)\s+(que\s+)?(lo\s+|la\s+|los\s+)?quem/i.test(texto.normalize('NFD').replace(/[̀-ͯ]/g, ''));
+
 const SUMMARY_QUESTION = 'Explícame cómo es mi parcela: lluvia, años secos y suelo.';
 
 // Nunca lanza: si el modelo falla o inventa un número, responde con la plantilla.
@@ -37,7 +41,7 @@ export async function answer({ ficha, pregunta, historial = [], ask = askModel }
       .replace(/\s+/g, ' ')
       .trim();
     // Si se niega, se respeta (la tarjeta pudo no venir al caso); si contesta flojo, mejor la tarjeta tal cual (abajo).
-    if (texto && verifyNumbers(texto, vista).ok && (REFUSAL.test(texto) || !floja(texto, q))) {
+    if (texto && verifyNumbers(texto, vista).ok && !aconsejaQuemar(texto) && (REFUSAL.test(texto) || !floja(texto, q))) {
       return {
         respuesta: texto,
         // Si el modelo se niega, no hay nada que mostrar en el mapa.

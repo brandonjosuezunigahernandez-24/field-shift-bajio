@@ -84,3 +84,67 @@ test('"¿Qué puedo sembrar?" es una recomendación, y "¿Puedo sembrar frijol?"
   assert.equal(b.tema, 'cultivo-puedo');
   assert.match(b.respuesta, /lugar 1 de/);
 });
+
+// Ronda del 15 nov (parcela de Celaya y de El Marqués): lo que contestaba otra cosa.
+const askEn = async (pregunta, { lat = 20.47, lon = -100.81, p = perfil, historial = [] } = {}) => (await fetch(`${baseUrl}/api/asistente`, {
+  method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat, lon, pregunta, perfil: p, historial }),
+})).json();
+
+test('la recomendación del chat cabe en 6 frases y conserva plan, comparación e ingreso', async () => {
+  const b = await askEn('¿Qué me conviene sembrar?');
+  assert.ok(b.respuesta.split(/(?<=[.!?])\s+/).length <= 6, b.respuesta);
+  assert.match(b.respuesta, /Rotación de 3 años/);
+  assert.match(b.respuesta, /Ingreso sin restar gastos/);
+});
+
+test('«si quiero ganar más» y «si tengo riego» cambian el plan aunque el perfil diga otra cosa', async () => {
+  assert.equal((await askEn('¿Qué siembro el otro año si quiero ganar más?')).recomendacion.prioridad, 'ganar');
+  const r = await askEn('¿Qué siembro si tengo riego?');
+  assert.equal(r.recomendacion.agua, 'riego');
+  assert.match(r.respuesta, /año 1: .* y en otoño-invierno/);
+});
+
+test('«¿Y por qué no el maíz?» da el lugar y las razones del maíz', async () => {
+  const b = await askEn('¿Y por qué no el maíz?', { historial: [{ pregunta: '¿Qué me conviene sembrar?', respuesta: 'x' }] });
+  assert.equal(b.origen, 'motor');
+  assert.match(b.respuesta, /^Maíz grano quedó en el lugar \d de \d/);
+});
+
+test('«¿y si sigo igual?» compara la rotación de hoy con la recomendada; «¿qué tan seguro es?» da la incertidumbre', async () => {
+  const a = await askEn('¿Qué pasa si sigo sembrando lo mismo?');
+  assert.equal(a.tema, 'recomendar-igual');
+  assert.match(a.respuesta, /Si sigues igual \(frijol, maíz grano, frijol\)/);
+  const b = await askEn('¿Qué tan seguro es ese cálculo?', { historial: [{ pregunta: '¿Qué me conviene sembrar?', respuesta: 'x' }] });
+  assert.equal(b.tema, 'recomendar-incertidumbre');
+  assert.notEqual((await askEn('oiga que tan seguro es sembrar maiz')).tema, 'recomendar-incertidumbre');
+});
+
+test('«¿Puedo sembrar maíz?» da su lugar como cualquier cultivo', async () => {
+  const b = await askEn('¿Puedo sembrar maíz?');
+  assert.equal(b.tema, 'cultivo-puedo');
+  assert.match(b.respuesta, /lugar \d de \d/);
+});
+
+test('cosecha sin cultivo: pregunta cuál; con frijol, pregunta hectáreas y luego compara', async () => {
+  const sinCultivo = { agua: 'temporal', prioridad: 'riesgo', estado: 'Guanajuato' };
+  const a = await askEn('Coseché 5 toneladas en 4 hectáreas, ¿qué tal?', { p: sinCultivo });
+  assert.equal(a.tema, 'cosecha-cultivo');
+  const b = await askEn('de frijol', { p: sinCultivo, historial: [{ pregunta: 'Coseché 5 toneladas en 4 hectáreas, ¿qué tal?', respuesta: a.respuesta }] });
+  assert.match(b.respuesta, /Sacaste 1\.3 toneladas de frijol por hectárea \(5 t en 4 ha\)/); // claro.js redondea 1.25
+});
+
+test('glifosato es dosis (no se da), años secos «desde 2010» es una cuenta, y se compara la lluvia con otro municipio', async () => {
+  assert.equal((await askEn('¿Cuánto glifosato le pongo?')).tema, 'peligro');
+  const s = await askEn('¿Cuántos años secos ha habido desde 2010?');
+  assert.equal(s.tema, 'secos');
+  assert.match(s.respuesta, /^Desde 2010 hubo \d+ años? secos? de 15/);
+  const c = await askEn('¿Llueve más aquí que en Celaya?', { lat: 20.7, lon: -100.27 });
+  assert.equal(c.tema, 'lluvia-comparar');
+  assert.match(c.respuesta, /en Celaya/);
+});
+
+test('el modelo nunca aconseja quemar el rastrojo', async () => {
+  const { aconsejaQuemar } = await import('../llm/responder.js');
+  assert.ok(aconsejaQuemar('Es mejor que lo quemes, porque daña la tierra.'));
+  assert.ok(!aconsejaQuemar('Mejor no lo quemes: aprovéchalo en la parcela.'));
+});

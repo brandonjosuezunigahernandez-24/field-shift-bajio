@@ -1,5 +1,6 @@
 // Respuestas por plantilla para las preguntas frecuentes: el código calcula, redacta y pone la cita; el modelo no interviene.
 // detectarTema(pregunta) -> tema | null; redactar(tema, pregunta, ctx) -> { respuesta, fuentes, datos } | null (null = que conteste el modelo).
+import { readFileSync } from 'node:fs';
 import { MESES, lluviaDicha, mesesDe, mmDe } from './climatologia.js';
 import { detectCrop } from './siap.js';
 import { isFollowUp } from './intencion.js';
@@ -8,11 +9,16 @@ import { detectarAptitud, redactarAptitud } from './aptitud.js';
 import { detectarDesglose, redactarDesglose } from './desglose.js';
 import { NO_ES, NO_VERIFICADO, fichaFrutal, topFrutales } from './frutales.js';
 import { accionesPara, fechaDeSiembra } from './acciones.js';
+import { rendPropio } from './maiz.js';
 
 const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const has = (re, q) => re.test(q);
 const NASA = '[NASA POWER]';
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
+// Lluvia normal de junio a septiembre de los 64 municipios (NASA POWER 2000-2024, scripts/clima-municipios.js).
+const MUNICIPIOS = JSON.parse(readFileSync(new URL('../data/municipios_clusters.json', import.meta.url), 'utf8')).municipios;
+// "¿Llueve más aquí que en Celaya?": el municipio que nombra (el nombre más largo que aparezca, "San Miguel de Allende" antes que "Allende").
+const municipioNombrado = (q) => MUNICIPIOS.filter((m) => new RegExp(`\\b${strip(m.nombre)}\\b`).test(q)).sort((a, b) => b.nombre.length - a.nombre.length)[0];
 const mesDe = (q) => mesesDe(q)[0] ?? null; // tolera una letra mal: "dicienbre"
 // "este año" / "el año pasado" -> 2024 (el último año con datos de NASA POWER; la respuesta lo dice).
 const ULTIMO = 2024;
@@ -20,7 +26,7 @@ const anioDe = (q) => { const m = q.match(/\b(19\d\d|20\d\d)\b/); return m ? Num
 const dia = (f) => { const [, m, d] = f.split('-').map(Number); return `${d} de ${MESES[m - 1]}`; };
 const neg = (n) => (n < 0 ? `−${Math.abs(n)}` : `${n}`);
 
-const PELIGRO = /((cuant[oa]s?|dosis|kilos|litros|bultos)(?! (cuesta|vale|sale|gasto|cobran))( \w+){0,3} (de )?(fertiliz|abono|urea)|pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|rocio)|que (le )?pongo (al|a la|para|contra) (plaga|gusano|hierba|maleza|hongo)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
+const PELIGRO = /((cuant[oa]s?|dosis|kilos|litros|bultos)(?! (cuesta|vale|sale|gasto|cobran))( \w+){0,3} (de )?(fertiliz|abono|urea)|pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|glifosat|paraquat|atrazin|2,?4-?d\b|mata ?(hierba|maleza|zacate)|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|rocio)|que (le )?pongo (al|a la|para|contra) (plaga|gusano|hierba|maleza|hongo)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
 const INSUMO = /(cuesta|precio|cuanto vale|cuanto sale|costo|caro|carisim|no me alcanza|gasto)/;
 const INSUMOS = /(fertiliz|abono|semilla|diesel|insumo|urea|tractor|bulto)/;
 const PRON = /(semana|se espera|\bhoy\b|manana|pronostico|proximos dias|proxima|va a llover|llovera|habra|^\W*llueve\W*$)/;
@@ -49,7 +55,7 @@ export function detectarTema(pregunta = '') {
   if (has(CREDITO, q)) return 'credito';
   if (has(APOYOS, q)) return 'apoyos';
   // Temas que tienen tarjeta verificada (data/conocimiento.json) y ninguna plantilla los contesta: van al modelo con su tarjeta.
-  if (/canicula|cosecha de agua|captar (el )?agua|bordo|gorgojo|palomilla|grano guardado|maiz guardado|guardar (el )?(grano|maiz|frijol)|silo|monitor de sequia|milpa|crioll|curvas? de nivel|abono verde|gallina ciega/.test(q)) return 'tarjeta';
+  if (/canicula|cosecha de agua|captar (el )?agua|(guard|junt|capt|almacen|aprovech)\w* (el |la )?agua( de (la )?lluvia)?\b(?! (para|al|a la) (maiz|frijol|grano))|tierra (no )?se (me )?(canse|cansa)|tierra cansada|bordo|gorgojo|palomilla|grano guardado|maiz guardado|guardar (el )?(grano|maiz|frijol)|silo|monitor de sequia|milpa|crioll|curvas? de nivel|abono verde|gallina ciega/.test(q)) return 'tarjeta';
   if (detectarAptitud(q)) return 'aptitud'; // ¿se da aquí? (llm/aptitud.js)
   if (detectarDesglose(q)) return 'desglose'; // superficie, riego, municipios, pérdidas... de una fruta o verdura (llm/desglose.js)
   if (has(FRUTAL, q) && !has(CONCEPTO, q)) return 'frutales';
@@ -59,6 +65,9 @@ export function detectarTema(pregunta = '') {
   if (has(TREND, q) && has(LLUVIA, q)) return 'tendencia';
   // "¿Con 400 mm alcanza?": la lluvia que dice el agricultor contra la de su parcela.
   if (mmDe(q) != null && !detectCrop(q)) return has(SECOS, q) ? 'secos' : 'lluvia';
+  if (has(LLUVIA, q) && /(mas|menos) .{0,25}que (en|por)\b|compar|contra/.test(q) && municipioNombrado(q)) return 'lluvia-comparar';
+  // "¿Cuántos años secos ha habido desde 2010?" es una cuenta (secos), no un solo año.
+  if (has(SECOS, q) && /cuant/.test(q) && /(desde|a partir de|despues de)( el)? (19|20)\d\d/.test(q)) return 'secos';
   if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal|\bagua\b|cayo|temporal)/, q)) return 'anio';
   if (has(SECOS, q)) return 'secos';
   if (has(FRIO, q)) return 'heladas';
@@ -156,6 +165,12 @@ const REDACTORES = {
     const n = resumen.anios_secos.length, p = clim.periodo;
     const dicha = lluviaDicha(mmDe(q), resumen);
     if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length, n_anios: resumen.lluvia_pv_anual.length });
+    const desde = Number(q.match(/(?:desde|a partir de|despues de)(?: el)? ((?:19|20)\d\d)/)?.[1]);
+    if (desde >= p.inicio && desde <= p.fin) {
+      const secos = resumen.anios_secos.filter((y) => y >= desde);
+      const total = p.fin - desde + 1;
+      return out(`Desde ${desde} hubo ${secos.length} ${secos.length === 1 ? 'año seco' : 'años secos'} de ${total}${secos.length ? `: ${secos.join(', ')}` : ''} ${NASA}. Seco quiere decir menos de ${resumen.umbral_seco_mm} mm de junio a septiembre.`, ['NASA POWER'], { desde, secos, n: secos.length, total, fin: p.fin, umbral: resumen.umbral_seco_mm });
+    }
     const pedido = (q.match(/\b\d{1,3}\b/g) ?? []).map(Number).find((x) => x !== n && x !== p.anios && x !== 80);
     const corrige = pedido !== undefined ? `No: según NASA POWER no fueron ${pedido}. ` : '';
     const lista = n ? `: ${resumen.anios_secos.join(', ')}` : '';
@@ -199,6 +214,16 @@ const REDACTORES = {
     if (mes) return out(`En ${MESES[mes - 1]} la humedad de la zona de raíces es de ${ms[mes - 1].humedad_raiz} en promedio (${nota}) ${NASA}.`, ['NASA POWER'], { m: ms[mes - 1] });
     const hi = ms.reduce((a, m) => (m.humedad_raiz > a.humedad_raiz ? m : a)), lo = ms.reduce((a, m) => (m.humedad_raiz < a.humedad_raiz ? m : a));
     return out(`La humedad de la zona de raíces es más alta en ${MESES[hi.mes - 1]} (${hi.humedad_raiz}) y más baja en ${MESES[lo.mes - 1]} (${lo.humedad_raiz}); ${nota} ${NASA}.`, ['NASA POWER'], { hi, lo });
+  },
+
+  'lluvia-comparar': (q, { resumen }) => {
+    const m = municipioNombrado(q);
+    const anios = resumen.lluvia_pv_anual.map((y) => y.lluvia_mm);
+    if (!m || !anios.length) return null;
+    const aqui = Math.round(anios.reduce((a, b) => a + b, 0) / anios.length), alla = Math.round(m.normal.lluvia_pv);
+    const dif = Math.abs(aqui - alla), pctDif = Math.round((100 * dif) / alla);
+    const como = pctDif < 5 ? 'casi lo mismo que' : aqui > alla ? 'más que' : 'menos que';
+    return out(`De junio a septiembre llueven en promedio unos ${aqui} mm en tu parcela y ${alla} mm en ${m.nombre}: ${como} allá${pctDif >= 5 ? ` (${dif} mm, ${pctDif} %)` : ''} ${NASA}. Es el promedio 2000-2024 de cuadros de unos 50 km, no una medición en el terreno.`, ['NASA POWER'], { aqui, alla, dif, pctDif, desde: 2000, hasta: 2024, km: 50 });
   },
 
   lluvia: (q, { clim, resumen }) => {
@@ -286,6 +311,14 @@ const REDACTORES = {
       if (modalidad && !conAgua.length) aviso = `No tengo ${nombre} de ${modalidad}${estado ? ` en ${estado}` : ''} entre lo que más se siembra; te doy lo que hay. `;
     }
     if (!lista.length) return null;
+    // "Me salieron 3 toneladas de frijol": como con el maíz, se pregunta en cuántas hectáreas o se compara con el estado.
+    const propio = rendPropio(q);
+    const ref = propio && lista.find((g) => g.rendimiento_t_ha_promedio > 0);
+    if (propio && ref) {
+      if (propio.falta_ha) return out(`¿Las ${propio.t} toneladas de ${nombre} fueron en cuántas hectáreas? Dime, por ejemplo, «en 3 hectáreas», o «por hectárea» si ya es lo de una hectárea. Así lo comparo con el promedio de ${ref.estado}, que es de ${ref.rendimiento_t_ha_promedio} t/ha [SIAP].`, ['SIAP'], { propio, ref });
+      const como = propio.t_ha >= ref.rendimiento_t_ha_promedio * 1.1 ? 'arriba del' : propio.t_ha <= ref.rendimiento_t_ha_promedio * 0.9 ? 'abajo del' : 'cerca del';
+      return out(`Sacaste ${propio.t_ha} toneladas de ${nombre} por hectárea${propio.ha ? ` (${propio.t} t en ${propio.ha} ha)` : ''}: quedaste ${como} promedio de ${ref.estado}, que es de ${ref.rendimiento_t_ha_promedio} t/ha (${ref.modalidad.toLowerCase()}, ${siap.periodo}) [SIAP]. Es un promedio del estado contando lo que se pierde, no tu parcela.`, ['SIAP'], { propio, ref, periodo: siap.periodo.split('-').map(Number) });
+    }
     const [a, b] = siap.periodo.split('-').map(Number), A = b - a + 1;
     const frase = (g) => {
       const quien = `${cap(nombre)} en ${g.estado} (${g.ciclo}, ${g.modalidad})`;

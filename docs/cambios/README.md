@@ -55,3 +55,4 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | [41](41-motor-de-simulacion.md) | Revisión del motor de simulación: rotación que respeta el cultivo actual, componente de agua, mes de siembra y maqueta 3D por cultivo | Hecho |
 | [42](42-simulador-como-parcela.md) | «2. Simulador 3D» con el mapa de satélite de «1. Parcela» y una tarjeta a la vez; sin globo ni dock de voz simulado | Hecho |
 | [43](43-tres-rotaciones-e-incertidumbre.md) | El motor compara 3 rotaciones (la de hoy, la recomendada y otra meta) con evidencia, beneficios, huecos y qué revisar; incertidumbre con intervalo y sensibilidad | Hecho |
+| [44](44-chat-estable.md) | Chat estable: plan corto con las 3 rotaciones, «¿por qué no el maíz?», «si sigo igual», incertidumbre, meta/riego de la pregunta y 13 fallas arregladas (plática 231 → 237, estabilidad 42/42) | Hecho |

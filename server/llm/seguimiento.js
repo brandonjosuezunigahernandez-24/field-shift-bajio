@@ -20,7 +20,9 @@ export function seguimiento(pregunta, historial = []) {
   const q = strip(pregunta ?? '');
   const prev = historial.at(-1)?.pregunta;
   // "en 3 hectáreas" / "por hectárea" después de "me salieron 2 toneladas": la respuesta corta completa la anterior.
-  if (prev && rendPropio(strip(prev))?.falta_ha && /\b(ha|hect\w*)\b/.test(q) && q.split(/\s+/).length <= 6) return `${strip(prev).replace(/[?¿!¡.]/g, '')} ${q}`;
+  // "de maíz" después de "Coseché 5 toneladas en 4 hectáreas" (el asistente preguntó de qué cultivo).
+  if (prev && rendPropio(strip(prev)) && !detectCrop(strip(prev)) && !esMaiz(prev) && (CULTIVO_RE.test(q) || esMaiz(q)) && q.split(/\s+/).length <= 4) return `${strip(prev).replace(/[?¿!¡.]/g, '')} ${q}`;
+  if (prev && rendPropio(strip(prev))?.falta_ha &&/\b(ha|hect\w*)\b/.test(q) && q.split(/\s+/).length <= 6) return `${strip(prev).replace(/[?¿!¡.]/g, '')} ${q}`;
   if (!prev ||!/^[\s¿¡]*y\s/.test(q) || q.split(/\s+/).length > 7) return pregunta;
   const p = strip(prev);
   const resto = quita(q);
@@ -37,6 +39,8 @@ export function seguimiento(pregunta, historial = []) {
 const PROPIO = /(mi cultivo|mis cultivos|mi siembra|mi cosecha|lo que (tengo|sembre|siembro|plante)|lo cosecho|lo levanto|me lo (van a )?(pagan|pagar)|me (lo )?(deja|dejaria)|voy a (cosechar|sacar|levantar)|me (salen|sale|va a dar|van a salir)|\b(saco|sacaria|levanto|cosecho|pierdo|saque|levante|coseche)\b|me (dieron|dio|salio|salieron)|me queda)/;
 const DEL_CULTIVO = ['produccion', 'precio', 'ciclo', 'decision', 'riesgo', 'riego'];
 export function conCultivoActual(pregunta, cultivoActual) {
+  // "Coseché 5 toneladas" de otro cultivo del perfil (frijol, sorgo...): se le agrega cuál para compararlo con el SIAP.
+  if (cultivoActual && cultivoActual !== 'maiz' && pregunta && rendPropio(strip(pregunta)) && !detectCrop(strip(pregunta)) && !esMaiz(pregunta)) return `${pregunta} (${cultivoActual})`;
   if (cultivoActual !== 'maiz' || !pregunta || esMaiz(pregunta) || wantsRecommendation(pregunta) || esConcepto(pregunta)) return pregunta;
   const q = strip(pregunta);
   if (/(guard|capt|junt|cosech)\w* (el |la )?agua/.test(q)) return pregunta; // "¿cómo guardo el agua de lluvia?" no es del maíz

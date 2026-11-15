@@ -7,7 +7,9 @@ const MULETILLA = /^[\s¿¡,.…-]*(oiga|oye|[oó]igame|mire|f[ií]jese|disculpe
 export function quitarMuletillas(pregunta = '') {
   let q = pregunta, antes;
   do { antes = q; q = q.replace(MULETILLA, ''); } while (q !== antes);
-  return q.trim() || pregunta; // si todo era muletilla ("oiga"), se deja igual
+  q = q.trim() || pregunta; // si todo era muletilla ("oiga"), se deja igual
+  // Faltas comunes al escribir rápido ("aki se da el frijo?"): solo palabras completas que no significan otra cosa.
+  return q.replace(/\b(aki|aqi|aca)\b/gi, 'aquí').replace(/\bfrijo\b/gi, 'frijol').replace(/\byueve\b/gi, 'llueve').replace(/\bsenbrar\b/gi, 'sembrar').replace(/\bsienbro\b/gi, 'siembro');
 }
 
 // Preguntas para entender ("¿para qué sirve la rotación?", "¿qué es el temporal?"): las contesta el modelo con la base de textos.
@@ -51,5 +53,6 @@ export function asksWhyThisCrop(question = '') {
   if (i < 0) return false;
   const rest = words.slice(words[i] === 'porque' ? i + 1 : i + 2);
   // "no" solo en "y no maíz" o al final ("¿por qué el maíz no?"); "¿por qué no me sale el maíz?" es un problema del cultivo.
-  return rest.every((w, k) => WHY_CROP_WORDS.has(w) || /^\d+$/.test(w) || (w === 'no' && (rest[k - 1] === 'y' || k === rest.length - 1 || CROPS.test(rest[k + 1]))));
+  // "¿y por qué no el maíz?": el artículo entre "no" y el cultivo también vale.
+  return rest.every((w, k) => WHY_CROP_WORDS.has(w) || /^\d+$/.test(w) || (w === 'no' && (rest[k - 1] === 'y' || k === rest.length - 1 || CROPS.test(rest[k + 1]) || (/^(el|la|los|las)$/.test(rest[k + 1]) && CROPS.test(rest[k + 2] ?? '')))));
 }
