@@ -4,7 +4,7 @@ export function templateAnswer(ficha) {
   const partes = [
     `En verano suele llover ${l.mediana_mm} mm. De ${l.periodo}, ${l.total_anios_secos} años fueron secos [NASA POWER].`,
   ];
-  partes.push(
+  if (suelo) partes.push(
     suelo.sin_datos
       ? 'No tengo datos de suelo para este punto. Marca otro dentro de tu parcela.'
       : `Tu suelo tiene pH ${suelo.ph} y ${suelo.arcilla_pct}% de arcilla [SoilGrids].`,

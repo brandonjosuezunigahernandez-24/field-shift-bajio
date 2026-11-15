@@ -2,6 +2,12 @@ import { Router } from 'express';
 import { HttpError } from '../lib/errors.js';
 import { parseCoords } from '../lib/coords.js';
 import { getClimate, summarizeClimate } from '../sources/nasaPower.js';
+import { findLocal } from '../llm/contexto.js';
+import { climatologia } from '../llm/climatologia.js';
+import { detectarTema, redactar } from '../llm/respuestas.js';
+import { actionsFor } from '../llm/acciones.js';
+import { verifyNumbers } from '../llm/verificador.js';
+import { askModelStream } from '../llm/ollama.js';
 import { getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { getForecast } from '../sources/openMeteo.js';
 import { findContext } from '../llm/contexto.js';
@@ -50,6 +56,16 @@ function parseHistory(h) {
   });
 }
 
+// Campos del perfil que otro agente agregará a perfil.js (qué planta ahora, cada cuánto riega). Si faltan o vienen raros, se ignoran.
+function extraPerfil(p) {
+  const out = {};
+  if (typeof p?.cultivo_actual === 'string' && p.cultivo_actual !== 'no_se') out.cultivo_actual = p.cultivo_actual.slice(0, 40);
+  if (typeof p?.riego_tipo === 'string' && p.riego_tipo !== 'no_se') out.riego_tipo = p.riego_tipo.slice(0, 40);
+  const d = Number(p?.riego_frecuencia_dias);
+  if (Number.isFinite(d) && d >= 1 && d <= 60) out.riego_frecuencia_dias = Math.round(d);
+  return out;
+}
+
 // Parcelas dibujadas: [{ id, hectareas, ultimo_cultivo? }]. Con 2 o más se analizan juntas.
 const MAX_PARCELAS = 20;
 function parseParcelas(list) {
@@ -67,7 +83,9 @@ router.get('/temas', (req, res) => res.json({ temas: TEMAS, nota: NOTA_FUERA_DE_
 // POST /api/asistente { lat, lon, pregunta?, agua?, prioridad?, estado?, costos?, historial? }
 //   -> { respuesta, acciones, fuentes, verificado, origen, base, enlaces, preguntar?, recomendacion? }
 // Sin pregunta devuelve el resumen inicial de la parcela.
-router.post('/', async (req, res) => {
+// Prepara la respuesta: devuelve { final } si el código ya la tiene, o { llm } con lo que hay que preguntarle al modelo.
+async function resolver(req) {
+  const res = { json: (final) => ({ final }) }; // así el resto del código sigue con `return res.json(...)`
   const { lat, lon } = parseCoords(req.body);
   const { pregunta, costos } = req.body;
   if (pregunta != null && (typeof pregunta !== 'string' || pregunta.length > MAX_QUESTION)) {
@@ -129,25 +147,80 @@ router.post('/', async (req, res) => {
     }
   }
 
-  const [{ rows }, { soil }, pronostico, contexto] = await Promise.all([
+  // Preguntas frecuentes: las contesta el código con plantilla y cita puesta por él (sin modelo, sin Wikipedia).
+  const tema = pregunta ? detectarTema(pregunta) : null;
+  const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
+  if (plantilla) return res.json(plantilla);
+
+  // La ficha solo lleva lo que la pregunta pide (contexto chico = modelo más rápido y menos errores).
+  const q = (pregunta ?? '').toLowerCase();
+  const [{ rows }, suelo, pronostico, contexto] = await Promise.all([
     getClimate(lat, lon),
-    getSoil(lat, lon),
-    getForecast(lat, lon),
+    !pregunta || /(suelo|tierra|ph|arcilla|arena|textura|carbono)/.test(q) ? getSoil(lat, lon).then(({ soil }) => summarizeSoil(soil)) : null,
+    !pregunta || /(semana|dias|hoy|manana|mañana|llov|lluvi|temperatura|pronostico|pronóstico|clima)/.test(q) ? getForecast(lat, lon) : null,
     findContext(pregunta),
   ]);
   const ficha = buildFicha({
     clima: summarizeClimate(rows),
-    suelo: summarizeSoil(soil),
+    suelo,
     pronostico,
     conocimiento: contexto.items,
     siap: pregunta ? cropFacts(pregunta) : null,
     recomendacion: reco ? compactReco(reco) : null,
     agricultor: reco ? perfil : {}, // lo que dijo el agricultor solo importa si hay recomendación que explicar
   });
-  const result = await answer({ ficha, pregunta, historial });
+  return { llm: { ficha, pregunta, historial, contexto } };
+}
+
+// Plantilla del tema detectado, o null si no se puede (entonces contesta el modelo). Solo pide los datos que el tema necesita.
+async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
+  const ctx = {};
+  if (tema === 'fuera' && (hayHistorial || findLocal(pregunta).length)) return null; // seguimiento o tema de la base de conocimiento: // la base de conocimiento sí sabe de esto
+  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo'].includes(tema)) {
+    const { rows } = await getClimate(lat, lon);
+    ctx.resumen = summarizeClimate(rows);
+    ctx.clim = climatologia(rows);
+  }
+  ctx.perfil = perfil;
+  if (tema === 'pronostico') ctx.pronostico = await getForecast(lat, lon);
+  if (tema === 'suelo') ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil);
+  if (tema === 'siap' || tema === 'cultivo') ctx.siap = cropFacts(pregunta);
+  const r = redactar(tema, pregunta, ctx);
+  // Cada número del texto debe estar en los datos con que se redactó; si no, mejor que conteste el modelo.
+  if (!r || !verifyNumbers(r.respuesta, r.datos).ok) return null;
+  const conAccion = ['secos', 'anio', 'suelo'].includes(tema);
+  return {
+    respuesta: r.respuesta, acciones: conAccion ? actionsFor(r.respuesta) : [], fuentes: r.fuentes,
+    verificado: true, origen: 'plantilla', tema, base: 'ficha', enlaces: [], ...(r.preguntar && { preguntar: r.preguntar }),
+  };
+}
+
+async function conModelo({ ficha, pregunta, historial, contexto }, ask) {
+  const result = await answer({ ficha, pregunta, historial, ask });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.
   const usedExtra = result.origen === 'llm' && !REFUSAL.test(result.respuesta);
-  res.json({ ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [] });
+  return { ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [] };
+}
+
+router.post('/', async (req, res) => {
+  const r = await resolver(req);
+  res.json(r.final ?? await conModelo(r.llm));
+});
+
+// POST /api/asistente/stream: mismo cuerpo y misma respuesta final, pero en líneas JSON (NDJSON) mientras el modelo escribe:
+//   {"tipo":"delta","texto":"..."} (0 o más)  y al final  {"tipo":"final", ...respuesta de POST /api/asistente}.
+// El texto de los "delta" aún NO está verificado: al llegar "final", el front debe reemplazarlo por `respuesta`.
+router.post('/stream', async (req, res) => {
+  const r = await resolver(req); // si falla aquí, responde el error JSON normal (400/502)
+  res.set({ 'Content-Type': 'application/x-ndjson; charset=utf-8', 'Cache-Control': 'no-cache' });
+  const send = (o) => res.write(JSON.stringify(o) + '\n');
+  try {
+    const final = r.final ?? await conModelo(r.llm, (f, q, o) => askModelStream(f, q, { ...o, onDelta: (texto) => send({ tipo: 'delta', texto }) }));
+    send({ tipo: 'final', ...final });
+  } catch (err) {
+    send({ tipo: 'error', error: err.message });
+  }
+  res.end();
 });
 
 export default router;
