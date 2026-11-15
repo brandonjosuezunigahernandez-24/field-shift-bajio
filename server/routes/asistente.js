@@ -9,10 +9,11 @@ import { cropFacts, loadSiap } from '../llm/siap.js';
 import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
-import { compactReco, explainFarm, explainRecommendation, inferEstado, recommend, recommendFarm } from '../llm/recomendador.js';
-import { parsePerfil, pendientes } from '../llm/perfil.js';
+import { inferEstado } from '../llm/recomendador.js';
+import { parsePerfil } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
+import { compactPlot, explainPlot, recommendPlot } from './recomendar.js';
 
 const router = Router();
 const MAX_QUESTION = 300;
@@ -64,12 +65,12 @@ function parseParcelas(list) {
 // GET /api/asistente/temas -> los temas y preguntas de ejemplo que el asistente sabe contestar (botones del chat).
 router.get('/temas', (req, res) => res.json({ temas: TEMAS, nota: NOTA_FUERA_DE_TEMA }));
 
-// POST /api/asistente { lat, lon, pregunta?, agua?, prioridad?, estado?, costos?, historial? }
+// POST /api/asistente { lat, lon, pregunta?, agua?, prioridad?, estado?, historial? }
 //   -> { respuesta, acciones, fuentes, verificado, origen, base, enlaces, preguntar?, recomendacion? }
 // Sin pregunta devuelve el resumen inicial de la parcela.
 router.post('/', async (req, res) => {
   const { lat, lon } = parseCoords(req.body);
-  const { pregunta, costos } = req.body;
+  const { pregunta } = req.body;
   if (pregunta != null && (typeof pregunta !== 'string' || pregunta.length > MAX_QUESTION)) {
     throw new HttpError(400, `La pregunta debe ser texto de máximo ${MAX_QUESTION} letras.`);
   }
@@ -91,40 +92,22 @@ router.post('/', async (req, res) => {
   // El recomendador solo corre si piden una recomendación o un seguimiento de ella. El dock manda agua y prioridad
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
   const needsReco = pregunta && (wantsRecommendation(pregunta) || isFollowUp(pregunta));
-  const reco = agua && prioridad && needsReco
-    ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, hectareas: perfil.hectareas, encharca: perfil.encharca })
-    : null;
+  // Es el mismo motor de POST /api/recomendar (clima NASA, suelo y cultivos.json): el chat y la pantalla dicen lo mismo.
+  const reco = agua && prioridad && needsReco ? await recommendPlot({ lat, lon, agua, prioridad, estado }) : null;
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
   if (pregunta && wantsRecommendation(pregunta)) {
     if (!agua) return res.json(asking('agua'));
     if (!prioridad) return res.json(asking('prioridad'));
-    // Dos o más parcelas dibujadas: se analizan juntas (el servidor reparte los cultivos del primer año).
-    if (parcelas.length >= 2) {
-      const finca = recommendFarm({ parcelas, estado, agua, prioridad, encharca: perfil.encharca });
-      if (finca) {
-        return res.json({
-          respuesta: explainFarm(finca, !perfil.estado), acciones: [], fuentes: ['SIAP'], verificado: true,
-          origen: 'motor', base: 'ficha', enlaces: [], recomendacion_finca: finca,
-          afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria && q.campo !== 'hectareas' && q.campo !== 'ultimo_cultivo'),
-        });
-      }
-    }
     if (reco) {
       // Se comparan los años secos de NASA (en esta parcela) con los años de pérdidas del SIAP, solo en temporal.
-      let corroboracion = null;
-      if (agua === 'temporal') {
-        try {
-          const { rows } = await getClimate(lat, lon);
-          corroboracion = corroborate({ clima: summarizeClimate(rows), filas: loadSiap()?.filas, estado, cultivo: reco.rotacion[0].cultivo });
-        } catch { /* sin clima no hay comparación; la recomendación sale igual */ }
-      }
+      const corroboracion = agua === 'temporal'
+        ? corroborate({ clima: reco.clima, filas: loadSiap()?.filas, estado: reco.estado, cultivo: reco.rotacion[0].cultivo })
+        : null;
       return res.json({
-        respuesta: explainRecommendation(reco, !perfil.estado) + (corroboracion ? ` Comparé con la lluvia de NASA en tu parcela (${reco.rotacion[0].cultivo}): ${corroboracion.lectura} [NASA POWER, SIAP]` : ''),
-        acciones: [], fuentes: corroboracion ? ['SIAP', 'NASA POWER'] : ['SIAP'], verificado: true,
+        respuesta: explainPlot(reco) + (corroboracion ? ` Comparé con las pérdidas que reporta el SIAP (${reco.rotacion[0].cultivo}): ${corroboracion.lectura} [NASA POWER, SIAP]` : ''),
+        acciones: [], fuentes: ['NASA POWER', 'SoilGrids', 'SIAP'], verificado: true,
         origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco, corroboracion,
-        // Preguntas opcionales que todavía no contesta: con ellas la recomendación se afina.
-        afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria),
       });
     }
   }
@@ -141,7 +124,7 @@ router.post('/', async (req, res) => {
     pronostico,
     conocimiento: contexto.items,
     siap: pregunta ? cropFacts(pregunta) : null,
-    recomendacion: reco ? compactReco(reco) : null,
+    recomendacion: reco ? compactPlot(reco) : null,
     agricultor: reco ? perfil : {}, // lo que dijo el agricultor solo importa si hay recomendación que explicar
   });
   const result = await answer({ ficha, pregunta, historial });

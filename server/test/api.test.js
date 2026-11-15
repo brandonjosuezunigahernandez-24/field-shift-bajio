@@ -139,3 +139,47 @@ test('GET /api/asistente/temas devuelve la guía de preguntas', async () => {
   assert.ok(body.temas.length >= 4 && body.temas.every((t) => t.titulo && t.preguntas.length > 0));
   assert.ok(body.nota.includes('No doy marcas'));
 });
+
+const post = async (path, body) => {
+  const res = await fetch(`${baseUrl}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  return { status: res.status, body: await res.json() };
+};
+
+test('POST /api/recomendar answers with the engine: climate, soil, ranking and a 3-year rotation', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const { status, body } = await post('/api/recomendar', { lat: demo.lat, lon: demo.lon, agua: 'temporal', prioridad: 'riesgo' });
+  assert.equal(status, 200);
+  assert.equal(body.clima.lluvia_pv_anual.length, 25);
+  assert.equal(body.suelo.sin_datos, false);
+  assert.deepEqual(body.rotacion.map((s) => s.anio), [1, 2, 3]);
+  assert.ok(body.rotacion.every((s) => body.cultivos.some((c) => c.id === s.cultivo)));
+  // Income comes from the real SIAP summary of the plot's state.
+  assert.ok(body.cultivos[0].razones.some((r) => /pesos por hectárea/.test(r)));
+  assert.match(body.fuentes.join(' '), /NASA POWER/);
+});
+
+test('POST /api/recomendar still answers when the plot has no soil data', async () => {
+  // 760 m from the demo point: same climate cell, but no soil fixture offline.
+  const { status, body } = await post('/api/recomendar', { lat: 20.4749, lon: -100.8149, agua: 'riego', prioridad: 'ganar' });
+  assert.equal(status, 200);
+  assert.equal(body.suelo.sin_datos, true);
+  assert.equal(typeof body.suelo.aviso, 'string');
+  assert.equal(body.rotacion.length, 6);
+});
+
+test('POST /api/recomendar asks for agua and prioridad in Spanish', async () => {
+  const { status, body } = await post('/api/recomendar', { lat: 20.47, lon: -100.81, agua: 'mar', prioridad: 'riesgo' });
+  assert.equal(status, 400);
+  assert.match(body.error, /temporal o de riego/);
+});
+
+test('the assistant recommends with the same engine as /api/recomendar', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const plot = { lat: demo.lat, lon: demo.lon, agua: 'temporal', prioridad: 'riesgo' };
+  const chat = await post('/api/asistente', { ...plot, pregunta: '¿Qué me conviene sembrar?' });
+  const screen = await post('/api/recomendar', plot);
+  assert.equal(chat.status, 200);
+  assert.equal(chat.body.origen, 'motor');
+  assert.deepEqual(chat.body.recomendacion.rotacion, screen.body.rotacion);
+  assert.match(chat.body.respuesta, /Rotación de 3 años/);
+});

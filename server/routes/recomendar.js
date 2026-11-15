@@ -1,24 +1,84 @@
 import { Router } from 'express';
+import { readFileSync } from 'node:fs';
 import { HttpError } from '../lib/errors.js';
 import { parseCoords } from '../lib/coords.js';
 import { POWER_CREDIT, getClimate, summarizeClimate } from '../sources/nasaPower.js';
 import { SOILGRIDS_CREDIT, getSoil, summarizeSoil } from '../sources/soilGrids.js';
-import { ESTADOS, PRIORIDADES, inferEstado, recommend } from '../llm/recomendador.js';
+import { PRIORIDADES, recommend } from '../engine/index.js';
+import { incomeByCrop } from '../llm/siap.js';
+import { ESTADOS, ETIQUETA, inferEstado } from '../llm/recomendador.js';
 
 const router = Router();
+const CROPS = JSON.parse(readFileSync(new URL('../data/cultivos.json', import.meta.url), 'utf8'));
+const NO_SOIL = 'No hay dato de suelo para este punto; la recomendación no toma en cuenta el pH.';
+const FUENTES = [
+  POWER_CREDIT,
+  SOILGRIDS_CREDIT,
+  'SIAP, Cierre de la producción agrícola 2018-2024 (ingreso bruto promedio por estado)',
+  'Requerimientos de los cultivos: valores aproximados (estilo FAO Ecocrop), sin verificar',
+];
 
-// PRUEBA DE INTEGRACIÓN (no está en la rama del asistente): mientras el motor del equipo no exista,
-// /api/recomendar responde con el recomendador provisional (datos del SIAP), con la forma del contrato.
+// SoilGrids fails or has no data for some points: the plot still gets a recommendation, without pH.
+async function soilSummary(lat, lon) {
+  let soil = {};
+  let origen = null;
+  try {
+    ({ soil, origen } = await getSoil(lat, lon));
+  } catch (err) {
+    if (!(err instanceof HttpError)) throw err;
+  }
+  const summary = summarizeSoil(soil);
+  return { lat, lon, origen, ...summary, aviso: summary.sin_datos ? NO_SOIL : null, fuente: SOILGRIDS_CREDIT };
+}
+
+// The recommendation of one plot, for POST /api/recomendar and for the assistant: both must say the same.
+export async function recommendPlot({ lat, lon, agua, prioridad, estado }) {
+  const [{ rows, origen }, suelo] = await Promise.all([getClimate(lat, lon), soilSummary(lat, lon)]);
+  // shortcut: the state is guessed from the longitude (inferEstado) when the client does not send it.
+  const state = ESTADOS.includes(estado) ? estado : inferEstado(lon);
+  const result = recommend({ rows, soil: suelo, crops: CROPS, agua, prioridad, ingresos: incomeByCrop(state, agua), estado: state });
+  return {
+    clima: { lat, lon, origen, ...summarizeClimate(rows), fuente: POWER_CREDIT },
+    suelo,
+    estado: state,
+    agua,
+    prioridad,
+    ...result,
+    fuentes: FUENTES,
+  };
+}
+
+// Text for the chat, put together by code so the numbers are the engine's.
+export function explainPlot(r) {
+  const name = (id) => r.cultivos.find((c) => c.id === id).nombre.toLowerCase();
+  const [first] = r.cultivos;
+  const top = r.cultivos.slice(0, 3).map((c, i) => `${i + 1}) ${c.nombre} (${c.puntaje} de 100)`).join('; ');
+  const rotation = r.rotacion.map((x) => `año ${x.anio} ${x.temporada}: ${name(x.cultivo)}`).join('; ');
+  return (
+    `Para sembrar de ${r.agua} y con la meta de ${ETIQUETA[r.prioridad]}, en tu parcela te salen mejor: ${top}. ` +
+    `Rotación de 3 años: ${rotation}. Sobre ${first.nombre.toLowerCase()}: ${first.razones[0]} ` +
+    'Los requerimientos de cada cultivo son aproximados y falta confirmarlos; esto no sustituye a un técnico.'
+  );
+}
+
+// Short version for the model's fact sheet (little context).
+export const compactPlot = (r) => ({
+  agua: r.agua,
+  prioridad: r.prioridad,
+  mejores: r.cultivos.slice(0, 3).map(({ nombre, temporada, puntaje, razones }) => ({ cultivo: nombre, temporada, puntaje, razones })),
+  rotacion: r.rotacion,
+  fuente: 'NASA POWER, SoilGrids y SIAP',
+});
+
+// POST /api/recomendar { lat, lon, agua, prioridad, estado? } -> { clima, suelo, cultivos, rotacion, fuentes }
 router.post('/', async (req, res) => {
   const { lat, lon } = parseCoords(req.body);
-  const { agua, prioridad } = req.body;
-  if (!['temporal', 'riego'].includes(agua)) throw new HttpError(400, 'agua debe ser "temporal" o "riego".');
-  if (!PRIORIDADES.includes(prioridad)) throw new HttpError(400, `prioridad debe ser una de: ${PRIORIDADES.join(', ')}.`);
-  const estado = ESTADOS.includes(req.body.estado) ? req.body.estado : inferEstado(lon);
-  const reco = recommend({ estado, agua, prioridad, costos: req.body.costos });
-  if (!reco) throw new HttpError(502, 'No hay datos del SIAP para esa combinación.');
-  const [{ rows, origen: oc }, { soil, origen: os }] = await Promise.all([getClimate(lat, lon), getSoil(lat, lon)]);
-  res.json({ clima: { lat, lon, origen: oc, ...summarizeClimate(rows), fuente: POWER_CREDIT }, suelo: { lat, lon, origen: os, ...summarizeSoil(soil), fuente: SOILGRIDS_CREDIT }, ...reco });
+  const { agua, prioridad, estado } = req.body;
+  if (!['temporal', 'riego'].includes(agua)) throw new HttpError(400, 'Dinos si tu parcela es de temporal o de riego.');
+  if (!PRIORIDADES.includes(prioridad)) {
+    throw new HttpError(400, 'Elige qué te importa más: ganar más, cuidar el suelo, gastar menos agua o arriesgar menos.');
+  }
+  res.json(await recommendPlot({ lat, lon, agua, prioridad, estado }));
 });
 
 export default router;
