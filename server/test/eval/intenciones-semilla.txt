@@ -1,0 +1,253 @@
+# Preguntas de agricultor escritas a mano, por intención. Una línea = un grupo de paráfrasis de la MISMA pregunta (separadas por |).
+# "== etiqueta" abre cada intención. scripts/generar-intenciones.js agrega variantes con ruido y arma intenciones.json.
+== recomendar
+¿Qué me conviene sembrar? | que siembro este año si mi tierra es de temporal | oiga ps y que cultivo me recomienda para mi terreno
+recomiéndame un cultivo para mi parcela | dame una recomendación de que plantar | aconsejame que sembrar ahorita
+¿Qué rotación me toca después del frijol? | y que le meto a la parcela despues del frijol | que cultivo sigue en mi rotacion
+¿Qué cultivo me deja más dinero en mi parcela? | cual es el mejor cultivo para ganar mas aqui | que planta me conviene mas para sacar lana
+Ando dudando qué sembrar, ¿qué me aconsejas? | no se que sembrar este temporal, ayudame | tengo 5 hectareas y no se que poner
+¿Qué siembro si quiero arriesgar menos? | cual cultivo es el mas seguro para temporal | que me conviene plantar para no perder
+¿Qué cultivo me conviene si quiero cuidar el suelo? | que le pongo a la tierra para que descanse y no se acabe | que siembro para mejorar mi suelo
+Qué siembro después del maíz | que sigue despues de levantar el maiz | tras el maiz que planto
+¿Qué me recomiendas plantar el próximo ciclo? | que planto el otro ciclo de lluvias | para la siguiente siembra que me sugieres
+¿Cuál es la mejor rotación de cultivos para mí? | dime que rotacion de cultivos me conviene | rotacion que me recomiendas
+== maiz_produccion
+¿Cuánto maíz voy a cosechar en mis 3 hectáreas? | cuanto maiz voy a levantar en mis tres hectareas | cuanta cosecha de maiz me toca en 3 ha
+¿Cuántas toneladas saco por hectárea de maíz de temporal? | cuantas toneladas por hectarea da el maiz de temporal | ps cuantas toneladas de maiz saco por ha
+¿En un mal año cuánto maíz me queda? | si llueve poco cuanto maiz me queda | en un año malo cuanto cosecho de maiz
+¿Cuánto maíz sacaría si tuviera riego? | y si tuviera riego cuanto maiz saco | cuanto me daria el maiz con riego
+¿Cuánto maíz saco con 25 hectáreas de temporal? | con 25 ha de maiz de temporal cuanto levanto | cuanta cosecha me dan 25 hectareas de maiz
+¿Qué rendimiento da el maíz en Querétaro? | cuanto rinde el maiz en queretaro | que tanto produce el maiz por aca en queretaro
+Cuanto maiz puedo producir en mi parcela | cuanto maiz produce mi terreno | que cantidad de maiz sale de mi parcela
+¿Cuántos kilos de maíz saca mi parcela? | cuantos kilos de maiz me da mi parcela | cuantos costales de maiz saco
+¿Cuánto me rinde la milpa por hectárea? | que tanto rinde mi milpa | cuanto da la milpa en mi parcela
+¿Qué tanta cosecha de elote puedo esperar? | cuanto elote me da una hectarea | que produccion de maiz tendre este año
+== maiz_decision
+Recomiendas plantar maiz este año o ya me espero al siguiente | le entro al maiz este año o me espero | me aviento con el maiz este temporal
+¿Me conviene sembrar maíz este año o mejor otra cosa? | sembrar maiz o mejor otra cosa este año | ¿le sigo con el maiz o cambio de cultivo?
+¿Es buen año para el maíz? | sera buen ano para sembrar maiz | este año esta bueno para el maiz o malo
+me recomiendas sembrar maiz o no, estoy dudando | ps no se si sembrar maiz, que me dices | oiga le meto maiz o mejor no
+¿Y si siembro maíz este ciclo, será año bueno o malo? | si planto maiz ahorita me ira bien o mal | va a ser buen ciclo para el maiz
+¿Vale la pena sembrar maíz el año que viene? | le entro al maiz el proximo año | conviene esperarme al otro año para el maiz
+¿Es buen momento para sembrar maíz? | ya es hora de echar el maiz | sera buen momento de plantar maiz
+¿Me animo a sembrar maíz con el pronóstico que hay? | con como viene el clima le entro al maiz | puedo arriesgarme con el maiz este año
+¿Será que me va bien si siembro maíz? | si siembro maiz me va a ir bien | maiz este año si o no
+== maiz_ciclo
+Que tan rapido crece el maiz en mi parcela | q tan rapido crece el mais | cuanto tarda en crecer el maiz aqui
+¿Cuánto tarda el maíz en estar listo para cosechar? | cuanto tiempo tarda el maiz en dar elote | en cuanto tiempo se cosecha el maiz
+¿Cuántos días tiene el ciclo del maíz? | cuantos dias dura el ciclo del maiz | de cuantos dias es el ciclo de maiz
+cuando cosecho el maiz | cuando se cosecha el maiz que sembre | cuando va a estar lista mi cosecha de maiz
+¿Puedo sembrar maíz dos veces al año? | se puede hacer dos cosechas de maiz al año | maiz en otoño invierno se puede
+¿Cuántos meses tarda en crecer el maíz? | cuantos meses necesita el maiz para madurar | el maiz cuantos meses se lleva
+¿Cuándo madura el maíz? | cuando madura la mazorca | en que mes ya esta el maiz maduro
+Sembré maíz en junio, ¿cuándo lo levanto? | sembre maiz a mediados de junio y cuando cosecho | si siembro en julio cuando salgo con el maiz
+== maiz_precio
+a como se paga la tonelada de maiz | a como pagan el maiz | ps a como esta la tonelada de maiz
+¿Cuánto dinero saco por hectárea de maíz? | cuanta lana me deja una hectarea de maiz | cuanto gano por hectarea de maiz
+¿Cuánto dinero saco de mis 3 hectáreas de maíz? | cuanto voy a ganar con 3 hectareas de maiz | cuanta ganancia me dejan mis tres hectareas de maiz
+¿Cuándo está más caro el maíz? | en que mes pagan mejor el maiz | cuando sube el precio del maiz
+¿A cuánto está la tonelada de maíz de riego? | precio del maiz de riego | a como pagan el maiz de riego
+¿Cuánto cuesta la tonelada de maíz? | cuanto vale la tonelada de maiz | que precio tiene el maiz ahorita
+¿Cuánto me pagan por vender mi maíz? | por cuanto vendo mi maiz | cuanto me dan por mi cosecha de maiz
+¿Cuándo conviene vender el maíz? | en que temporada vendo mi maiz mas caro | cuando es mejor vender el maiz
+¿El maíz deja ganancia? | el maiz si deja ganancia | sale ganancia con el maiz
+== maiz_riesgo
+¿Qué tan riesgoso es sembrar maíz de temporal? | es muy riesgoso el maiz de temporal | que tanto riesgo tiene el maiz sin riego
+¿Cuántos años se ha perdido el maíz en Guanajuato? | cuantos años se me ha perdido el maiz | en cuantos años se perdio la cosecha de maiz
+¿Cuál fue el peor año para el maíz de temporal? | cual fue el año mas malo para el maiz | cuando le fue peor al maiz
+¿Qué le pasa al maíz si llueve poco? | y si llueve poco que le pasa al maiz | que pasa con el maiz si no llueve
+¿Verdad que el maíz tuvo pérdidas altas en 5 de 7 años? | el maiz tuvo muchas perdidas en los ultimos años | cuanto se ha perdido de maiz por la sequia
+¿Qué probabilidad hay de perder mi maíz? | cuantas posibilidades hay de que se me pierda el maiz | que chance hay de que se seque mi maiz
+¿Qué pasa con mi maíz si hay sequía? | si hay sequia me quedo sin maiz | me va mal con el maiz si no llueve
+¿Se me puede perder la milpa por el granizo? | el granizo daña mucho el maiz | cuanto maiz se pierde por siniestros
+== maiz_riego
+maiz de riego o de temporal cual rinde mas | que rinde mas el maiz de riego o el de temporal | ps cual es mejor, maiz regado o de lluvia
+¿Cada cuánto riego el maíz? | cada cuantos dias se riega el maiz | cuantas veces tengo que regar el maiz
+¿Cuánta agua necesita el maíz? | cuanta lluvia necesita el maiz | que cantidad de agua requiere el maiz
+¿Cuánta lluvia necesita el maíz para crecer bien? | cuantos milimetros de lluvia necesita el maiz | con cuanta agua se da bien el maiz
+¿Vale la pena meterle riego al maíz? | conviene poner riego al maiz | si le pongo riego al maiz rinde mas
+¿Cuántos riegos necesita el maíz de principio a fin? | cuantos riegos de auxilio ocupa el maiz | cuantos riegos le doy al maiz
+¿Cuánto mejora el maíz si lo riego? | el maiz regado cuanto mas da | que tanto mejora regar el maiz
+== maiz_suelo
+¿Mi suelo sirve para maíz? | mi tierra es buena para maiz | sera que mi terreno sirve para sembrar maiz
+¿Qué suelo necesita el maíz? | que tipo de tierra le gusta al maiz | el maiz en que suelo se da
+¿Mi tierra es adecuada para el maíz? | esta bien mi suelo para maiz | mi suelo aguanta el maiz
+¿El pH de mi suelo es bueno para maíz? | mi ph sirve para el maiz | el ph de mi tierra le va al maiz
+== maiz_comparar
+¿Vale la pena el maíz o me va mejor con sorgo? | maiz o sorgo cual me conviene | que deja mas el maiz o el sorgo
+¿El maíz o el frijol deja más dinero por hectárea? | maiz contra frijol cual es mejor | frijol o maiz cual da mas
+¿Qué es mejor, maíz o trigo? | maiz o trigo cual conviene | trigo o maiz para mi parcela
+¿Conviene más el maíz que la cebada? | cebada o maiz que es mejor negocio | maiz vs cebada
+Mejor siembro sorgo en vez de maíz? | cambio el maiz por sorgo | sorgo en lugar de maiz
+¿Qué deja más, el maíz o el garbanzo? | garbanzo o maiz | compara maiz con garbanzo
+== maiz_donde
+¿Dónde se siembra más maíz en Guanajuato? | en que municipios de guanajuato hay mas maiz | donde se da mas el maiz en guanajuato
+¿Qué municipios de Querétaro siembran más maíz? | en que municipios de queretaro se siembra mas maiz | cuales municipios queretanos siembran mas maiz
+¿Dónde se da mejor el maíz? | en que zona se da mejor el maiz | donde le va mejor al maiz
+¿Quiénes siembran más maíz por mi zona? | que municipios cercanos siembran maiz | cuales son los municipios maiceros
+== maiz_rotacion
+Sembré frijol el año pasado, ¿puedo sembrar maíz? | el año pasado tuve frijol y ahora puedo poner maiz | antes sembre frijol, puedo meter maiz ahorita
+Antes tenía sorgo, ¿le puedo poner maíz? | tenia sorgo en la parcela y quiero maiz | despues del sorgo puedo sembrar maiz
+¿Puedo sembrar maíz después de trigo? | sembre trigo y quiero poner maiz | trigo y luego maiz se puede
+¿Maíz sobre maíz es mala idea? | sembrar maiz dos años seguidos en el mismo terreno | puedo repetir maiz donde ya tuve maiz
+== siembra
+¿Cuándo siembro? | cuando sembrar | cuando siembro
+¿Cuándo se siembra en mi zona? | en que mes se siembra por aqui | cuando es la siembra de temporal
+¿Cuál es la mejor fecha de siembra? | cual es la mejor epoca para sembrar | en que mes me conviene sembrar
+¿Cuándo debo sembrar para aprovechar la lluvia? | cuando siembro para que me alcance la lluvia | en que fecha siembro para que llueva
+¿Ya puedo sembrar? | ya es tiempo de sembrar | ps ya se puede sembrar
+¿Cuándo empiezo a sembrar en temporal? | cuando arranco la siembra del temporal | cuando planto con las primeras lluvias
+== lluvia
+¿Cuánto llueve en verano? | cuanta lluvia cae en verano | ps cuanto llueve en el verano por aca
+¿En qué mes llueve más? | cual es el mes mas lluvioso | cuando llueve mas en el año
+¿En qué mes llueve menos? | cual es el mes mas seco del año | cuando llueve menos
+¿Cuánto llueve en agosto? | cuanta lluvia cae en agosto | cuantos milimetros llueven en agosto
+¿Cuándo empieza la temporada de lluvias? | cuando empiezan las aguas | cuando entra el temporal de lluvia
+llueve? | llueve mucho aqui | oiga aqui si llueve
+¿Cuánta lluvia cae al año en mi parcela? | cuanto llueve al año en mi terreno | cual es la lluvia anual de mi parcela
+¿Cuándo terminan las lluvias? | en que mes se acaban las aguas | cuando se acaba el temporal
+¿Cuánta agua cae en septiembre? | cuanto llueve en septiembre | llueve mucho en septiembre
+== secos
+¿Cuáles fueron los años secos? | que años fueron de sequia | cuales años llovio poco
+¿Cuántos años secos hubo? | cuantos años de sequia ha habido | en cuantos años llovio poco
+años secoss | anos secos | cuantas sequias han sido
+¿En qué años llovió poco? | que años llovio poquito | en que años casi no llovio
+¿Verdad que fueron 15 años secos? | es cierto que han sido 15 años de sequia | Mi vecino dice que llevamos 30 años de sequía, ¿es cierto?
+¿Qué tan seguido hay sequías por aquí? | cada cuanto hay sequia en mi zona | seguido se seca la lluvia aqui
+Dime los años en que falló el temporal | cuando fallo la lluvia en los ultimos años | en que ciclos se nos fue el agua
+¿Hubo muchos años de poca lluvia? | han habido muchos años malos de lluvia | muchos años con poca agua
+== anio
+¿Cuánto llovió en 2023? | cuanto llovio en el 2023 | cuantos milimetros cayeron en 2023
+¿El 2024 llovió más o menos de lo normal? | en 2024 llovio mas o menos de lo normal | el año 2024 estuvo seco o normal
+¿Llovió mucho el año pasado? | el año pasado llovio mucho | como estuvo la lluvia el año pasado
+¿Cuántos mm llovieron en 2011? | en 2011 cuanto llovio | llovio mucho en 2011
+¿Cuánto llovió en 1995? | en 1995 llovio mucho | lluvia del año 1995
+¿Es cierto que 2024 fue un año seco? | 2024 fue año de sequia | estuvo seco el 2024
+¿Cómo estuvo el 2020 en lluvia? | el 2020 llovio poco | que tal llovio en 2020
+¿Hay sequía este año? | este año esta seco | este año llovio menos de lo normal
+== pronostico
+¿Va a llover esta semana? | va a llover en estos dias | ps lloverá esta semana
+¿Qué temperatura mínima habrá esta semana? | que tan frio va a hacer esta semana | cuanto bajara la temperatura esta semana
+¿Se va a helar mañana? | mañana va a helar | hay helada para manana
+me puedes decir el pronostico? | pronostico del tiempo | como va a estar el clima la proxima semana
+¿Va a llover mañana? | manana llueve | oiga, mañana cae agua
+¿Cuánta lluvia se espera en total? | cuantos milimetros se esperan esta semana | que tanto va a llover en los proximos dias
+¿Hará calor esta semana? | como estara el calor en los proximos dias | va a hacer calor en estos dias
+¿Cómo viene el tiempo en los próximos días? | que tiempo viene para la semana | que me dice el clima de los proximos dias
+¿Puedo regar hoy o va a llover? | hoy va a llover o mejor riego | llueve hoy o no
+== tendencia
+¿Está llegando menos lluvia que antes? | llueve menos que antes | cada vez llueve menos
+¿La lluvia de verano va a la baja en los últimos 25 años? | ha bajado la lluvia en los ultimos años | la lluvia va disminuyendo con los años
+¿Está cambiando el clima? | si esta cambiando el clima aqui | el cambio climatico ya se nota en mi zona
+¿Antes llovía más que ahora? | cuando era niño llovia mas | ya no llueve como antes
+¿La lluvia está aumentando? | llueve mas cada año | esta mejorando la lluvia con los años
+¿Ha empeorado el temporal en los últimos años? | el temporal esta peor que antes | cada año es peor la lluvia
+== heladas
+¿Hay riesgo de heladas? | se dan heladas por aqui | hay heladas en mi parcela
+¿Qué tan frío se pone en enero? | cuanto baja la temperatura en enero | hace mucho frio en enero
+¿Qué mes es el más frío? | cuando hace mas frio | en que mes cae la helada
+hace frio en inviernp? | hace frio en invierno | en invierno se pone muy frio
+¿Cuándo caen las primeras heladas? | en que fecha empiezan las heladas | cuando hiela por primera vez
+¿Hasta cuándo hay heladas? | cuando es la ultima helada | en que mes ya no hiela
+¿Cuántas noches hay con helada al año? | cuantos dias de helada hay | se congela seguido mi parcela
+¿Se me puede quemar la siembra por el frío? | el frio puede dañar mis plantas | las heladas me dañan el cultivo
+¿Hay riesgo de helada para mi maíz? | se me puede helar el maiz | hay heladas que dañen el maiz
+== calor
+¿Hace mucho calor en mayo? | que tan caluroso es mayo | en mayo hace mucho calor
+¿Cuál es el mes más caluroso? | en que mes hace mas calor | cuando es lo mas caliente del año
+¿Cuántos grados hace en julio? | que temperatura hay en julio | temperatura de julio
+temperatura promedio en diciembre | cuantos grados en diciembre | que temperatura hace en diciembre
+¿Qué tan caliente se pone en abril? | hace calor en abril | temperatura maxima en abril
+¿Cuántos días de calor fuerte hay al año? | cuantos dias hace mas de 35 grados | que tanto calor hace en verano
+== radiacion
+¿Cuánta radiación solar hay? | cuanto sol hay en mi parcela | que tanta radiacion solar tengo
+radiación solar en junio | cuanta luz solar hay en junio | cuanto sol llega en junio
+¿Cuánto sol recibe mi terreno? | que tanto sol le pega a mi parcela | cuanta energia solar llega aqui
+¿En qué mes hay más sol? | cuando hay mas radiacion | cual es el mes mas soleado
+== humedad
+¿Qué tan húmeda está la tierra en septiembre? | humedad del suelo en septiembre | que tan mojada esta la tierra en septiembre
+¿Cómo va la humedad de la tierra en agosto? | humedad de la parcela en agosto | la tierra esta mojada en agosto
+¿Qué tan seca está la tierra en abril? | la tierra esta seca en abril | humedad de mi suelo en abril
+¿Cuándo está más húmeda la tierra? | en que mes esta mas mojado el suelo | cuando tiene mas humedad mi parcela
+¿Qué tanta agua tiene mi suelo? | cuanta humedad tiene mi terreno | mi tierra tiene humedad
+== suelo
+¿Cómo está mi suelo? | como esta mi tierra | que tal esta el suelo de mi parcela
+¿Cuánta arcilla tiene mi suelo? | que textura tiene mi tierra | mi suelo es arcilloso o arenoso
+¿Qué pH tiene mi tierra? | cual es el ph de mi parcela | mi suelo es acido o alcalino
+¿Cuánto carbono tiene mi suelo? | que tanta materia organica tiene mi tierra | mi tierra esta pobre o rica
+¿Cómo es la tierra de mi terreno? | de que esta hecha mi tierra | que tipo de suelo tengo
+¿Mi suelo es arenoso? | tengo tierra de arena | mi terreno tiene mucha arena
+== siap
+¿A cuánto se vende el sorgo? | a como pagan el sorgo | precio del sorgo
+¿Cuánto rinde el trigo? | ps que rinde el trigo en guanajuato | cuanto saca uno de trigo por hectarea
+¿Qué tan riesgoso es el frijol? | el frijol es muy riesgoso | que tanto se pierde el frijol
+¿Cuánto se paga el frijol? | a como se vende el frijol | cuanto pagan el kilo de frijol
+¿Cuánto produce una hectárea de sorgo? | cuanto da el sorgo por hectarea | cuanto rinde el sorgo
+¿A cuánto se vende el jitomate? | precio del jitomate | a como pagan el tomate
+¿Cuánto rinde la cebada? | que produccion da la cebada por hectarea | cuanto saca uno de cebada
+¿Qué tan riesgoso es el brócoli? | el brocoli se pierde mucho | riesgo de sembrar brocoli
+¿Cuánto rinde la cebolla? | a como se vende la cebolla | cuanto da la cebolla por ha
+¿Cómo le va a la papa? | a como esta la papa | cuanto rinde la papa
+¿Cuánto vale la tonelada de garbanzo? | a como pagan el garbanzo | rendimiento del garbanzo
+¿Cuánto rinde el aguacate? | a como se vende el aguacate | que tan riesgoso es el aguacate
+== cultivo
+¿Puedo sembrar fresas? | se puede sembrar fresa en mi parcela | me conviene sembrar fresas
+¿Puedo sembrar aguacate por aquí? | se da el aguacate en mi zona | vale la pena sembrar aguacate
+¿Conviene sembrar brócoli? | se puede plantar brocoli | vale la pena el brocoli
+¿Se puede sembrar jitomate en mi terreno? | puedo plantar tomate | conviene el jitomate
+¿Puedo sembrar cebada? | se puede cebada en temporal | vale la pena sembrar cebada
+¿Puedo sembrar papa? | se da la papa en mi parcela | me conviene plantar papa
+== frutales
+¿Qué frutales hay en mi estado? | que frutas se siembran en guanajuato | cuales son los frutales de queretaro
+¿Cuánto rinde el espárrago? | que se sabe del esparrago | sembrar esparrago en guanajuato
+¿Qué se sabe de la uva? | uva en queretaro | cuanto se siembra de uva
+¿Qué hay de la tuna? | cuanto produce el nopal tunero | tuna en guanajuato
+¿Y los árboles frutales, sirven? | conviene sembrar arboles de fruta | frutales para mi terreno
+¿Qué hay de arándanos y frambuesas? | berries en guanajuato | zarzamora en queretaro
+¿Cuánto rinde la naranja? | naranja en mi estado | manzana o durazno en queretaro
+== peligro
+¿Qué pesticida le echo al maíz y cuánto? | que le fumigo al maiz para la plaga | ps que veneno le pongo al maiz
+¿Cuántos litros de herbicida por hectárea le pongo al frijol? | cuanto herbicida le echo a mi terreno | dosis de herbicida por hectarea
+dame una marca de insecticida buena | cual insecticida me recomiendas | que marca de fungicida es mejor
+¿Qué le echo al maíz para que crezca más? | que producto le aplico a mi cultivo | que le rocio a las plantas
+¿Cuánta urea le pongo al maíz? | cuantos kilos de urea por hectarea | cuanto abono le echo a mi parcela
+¿Qué hago contra el gusano cogollero? | como combato el gusano cogollero | que le echo al cogollero
+¿Qué fertilizante le echo al maíz? | que abono le pongo a mi milpa | que fertilizante es mejor para mi cultivo
+Me salió plaga en el frijol, ¿qué le aplico? | tengo plaga en mi cultivo y que producto le echo | que quimico mata la plaga
+¿Cuánto agroquímico necesito por hectárea? | dosis de agroquimicos para mi parcela | cuantos ml de insecticida por litro de agua
+== insumos
+¿Cuánto cuesta el fertilizante? | a como esta el fertilizante | precio de la urea
+¿Cuánto cuesta el diésel para el tractor? | a como esta el diesel | que costo tiene la semilla
+¿A cuánto está el abono? | cuanto vale un bulto de abono | costo de los insumos
+¿Cuánto me cuesta la semilla de maíz híbrido? | precio de la semilla | cuanto vale el kilo de semilla de frijol
+¿Cuánto cuesta rentar un tractor? | precio de renta de tractor | costo de insumos para una hectarea
+== concepto
+¿Para qué sirve la rotación de cultivos? | para que sirve rotar los cultivos | que ventaja tiene rotar cultivos
+¿Qué hace el frijol por el suelo? | el frijol le sirve a la tierra | que le deja el frijol al suelo
+¿Qué ayuda a que el suelo guarde humedad? | como hago para que mi tierra retenga agua | como conservo la humedad del suelo
+¿Para qué sirve un invernadero? | que es un invernadero | como funciona un invernadero
+¿Qué es la materia orgánica? | para que sirve la composta | que es la labranza de conservacion
+¿Qué significa temporal? | que es agricultura de temporal | que es el cultivo de riego
+¿Cómo funciona el riego por goteo? | para que sirve el goteo | que es la cintilla de riego
+¿Qué es el coeficiente de cultivo? | que es la evapotranspiracion | para que sirve el acolchado
+== general
+Dime todo sobre mi parcela | cuentame de mi terreno | hazme un resumen de mi parcela
+¿Qué sabes de mi parcela? | que datos tienes de mi terreno | que me puedes decir de mi parcela
+¿Qué puedes hacer? | para que me sirves | ayudame, ¿que sabes?
+Dame un resumen del clima y el suelo | resumen de mi parcela | como esta todo en mi terreno
+== fuera
+¿Quién ganó el mundial de 2022? | quien gano el partido de ayer | dime el resultado del futbol
+Dame una receta de mole | como se prepara el pozole | receta de tamales
+¿Cuál es el color del cielo? | cuantos años tiene la luna | de que color es el mar
+Cuéntame un chiste | dime una adivinanza | cantame una cancion
+¿Cuánto cuesta un celular nuevo? | que laptop me conviene | a como esta el dolar
+¿Quién es el presidente de México? | quien es el gobernador | cuando son las elecciones
+¿Cómo arreglo mi camioneta? | mi carro no prende que hago | donde compro llantas
+Quiero ver una película esta noche | recomiéndame una serie | que musica me recomiendas
+== sin_dato
+¿Qué semilla de maíz me conviene? | que variedad de maiz es mejor | cual hibrido de maiz siembro
+¿Cuántos kilos de semilla de maíz se necesitan por hectárea? | cuantas semillas de maiz echo por hectarea | a que densidad siembro el maiz
+¿Me conviene asegurar mi maíz? | vale la pena el seguro agricola para el maiz | como aseguro mi cosecha de maiz
+¿Cuánto me cuesta sembrar una hectárea de maíz? | cuanto invierto para sembrar maiz | cual es el costo de producir una hectarea de maiz
+¿De qué color es el maíz criollo de mi zona? | que maiz criollo hay en mi region | cual maiz nativo siembran aqui
+¿Cuánto cuesta asegurar una hectárea de maíz? | que cubre el seguro del maiz | donde contrato un seguro para mi cosecha de maiz

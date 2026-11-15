@@ -43,4 +43,4 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | [28](28-frutas-aptitud-y-desglose.md) | Frutas y verduras: ¿se da aquí? (FAO EcoCrop + NASA) y desglose por cultivo (SIAP); el ML no mejoró y no se integró | Hecho |
 | 29 | Perfil completo en pantalla (lo último que sembró, lo que tiene sembrado, cómo riega) y etiqueta «Calculado con tus datos». Doc en la rama `integracion/todo` | Hecho |
 | [30](30-graficas-por-pregunta.md) | Gráficas con datos reales según la pregunta (campo `graficas`), también para frutas | Hecho |
-| 31 | Entender la pregunta con aprendizaje automático (clasificador de intención) | En curso (agente) |
+| [31](31-intencion-con-ml.md) | Entender la pregunta con aprendizaje automático: clasificador de respaldo, acierto 74.3 % → 78.4 % en 334 preguntas de prueba | Hecho |
