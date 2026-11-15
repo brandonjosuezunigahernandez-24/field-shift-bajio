@@ -27,7 +27,7 @@ Conclusión honesta: **solo Querétaro maíz mejora de forma clara**; en Guanaju
 
 ## Límites
 - Solo 7 años (2018-2024): el modelo ve pocas sequías/años húmedos distintos; un año raro mueve todo.
-- **Guanajuato reporta siniestrada = 0 en casi todos los municipios en 2021, 2022 y 2024** (y 2018-2020 pocos); solo 2023 muestra pérdidas grandes. Puede ser un hábito de captura del SIAP más que un año sin pérdidas; eso limita mucho lo que se puede aprender ahí.
+- **Guanajuato reporta siniestrada = 0 en casi todos los municipios en 2021, 2022 y 2024** (maíz: 2018 y 2020 casi cero, 2019 ~16% y 2023 ~28%); solo 2019 y 2023 muestran pérdidas grandes. Puede ser un hábito de captura del SIAP más que un año sin pérdidas; eso limita mucho lo que se puede aprender ahí.
 - SIAP es municipal y NASA POWER es puntual (rejilla ~50 km, centro del municipio): se mezclan escalas.
 - "Siniestrada" incluye heladas, plagas, granizo y otras causas, no solo sequía.
 - Coordenadas por geocodificación (centro del municipio); no se revisaron una a una (solo rangos del estado).
