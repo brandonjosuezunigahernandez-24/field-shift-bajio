@@ -10,7 +10,8 @@ async function request(path, options) {
   }
   const body = await res.json().catch(() => null);
   if (!res.ok) {
-    throw new Error(body?.error ?? SERVER_DOWN);
+    // outsideRegion: POST /api/recomendar for a plot outside Guanajuato and Querétaro (422).
+    throw Object.assign(new Error(body?.error ?? SERVER_DOWN), { outsideRegion: body?.fuera_de_region === true });
   }
   return body;
 }

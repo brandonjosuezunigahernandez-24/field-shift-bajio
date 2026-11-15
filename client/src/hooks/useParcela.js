@@ -132,7 +132,7 @@ export function useParcela() {
       if (data.clima) setClima({ data: data.clima });
       if (data.suelo) setSuelo({ data: data.suelo });
     } catch (err) {
-      setRecomendacion({ error: err.message });
+      setRecomendacion({ error: err.message, outsideRegion: err.outsideRegion === true });
     }
   }, [point, agua, prioridad]);
 

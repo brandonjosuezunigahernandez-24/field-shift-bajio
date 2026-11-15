@@ -42,7 +42,7 @@ export default function Cultivo() {
     setRec(null);
     postRecomendar({ lat: point.lat, lon: point.lon, agua, prioridad }).then(
       (data) => live && setRec({ data }),
-      (err) => live && setRec({ error: err.message })
+      (err) => live && setRec({ error: err.message, outsideRegion: err.outsideRegion === true })
     );
     return () => {
       live = false;
@@ -72,8 +72,9 @@ export default function Cultivo() {
     setProbado(query);
   }
 
-  const clima = data?.clima;
-  const suelo = data?.suelo;
+  // Outside Guanajuato and Querétaro there is no recommendation, but GET /api/clima and /api/suelo still describe the plot.
+  const clima = data?.clima ?? ctx.clima?.data;
+  const suelo = data?.suelo ?? ctx.suelo?.data;
   const sinDato = 'sin dato';
   const tempPV = clima ? mean(clima.temp_media_mensual.filter((m) => clima.meses_pv.includes(m.mes) && m.t_media_c != null).map((m) => m.t_media_c)) : null;
   const contexto = clima
@@ -190,7 +191,7 @@ export default function Cultivo() {
               </div>
               <span className="fs-badge-soft">{agua === 'riego' ? 'Con riego' : 'Temporal'}</span>
             </div>
-            {rec?.error && <p className="fs-test-err" role="alert">{rec.error}</p>}
+            {rec?.error && !rec.outsideRegion && <p className="fs-test-err" role="alert">{rec.error}</p>}
             {!rec && <p className="fs-note">Calculando con el motor de reglas…</p>}
             <div className="fs-ctx-grid">
               {contexto.map((d) => (
@@ -205,12 +206,20 @@ export default function Cultivo() {
                 </div>
               ))}
             </div>
-            {data && <p className="fs-note fs-mono">{data.fuentes.join(' · ')}</p>}
+            {clima && <p className="fs-note fs-mono">{(data?.fuentes ?? [clima.fuente, suelo?.fuente].filter(Boolean)).join(' · ')}</p>}
           </section>
         </div>
 
         <div id="resultado" className="mt-4" aria-live="polite" ref={resultRef}>
-          {crop ? (
+          {rec?.outsideRegion ? (
+            <div className="fs-empty fs-up fs-d2" role="status">
+              <span className="fs-empty-ico">
+                <i className="bi bi-geo-alt" aria-hidden="true"></i>
+              </span>
+              <b>Por ahora solo probamos cultivos en Guanajuato y Querétaro</b>
+              <p>{rec.error}</p>
+            </div>
+          ) : crop ? (
             <Resultado
               crop={crop}
               data={data}

@@ -24,8 +24,8 @@ const VISUAL_DEFAULT = { insignia: 'Cultivo de la rotación', tallo: { alto: 40,
 const SEASON = { PV: 'temporal', OI: 'otoño-invierno' };
 
 // Screen 2: 3D stage, 3-year plan, yearly rain chart, crop ranking and the voice dock.
-// Rotation and ranking come from POST /api/recomendar (the mock while the engine is pending);
-// if the call fails the design's demo plan is shown with a note. Rain, KPIs and soil are real.
+// Rotation and ranking come from POST /api/recomendar; if the call fails the design's demo plan is
+// shown with a note, and outside Guanajuato and Querétaro no plan at all. Rain, KPIs and soil are real.
 export default function Rotacion() {
   const ctx = useParcelaContext();
   const { point, clima, suelo, recomendacion, ensurePoint, recomendar } = ctx;
@@ -37,6 +37,8 @@ export default function Rotacion() {
   }, [point, ensurePoint, recomendar, ctx.agua, ctx.prioridad]);
 
   const rec = recomendacion?.data;
+  // Outside Guanajuato and Querétaro the engine does not recommend: no plan at all, never the design's example.
+  const outside = recomendacion?.outsideRegion === true;
   // Al cambiar de año del plan, las parcelas dibujadas pasan al cultivo de ese año (se ve en el 3D).
   const planCrop = rec?.rotacion?.[Math.min(year, rec.rotacion.length - 1)]?.cultivo;
   useEffect(() => {
@@ -52,6 +54,7 @@ export default function Rotacion() {
 
   // Years of the plan: [{ anio, etiqueta, pts, cultivo, texto, titulo3d, insignia, tallo, descripcion }]
   const rotacion = useMemo(() => {
+    if (outside) return [];
     if (!rec) return FS_DATOS.rotacion;
     return rec.rotacion.map((step, i) => {
       const crop = rec.cultivos.find((c) => c.id === step.cultivo);
@@ -70,9 +73,10 @@ export default function Rotacion() {
         temporada: SEASON[step.temporada] || step.temporada,
       };
     });
-  }, [rec, nextYear]);
+  }, [rec, nextYear, outside]);
 
   const ranking = useMemo(() => {
+    if (outside) return [];
     if (!rec) return FS_DATOS.ranking;
     const colors = ['#14532D', '#1B6B3A', '#23854A', '#3BA55C', '#6CC283', '#8FD1A0', '#B5E2BF'];
     return rec.cultivos.map((c, i) => ({
@@ -81,13 +85,13 @@ export default function Rotacion() {
       pts: Math.round(c.puntaje),
       color: colors[Math.min(i, colors.length - 1)],
     }));
-  }, [rec]);
+  }, [rec, outside]);
 
   const kpis = useMemo(() => kpisFrom(climaData, sueloData), [climaData, sueloData]);
   const rain = useMemo(() => rainSeriesFrom(climaData), [climaData]);
   const soilLegend = useMemo(() => soilLegendFrom(sueloData), [sueloData]);
-  const current = rotacion[Math.min(year, rotacion.length - 1)];
   const placeName = point?.nombre ?? 'Celaya';
+  const current = rotacion[Math.min(year, rotacion.length - 1)] ?? { titulo3d: placeName, insignia: 'Fuera de Gto. y Qro.', descripcion: '' };
 
   const why = useMemo(() => {
     const dry = climaData ? climaData.anios_secos.length : 6;
@@ -150,7 +154,8 @@ export default function Rotacion() {
 
             {recomendacion?.error && (
               <p className="fs-note" role="status">
-                {recomendacion.error} Mientras tanto se muestra el plan de ejemplo del diseño.
+                {recomendacion.error}
+                {outside ? '' : ' Mientras tanto se muestra el plan de ejemplo del diseño.'}
               </p>
             )}
 
@@ -172,7 +177,7 @@ export default function Rotacion() {
                 <i className="bi bi-flower1" aria-hidden="true"></i>
               </span>
               <div>
-                <h3>¿Por qué esta rotación funciona en tu parcela?</h3>
+                <h3>{outside ? 'Lo que dice NASA de tu parcela' : '¿Por qué esta rotación funciona en tu parcela?'}</h3>
                 <p>{why}</p>
               </div>
             </div>
@@ -235,9 +240,11 @@ export default function Rotacion() {
               ))}
             </ol>
             <p className="fs-note">
-              {real
-                ? 'Puntaje de 0 a 100 con el clima y el suelo de tu parcela. Lo que necesita cada cultivo son valores aproximados que falta confirmar.'
-                : 'Calificación de ejemplo del diseño: no pudimos calcular la de tu parcela.'}
+              {outside
+                ? 'Sin calificación: los cultivos y sus temporadas están calibrados solo para Guanajuato y Querétaro.'
+                : real
+                  ? 'Puntaje de 0 a 100 con el clima y el suelo de tu parcela. Lo que necesita cada cultivo son valores aproximados que falta confirmar.'
+                  : 'Calificación de ejemplo del diseño: no pudimos calcular la de tu parcela.'}
             </p>
             <Link className="fs-btn fs-btn-sec mt-auto" to="/cultivo">
               <i className="bi bi-search" aria-hidden="true"></i>¿Y otro cultivo? Pruébalo en tu parcela
