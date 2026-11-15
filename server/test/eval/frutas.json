@@ -1,0 +1,446 @@
+{
+ "nota": "Evaluación de aptitud y desglose de frutas y verduras. Parcela de ejemplo: Celaya (fixture NASA POWER 2000-2024). set \"dev\" = las 20 con que se desarrolló; set \"prueba\" = 12 que no se tocaron hasta el final. Mismo formato que preguntas.json.",
+ "punto": {
+  "lat": 20.47,
+  "lon": -100.81
+ },
+ "preguntas": [
+  {
+   "id": 1,
+   "set": "dev",
+   "cat": "aptitud",
+   "pregunta": "¿Puedo sembrar fresa aquí?",
+   "incluye": [
+    "fresa",
+    "se da bien"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 2,
+   "set": "dev",
+   "cat": "aptitud",
+   "pregunta": "¿se da el aguacate en querétaro?",
+   "incluye": [
+    "aguacate",
+    "con cuidados",
+    "pH",
+    "Querétaro"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 3,
+   "set": "dev",
+   "cat": "aptitud",
+   "pregunta": "¿qué frutas se dan en mi parcela?",
+   "incluye": [
+    "Se dan bien",
+    "Con cuidados",
+    "fresa"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER"
+   ]
+  },
+  {
+   "id": 4,
+   "set": "dev",
+   "cat": "aptitud",
+   "pregunta": "oye y el arándano crece por acá?",
+   "incluye": [
+    "arándano",
+    "difícil",
+    "pH"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 5,
+   "set": "dev",
+   "cat": "aptitud",
+   "pregunta": "puedo plantar papa en mi terreno?",
+   "incluye": [
+    "papa",
+    "con cuidados",
+    "helada"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 6,
+   "set": "dev",
+   "cat": "trampa",
+   "pregunta": "¿Se puede cultivar mango aquí?",
+   "incluye": [
+    "no verificado"
+   ],
+   "excluye": [
+    "se da bien",
+    "Sí, "
+   ]
+  },
+  {
+   "id": 7,
+   "set": "dev",
+   "cat": "aptitud",
+   "pregunta": "¿Es difícil sembrar jitomate aquí?",
+   "incluye": [
+    "jitomate",
+    "abril a junio"
+   ],
+   "excluye": [
+    "^Es difícil"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 8,
+   "set": "dev",
+   "cat": "aptitud",
+   "pregunta": "¿la uva se da por acá?",
+   "incluye": [
+    "uva",
+    "con cuidados",
+    "horas de frío"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 9,
+   "set": "dev",
+   "cat": "desglose",
+   "pregunta": "¿Cuánta superficie de cebolla hay?",
+   "incluye": [
+    "7008|7009",
+    "Guanajuato"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 10,
+   "set": "dev",
+   "cat": "desglose",
+   "pregunta": "¿Dónde se siembra más el brócoli?",
+   "incluye": [
+    "Dolores Hidalgo",
+    "Huimilpan"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 11,
+   "set": "dev",
+   "cat": "desglose",
+   "pregunta": "¿Qué porcentaje de la tuna es de riego?",
+   "incluye": [
+    "2 %",
+    "Guanajuato"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 12,
+   "set": "dev",
+   "cat": "desglose",
+   "pregunta": "¿Ha subido el precio del aguacate?",
+   "incluye": [
+    "[+]70 %"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 13,
+   "set": "dev",
+   "cat": "trampa",
+   "pregunta": "¿Cuánto tarda en dar fruta el aguacate?",
+   "incluye": [
+    "no verificado"
+   ],
+   "excluye": [
+    "[0-9]+ años"
+   ]
+  },
+  {
+   "id": 14,
+   "set": "dev",
+   "cat": "desglose",
+   "pregunta": "dame el desglose de la fresa",
+   "incluye": [
+    "1993|1994",
+    "56"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 15,
+   "set": "dev",
+   "cat": "desglose",
+   "pregunta": "¿Cuánto se pierde de chile en Querétaro?",
+   "incluye": [
+    "10[.,]8"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 16,
+   "set": "dev",
+   "cat": "trampa",
+   "pregunta": "¿Cuánta naranja se siembra en Guanajuato?",
+   "incluye": [
+    "no registra"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 17,
+   "set": "dev",
+   "cat": "desglose",
+   "pregunta": "¿qué municipios siembran espárrago?",
+   "incluye": [
+    "San Luis de La Paz",
+    "Pedro Escobedo"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 18,
+   "set": "dev",
+   "cat": "control",
+   "pregunta": "¿A cuánto se vende el jitomate?",
+   "incluye": [
+    "jitomate"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 19,
+   "set": "dev",
+   "cat": "control",
+   "pregunta": "¿Hay riesgo de heladas?",
+   "incluye": [
+    "helada"
+   ],
+   "cita": [
+    "NASA POWER"
+   ]
+  },
+  {
+   "id": 20,
+   "set": "dev",
+   "cat": "control",
+   "pregunta": "¿Cuál es la capital de Francia?",
+   "incluye": [
+    "Solo contesto"
+   ]
+  },
+  {
+   "id": 21,
+   "set": "prueba",
+   "cat": "aptitud",
+   "pregunta": "¿se podrá sembrar frambuesa en guanajuato?",
+   "incluye": [
+    "frambuesa",
+    "se da bien"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 22,
+   "set": "prueba",
+   "cat": "aptitud",
+   "pregunta": "¿Aguanta la manzana el frío de mi parcela?",
+   "incluye": [
+    "manzana",
+    "no verificado"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 23,
+   "set": "prueba",
+   "cat": "aptitud",
+   "pregunta": "¿Qué verduras se pueden sembrar aquí?",
+   "incluye": [
+    "Se dan bien",
+    "jitomate"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER"
+   ]
+  },
+  {
+   "id": 24,
+   "set": "prueba",
+   "cat": "aptitud",
+   "pregunta": "¿Puedo plantar naranja?",
+   "incluye": [
+    "naranja",
+    "con cuidados"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 25,
+   "set": "prueba",
+   "cat": "aptitud",
+   "pregunta": "¿se da el durazno?",
+   "incluye": [
+    "durazno",
+    "con cuidados"
+   ],
+   "cita": [
+    "FAO EcoCrop",
+    "NASA POWER",
+    "SIAP"
+   ]
+  },
+  {
+   "id": 26,
+   "set": "prueba",
+   "cat": "trampa",
+   "pregunta": "¿Se da el café aquí?",
+   "incluye": [
+    "no verificado"
+   ],
+   "excluye": [
+    "se da bien",
+    "Sí, "
+   ]
+  },
+  {
+   "id": 27,
+   "set": "prueba",
+   "cat": "desglose",
+   "pregunta": "¿Cuántas hectáreas de nuez hay en Querétaro?",
+   "incluye": [
+    "99",
+    "Querétaro"
+   ],
+   "excluye": [
+    "Guanajuato:"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 28,
+   "set": "prueba",
+   "cat": "desglose",
+   "pregunta": "¿En qué municipio se concentra el arándano?",
+   "incluye": [
+    "Abasolo"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 29,
+   "set": "prueba",
+   "cat": "desglose",
+   "pregunta": "¿Cuánto del chile de Guanajuato es de temporal?",
+   "incluye": [
+    "100 %",
+    "nada de temporal"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 30,
+   "set": "prueba",
+   "cat": "trampa",
+   "pregunta": "¿Cuántos años tarda la fresa en dar fruta?",
+   "incluye": [
+    "no verificado"
+   ],
+   "excluye": [
+    "[0-9]+ años"
+   ]
+  },
+  {
+   "id": 31,
+   "set": "prueba",
+   "cat": "desglose",
+   "pregunta": "¿Cuánto se pierde de brócoli?",
+   "incluye": [
+    "0[.,]2"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 32,
+   "set": "prueba",
+   "cat": "desglose",
+   "pregunta": "¿Cómo ha cambiado el precio de la nuez?",
+   "incluye": [
+    "[+]41 %",
+    "[+]68 %"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  }
+ ]
+}

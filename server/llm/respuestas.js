@@ -4,6 +4,8 @@ import { MESES } from './climatologia.js';
 import { detectCrop } from './siap.js';
 import { isFollowUp } from './intencion.js';
 import { summarizeForecast } from './ficha.js';
+import { detectarAptitud, redactarAptitud } from './aptitud.js';
+import { detectarDesglose, redactarDesglose } from './desglose.js';
 import { NO_ES, NO_VERIFICADO, fichaFrutal, topFrutales } from './frutales.js';
 
 const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
@@ -39,6 +41,8 @@ export function detectarTema(pregunta = '') {
   if (!q.trim()) return null;
   if (has(PELIGRO, q)) return 'peligro';
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
+  if (detectarAptitud(q)) return 'aptitud'; // ¿se da aquí? (llm/aptitud.js)
+  if (detectarDesglose(q)) return 'desglose'; // superficie, riego, municipios, pérdidas... de una fruta o verdura (llm/desglose.js)
   if (has(FRUTAL, q) && !has(CONCEPTO, q)) return 'frutales';
   if (detectCrop(q) && (has(SIAP_PRECIO, q) || has(SIAP_RINDE, q) || has(SIAP_RIESGO, q))) return 'siap';
   if (has(CONCEPTO, q)) return null;
@@ -70,6 +74,9 @@ const out = (respuesta, fuentes, datos) => ({ respuesta, fuentes, datos });
 const NOTA_HORA = 'son extremos de una hora del mes, no promedios del día';
 
 const REDACTORES = {
+  aptitud: (q, ctx) => redactarAptitud(q, ctx),
+  desglose: (q) => redactarDesglose(q, detectarDesglose(q)),
+
   frutales: (q) => {
     const estados = ['Guanajuato', 'Querétaro'];
     const todos = estados.flatMap((e) => topFrutales(e, 50) ?? []);

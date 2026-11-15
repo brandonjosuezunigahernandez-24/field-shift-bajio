@@ -30,6 +30,14 @@ export const TEMAS = [
     preguntas: ['¿A cuánto se vende el aguacate?', '¿Cuánto rinde la fresa?'],
   },
   {
+    id: 'aptitud', titulo: '¿Se da en mi parcela?', icono: 'bi-patch-check',
+    preguntas: ['¿Puedo sembrar fresa aquí?', '¿Qué frutas se dan en mi parcela?', '¿Se da el aguacate en Querétaro?', '¿Qué verduras se pueden sembrar aquí?'],
+  },
+  {
+    id: 'desglose', titulo: 'Frutas y verduras: más datos', icono: 'bi-bar-chart',
+    preguntas: ['¿Dónde se siembra más el brócoli?', '¿Cuánta superficie de cebolla hay?', '¿Ha subido el precio del aguacate?', '¿Cuánto tarda en dar fruta el aguacate?'],
+  },
+  {
     id: 'frutales', titulo: 'Frutales y perennes', icono: 'bi-tree-fill',
     preguntas: ['¿Qué frutales hay en mi estado?', '¿Cuánto rinde el espárrago?', '¿Qué se sabe de la uva?', '¿Qué hay de la tuna?'],
   },
