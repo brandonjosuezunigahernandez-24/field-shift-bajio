@@ -15,7 +15,7 @@ const CULTIVOS = FS_DATOS.cultivos;
 // the design's 22 illustrative crops. The reference crop (year 1 of the plan) is sorgo.
 export default function Cultivo() {
   const ctx = useParcelaContext();
-  const { point, clima, suelo, recomendacion, ensurePoint, agua: aguaPerfil } = ctx;
+  const { point, clima, suelo, recomendacion, ensurePoint, recomendar, agua: aguaPerfil } = ctx;
   const labels = selectionLabels(ctx);
   const [params] = useSearchParams();
 
@@ -32,9 +32,11 @@ export default function Cultivo() {
   const resultRef = useRef(null);
   const verdictRef = useRef(null);
 
+  // The plan to compare against is this plot's, even if the farmer skipped the 3D screen.
   useEffect(() => {
     if (ensurePoint()) setUsedDefault(true);
-  }, [ensurePoint]);
+    else if (point) recomendar();
+  }, [point, ensurePoint, recomendar, ctx.agua, ctx.prioridad]);
 
   const engineCtx = useMemo(() => engineContextFrom(clima?.data, suelo?.data, point?.id), [clima, suelo, point]);
   const placeName = point?.nombre ?? 'Celaya, Gto.';

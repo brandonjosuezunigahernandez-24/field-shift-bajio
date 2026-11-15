@@ -41,7 +41,9 @@ export function useParcela() {
   const [suelo, setSuelo] = useState(null);
   const [recomendacion, setRecomendacion] = useState(null);
   // Parcelas que el agricultor dibujó en el mapa (cada una con su cultivo). El servidor recibe el centro de todas.
-  const [parcelas, setParcelas] = useState([]);
+  const [parcelas, setParcelas] = useState(() => (Array.isArray(saved.parcelas) ? saved.parcelas : []));
+  // Kept with the point so a refresh still has the outline (3D frame, assistant hectares).
+  useEffect(() => saveSelection({ parcelas }), [parcelas]);
   const [pronostico, setPronostico] = useState(null); // próximos 7 días, o null si no hay
   const recKey = useRef(null); // "lat,lon,agua,prioridad" of the last /api/recomendar call
   const requestId = useRef(0);
