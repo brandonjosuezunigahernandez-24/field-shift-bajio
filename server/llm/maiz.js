@@ -185,7 +185,7 @@ const REDACTORES = {
     if (p) {
       const como = p.t_ha >= a.t_ha * 1.1 ? 'arriba del' : p.t_ha <= a.t_ha * 0.9 ? 'abajo del' : 'cerca del';
       return salida(`Sacaste ${p.t_ha} toneladas por hectárea${p.ha ? ` (${p.t} t en ${p.ha} ha)` : ''}: quedaste ${como} promedio de ${estado}.`, [
-        `El maíz ${nom(a)} de ${estado} promedia ${a.t_ha} t/ha (${a.desde}-${a.hasta}), entre ${a.peor.t_ha} y ${a.mejor.t_ha}, contando pérdidas.`,
+        `El maíz ${nom(a)} de ${estado} promedia ${a.t_ha} t/ha, contando lo que se pierde.`,
         enMuni,
         'Son promedios oficiales, no tu parcela: tu año, tu semilla y tu suelo cuentan. [SIAP]',
       ], ['SIAP'], { a, p, mu });
@@ -258,7 +258,7 @@ const REDACTORES = {
     if (dicha) {
       const esc = riesgo && riesgo.escenarios.reduce((x, e) => (Math.abs(e.lluvia_mm - mmDe(q)) < Math.abs(x.lluvia_mm - mmDe(q)) ? e : x));
       return salida(dicha, [
-        esc ? `Con unos ${esc.lluvia_mm} mm se perdería cerca de ${esc.siniestro_pct} % del maíz de temporal. Es un cálculo, no un pronóstico. [SIAP, NASA POWER]` : null,
+        esc ? `Con unos ${esc.lluvia_mm} mm se perdería cerca de ${esc.siniestro_pct} % del maíz de temporal${mmDe(q) < esc.lluvia_mm - 50 ? '; con menos lluvia, se pierde más' : ''}. Es un cálculo, no un pronóstico. [SIAP, NASA POWER]` : null,
         'Abajo, en «Qué hacer», está qué hacer si el año viene seco.',
       ], ['NASA POWER', ...(esc ? ['SIAP'] : [])], { s, riesgo: riesgo?.escenarios, mm: mmDe(q) }, esc ? { origen: 'modelo' } : {});
     }
