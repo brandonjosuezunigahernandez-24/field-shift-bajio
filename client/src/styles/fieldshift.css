@@ -625,7 +625,27 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 .fs-estrategia-nombre{font-weight:700;color:var(--fs-g800)}
 .fs-estrategia-seq{font-size:14px;color:var(--fs-ink)}
 .fs-estrategia-riesgo{font-size:12px;color:var(--fs-muted)}
-.fs-resumen{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px}
-.fs-resumen b{color:var(--fs-g800)}
+/* Las 3 rotaciones lado a lado: una medida por bloque, nombre · barra · cifra en cada renglón.
+   La elegida (la del mapa) en verde y las otras en gris; la cifra siempre escrita y «mejor» en palabras. */
+.fs-compara{display:grid;gap:12px}
+.fs-medida{margin:0}
+.fs-medida figcaption{font-size:13px;color:var(--fs-ink);margin-bottom:4px}
+.fs-medida-pista{color:var(--fs-muted);font-size:12px}
+.fs-medida ul{list-style:none;margin:0;padding:0;display:grid;gap:4px}
+.fs-medida li{display:grid;grid-template-columns:7.2em minmax(0,1fr) auto;align-items:center;gap:8px;font-size:13px;color:var(--fs-ink-2)}
+.fs-medida li.is-activa{color:var(--fs-ink);font-weight:700}
+.fs-medida-barra{height:10px}
+.fs-medida-barra span{display:block;height:100%;background:#9AA59D;border-radius:0 4px 4px 0}
+.fs-medida li.is-activa .fs-medida-barra span{background:var(--fs-g600)}
+.fs-medida-valor{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.fs-mejor{color:var(--fs-g800);font-weight:700}
+/* Tarjeta angosta (celular): nombre y cifra arriba, la barra abajo a todo lo ancho. */
+.fs-compara{container-type:inline-size}
+@container (max-width: 420px){
+  .fs-medida li{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"nombre valor" "barra barra";row-gap:2px}
+  .fs-medida-nombre{grid-area:nombre}
+  .fs-medida-valor{grid-area:valor}
+  .fs-medida-barra{grid-area:barra}
+}
 .fs-lista summary{cursor:pointer;font-weight:700;color:var(--fs-g800)}
 .fs-lista ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px;font-size:14px}

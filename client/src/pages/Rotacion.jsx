@@ -2,6 +2,7 @@ import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
 import RainChart from '../components/charts/RainChart.jsx';
+import ComparaRotaciones from '../components/ComparaRotaciones.jsx';
 import { getPrueba } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES } from '../crops.js';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
@@ -24,7 +25,6 @@ const TARJETAS = [
 const MES = { 6: 'junio', 7: 'julio', 11: 'noviembre' };
 const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 const pct = (p) => Math.round(p * 100);
-const veces = (n, uno, varios) => `${n} ${n === 1 ? uno : varios}`;
 
 // A titled list that opens on tap: keeps the card short (evidence, gaps and what to check locally).
 function Lista({ titulo, items, abierta = false }) {
@@ -148,7 +148,6 @@ export default function Rotacion() {
     switch (id) {
       case 'plan': {
         if (!rec) return sinPlan();
-        const r = estrategia.resumen;
         return (
           <>
             {estrategias.length > 1 && (
@@ -169,30 +168,11 @@ export default function Rotacion() {
                 ))}
               </div>
             )}
-            {estrategia.porque && <p>{estrategia.porque}</p>}
-            {r && (
-              <ul className="fs-resumen" aria-label="Resumen de esta rotación">
-                {r.riesgo != null && (
-                  <li>
-                    <b>{pct(r.riesgo)} %</b> de temporadas sin lluvia suficiente (con 25 años puede ser de {pct(r.riesgo_rango[0])} a {pct(r.riesgo_rango[1])} %)
-                  </li>
-                )}
-                <li>
-                  <b>{r.leguminosas}</b> {r.leguminosas === 1 ? 'temporada' : 'temporadas'} de leguminosa{r.leguminosas ? ' (deja nitrógeno en el suelo)' : ''}
-                </li>
-                <li>
-                  <b>{veces(r.familias, 'familia', 'familias')}</b> de cultivo
-                  {r.familia_repetida ? `, repite familia ${veces(r.familia_repetida, 'vez', 'veces')} seguidas` : ', sin repetir familia seguida'}
-                </li>
-                <li>
-                  <b>{fmt(r.lluvia_necesaria_mm)} mm</b> de agua necesitan sus cultivos en 3 años
-                </li>
-                {r.ingreso_bruto_mxn_ha != null && (
-                  <li>
-                    <b>${fmt(r.ingreso_bruto_mxn_ha)}</b> por hectárea en 3 años (ingreso bruto del SIAP, sin costos)
-                  </li>
-                )}
-              </ul>
+            <ComparaRotaciones estrategias={estrategias} activa={estrategia.id} agua={agua} />
+            {estrategia.porque && (
+              <p>
+                <b>{estrategia.nombre}:</b> {estrategia.porque}
+              </p>
             )}
             <div className="fs-years" role="group" aria-label="Año del plan">
               {plan.map((s, i) => (
