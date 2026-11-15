@@ -70,7 +70,7 @@ export function detectarTema(pregunta = '') {
   if (has(/(mi suelo|\bph\b|arcilla|textura de mi|como esta (la )?tierra)/, q)) return 'suelo';
   // "¿Puedo sembrar fresas?": no hay agronomía verificada del cultivo; se dice y se da lo que sí hay (SIAP). Antes el modelo usaba la tarjeta del maíz.
   // Verbos modales y formas comunes: "¿podría?", "¿debo?", "¿está bien si…?", "¿le pongo…?", "¿qué tal el…?", "¿me recomienda el…?".
-  if (detectCrop(q) && has(/(puedo|podria|se puede|conviene|convendria|vale la pena|debo|deberia|esta bien si|seria bueno|es buena idea|recomiend|aconsej|que tal (el|la|los|las|si)|le (pongo|meto|echo)|sirve)/, q)) return 'cultivo';
+  if (detectCrop(q) && has(/(puedo|podria|se puede|conviene|convendria|vale la pena|debo|deberia|esta bien si|seria bueno|es buena idea|recomiend|aconsej|que tal (si|(el|la|los|las) \w+ (para|en) (mi|aqui))|le (pongo|meto|echo)|sirve)/, q)) return 'cultivo';
   // Sin ninguna palabra del campo, el clima o los cultivos: fuera de tema (lo contesta el código; el modelo inventaba).
   if (q.trim().split(/\s+/).length >= 3 && !has(DENTRO, q) && !detectCrop(q) && !isFollowUp(q)) return 'fuera';
   return null;
