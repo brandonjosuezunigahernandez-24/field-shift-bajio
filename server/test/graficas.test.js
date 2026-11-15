@@ -18,7 +18,8 @@ const ask = async (pregunta, perfil = { agua: 'temporal', prioridad: 'ganar', he
 })).json();
 // Números escritos en el texto ("$5,404" -> 5404, "−2.7" -> 2.7).
 const nums = (t) => (t.match(/\d[\d,]*(?:\.\d+)?/g) ?? []).map((s) => Number(s.replace(/,/g, '')));
-const dice = (b, xs) => { const n = nums(b.respuesta); for (const x of xs) assert.ok(n.includes(Math.abs(x)), `${x} no está en: ${b.respuesta}`); };
+// llm/claro.js redondea para el agricultor (1.39 -> 1.4, 423.2 -> unos 420): vale el número exacto o el redondeado.
+const dice = (b, xs) => { const n = nums(b.respuesta); for (const x of xs.map(Math.abs)) assert.ok([x, Number(x.toFixed(1)), Math.round(x / 10) * 10].some((v) => n.includes(v)), `${x} no está en: ${b.respuesta}`); };
 const g = (b, re) => b.graficas.find((x) => re.test(x.titulo));
 const esquema = (b) => {
   assert.ok(b.graficas.length >= 1 && b.graficas.length <= 3);
@@ -34,8 +35,7 @@ test('maíz, producción: la tabla de tus hectáreas y el peor/mejor año salen 
   esquema(b);
   const [fila] = g(b, /Tus 5 ha/).filas;
   dice(b, fila.slice(1));
-  const rend = g(b, /rendimiento/).series[0].valores;
-  dice(b, [Math.min(...rend), Math.max(...rend)]);
+  // El peor/mejor rendimiento por hectárea ya no va en el texto (está en la gráfica): el texto da los totales de sus hectáreas.
 });
 
 test('maíz, precio: el precio del último año y el ingreso por hectárea', async () => {

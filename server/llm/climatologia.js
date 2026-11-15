@@ -70,3 +70,31 @@ export function climatologia(rows) {
     tendencia_lluvia_verano: tendenciaLluvia(anual),
   };
 }
+
+// ---------- lo que dice el agricultor en la pregunta (texto ya sin acentos y en minúsculas) ----------
+// ¿Difieren en a lo más una letra (cambiada, sobrante o faltante)? Para "dicienbre", "jullio".
+const lev1 = (a, b) => {
+  if (Math.abs(a.length - b.length) > 1) return false;
+  let i = 0; while (i < a.length && a[i] === b[i]) i++;
+  return a.slice(i + 1) === b.slice(i + 1) || a.slice(i + 1) === b.slice(i) || a.slice(i) === b.slice(i + 1);
+};
+// Meses que nombra la pregunta (1-12), en el orden en que aparecen; tolera una letra mal en meses de 5+ letras.
+export function mesesDe(q) {
+  const out = [];
+  for (const w of q.match(/[a-z]+/g) ?? []) {
+    const exacto = MESES.indexOf(w); // primero el exacto: "julio" y "junio" difieren en una letra
+    const i = exacto >= 0 ? exacto : ['junto', 'abrir'].includes(w) ? -1 : MESES.findIndex((m) => m.length >= 5 && w.slice(0, 3) === m.slice(0, 3) && lev1(w, m));
+    if (i >= 0 && !out.includes(i + 1)) out.push(i + 1);
+  }
+  return out;
+}
+// "400 mm", "400 milimetros" -> 400.
+export const mmDe = (q) => { const m = q.match(/(\d{2,4}(?:[.,]\d)?)\s*(?:mm\b|milimetro)/); return m ? Number(m[1].replace(',', '.')) : null; };
+// Lluvia de junio a septiembre que dice el agricultor contra la de su parcela (summarizeClimate). -> frase con cita, o null.
+export function lluviaDicha(mm, resumen) {
+  if (mm == null || !resumen?.lluvia_pv_anual?.length) return null;
+  const { lluvia_pv_mediana_mm: med, umbral_seco_mm: umbral, lluvia_pv_anual: a } = resumen;
+  const menos = a.filter((y) => y.lluvia_mm < mm).length;
+  const como = mm < umbral ? 'sería año seco' : mm < med ? 'es menos de lo normal, pero no año seco' : 'es lo normal o más';
+  return `${mm} mm de junio a septiembre ${como} en tu parcela. Lo normal es ${med} mm; año seco es menos de ${umbral} mm. En ${menos} de ${a.length} años llovió menos que eso [NASA POWER].`;
+}

@@ -1,6 +1,6 @@
 // Respuestas por plantilla para las preguntas frecuentes: el código calcula, redacta y pone la cita; el modelo no interviene.
 // detectarTema(pregunta) -> tema | null; redactar(tema, pregunta, ctx) -> { respuesta, fuentes, datos } | null (null = que conteste el modelo).
-import { MESES } from './climatologia.js';
+import { MESES, lluviaDicha, mesesDe, mmDe } from './climatologia.js';
 import { detectCrop } from './siap.js';
 import { isFollowUp } from './intencion.js';
 import { summarizeForecast } from './ficha.js';
@@ -13,21 +13,21 @@ const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const has = (re, q) => re.test(q);
 const NASA = '[NASA POWER]';
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
-const mesDe = (q) => { const i = MESES.findIndex((m) => new RegExp(`\\b${m}\\b`).test(q)); return i >= 0 ? i + 1 : null; };
+const mesDe = (q) => mesesDe(q)[0] ?? null; // tolera una letra mal: "dicienbre"
 // "este año" / "el año pasado" -> 2024 (el último año con datos de NASA POWER; la respuesta lo dice).
 const ULTIMO = 2024;
 const anioDe = (q) => { const m = q.match(/\b(19\d\d|20\d\d)\b/); return m ? Number(m[1]) : /(ano pasado|este ano|ultimo ano)/.test(q) ? ULTIMO : null; };
 const dia = (f) => { const [, m, d] = f.split('-').map(Number); return `${d} de ${MESES[m - 1]}`; };
 const neg = (n) => (n < 0 ? `−${Math.abs(n)}` : `${n}`);
 
-const PELIGRO = /(pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|pongo|rocio)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
-const INSUMO = /(cuesta|precio|cuanto vale|costo)/;
+const PELIGRO = /(pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|rocio)|que (le )?pongo (al|a la|para|contra) (plaga|gusano|hierba|maleza|hongo)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
+const INSUMO = /(cuesta|precio|cuanto vale|costo|caro|carisim|no me alcanza|gasto)/;
 const INSUMOS = /(fertiliz|abono|semilla|diesel|insumo|urea|tractor)/;
 const PRON = /(semana|se espera|\bhoy\b|manana|pronostico|proximos dias|proxima|va a llover|llovera|habra|^\W*llueve\W*$)/;
-const TREND = /(tendencia|cambiando|cambio climatico|cada vez|que antes|llovia|va a la baja|ultimos \d+ anos|disminu|aument|empeor|mejor[ao]n? )/;
+const TREND = /(tendencia|cambiando|cambio climatico|cada vez|que antes|llovia|va a la baja|ultimos \d+ anos|hace \d+ anos|disminu|aument|empeor|mejor[ao]n? )/;
 const SECOS = /(llovio poco|poca lluvia|anos? sec|sequi|\bsecos?\b|\bsecoss\b|anos? de (poca|mala) lluvia)/;
 const LLUVIA = /(llov|lluvi|llue|agua(?!cate))/; // "aguacate" no es lluvia
-const FRIO = /(helad|hiela|congel|\bfri[oa]|invierno|inviern|temperatura minima)/;
+const FRIO = /(helad|\belada|hiela|congel|\bfri[oa]|invierno|inviern|temperatura minima)/;
 const CALOR = /(grados|calor|calur|temperatura maxima|temperatura|caliente)/;
 const SIAP_PRECIO = /(se paga|vende|vender|venden|precio|pagan|pago por|valor de la tonelada)/;
 const SIAP_RINDE = /(rinde|rendimiento|cuanto saca|saca mi|toneladas|produce)/;
@@ -55,6 +55,8 @@ export function detectarTema(pregunta = '') {
   if (has(CONCEPTO, q)) return null;
   if (has(PRON, q)) return 'pronostico';
   if (has(TREND, q) && has(LLUVIA, q)) return 'tendencia';
+  // "¿Con 400 mm alcanza?": la lluvia que dice el agricultor contra la de su parcela.
+  if (mmDe(q) != null && !detectCrop(q)) return has(SECOS, q) ? 'secos' : 'lluvia';
   if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal)/, q)) return 'anio';
   if (has(SECOS, q)) return 'secos';
   if (has(FRIO, q)) return 'heladas';
@@ -62,7 +64,7 @@ export function detectarTema(pregunta = '') {
   if (has(/(radiacion|solar|\bsol\b|insolacion)/, q)) return 'radiacion';
   if (has(/(hum[ea]d|mojad)/, q) && has(/(tierra|suelo|raiz|parcela)/, q)) return 'humedad';
   if (has(LLUVIA, q)) return 'lluvia';
-  if (has(/cuando (siembro|sembrar|planto|plantar|se siembra)/, q)) return 'siembra';
+  if (has(/(cuando|que fecha|en que mes) (siembro|sembrar|planto|plantar|se siembra|echo)/, q)) return 'siembra';
   if (has(/(mi suelo|\bph\b|arcilla|textura de mi|como esta (la )?tierra)/, q)) return 'suelo';
   // "¿Puedo sembrar fresas?": no hay agronomía verificada del cultivo; se dice y se da lo que sí hay (SIAP). Antes el modelo usaba la tarjeta del maíz.
   if (detectCrop(q) && has(/(puedo|se puede|conviene|vale la pena)/, q)) return 'cultivo';
@@ -149,6 +151,8 @@ const REDACTORES = {
 
   secos: (q, { clim, resumen }) => {
     const n = resumen.anios_secos.length, p = clim.periodo;
+    const dicha = lluviaDicha(mmDe(q), resumen);
+    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length, n_anios: resumen.lluvia_pv_anual.length });
     const pedido = (q.match(/\b\d{1,3}\b/g) ?? []).map(Number).find((x) => x !== n && x !== p.anios && x !== 80);
     const corrige = pedido !== undefined ? `No: según NASA POWER no fueron ${pedido}. ` : '';
     const lista = n ? `: ${resumen.anios_secos.join(', ')}` : '';
@@ -196,9 +200,16 @@ const REDACTORES = {
 
   lluvia: (q, { clim, resumen }) => {
     const mes = mesDe(q), ms = clim.por_mes, A = clim.periodo.anios;
+    const dicha = lluviaDicha(mmDe(q), resumen);
+    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length, n_anios: resumen.lluvia_pv_anual.length });
+    const dos = mesesDe(q);
+    if (dos.length >= 2) { // "¿llueve más en julio o en agosto?"
+      const [a, b] = dos.map((i) => ms[i - 1]), mas = a.lluvia_mm >= b.lluvia_mm ? a : b;
+      return out(`Llueve más en ${MESES[mas.mes - 1]}: ${MESES[a.mes - 1]} promedia ${a.lluvia_mm} mm y ${MESES[b.mes - 1]} ${b.lluvia_mm} mm (${A} años) ${NASA}.`, ['NASA POWER'], { a, b, A });
+    }
     if (mes) {
       const m = ms[mes - 1];
-      return out(`En ${MESES[mes - 1]} llueven en promedio ${m.lluvia_mm} mm (en ${A} años osciló entre ${m.lluvia_min_mm} y ${m.lluvia_max_mm} mm) ${NASA}.`, ['NASA POWER'], { m, A });
+      return out(`En ${MESES[mes - 1]} llueven en promedio ${m.lluvia_mm} mm ${NASA}. Según el año, de ${m.lluvia_min_mm} a ${m.lluvia_max_mm} mm.`, ['NASA POWER'], { m, A });
     }
     if (has(/\b(mas|menos|mes)\b/, q) && has(/(llue|lluvi|seco)/, q)) {
       const a = ms[clim.mes_mas_lluvioso - 1], b = ms[clim.mes_mas_seco - 1];
@@ -230,7 +241,7 @@ const REDACTORES = {
   // Sin fuente propia: se dice y se apunta a «Qué hacer» solo si ahí hay algo para esta pregunta.
   apoyos: (q, { perfil = {} }) => {
     const hay = accionesPara({ tema: 'apoyos', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;
-    return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Para montos, fechas y papeles confirma en la ventanilla de la Secretaría de Agricultura de tu municipio (CADER) o en tu presidencia municipal.`, [], {});
+    return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Montos, fechas y papeles, confírmalos en el CADER de tu municipio. Es la ventanilla de la Secretaría de Agricultura; también te orientan en la presidencia municipal.`, [], {});
   },
   credito: (q, { perfil = {} }) => {
     const hay = accionesPara({ tema: 'credito', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;

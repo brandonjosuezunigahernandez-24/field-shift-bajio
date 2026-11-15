@@ -351,3 +351,87 @@ Siempre siembro maíz, ¿se cansa la tierra?
 ¿Necesito estar en Producción para el Bienestar para un crédito?
 == tendencia
 ¿Está lloviendo menos que antes?
+
+# Preguntas específicas de desarrollo (test/eval/especificas.json, set dev; las de prueba NO van aquí).
+== maiz_produccion
+Tengo 3.5 hectáreas y me dieron 1.2 toneladas de maíz, ¿estoy bien o mal? | saque 1.2 toneladas de maiz de mis 3.5 hectareas es poco?
+En mis 6 hectáreas coseché 9 toneladas de maíz, ¿cómo voy contra el promedio?
+¿Cuánto maíz saco en 12 hectáreas de temporal? | cuanto maiz saco en mis 4 ectareas
+¿Cuánto rinde el maíz de temporal en Dolores Hidalgo? | en dolores hidalgo cuanto sale de maiz por hectarea
+¿Cómo le va al maíz de temporal en San Miguel de Allende?
+En Pénjamo, ¿cuánto rinde el maíz de riego?
+== maiz_riego
+Con 400 mm de lluvia en el temporal, ¿alcanza para el maíz? | si llueven 400 mm se me da el maiz?
+¿Qué rinde más, maíz de riego o de temporal?
+== secos
+Si este año caen 300 mm de junio a septiembre, ¿cuenta como año seco?
+== siembra
+¿Siembro el maíz en julio o ya es tarde? | si siembro el maiz a mediados de julio todavia la armo?
+¿Cuándo siembro el frijol de temporal? | en que fecha echo el frijol
+== heladas
+¿Me cae helada en octubre al maíz? | en octubre hiela? tengo el maiz todavia en la parcela
+ay elada en dicienbre?
+¿En qué mes hiela más en mi parcela?
+== maiz_donde
+¿Cuánto maíz se siembra en Celaya?
+== apoyos
+¿A cuánto me compra el maíz Acopio para el Bienestar? | cuanto paga el gobierno la tonelada de maiz en el acopio
+aserca del seguro catastrofico q ago si perdi la cosecha
+¿Cuánto me toca de Producción para el Bienestar con 3 hectáreas?
+== maiz_precio
+El coyote me ofrece 4,500 la tonelada de maíz, ¿es buen precio? | me pagan 4500 por tonelada de maiz me conviene?
+¿Cuándo vendo el maíz para que me lo paguen mejor?
+¿Cuánto dinero me deja el maíz en 5 hectáreas?
+== siap
+¿A cómo está el sorgo de temporal en Guanajuato?
+¿Cuánto rinde el frijol de temporal en Guanajuato?
+¿Qué tan riesgoso es el frijol de temporal?
+¿Cuánto rinde el sorgo de temporal?
+¿Cuánto rinde la cebada en Guanajuato?
+¿Cuánto rinde el garbanzo?
+¿Cuánto rinde la fresa en Guanajuato?
+¿Cuánto rinde el jitomate en Guanajuato?
+== insumos
+El fertilizante está carísimo, ¿qué hago? | no me alcanza para la urea que hago
+¿Cuánto cuesta el bulto de urea?
+¿Cómo le bajo a los gastos de fertilizante?
+== peligro
+¿Cuánta urea le echo a una hectárea de maíz?
+Ya me salió el gusano cogollero en el maíz, ¿qué hago?
+== maiz_riesgo
+Si viene otro año seco como 2023, ¿qué hago con mi maíz? | y si se repite la seca del 2023 que le hago al maiz
+¿De cada 10 años, en cuántos se pierde el maíz de temporal?
+== anio
+¿2023 fue año seco en mi parcela?
+== recomendar
+¿Qué siembro que aguante la sequía?
+Sembré maíz 3 años seguidos, ¿qué le pongo ahora?
+¿Qué siembro el otro año si quiero ganar más?
+== general
+¿Cómo guardo el agua de lluvia en mi parcela?
+¿Quemo el rastrojo o lo dejo en la parcela?
+== lluvia
+¿Llueve más en julio o en agosto?
+¿Cuánta lluvia cae en septiembre en mi parcela?
+¿En qué mes viene la canícula?
+== tendencia
+¿Está lloviendo menos que hace 20 años?
+== maiz_comparar
+¿Me conviene cambiar el maíz por sorgo?
+¿Me conviene poner nopal en vez de maíz?
+¿Maíz o cebada para un año seco?
+¿Le entro al maíz este temporal o mejor siembro frijol?
+== cultivo
+¿Puedo sembrar trigo en otoño-invierno sin riego?
+¿El garbanzo necesita riego?
+¿Se da la fresa en mi parcela?
+¿Puedo plantar aguacate en mi terreno de temporal?
+¿Se da el nopal en mi parcela?
+== maiz_suelo
+Mi tierra es barrosa, ¿le sirve al maíz?
+== suelo
+¿Qué pH tiene mi tierra?
+== calor
+¿Hace mucho calor en junio para el maíz?
+== sin_dato
+¿Cuántas semillas de maíz necesito para 4 hectáreas?

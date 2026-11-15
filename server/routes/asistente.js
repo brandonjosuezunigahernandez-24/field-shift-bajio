@@ -25,6 +25,7 @@ import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redacta
 import { conGraficas, graficasCultivoPregunta, graficasFinca, graficasMaiz, graficasPlantilla, graficasReco } from '../llm/graficas.js';
 import { ID_MAIZ, TEMAS_PLANTILLA, respaldoSeguro } from '../llm/intencion-ml.js';
 import { conCultivoActual, seguimiento } from '../llm/seguimiento.js';
+import { claro } from '../llm/claro.js';
 
 const router = Router();
 // Preguntas sobre el riesgo del maíz por la lluvia: las contesta el modelo entrenado (solo maíz), con su aviso.
@@ -309,7 +310,11 @@ async function conQueHacer(body, req) {
     const pideAccion = /que (hago|hacer|puedo hacer|debo hacer|le hago)|como (cuido|mejoro|protejo|evito)/.test(norm(pregunta));
     const respuesta = pideAccion && que_hacer.length && body.respuesta && !body.respuesta.includes('Qué hacer')
       ? `${que_hacer[0].accion} [${que_hacer[0].fuente}] Más ideas abajo, en «Qué hacer». ${body.respuesta}` : body.respuesta;
-    return { ...body, respuesta, que_hacer };
+    // Cierra con lo que conviene hacer (la misma acción de «Qué hacer»), si cabe en 5 frases y no lo dijo ya.
+    const n = (respuesta ?? '').split(/(?<=[.!?])\s+/).filter((x) => x.trim().length > 2).length;
+    const corta = que_hacer[0]?.accion.split(/\s*[(;:]/)[0].replace(/[.,]$/, ''); // sin paréntesis ni detalles: esos van en «Qué hacer»
+    const cierre = !pideAccion && corta && n < 5 && corta.split(/\s+/).length <= 18 && !/Qué hacer/.test(respuesta ?? '') ? ` Lo que conviene: ${corta[0].toLowerCase()}${corta.slice(1)}.` : '';
+    return { ...body, respuesta: claro((respuesta ?? '') + cierre), que_hacer };
   } catch {
     return { ...body, que_hacer: [] }; // las acciones nunca tumban la respuesta
   }

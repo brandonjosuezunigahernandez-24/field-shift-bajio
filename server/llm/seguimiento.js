@@ -37,6 +37,7 @@ const DEL_CULTIVO = ['produccion', 'precio', 'ciclo', 'decision', 'riesgo', 'rie
 export function conCultivoActual(pregunta, cultivoActual) {
   if (cultivoActual !== 'maiz' || !pregunta || esMaiz(pregunta) || wantsRecommendation(pregunta)) return pregunta;
   const q = strip(pregunta);
+  if (/(guard|capt|junt|cosech)\w* (el |la )?agua/.test(q)) return pregunta; // "¿cómo guardo el agua de lluvia?" no es del maíz
   const propio = PROPIO.test(q);
   if (!propio && (detectCrop(q) || detectarTema(q))) return pregunta; // "¿cuánto llueve en julio?" sigue siendo de lluvia
   if (detectCrop(q) && !/lo que (tengo|sembre|siembro)/.test(q)) return pregunta; // "¿cuánto saco de sorgo?" es del sorgo
