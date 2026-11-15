@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { appendFile, mkdir, readFile } from 'node:fs/promises';
+import { appendFile, mkdir, readFile, stat } from 'node:fs/promises';
 import { dirname } from 'node:path';
 import { fileURLToPath } from 'node:url';
 import { HttpError } from '../lib/errors.js';
@@ -12,8 +12,8 @@ export const MOTIVOS = ['no_era', 'falta', 'largo', 'no_entiendo', 'dato_mal'];
 const ORIGENES = ['motor', 'plantilla', 'llm', 'modelo'];
 const ESTADOS = ['Guanajuato', 'Querétaro'];
 
-// Correos y teléfonos (8 dígitos o más, con espacios o guiones) se tapan antes de guardar.
-export const limpiar = (t) => t.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '[correo]').replace(/\+?\d(?:[\s().-]*\d){7,}/g, '[teléfono]');
+// Correos y teléfonos (10 dígitos o más, como los de México, con espacios o guiones) se tapan antes de guardar; "2000 2024" no es teléfono.
+export const limpiar = (t) => t.replace(/[\w.+-]+@[\w-]+(\.[\w-]+)+/g, '[correo]').replace(/\+?\d(?:[\s().-]?\d){9,}/g, '[teléfono]');
 
 const texto = (v, max, campo, obligatorio = false) => {
   if (v == null || v === '') {
@@ -70,6 +70,8 @@ router.post('/', async (req, res) => {
   const fila = validar(req.body);
   const archivo = ARCHIVO();
   await mkdir(dirname(archivo), { recursive: true });
+  // Tope de 5 MB (unos 10 mil votos): más que eso es abuso o un error, y no debe llenar el disco.
+  if ((await stat(archivo).catch(() => null))?.size > 5e6) throw new HttpError(507, 'Ya no se aceptan más votos por ahora.');
   await appendFile(archivo, JSON.stringify(fila) + '\n');
   res.status(201).json({ ok: true });
 });
