@@ -150,7 +150,8 @@ async function resolver(req) {
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
   // "¿Por qué?", "¿y eso por qué?", "¿por qué no maíz?" tras una plática: seguimiento de la recomendación, no pregunta nueva
   // (se mira lo que dijo, no la pregunta completada con la plática). Va antes del maíz y de "recomiéndame".
-  const pideQue = historial.length > 0 && asksWhyThisCrop(dicha) && !esConcepto(dicha);
+  // Sin plática solo si nombra un cultivo («¿por qué no el maíz?» como primera pregunta).
+  const pideQue = (historial.length > 0 || Boolean(dicha && detectCrop(dicha))) && asksWhyThisCrop(dicha) && !esConcepto(dicha);
   const pideReco = !pideQue && pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
   // "¿Y si sigo igual?" y "¿Qué tan seguro es?" hablan del plan (las 3 rotaciones y su incertidumbre), no del maíz sembrado.
   const pideIgual = Boolean(dicha) && pideSeguirIgual(dicha);
@@ -271,7 +272,7 @@ async function resolver(req) {
       });
     }
   }
-  const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
+  const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil), estado: perfil.estado ?? estado });
   if (plantilla) return res.json(plantilla);
   // Quemar el rastrojo: siempre la tarjeta (SADER, #MiParcelaNoSeQuema). El modelo a veces volteaba el consejo.
   if (pregunta && /quem/.test(norm(pregunta)) && /rastrojo|soca|paja/.test(norm(pregunta))) {

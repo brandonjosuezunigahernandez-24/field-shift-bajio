@@ -51,6 +51,8 @@ export function detectarTema(pregunta = '') {
   const q = strip(pregunta);
   if (!q.trim()) return null;
   if (has(PELIGRO, q)) return 'peligro';
+  // "¿Cuánto me cuesta sembrar una hectárea?" sin cultivo: no hay costos verificados (con maíz lo contesta maiz.js igual).
+  if (/(cuanto|que tanto) (me )?(cuesta|sale|gasto|invierto)\w* (en )?(sembrar|producir|la siembra|cultivar|meter)|costos? de (produccion|siembra|sembrar|cultivo)/.test(q) && !detectCrop(q)) return 'costos';
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
   if (has(CREDITO, q)) return 'credito';
   if (has(APOYOS, q)) return 'apoyos';
@@ -215,6 +217,8 @@ const REDACTORES = {
     const hi = ms.reduce((a, m) => (m.humedad_raiz > a.humedad_raiz ? m : a)), lo = ms.reduce((a, m) => (m.humedad_raiz < a.humedad_raiz ? m : a));
     return out(`La humedad de la zona de raíces es más alta en ${MESES[hi.mes - 1]} (${hi.humedad_raiz}) y más baja en ${MESES[lo.mes - 1]} (${lo.humedad_raiz}); ${nota} ${NASA}.`, ['NASA POWER'], { hi, lo });
   },
+
+  costos: () => out('No tengo costos de sembrar una hectárea: no hay una fuente confirmada. Lo que sí tengo es lo que se gana: pregúntame, por ejemplo, cuánto deja el maíz o el frijol por hectárea. Para los costos pregunta a tu técnico o a tu proveedor.', [], {}),
 
   'lluvia-comparar': (q, { resumen }) => {
     const m = municipioNombrado(q);

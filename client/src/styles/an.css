@@ -8,6 +8,9 @@
 .an-tabs button.on { background: #14532d; color: #fff; }
 .an-tabs button:hover, .an-qs button:hover, .an-opts button:hover, .an-btn:hover, .an-dato button:hover { background: #e3f1e6; }
 .an-tabs button.on:hover { background: #1f7a45; }
+.an-prueba { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; }
+.an-prueba-t { font-size: 16px; font-weight: 600; color: #14532d; width: 100%; }
+.an-prueba .fs-btn { min-height: 48px; font-size: 16px; }
 .an-ask { display: flex; flex-direction: column; gap: 8px; margin: 14px 0; }
 .an-ask input { min-height: 52px; font-size: 18px; padding: 10px 14px; border: 2px solid #b9cbb9; border-radius: 12px; }
 .an-mic, .an-go { min-height: 52px; font-size: 18px; font-weight: 700; font-family: inherit; border-radius: 12px; cursor: pointer; border: 2px solid #14532d; }

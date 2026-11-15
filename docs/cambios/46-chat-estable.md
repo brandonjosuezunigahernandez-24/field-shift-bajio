@@ -67,3 +67,24 @@ Las dos copias (con y sin internet) dieron exactamente lo mismo.
 - Garbanzo, trigo y cebada en temporal siguen sin lugar en el plan. Por decisión del equipo, no se agregan.
 - La comparación de lluvia solo funciona con los 64 municipios que tienen clima guardado.
 - Si alguien contesta «en total» o un número suelto («3») a la pregunta de hectáreas, el chat todavía no lo entiende.
+
+## Segunda parte (misma fecha): lo que fallaba en la página
+
+Probando en el navegador salieron fallas que las pruebas por API no veían:
+
+- **La página nunca mandaba el historial.** Por eso «en 4 hectáreas» o «¿por qué ese?» no seguían la plática.
+  `client/src/hooks/useAsistente.js` ahora manda las 2 últimas preguntas con su respuesta, y las borra al cambiar de parcela.
+- **«¿Y por qué no el maíz?» como primera pregunta**: si nombra un cultivo, ya no hace falta plática previa.
+- **«¿Cuánto me cuesta sembrar una hectárea?»** sin cultivo: tema `costos` («no hay una fuente confirmada»), igual que con maíz.
+- **«¿Y si cultivo aguacate?»**: va a «¿se da aquí?» y no a la recomendación general.
+- **Plantillas sin estado en el perfil**: se usa el estado de la ubicación (antes el frijol de El Marqués se comparaba con Guanajuato).
+- **Botones de parcelas de prueba** en «3. Análisis IA» (`client/src/config/parcelasPrueba.js`): Celaya (maíz) y El Marqués (frijol).
+  Dibujan la parcela y llenan el perfil. Sus centros son los puntos de ejemplo, así que funcionan con y sin internet.
+- **Suelo cuando SoilGrids está lento** (`server/sources/soilGrids.js`):
+  1. Primero se pide la consulta completa (hasta 1 m).
+  2. Si tarda, se pide la ligera (6 propiedades, 0-30 cm). Su caché no se vuelve a pedir.
+  3. Si tampoco responde, se usa el suelo guardado del mismo cuadro de 250 m, con el aviso «a N m de tu parcela».
+     Más lejos, nunca: se respeta la regla del equipo (una parcela a 760 m no toma prestado el suelo).
+
+Verificado imitando a la página, con historial, en las 2 parcelas de prueba y en las 2 copias: 17/17 en cada una, iguales con y
+sin internet. La ronda de 30 preguntas dio 30/30 en cada parcela y copia. `node --test`: 344.

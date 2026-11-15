@@ -181,11 +181,18 @@ export function useParcela() {
   const setCultivo = (id, cultivo) => setParcelas((list) => list.map((p) => (p.id === id ? { ...p, cultivo } : p)));
   // Un punto elegido sin dibujar (ejemplo, globo 3D) es otro lugar: se limpian las parcelas.
   const choosePoint = useCallback((selected) => { setParcelas([]); selectPoint(selected); }, [selectPoint]);
+  // Parcela de prueba (config/parcelasPrueba.js): la dibuja y llena el perfil, como si el agricultor lo hubiera hecho.
+  const cargarPrueba = useCallback(({ contorno, cultivo, perfil: datos }) => {
+    const p = createParcel(1, contorno, cultivo);
+    reiniciarPerfil();
+    setFarm([p]);
+    for (const [campo, valor] of Object.entries({ ...datos, hectareas: p.hectareas })) setPerfilCampo(campo, valor);
+  }, [reiniciarPerfil, setFarm, setPerfilCampo]);
   // Un solo año para el mapa y la vista 3D.
   const year = useYearPlayer(clima?.data ?? null);
 
   return {
     perfil, setPerfilCampo, reiniciarPerfil, point, agua, prioridad, loading, clima, suelo, recomendacion, selectPoint, ensurePoint, setAgua, setPrioridad, recomendar,
-    parcelas, setParcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year, pronostico,
+    parcelas, setParcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year, pronostico, cargarPrueba,
   };
 }

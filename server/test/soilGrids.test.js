@@ -99,3 +99,19 @@ test('soilGridsStaleReason: a cache without the new properties or the deep layer
   const shallow = { properties: { layers: ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen', 'bdod', 'cec', 'cfvo'].map((n) => layer(n, 10, '', [1, 1, 1])) } };
   assert.match(soilGridsStaleReason(shallow), /100 cm/);
 });
+
+test('consulta ligera de SoilGrids (cuando la completa tarda): 6 propiedades de 0 a 30 cm, y su caché no se vuelve a pedir', () => {
+  const url = new URL(buildSoilGridsUrl(20.47, -100.81, { ligero: true }));
+  assert.equal(url.searchParams.getAll('property').length, 6);
+  assert.deepEqual(url.searchParams.getAll('depth'), ['0-5cm', '5-15cm', '15-30cm']);
+  assert.equal(soilGridsStaleReason({ ligero: true, properties: { layers: [] } }), null);
+});
+
+test('si SoilGrids no responde, se usa el suelo guardado más cercano (el mismo cuadro de 250 m) y se dice a cuántos metros', async () => {
+  process.env.OFFLINE = '1';
+  const { getSoil } = await import('../sources/soilGrids.js');
+  const r = await getSoil(20.4712, -100.8093); // parcela dibujada junto al ejemplo de Celaya (fixture 20.470, -100.810)
+  assert.equal(r.origen, 'cercano');
+  assert.ok(r.cercano.m > 0 && r.cercano.m <= 250);
+  await assert.rejects(getSoil(19.4, -99.1)); // lejos de todo lo guardado: el error de siempre
+});

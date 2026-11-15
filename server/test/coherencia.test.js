@@ -148,3 +148,11 @@ test('el modelo nunca aconseja quemar el rastrojo', async () => {
   assert.ok(aconsejaQuemar('Es mejor que lo quemes, porque daña la tierra.'));
   assert.ok(!aconsejaQuemar('Mejor no lo quemes: aprovéchalo en la parcela.'));
 });
+
+test('sin plática: «¿y por qué no el maíz?» se entiende; costos sin cultivo y «¿y si cultivo aguacate?» tienen respuesta', async () => {
+  const a = await askEn('¿Y por qué no el maíz?');
+  assert.match(a.respuesta, /^Maíz grano quedó en el lugar/);
+  const c = await askEn('¿Cuánto me cuesta sembrar una hectárea?', { p: { agua: 'temporal', prioridad: 'riesgo', estado: 'Guanajuato' } });
+  assert.match(c.respuesta, /^No tengo costos/);
+  assert.equal((await askEn('¿Y si cultivo aguacate?')).tema, 'aptitud');
+});

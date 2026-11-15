@@ -12,6 +12,9 @@ export function useAsistente() {
   const [grabando, setGrabando] = useState(false);
   const ultima = useRef('');
   const rec = useRef(null);
+  // Las 2 últimas preguntas con su respuesta: así «en 4 hectáreas» o «¿y por qué no el maíz?» siguen la plática.
+  // Se borran al cambiar de parcela (otra parcela es otra plática).
+  const historial = useRef({ donde: '', turnos: [] });
 
   async function preguntar(pregunta, extra = perfil) {
     if (!point) {
@@ -22,8 +25,13 @@ export function useAsistente() {
     setTexto(pregunta);
     setEstado({ fase: 'pensando', pregunta }); // esto borra la respuesta anterior
     const t0 = performance.now();
+    const donde = `${point.lat},${point.lon}`;
+    if (historial.current.donde !== donde) historial.current = { donde, turnos: [] };
+    // Al contestar con botones se repite la misma pregunta: no va dos veces en la plática.
+    const turnos = historial.current.turnos.filter((t) => t.pregunta !== pregunta);
     try {
-      const r = await postAsistente({ lat: point.lat, lon: point.lon, pregunta, perfil: { ...perfil, ...extra }, parcelas: parcelas.map((p) => ({ id: p.id, hectareas: p.hectareas })) });
+      const r = await postAsistente({ lat: point.lat, lon: point.lon, pregunta, perfil: { ...perfil, ...extra }, parcelas: parcelas.map((p) => ({ id: p.id, hectareas: p.hectareas })), historial: turnos });
+      if (typeof r?.respuesta === 'string') historial.current.turnos = [...turnos, { pregunta, respuesta: r.respuesta.slice(0, 600) }].slice(-2);
       setEstado({ fase: 'listo', r, pregunta, seg: (performance.now() - t0) / 1000 }); // seg: tiempo real medido aquí
     } catch (e) {
       setEstado({ fase: 'error', mensaje: e.message });
@@ -41,6 +49,7 @@ export function useAsistente() {
 
   function reiniciar() {
     reiniciarPerfil();
+    historial.current = { donde: '', turnos: [] };
     setTexto('');
     setEstado({ fase: 'inicio' });
   }

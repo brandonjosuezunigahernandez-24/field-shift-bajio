@@ -7,6 +7,7 @@ import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.js
 import { getPerfilPreguntas, getTemas } from '../api/client.js';
 import { useAsistente } from '../hooks/useAsistente.js';
 import { toast } from '../lib/fs.js';
+import { PARCELAS_PRUEBA } from '../config/parcelasPrueba.js';
 import { conGlosario } from '../components/Glosario.jsx';
 
 const pesos = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
@@ -75,7 +76,7 @@ const LLUVIAS = [6, 7, 8, 9]; // meses_pv del servidor: jun a sep
 // Pantalla 3: el asistente de verdad (modelo local). Todo lo que se ve sale de la respuesta del servidor o de los datos reales de la parcela.
 export default function Analisis() {
   const ctx = useParcelaContext();
-  const { point, parcelas, perfil, setPerfilCampo, reiniciarPerfil, ensurePoint } = ctx;
+  const { point, parcelas, perfil, setPerfilCampo, reiniciarPerfil, ensurePoint, cargarPrueba } = ctx;
   const clima = ctx.clima?.data;
   const suelo = ctx.suelo?.data;
   const labels = selectionLabels(ctx);
@@ -170,6 +171,16 @@ export default function Analisis() {
             <div className="fs-up">
               <div className="fs-eyebrow">Paso 3 · Conversación con tu asistente</div>
               <h1 className="fs-h1">Pregúntale a tu asistente</h1>
+            </div>
+
+            {/* Demo: carga una parcela dibujada con su perfil y ya se puede preguntar (funciona con y sin internet). */}
+            <div className="an-prueba" role="group" aria-label="Parcelas de prueba">
+              <span className="an-prueba-t">Probar con una parcela de ejemplo:</span>
+              {PARCELAS_PRUEBA.map((p) => (
+                <button key={p.id} type="button" className="fs-btn fs-btn-sec" onClick={() => { cargarPrueba(p); setTexto(''); toast(`Parcela cargada: ${p.boton}`); }}>
+                  <i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {p.boton}
+                </button>
+              ))}
             </div>
 
             <form className="an-ask" onSubmit={(e) => { e.preventDefault(); if (texto.trim()) preguntar(texto.trim()); }}>
