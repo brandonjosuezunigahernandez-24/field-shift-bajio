@@ -1,8 +1,18 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { backtest, buildRotation, cycleMonths, dryYearRisk, recommend } from '../engine/index.js';
+import {
+  backtest,
+  buildRotation,
+  cycleMonths,
+  dryYearRisk,
+  existingRotation,
+  recommend,
+  riskInterval,
+  thresholdSensitivity,
+} from '../engine/index.js';
 import { parsePower } from '../sources/nasaPower.js';
+import { incomeByCrop } from '../llm/siap.js';
 
 const json = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
 const crops = json('../data/cultivos.json');
@@ -118,4 +128,119 @@ test('backtest compares the rounded rain the farmer reads', () => {
   const y = backtest(crop('maiz'), fake).anios[0];
   assert.equal(y.lluvia_mm, 520);
   assert.equal(y.alcanzo, true);
+});
+
+// ---- 3 rotations (the farmer's of today, the best for their goal and one more) and uncertainty ----
+const MAIZ_GTO = [{ cultivo: 'maiz', temporada: 'PV', pct: 58 }];
+// Real SIAP gross income of rain-fed Guanajuato: with it, "ganar más" gives another plan than "arriesgar menos".
+const INGRESOS = incomeByCrop('Guanajuato', 'temporal');
+const seq = (e) => e.rotacion.map((s) => s.cultivo ?? '-').join('-');
+
+test('riskInterval: with 25 years, 12 failed years means a real risk between 33 % and 64 %', () => {
+  assert.deepEqual(riskInterval(12, 25), [0.33, 0.64]);
+  assert.equal(riskInterval(0, 25)[0], 0);
+  assert.ok(riskInterval(0, 25)[1] > 0, 'no failure in 25 years is not a zero risk');
+  assert.deepEqual(riskInterval(0, 0), [0, 0]);
+});
+
+test('thresholdSensitivity: maize would fail in 9 to 17 of 25 years if it needed 10 % less or more rain', () => {
+  assert.deepEqual(thresholdSensitivity(crop('maiz'), rows), { menos10: 9, mas10: 17 });
+});
+
+test('existingRotation keeps what the farmer sows: one crop repeats, two alternate, irrigated adds OI', () => {
+  const ids = (r) => r.slots.map((s) => s.crop?.id ?? null);
+  assert.deepEqual(ids(existingRotation(['maiz'], crops, 'temporal')), ['maiz', 'maiz', 'maiz']);
+  assert.deepEqual(ids(existingRotation(['frijol', 'maiz'], crops, 'temporal')), ['frijol', 'maiz', 'frijol']);
+  assert.deepEqual(ids(existingRotation(['maiz', 'maiz'], crops, 'temporal')), ['maiz', 'maiz', 'maiz']);
+  const riego = existingRotation(['maiz', 'trigo'], crops, 'riego');
+  assert.deepEqual(ids(riego), ['maiz', 'trigo', 'maiz', 'trigo', 'maiz', 'trigo']);
+  assert.deepEqual(riego.slots.map((s) => s.temporada), ['PV', 'OI', 'PV', 'OI', 'PV', 'OI']);
+  const soloPV = existingRotation(['maiz'], crops, 'riego');
+  assert.deepEqual(ids(soloPV), ['maiz', null, 'maiz', null, 'maiz', null]);
+  assert.match(soloPV.notas[0], /otoño-invierno/);
+  assert.equal(soloPV.supuesto, false);
+});
+
+test('existingRotation without a usable answer compares against the most sown crop (SIAP) and says so', () => {
+  const r = existingRotation(['trigo'], crops, 'temporal', MAIZ_GTO, 'Guanajuato');
+  assert.equal(r.supuesto, true);
+  assert.deepEqual(r.slots.map((s) => s.crop.id), ['maiz', 'maiz', 'maiz']);
+  assert.match(r.notas[0], /Trigo no se siembra de temporal/);
+  assert.match(r.notas[1], /maíz en primavera-verano \(58 % de la superficie\).*SIAP/);
+  assert.match(existingRotation([], crops, 'temporal', MAIZ_GTO).notas[0], /^No nos dijiste qué siembras/);
+  assert.equal(existingRotation([], crops, 'temporal'), null, 'without SIAP there is nothing to compare against');
+});
+
+test('recommend compares 3 rotations: today, the best for the goal and the best for another goal', () => {
+  const r = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'riesgo', ingresos: INGRESOS, estado: 'Guanajuato', porDefecto: MAIZ_GTO });
+  assert.deepEqual(r.estrategias.map((e) => e.id), ['actual', 'recomendada', 'alternativa']);
+  assert.equal(new Set(r.estrategias.map(seq)).size, 3, 'three different rotations');
+  const [hoy, mejor, otra] = r.estrategias;
+  assert.deepEqual(mejor.rotacion, r.rotacion, '`rotacion` is still the recommended plan');
+  assertRotationRules(mejor.rotacion);
+  assertRotationRules(otra.rotacion);
+  assert.equal(seq(hoy), 'maiz-maiz-maiz');
+  assert.equal(hoy.supuesto, true);
+  assert.deepEqual(
+    [hoy.resumen.leguminosas, hoy.resumen.familia_repetida, hoy.resumen.riesgo, hoy.resumen.riesgo_rango],
+    [0, 2, 0.48, [0.33, 0.64]]
+  );
+  assert.ok(mejor.resumen.riesgo < hoy.resumen.riesgo);
+  assert.notEqual(otra.prioridad, 'riesgo');
+  for (const e of r.estrategias) {
+    assert.ok(e.nombre && e.porque, e.id);
+    for (const key of ['evidencia', 'beneficios', 'huecos', 'revisar']) assert.ok(e[key].length > 0, `${e.id}.${key}`);
+    assert.match(e.evidencia[0], /lluvia real de 2000 a 2024/);
+  }
+  assert.ok(mejor.beneficios.some((b) => /12 % contra 48 % de seguir igual/.test(b)));
+  assert.ok(mejor.huecos.some((h) => /FAO Ecocrop/.test(h)));
+  assert.ok(hoy.revisar.some((x) => /gramíneas en temporadas seguidas/.test(x)));
+});
+
+test('the rotation the farmer gave is compared as given; without it or SIAP only 2 rotations remain', () => {
+  const dicho = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'suelo', actual: ['frijol', 'maiz'], previo: 'maiz' });
+  assert.equal(seq(dicho.estrategias[0]), 'frijol-maiz-frijol');
+  assert.equal(dicho.estrategias[0].supuesto, false);
+  const sin = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'riesgo' });
+  assert.deepEqual(sin.estrategias.map((e) => e.id), ['recomendada', 'alternativa']);
+});
+
+test('when every goal gives the same plan, the third rotation starts with another family (a full 3-year plan)', () => {
+  const r = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'riesgo' }); // without SIAP income every goal agrees
+  const otra = r.estrategias.find((e) => e.id === 'alternativa');
+  assert.equal(otra.rotacion.length, 3);
+  assert.notEqual(family(otra.rotacion[0].cultivo), family(r.rotacion[0].cultivo));
+  assertRotationRules(otra.rotacion);
+  assert.match(otra.nombre, /^Otra opción: empezar con /);
+  assert.match(otra.rotacion[0].porque, /si no empiezas con frijol/);
+});
+
+test('irrigated: the rotation of today has PV and OI, no rain risk, and the uncertainty mentions irrigation water', () => {
+  const r = recommend({
+    rows,
+    soil,
+    crops,
+    agua: 'riego',
+    prioridad: 'ganar',
+    estado: 'Guanajuato',
+    porDefecto: [{ cultivo: 'maiz', temporada: 'PV', pct: 55 }, { cultivo: 'trigo', temporada: 'OI', pct: 40 }],
+  });
+  assert.equal(seq(r.estrategias[0]), 'maiz-trigo-maiz-trigo-maiz-trigo');
+  assert.ok(r.estrategias.every((e) => e.resumen.riesgo === null && e.resumen.riesgo_rango === null));
+  assert.ok(r.incertidumbre.some((u) => u.tema === 'riego'));
+  assert.ok(r.cultivos.every((c) => c.riesgo_rango === null && c.sensibilidad === null));
+});
+
+test('incertidumbre explains the data limits with the plot numbers', () => {
+  const r = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'riesgo', estado: 'Guanajuato', porDefecto: MAIZ_GTO });
+  const tema = (t) => r.incertidumbre.find((u) => u.tema === t)?.texto ?? '';
+  assert.deepEqual(r.incertidumbre.map((u) => u.tema), ['clima', 'años', 'cultivos', 'suelo', 'ingreso', 'técnico']);
+  assert.match(tema('clima'), /NASA POWER.*50 km/);
+  assert.match(tema('años'), /al maíz le faltó lluvia en 12 de 25 años.*entre 33 % y 64 %/);
+  assert.match(tema('cultivos'), /en 9 a 17 de 25 años, no en 12/);
+  assert.match(tema('técnico'), /no sustituye/);
+  const maiz = r.cultivos.find((c) => c.id === 'maiz');
+  assert.deepEqual([maiz.riesgo_rango, maiz.sensibilidad], [[0.33, 0.64], { menos10: 9, mas10: 17, anios_total: 25 }]);
+  const sinSuelo = recommend({ rows, soil: { ph: null }, crops, agua: 'temporal', prioridad: 'riesgo' });
+  assert.match(sinSuelo.incertidumbre.find((u) => u.tema === 'suelo').texto, /No hay dato de suelo/);
 });
