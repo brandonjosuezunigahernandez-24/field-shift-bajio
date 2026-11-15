@@ -30,6 +30,8 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 
 Necesitas **Node.js 20 o más nuevo** (probado con Node 24). No hace falta ninguna API key ni base de datos.
 
+Para publicarla (Vercel para la página, Render para el API, o un túnel de Cloudflare para la demo en vivo), mira [docs/despliegue.md](docs/despliegue.md).
+
 Se usan dos terminales. En la primera, el servidor (puerto 3001):
 
 ```bash

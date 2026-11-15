@@ -128,6 +128,8 @@ Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2025)  ┐
 
 Requires **Node.js 20 or newer** (tested with Node 24). No API keys and no database.
 
+To publish it (Vercel for the page, Render for the API, or a Cloudflare tunnel for a live demo), see [docs/despliegue.md](docs/despliegue.md) (Spanish).
+
 ```bash
 cd server
 npm install
