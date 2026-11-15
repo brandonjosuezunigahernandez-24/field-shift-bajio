@@ -1,12 +1,10 @@
 import { HttpError } from './errors.js';
 
 export function roundTo(value, decimals) {
-  const f = 10 ** decimals;
+  const factor = 10 ** decimals;
   // "+ 0" turns -0 into 0 so the cache key never reads "-0.00".
-  return Math.round(value * f) / f + 0;
+  return Math.round(value * factor) / factor + 0;
 }
-
-export const round2 = (value) => roundTo(value, 2);
 
 function toNumber(value) {
   if (typeof value === 'number') return value;
@@ -15,9 +13,9 @@ function toNumber(value) {
 }
 
 // Accepts { lat, lon } from a query string or a JSON body.
-// Returns both rounded to 2 decimals (about 1 km), which is also the cache resolution.
-// /api/terreno asks for 3 decimals (~110 m): its 1 km block must be centered on the parcel.
-export function parseCoords(input, { decimals = 2 } = {}) {
+// Returns them as given: each source rounds once to its own resolution in loadRaw (climate 2, soil 3).
+// Rounding here too would shift points twice (20.4749 -> 20.475 -> 20.48 instead of 20.47).
+export function parseCoords(input) {
   const lat = toNumber(input?.lat);
   const lon = toNumber(input?.lon);
 
@@ -30,11 +28,10 @@ export function parseCoords(input, { decimals = 2 } = {}) {
   if (lon < -180 || lon > 180) {
     throw new HttpError(400, 'La longitud debe estar entre -180 y 180.');
   }
-  return { lat: roundTo(lat, decimals), lon: roundTo(lon, decimals) };
+  return { lat, lon };
 }
 
-// File name (without extension) shared by cache and fixtures: <source>_<lat2>_<lon2>
-// (terrain uses 3 decimals: <source>_<lat3>_<lon3>).
+// File name (without extension) shared by cache and fixtures: <source>_<lat>_<lon>, `decimals` digits each.
 export function cacheKey(source, lat, lon, decimals = 2) {
   return `${source}_${roundTo(lat, decimals).toFixed(decimals)}_${roundTo(lon, decimals).toFixed(decimals)}`;
 }

@@ -2,6 +2,8 @@ import { loadRaw } from '../lib/loadRaw.js';
 
 export const SOILGRIDS_SOURCE = 'soilgrids';
 export const SOILGRIDS_CREDIT = 'SoilGrids 2.0, ISRIC World Soil Information (CC BY 4.0)';
+// 3 decimals (~110 m): SoilGrids cells are 250 m, so 2 decimals (~1 km) could read a neighbor's soil.
+export const SOILGRIDS_DECIMALS = 3;
 
 const PROPERTIES = ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen'];
 const DEPTHS = ['0-5cm', '5-15cm', '15-30cm'];
@@ -80,7 +82,8 @@ export async function getSoil(lat, lon) {
     label: 'los datos de suelo (SoilGrids)',
     lat,
     lon,
-    url: buildSoilGridsUrl(lat, lon),
+    decimals: SOILGRIDS_DECIMALS,
+    buildUrl: buildSoilGridsUrl,
     timeoutMs: 15000,
     validate: validateSoilGrids,
   });

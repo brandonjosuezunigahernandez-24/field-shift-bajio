@@ -1,0 +1,247 @@
+[
+  {
+    "id": "rotacion",
+    "palabras": [
+      "rotacion",
+      "rotar",
+      "plagas",
+      "enfermedades",
+      "alternar"
+    ],
+    "texto": "Rotar cultivos ayuda a cortar el ciclo de las plagas y enfermedades que se quedan en el suelo.",
+    "verificado": true,
+    "respaldo": [
+      "https://sti-portal.fao.org/innovations/crop-rotation-conservation-agriculture",
+      "https://www.ers.usda.gov/topics/farm-practices-management/crop-livestock-practices/soil-tillage-and-crop-rotation"
+    ]
+  },
+  {
+    "id": "leguminosas",
+    "palabras": [
+      "leguminosa",
+      "leguminosas",
+      "frijol",
+      "garbanzo",
+      "nitrogeno",
+      "fijan"
+    ],
+    "texto": "El frijol y el garbanzo son leguminosas: con ayuda de bacterias en sus raíces toman nitrógeno del aire. Una parte se va con la cosecha y otra queda en el suelo para el siguiente cultivo; los granos como el frijol y el garbanzo dejan menos que las leguminosas de forraje.",
+    "verificado": true,
+    "respaldo": [
+      "https://extension.psu.edu/inoculation-of-forage-and-grain-legumes",
+      "https://www.fao.org/4/ar126e/ar126e.pdf"
+    ]
+  },
+  {
+    "id": "sorgo-sequia",
+    "palabras": [
+      "sorgo",
+      "sequia",
+      "seco",
+      "resiste",
+      "aguanta"
+    ],
+    "texto": "El sorgo suele aguantar mejor la falta de agua que el maíz.",
+    "verificado": true,
+    "respaldo": [
+      "https://oar.icrisat.org/6113/1/Sorghum_142-151_2012_FAO.pdf",
+      "https://www.fao.org/fileadmin/user_upload/inpho/docs/Post_Harvest_Compendium_-_SORGHUM.pdf"
+    ]
+  },
+  {
+    "id": "maiz-agua",
+    "palabras": [
+      "maiz",
+      "floracion",
+      "espiga",
+      "jilote"
+    ],
+    "texto": "El maíz es muy sensible a la falta de agua, sobre todo cuando está floreando.",
+    "verificado": true,
+    "respaldo": [
+      "https://www.fao.org/4/y3655e/y3655e03.htm",
+      "https://www.fao.org/4/t7202e/t7202e05.htm"
+    ]
+  },
+  {
+    "id": "materia-organica",
+    "palabras": [
+      "materia",
+      "organica",
+      "humedad",
+      "carbono",
+      "composta"
+    ],
+    "texto": "Un suelo con más materia orgánica guarda mejor la humedad y es más fértil; el efecto se nota más en suelos arenosos que en los arcillosos.",
+    "verificado": true,
+    "respaldo": [
+      "https://extension.psu.edu/soil-quality-information",
+      "https://blog-crop-news.extension.umn.edu/2020/03/the-connection-between-soil-organic.html"
+    ]
+  },
+  {
+    "id": "textura",
+    "palabras": [
+      "arcilla",
+      "arena",
+      "arenoso",
+      "arcilloso",
+      "textura",
+      "drenaje",
+      "encharca"
+    ],
+    "texto": "Los suelos arcillosos guardan más agua pero drenan despacio y se encharcan; los arenosos drenan rápido y guardan poca agua.",
+    "verificado": "parcial",
+    "respaldo": [
+      "https://www.fao.org/4/x5869e/x5869e04.htm",
+      "https://extension.psu.edu/soil-quality-information"
+    ],
+    "nota": "Arenoso: drena rápido y guarda poca agua (confirmado). Arcilla guarda más agua (confirmado con fuente débil); que se encharque es conocimiento general."
+  },
+  {
+    "id": "ph",
+    "palabras": [
+      "ph",
+      "acidez",
+      "acido",
+      "alcalino",
+      "nutrientes"
+    ],
+    "texto": "Si el pH del suelo es muy alto o muy bajo, la planta no puede tomar bien algunos nutrientes.",
+    "verificado": true,
+    "respaldo": [
+      "https://extension.psu.edu/soil-acidity-and-aglime",
+      "https://www.nrcs.usda.gov/sites/default/files/2022-11/pH%20-%20Soil%20Health%20Guide_0.pdf"
+    ]
+  },
+  {
+    "id": "rastrojo",
+    "palabras": [
+      "rastrojo",
+      "cobertura",
+      "erosion",
+      "evaporacion",
+      "mulch"
+    ],
+    "texto": "Dejar rastrojo sobre el suelo lo cubre, reduce la evaporación del agua y frena la erosión; ayuda más donde llueve poco y el sol evapora mucho, y se necesita bastante rastrojo para notarlo.",
+    "verificado": true,
+    "respaldo": [
+      "https://www.fao.org/conservation-agriculture/impact/benefits-of-ca/en/",
+      "https://www.fao.org/4/y4690e/y4690e09.htm"
+    ]
+  },
+  {
+    "id": "temporal-riego",
+    "palabras": [
+      "temporal",
+      "riego",
+      "lluvia",
+      "regar"
+    ],
+    "texto": "En temporal el cultivo depende solo de la lluvia, así que conviene elegir el cultivo y la fecha según la lluvia que suele caer en la parcela.",
+    "verificado": "definición",
+    "nota": "Es una definición (temporal = depende de la lluvia), no se buscó fuente."
+  },
+  {
+    "id": "invernadero",
+    "palabras": [
+      "invernadero",
+      "helada",
+      "heladas",
+      "cubierta",
+      "frio"
+    ],
+    "texto": "Un invernadero o túnel protege de heladas y alarga la temporada de cultivo, pero necesita inversión y buen manejo, por ejemplo ventilación para que no se sobrecaliente.",
+    "verificado": true,
+    "respaldo": [
+      "https://www.nrcs.usda.gov/plantmaterials/mipmcar9778.pdf",
+      "https://www.nrcs.usda.gov/state-offices/alaska/alaska-high-tunnels"
+    ],
+    "nota": "Las fuentes (NRCS) hablan de túneles tipo high tunnel de EE.UU.; el aumento de temporada citado es de unas dos semanas por lado, no se promete cifra."
+  },
+  {
+    "id": "jitomate",
+    "palabras": [
+      "jitomate",
+      "tomate",
+      "trasplante",
+      "almacigo"
+    ],
+    "texto": "El jitomate no aguanta las heladas: se suele sembrar en almácigo y trasplantar cuando ya no hay riesgo de helada. Necesita riego constante y un suelo que drene bien.",
+    "verificado": "parcial",
+    "respaldo": [
+      "https://zacatecas.inifap.gob.mx/PotAgric/JitomateR.pdf"
+    ],
+    "nota": "INIFAP Zacatecas confirma trasplantar después del riesgo de heladas; riego constante y drenaje son conocimiento general sin fuente directa."
+  },
+  {
+    "id": "brocoli",
+    "palabras": [
+      "brocoli",
+      "brecol"
+    ],
+    "texto": "El brócoli es una hortaliza de clima fresco (su temperatura ideal ronda los 17 grados) y aguanta heladas leves antes de formar la cabeza. En Guanajuato casi siempre se siembra con riego, tanto en primavera-verano como en otoño-invierno.",
+    "verificado": true,
+    "nota": "Clima y riego: ficha de gob.mx e infografía de Guanajuato (leídos en resumen de búsqueda). Ciclos: datos del SIAP 2023 (archivo parcial).",
+    "respaldo": [
+      "https://www.gob.mx/cms/uploads/attachment/file/832758/brocoli.pdf",
+      "https://iplaneg2.guanajuato.gob.mx/infomun/media/docs/infografia_agroalimentaria.pdf"
+    ]
+  },
+  {
+    "id": "cereales-invierno",
+    "palabras": [
+      "trigo",
+      "cebada"
+    ],
+    "texto": "El trigo y la cebada son cereales de clima fresco. En Guanajuato se siembran sobre todo en otoño-invierno y con riego.",
+    "verificado": "parcial",
+    "nota": "Ciclo y riego respaldados por datos del SIAP de Guanajuato 2023 (archivo parcial)."
+  },
+  {
+    "id": "garbanzo",
+    "palabras": [
+      "garbanzo"
+    ],
+    "texto": "El garbanzo es sensible al encharcamiento: necesita un suelo que drene bien. Aguanta la sequía mejor que otras leguminosas de grano.",
+    "verificado": true,
+    "respaldo": [
+      "https://oar.icrisat.org/8535/1/LegumPerspectives_3_29-32_2014.pdf",
+      "https://openknowledge.fao.org/server/api/core/bitstreams/bf36068f-5838-4614-9545-3a458f5a9b95/content"
+    ]
+  },
+  {
+    "id": "siembra-maiz",
+    "palabras": [
+      "maiz",
+      "sembrar",
+      "siembra",
+      "sembrado"
+    ],
+    "texto": "El maíz de temporal se siembra al empezar las lluvias para que tenga agua mientras crece.",
+    "verificado": true,
+    "respaldo": [
+      "https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4146_4843_Agenda_T%C3%A9cnica_Tlaxcala_2017.pdf"
+    ],
+    "nota": "Regla general (sembrar al inicio de las lluvias, con humedad en el suelo) confirmada en agendas de INIFAP de otras regiones. No encontré fechas específicas del Bajío."
+  },
+  {
+    "id": "plagas",
+    "palabras": [
+      "plaga",
+      "plagas",
+      "insecticida",
+      "pesticida",
+      "fumigar",
+      "gusano",
+      "fumigacion"
+    ],
+    "texto": "Revisa tu parcela seguido para detectar las plagas a tiempo. Para saber qué producto usar y en qué cantidad, consulta a un técnico agrícola o a la oficina de sanidad vegetal de tu zona.",
+    "verificado": true,
+    "respaldo": [
+      "https://www.gob.mx/senasica/articulos/senasica-refuerza-vigilancia-epidemiologica-vegetal?idiom=es",
+      "https://www.gob.mx/agricultura/prensa/mexico-referente-mundial-en-sanidad-vegetal-con-prestigio-en-la-produccion-y-exportacion-de-alimentos-agricultura?idiom=es"
+    ],
+    "nota": "SENASICA trabaja manejo integrado de plagas y monitoreo con Comités Estatales de Sanidad Vegetal en las 32 entidades. Fuentes sobre programas de cultivos específicos (cítricos, caña, vid); apoyo indirecto."
+  }
+]

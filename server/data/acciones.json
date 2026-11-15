@@ -1,0 +1,213 @@
+{
+  "nota": "Tarjetas de «qué hacer» para agricultores de temporal de Guanajuato y Querétaro. Cada una con fuente leída (verificado: true = se leyó la página o el PDF el 14 nov 2026). palabras van sin acentos. condicion: 'seco' (la parcela tiene años secos) o 'despues_maiz' (lo último sembrado fue maíz). Ver docs/cambios/32-acciones-con-fuente.md.",
+  "acciones": [
+    {
+      "id": "maiz-siembra-humedad",
+      "cultivos": ["maiz"],
+      "temas": ["siembra", "maiz-ciclo", "maiz-decision"],
+      "palabras": ["cuando siembr", "cuando sembrar", "fecha de siembra", "cuando planto", "cuando se siembra"],
+      "accion": "Siembra el maíz cuando la tierra ya tenga humedad de las primeras lluvias, no en seco.",
+      "porque": "La Mesa Técnica Agroclimática (con el SMN, INIFAP y CIMMYT) recomienda sembrar según la humedad y con el pronóstico de lluvia y de temperaturas mínimas.",
+      "fuente": { "nombre": "Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT)", "url": "https://secampo.edomex.gob.mx/sites/secampo.edomex.gob.mx/files/files/Publicaciones/boletines/Boletin_Agroclimatico_No02.pdf" },
+      "verificado": true,
+      "nota": "Boletín No. 2 (2022) del Estado de México. No se encontró boletín de la Mesa para Guanajuato o Querétaro."
+    },
+    {
+      "id": "maiz-densidad-temporal",
+      "cultivos": ["maiz"],
+      "temas": ["siembra", "maiz-ciclo"],
+      "palabras": ["densidad", "cuantas semillas", "cuanta semilla", "plantas por hectarea", "semillas por hectarea", "que tan junto"],
+      "accion": "En temporal siembra de 60 a 70 mil semillas de maíz por hectárea; en riego, de 80 a 90 mil.",
+      "porque": "Es la densidad que da la Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT); revisa también la ficha de tu semilla, porque cada variedad trae la suya.",
+      "fuente": { "nombre": "Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT)", "url": "https://secampo.edomex.gob.mx/sites/secampo.edomex.gob.mx/files/files/Publicaciones/boletines/Boletin_Agroclimatico_No02.pdf" },
+      "verificado": true,
+      "nota": "Cifra del Estado de México. El listado SNICS 2024 de Michoacán (Bajío) da densidades por variedad de 65 a 95 mil plantas/ha; no hay cifra oficial del Bajío guanajuatense."
+    },
+    {
+      "id": "lluvia-tardia-ciclo-corto",
+      "cultivos": ["maiz"],
+      "temas": ["siembra", "lluvia", "secos", "maiz-decision", "maiz-riesgo", "recomendar"],
+      "palabras": ["no llueve", "no ha llovido", "no han llegado", "se retras", "llueve tarde", "lluvias tarde", "canicula", "atrasad"],
+      "condicion": "seco",
+      "accion": "Si las lluvias se establecen tarde, cambia el maíz por un cultivo de ciclo corto (97 días o menos).",
+      "porque": "Es lo que recomienda la Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT) cuando el temporal llega tarde.",
+      "fuente": { "nombre": "Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT)", "url": "https://secampo.edomex.gob.mx/sites/secampo.edomex.gob.mx/files/files/Publicaciones/boletines/Boletin_Agroclimatico_No02.pdf" },
+      "verificado": true
+    },
+    {
+      "id": "maiz-adelantar-por-heladas",
+      "cultivos": ["maiz"],
+      "temas": ["heladas", "siembra", "maiz-ciclo"],
+      "palabras": ["helad", "hiela", "frio"],
+      "accion": "Si las lluvias llegan temprano, adelanta la siembra del maíz para que las heladas no lo agarren al final del ciclo.",
+      "porque": "La Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT) lo recomienda para que el maíz no tenga problemas por heladas al terminar su ciclo.",
+      "fuente": { "nombre": "Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT)", "url": "https://secampo.edomex.gob.mx/sites/secampo.edomex.gob.mx/files/files/Publicaciones/boletines/Boletin_Agroclimatico_No02.pdf" },
+      "verificado": true
+    },
+    {
+      "id": "smn-pronostico-municipio",
+      "temas": ["heladas", "pronostico", "siembra"],
+      "palabras": ["helad", "hiela", "pronostico", "va a llover", "va a helar"],
+      "accion": "Antes de sembrar y cuando se acerque el frío, revisa el pronóstico de tu municipio en el Servicio Meteorológico Nacional.",
+      "porque": "El SMN publica el pronóstico por municipio, y la Mesa Técnica Agroclimática recomienda decidir la siembra con él.",
+      "fuente": { "nombre": "SMN (CONAGUA)", "url": "https://smn.conagua.gob.mx/es/pronostico-del-tiempo-por-municipios" },
+      "verificado": true,
+      "nota": "La página existe; su contenido (días y temperaturas) se carga en el navegador y no se pudo leer."
+    },
+    {
+      "id": "frijol-fecha-bajio",
+      "cultivos": ["frijol"],
+      "temas": ["siembra"],
+      "palabras": ["cuando siembr", "cuando sembrar", "fecha de siembra", "cuando se siembra"],
+      "accion": "Siembra el frijol de temporal de fines de junio a mediados de julio.",
+      "porque": "Es la época de siembra de temporal del frijol Flor de Junio en el Bajío según el Campo Experimental Bajío del INIFAP (Celaya).",
+      "fuente": { "nombre": "INIFAP Campo Experimental Bajío", "url": "https://cienciasagricolas.inifap.gob.mx/index.php/agricolas/article/download/1125/980" },
+      "verificado": true,
+      "nota": "Acosta-Gallegos et al. 2014, Rev. Mex. Cienc. Agríc. Pub. Esp. 7 (variedad Junio León)."
+    },
+    {
+      "id": "frijol-variedad",
+      "cultivos": ["frijol"],
+      "temas": ["siembra", "cultivo"],
+      "palabras": ["variedad", "semilla", "roya", "que frijol"],
+      "accion": "Si siembras frijol Flor de Junio de temporal, pide semilla de las variedades del INIFAP Dalia o Junio León.",
+      "porque": "El INIFAP Bajío reporta que Dalia resiste varias enfermedades y se adapta bien al temporal, y que Junio León resiste la roya.",
+      "fuente": { "nombre": "INIFAP Campo Experimental Bajío", "url": "https://cienciasagricolas.inifap.gob.mx/index.php/agricolas/article/download/1125/980" },
+      "verificado": true
+    },
+    {
+      "id": "anio-seco-poca-agua",
+      "temas": ["secos", "lluvia", "anio", "tendencia", "maiz-riesgo", "maiz-decision", "maiz-agua", "recomendar"],
+      "palabras": ["seco", "sequia", "poca lluvia", "no llueve", "aguanta", "resiste"],
+      "condicion": "seco",
+      "accion": "Si esperas un año seco, siembra cultivos que piden menos agua, como sorgo, frijol, garbanzo o cebada.",
+      "porque": "Es una recomendación de la Mesa Técnica Agroclimática de Michoacán (Agricultura y CIMMYT) para tiempos de poca agua.",
+      "fuente": { "nombre": "Mesa Técnica Agroclimática Michoacán (Agricultura, CIMMYT)", "url": "https://www.cimmyt.org/content/uploads/sites/2/2023/12/Boletin-MTA02-Michoacan_fin.pptx.pdf" },
+      "verificado": true,
+      "nota": "Boletín No. 2 (nov 2023 - ene 2024); Michoacán colinda con el Bajío guanajuatense."
+    },
+    {
+      "id": "monitor-sequia",
+      "temas": ["secos", "lluvia", "anio", "tendencia", "maiz-riesgo"],
+      "palabras": ["sequia", "seco"],
+      "condicion": "seco",
+      "accion": "Revisa el Monitor de Sequía de CONAGUA (sale el día 15 y a fin de mes) y busca tu municipio.",
+      "porque": "Ahí dice si tu municipio está anormalmente seco (D0) o en sequía, de moderada (D1) a excepcional (D4).",
+      "fuente": { "nombre": "Monitor de Sequía de México (SMN, CONAGUA)", "url": "https://smn.conagua.gob.mx/es/climatologia/monitor-de-sequia/monitor-de-sequia-en-mexico" },
+      "verificado": true
+    },
+    {
+      "id": "captar-agua-surcos",
+      "temas": ["secos", "lluvia", "humedad", "maiz-agua"],
+      "palabras": ["bordo", "captar", "captacion", "cosecha de agua", "olla de agua", "guardar agua", "juntar agua", "aprovechar la lluvia"],
+      "condicion": "seco",
+      "accion": "Haz surcos o bordos en curvas a nivel para que el agua de lluvia se quede junto a la raíz.",
+      "porque": "La FAO y el Colegio de Postgraduados explican que esta captación guarda el agua en el suelo y ayuda contra la sequía; en México ha funcionado con al menos 400 mm de lluvia al año y suelo de 70 cm o más.",
+      "fuente": { "nombre": "FAO, Manual de Captación y Aprovechamiento del Agua de Lluvia", "url": "https://www.fao.org/4/ai128s/ai128s03.pdf" },
+      "verificado": true
+    },
+    {
+      "id": "rotar-leguminosa",
+      "temas": ["maiz-rotacion", "recomendar"],
+      "palabras": ["rotar", "rotacion", "despues del maiz", "despues de maiz", "que siembro despues", "leguminosa", "cansad", "alternar"],
+      "condicion": "despues_maiz",
+      "accion": "Después del maíz, rota con frijol, haba o avena en lugar de repetir maíz.",
+      "porque": "La Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT) recomienda rotar maíz con avena, haba o frijol, sobre todo cuando se espera poca lluvia.",
+      "fuente": { "nombre": "Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT)", "url": "https://secampo.edomex.gob.mx/sites/secampo.edomex.gob.mx/files/files/Publicaciones/boletines/Boletin_Agroclimatico_No02.pdf" },
+      "verificado": true
+    },
+    {
+      "id": "rastrojo-no-quemar",
+      "temas": ["suelo", "maiz-suelo"],
+      "palabras": ["rastrojo", "quemar", "quema", "residuo", "pastura", "zacate"],
+      "accion": "No quemes el rastrojo: aprovéchalo en la parcela para nutrir la tierra.",
+      "porque": "Agricultura (#MiParcelaNoSeQuema) explica que la quema hace perder nutrientes y mata los organismos que airean el suelo y liberan nutrientes.",
+      "fuente": { "nombre": "Agricultura (SADER), #MiParcelaNoSeQuema", "url": "https://www.gob.mx/agricultura/acciones-y-programas/miparcelanosequema" },
+      "verificado": true
+    },
+    {
+      "id": "labranza-minima-cobertura",
+      "temas": ["suelo", "maiz-suelo", "humedad"],
+      "palabras": ["arar", "barbecho", "labranza", "rastrear", "conservacion", "erosion", "cobertura", "cuidar el suelo", "cuidar la tierra"],
+      "accion": "Mueve la tierra lo menos posible y deja cubierto con rastrojo al menos el 30 % del suelo.",
+      "porque": "Son dos de los tres principios de la agricultura de conservación de la FAO (el tercero es rotar al menos tres cultivos) y ayudan a aprovechar mejor el agua.",
+      "fuente": { "nombre": "FAO, Agricultura de conservación", "url": "https://www.fao.org/conservation-agriculture/en/" },
+      "verificado": true
+    },
+    {
+      "id": "cogollero-gto",
+      "cultivos": ["maiz"],
+      "estados": ["Guanajuato"],
+      "temas": ["peligro"],
+      "palabras": ["cogollero", "gusano", "plaga", "insecto", "fumig", "bicho"],
+      "accion": "Revisa tu maíz cada semana y, si ves gusano cogollero, repórtalo gratis a SENASICA al 800 987 987 9.",
+      "porque": "SENASICA, con el INIFAP Bajío y el Comité de Sanidad Vegetal de Guanajuato, avisa por municipio y pide usar solo productos autorizados por COFEPRIS que te indique un técnico y preferir el control biológico.",
+      "fuente": { "nombre": "SENASICA, Alerta Fitosanitaria Guanajuato", "url": "https://dj.senasica.gob.mx//Contenido/files/boletin/2025/guscog/Guanajuato/agosto/BoletinSAF_GC_PV_Guanajuato2025_No19_1d3cc63a-c25e-41c4-8093-6b7ddd7d9c5a.pdf" },
+      "verificado": true,
+      "nota": "Boletín No. 19 (11 al 17 de agosto de 2025). Correo: alerta.fitosanitaria@senasica.gob.mx"
+    },
+    {
+      "id": "cogollero-qro",
+      "cultivos": ["maiz"],
+      "estados": ["Querétaro"],
+      "temas": ["peligro"],
+      "palabras": ["cogollero", "gusano", "plaga", "insecto", "fumig", "bicho"],
+      "accion": "Revisa tu maíz cada semana y, si ves gusano cogollero, repórtalo gratis a SENASICA al 800 987 987 9.",
+      "porque": "SENASICA, con el INIFAP Bajío y el Comité de Sanidad Vegetal de Querétaro, avisa por municipio y pide usar solo productos autorizados por COFEPRIS que te indique un técnico y preferir el control biológico.",
+      "fuente": { "nombre": "SENASICA, Alerta Fitosanitaria Querétaro", "url": "https://dj.senasica.gob.mx//Contenido/files/boletin/2025/guscog/Quer%C3%A9taro/julio/BoletinSAF_GC_PV_Quer%C3%A9taro2025_No14_b8cb62be-e7d0-4b8b-a82e-2879f6959d3b.pdf" },
+      "verificado": true,
+      "nota": "Boletín No. 14 (julio de 2025)."
+    },
+    {
+      "id": "seguro-catastrofico-gto",
+      "estados": ["Guanajuato"],
+      "temas": ["secos", "anio", "heladas", "maiz-riesgo"],
+      "palabras": ["seguro", "siniestr", "perdi", "pierdo", "granizo", "inund", "se me seco", "se me helo"],
+      "accion": "Si pierdes la cosecha por el clima, avisa pronto a tu municipio para que registre tus hectáreas.",
+      "porque": "La Secretaría del Campo de Guanajuato explica que el Seguro Catastrófico se activa con ese registro y solo paga a quien demuestra que sembró y perdió todo.",
+      "fuente": { "nombre": "Secretaría del Campo de Guanajuato (en Milenio, 9 jun 2026)", "url": "https://amp.milenio.com/comunidad/vigilan-cueramaro-penjamo-abasolo-riesgo-dano-cultivo" },
+      "verificado": true,
+      "nota": "Fuente periodística que cita a la titular de la Secretaría del Campo. No se encontró el procedimiento oficial publicado ni uno equivalente de Querétaro."
+    },
+    {
+      "id": "produccion-bienestar",
+      "temas": [],
+      "palabras": ["apoyo", "produccion para el bienestar", "programa", "subsidio", "bienestar", "me dan dinero", "me pagan"],
+      "accion": "Si siembras maíz o frijol, acude a la ventanilla de Producción para el Bienestar a actualizar tus datos o a registrarte cuando abran la incorporación.",
+      "porque": "En 2026 el apoyo de temporal es de 7,000 pesos hasta 3 hectáreas, 8,000 de 3 a 4 y 10,000 de 4 a 8, según las Reglas de Operación (DOF).",
+      "fuente": { "nombre": "Agricultura, Reglas de Operación Producción para el Bienestar 2026 (DOF)", "url": "https://www.gob.mx/cms/uploads/attachment/file/1046462/2026_Acuerdo_de_Reglas_de_op_Programa_de_Producci_n_para_el_Bienestar_de_AGRICULTURA.pdf" },
+      "verificado": true
+    },
+    {
+      "id": "acopio-maiz",
+      "cultivos": ["maiz"],
+      "temas": ["maiz-precio", "siap"],
+      "palabras": ["precio", "vender", "venta", "acopio", "garantia", "cuanto pagan", "a como", "comprador", "coyote"],
+      "accion": "Si siembras hasta 5 hectáreas de maíz, puedes venderlo en un centro de acopio de Alimentación para el Bienestar a 7,000 pesos la tonelada.",
+      "porque": "Lo fijan las Reglas de Operación 2026 de Acopio para el Bienestar (hasta 35 toneladas); te registras en el centro de acopio con tu INE y CURP y puedes estar presente cuando pesen tu grano.",
+      "fuente": { "nombre": "Agricultura, Reglas de Operación Acopio para el Bienestar 2026 (DOF)", "url": "https://www.gob.mx/cms/uploads/attachment/file/1046466/2026_Acuerdo_de_Reglas_de_op_P_de_Acopio_para_el_Bienestar.pdf" },
+      "verificado": true
+    },
+    {
+      "id": "acopio-frijol",
+      "cultivos": ["frijol"],
+      "temas": ["siap"],
+      "palabras": ["precio", "vender", "venta", "acopio", "garantia", "cuanto pagan", "a como", "comprador", "coyote"],
+      "accion": "Si siembras hasta 30 hectáreas de frijol de temporal, puedes venderlo en un centro de acopio de Alimentación para el Bienestar a 27,000 pesos la tonelada.",
+      "porque": "Lo fijan las Reglas de Operación 2026 de Acopio para el Bienestar; te registras en el centro de acopio con tu INE y CURP.",
+      "fuente": { "nombre": "Agricultura, Reglas de Operación Acopio para el Bienestar 2026 (DOF)", "url": "https://www.gob.mx/cms/uploads/attachment/file/1046466/2026_Acuerdo_de_Reglas_de_op_P_de_Acopio_para_el_Bienestar.pdf" },
+      "verificado": true
+    },
+    {
+      "id": "fertilizante-bienestar-gto",
+      "estados": ["Guanajuato"],
+      "temas": ["insumos"],
+      "palabras": ["fertiliz", "abono", "urea", "insumo"],
+      "accion": "Revisa si estás en el listado de Fertilizantes para el Bienestar 2026 de Guanajuato: ese fertilizante es gratis.",
+      "porque": "Agricultura publica el listado de productores autorizados; el fertilizante se recoge en los centros de distribución (CEDA) para maíz, sorgo, trigo, frijol y milpa.",
+      "fuente": { "nombre": "Agricultura (SADER), Fertilizantes para el Bienestar 2026 Guanajuato", "url": "https://www.gob.mx/agricultura/acciones-y-programas/fertilizantes-para-el-bienestar-2026" },
+      "verificado": true,
+      "nota": "La página de gob.mx solo trae el listado; los CEDA y los cultivos salen de Publimetro (21 abr 2026), que cita a Agricultura."
+    }
+  ]
+}

@@ -51,3 +51,19 @@ export function weatherScene(choice, year) {
   const id = SCENES[choice] ? choice : 'normal';
   return { id, ...SCENES[id], example: true };
 }
+
+// Código WMO del pronóstico (Open-Meteo) -> cómo mostrarlo. Es dato real del pronóstico, no un ejemplo.
+export function weatherFromCode(code, lluviaMm = 0) {
+  let w;
+  if (code === 0) w = { icon: '☀️', label: 'Despejado', rain: 0 };
+  else if (code === 1 || code === 2) w = { icon: '⛅', label: 'Poco nublado', rain: 0 };
+  else if (code === 3) w = { icon: '☁️', label: 'Nublado', rain: 0 };
+  else if (code >= 45 && code <= 48) w = { icon: '🌫️', label: 'Niebla', rain: 0 };
+  else if (code >= 51 && code <= 57) w = { icon: '🌦️', label: 'Llovizna', rain: 0.25 };
+  else if ((code >= 61 && code <= 67) || (code >= 80 && code <= 82)) w = { icon: '🌧️', label: 'Lluvia', rain: 0.65 };
+  else if (code >= 95) w = { icon: '⛈️', label: 'Tormenta', rain: 1 };
+  else w = { icon: '⛅', label: 'Sin dato del cielo', rain: 0 };
+  // Si el día trae milímetros, mandan sobre el código para la intensidad.
+  if (lluviaMm > 0) w.rain = Math.max(w.rain, Math.min(1, lluviaMm / 10));
+  return w;
+}

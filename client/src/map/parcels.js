@@ -18,10 +18,12 @@ export const allCorners = (parcelas) => parcelas.flatMap((p) => p.contorno);
 
 const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 10 ? 1 : 0 });
 
-// The point sent to the API for the whole farm: average of every corner (the server rounds to
-// ~1 km anyway), with a name for the page.
+// The point sent to the API for the whole farm: the center of the largest parcel, so climate and soil
+// are read inside a real parcel (the average of every corner can fall between two parcels).
+// shortcut: a very irregular parcel (L shape) can have its center outside; use a point-in-polygon search if that shows up.
 export function farmPoint(parcelas) {
-  const { lat, lon } = polygonCenter(allCorners(parcelas));
+  const largest = parcelas.reduce((a, b) => (b.hectareas > a.hectareas ? b : a));
+  const { lat, lon } = polygonCenter(largest.contorno);
   const total = farmSummary(parcelas).totalHa; // overlaps counted once, like "Tu terreno"
   const nombre =
     parcelas.length === 1

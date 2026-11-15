@@ -19,12 +19,13 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
 
 ## Stack (decidido, no cambiar sin preguntar)
 - `client/`: React + Vite, **MapLibre GL** para el mapa (satélite Esri + relieve 3D; cambio del 14 de noviembre,
-  antes era react-leaflet) y Recharts para las gráficas.
+  antes era react-leaflet), Chart.js para las gráficas, Bootstrap para el diseño y react-router para las 4 pantallas.
   Vista 3D en `client/src/three/` con three.js + @react-three/fiber + @react-three/drei (aprobado por el equipo).
   Modelos generados con Blender desde `assets/blender/build_models.py`.
 - `server/`: Node + Express. Sin base de datos y sin login.
-- Caché en disco: `server/cache/<fuente>_<lat2>_<lon2>.json`, con lat/lon redondeados a 2 decimales.
-- Fixtures en `server/fixtures/` del punto demo, para que la demo funcione aunque falle el internet.
+- Caché en disco: `server/cache/<fuente>_<lat>_<lon>.json`. Clima (NASA POWER) a 2 decimales (~1 km); suelo (SoilGrids, cuadros de 250 m) a 3 decimales (~110 m).
+- Fixtures en `server/fixtures/` de las parcelas de ejemplo (`GET /api/ejemplos`, lista en `server/lib/seasons.js`), para que la demo funcione aunque falle el internet.
+- Asistente (lo lleva un compañero): `server/llm/`, con Gemma local en Ollama, voz con Whisper, pronóstico de Open-Meteo y datos del SIAP.
 - Correr: `cd server && npm run dev` (puerto 3001) y `cd client && npm run dev` (Vite proxy `/api` → 3001).
 
 ## Datos (APIs gratis, sin API key)
@@ -53,6 +54,7 @@ Siete cultivos: maíz, sorgo, frijol, trigo, cebada, garbanzo y brócoli. Cada u
   "fuente": "FAO Ecocrop", "verificado": false }
 ```
 - **No inventes valores como definitivos.** Llena valores aproximados, déjalos con `"verificado": false` y una lista de TODO; el equipo los confirma contra FAO Ecocrop.
+- Hoy los rangos son los ilustrativos de la maqueta del diseño; `temporadas` y `agua` salen de lo que el SIAP reporta sembrado. Pendientes en `docs/api-contract.md`.
 - Temporadas del Bajío: **PV** (primavera-verano, lluvias de junio a septiembre, temporal o riego) y **OI** (otoño-invierno, solo con riego).
 
 ## Motor de reglas: `server/engine/`
@@ -62,26 +64,31 @@ Debe ser simple, explicable y con pruebas unitarias.
    - ajuste de lluvia (lluvia de la temporada contra el rango; solo pesa en temporal),
    - ajuste de suelo (pH; la textura solo como nota).
 2. **Riesgo** = porcentaje de años, del 2000 en adelante, en que la lluvia de PV quedó por debajo del mínimo del cultivo.
-3. La prioridad del agricultor cambia los pesos: `ganar` (rendimiento), `suelo` (leguminosas y diversidad), `agua` (menos lluvia o riego requerido), `riesgo` (menor riesgo).
+   Se mide en los meses del ciclo de cada cultivo, empezando en junio.
+3. La prioridad del agricultor cambia los pesos: `ganar` (ingreso bruto por hectárea del SIAP, por estado), `suelo` (leguminosas y diversidad), `agua` (menos lluvia o riego requerido), `riesgo` (menor riesgo).
 4. Rotación de 3 años. Reglas:
    - no repetir la misma familia en temporadas seguidas,
    - al menos una leguminosa en los 3 años,
    - OI solo si hay riego.
-5. Cada recomendación trae `razones[]` en español con números reales. Por ejemplo: "En 6 de 24 años llovió menos de lo que el maíz necesita aquí".
+5. Está en un solo archivo, `server/engine/index.js`. El asistente usa este mismo motor: no hay otro recomendador.
+6. Cada recomendación trae `razones[]` en español con números reales. Por ejemplo: "En 6 de 24 años llovió menos de lo que el maíz necesita aquí".
 
 ## API
 - `GET /api/clima?lat&lon`: serie anual de lluvia de PV, temperatura media mensual y años secos.
 - `GET /api/suelo?lat&lon`: pH, arcilla, arena, limo y carbono orgánico de 0 a 30 cm.
-- En las tres rutas, `lat` y `lon` son el centro de la parcela que dibujó el agricultor.
+- En las tres rutas, `lat` y `lon` son el centro de la parcela que dibujó el agricultor (con varias parcelas, el de la más grande). El front no los redondea.
+- `GET /api/ejemplos`: las parcelas de los botones de ejemplo. `GET /api/terreno?lat&lon`: relieve para la vista 3D.
 - `POST /api/recomendar` con `{ lat, lon, agua: "temporal"|"riego", prioridad: "ganar"|"suelo"|"agua"|"riesgo" }`
   responde `{ clima, suelo, cultivos: [{ id, puntaje, riesgo, razones }], rotacion: [{ anio, temporada, cultivo, porque }], fuentes }`.
+  Fuera de Guanajuato y Querétaro (límites del INEGI, `server/lib/state.js`) responde 422 con `fuera_de_region: true`: se recomienda solo en el Bajío; clima y suelo se ven en todo México.
 
-## Pantallas (una sola página)
+## Pantallas (4 rutas: Parcela, Simulador 3D, Análisis IA y Probar cultivo)
 1. Mapa: el agricultor **dibuja el contorno de su parcela** (un polígono: cada clic agrega una esquina, mínimo 3). No es un solo punto.
    - El front calcula el **centro del polígono** y eso es lo que manda como `lat` y `lon`. La API no cambia: NASA POWER y SoilGrids se consultan por punto.
    - Se hace con MapLibre GL (`client/src/map/`). Al terminar, el mapa se ajusta a la parcela y la vista 3D
      la encuadra con su contorno. Detalle en `docs/api-contract.md`.
-   - Botones de ejemplo: "Celaya, Gto." (20.47, -100.81), que manda ese punto directo, sin dibujar.
+   - El mapa puede mostrar encima capas de NASA GIBS (color real, NDVI y humedad SMAP), solo visuales.
+   - Botones de ejemplo (salen de `GET /api/ejemplos`): "Celaya, Gto." (20.47, -100.81) y dos más, que mandan su punto directo, sin dibujar.
      El punto es zona de cultivo, 5.5 km al sur del centro. El centro (20.52, -100.81) no sirve de ejemplo: SoilGrids lo enmascara como zona urbana y no devuelve suelo.
 2. Formulario: temporal o riego, y la prioridad.
 3. Resultado:

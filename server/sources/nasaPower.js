@@ -28,10 +28,11 @@ export function daysInMonth(year, month) {
 }
 
 // Throws when the payload is not a usable POWER monthly response.
+// Requires every requested parameter, so a cache saved before one was added gets downloaded again.
 export function validatePower(raw) {
-  const parameter = raw?.properties?.parameter;
-  if (!parameter?.T2M || !parameter?.PRECTOTCORR) {
-    throw new Error('Unexpected NASA POWER response (missing T2M or PRECTOTCORR)');
+  const missing = PARAMETERS.filter((name) => !raw?.properties?.parameter?.[name]);
+  if (missing.length > 0) {
+    throw new Error(`Unexpected NASA POWER response (missing ${missing.join(', ')})`);
   }
 }
 
@@ -154,7 +155,7 @@ export async function getClimate(lat, lon) {
     label: 'el clima de la NASA',
     lat,
     lon,
-    url: buildPowerUrl(lat, lon),
+    buildUrl: buildPowerUrl,
     timeoutMs: 20000,
     validate: validatePower,
   });

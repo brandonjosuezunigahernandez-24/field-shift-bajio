@@ -228,7 +228,7 @@ function Rain({ intensity, animate }) {
 
 // sections: drawn parcels [{ id, cultivo, color, outline: [[x, z], ...] }] in diorama units.
 // Without sections the whole block is one field of `cultivo`.
-export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, sections = [], showRain, reducedMotion }) {
+export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, sections = [], showRain, reducedMotion, rainOverride = null, onSelectSection = null }) {
   const invalidate = useThree((s) => s.invalidate);
   const models = useModelGeometries(sections.length ? sections.map((sec) => sec.cultivo) : [cultivo]);
   const groupRef = useRef();
@@ -451,7 +451,19 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
 
   return (
     // Clicks on the diorama must not fall through to the globe behind it.
-    <group ref={groupRef} quaternion={quaternion} scale={SIZE} onClick={(e) => e.stopPropagation()}>
+    <group
+      ref={groupRef}
+      quaternion={quaternion}
+      scale={SIZE}
+      onClick={(e) => {
+        e.stopPropagation();
+        if (!onSelectSection) return;
+        // Dónde tocó, en las mismas unidades de los contornos de las parcelas.
+        const p = groupRef.current.worldToLocal(e.point.clone());
+        const hit = sections.find((sec) => pointInPolygon([p.x, p.z], sec.outline));
+        onSelectSection(hit ? hit.id : null);
+      }}
+    >
       <mesh geometry={terrainGeometry} material={groundMaterial} />
       <mesh geometry={skirtGeometry} material={soilMaterial} raycast={() => null} />
       {/* One InstancedMesh per field: one draw call per parcel, whatever its number of plants. */}
@@ -478,7 +490,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
         <coneGeometry args={[0.03, 0.07, 3]} />
         <meshStandardMaterial color="#c0392b" />
       </mesh>
-      {showRain && <Rain intensity={state.rain} animate={!reducedMotion} />}
+      {showRain && <Rain intensity={rainOverride ?? state.rain} animate={!reducedMotion} />}
     </group>
   );
 }

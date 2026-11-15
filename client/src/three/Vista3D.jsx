@@ -1,12 +1,13 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { getTerreno } from '../api.js';
+import { getTerreno } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES, DEFAULT_CROP } from '../crops.js';
 import { ALL_SECTIONS, fitsOneBlock, parcelColor, sectionCenter, sectionParcels } from '../map/parcels.js';
 import { toDiorama } from '../map/polygon.js';
 import { latLonToXYZ, round2, wrapLon } from './geo.js';
 import { preloadModels } from './models.js';
 import { YearControl } from '../year.jsx';
+import { weatherFromCode } from '../weather.js';
 import { reliefExaggeration } from './parcelState.js';
 import Scene from './Scene.jsx';
 
@@ -45,12 +46,19 @@ const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 //   point          { nombre, lat, lon } or null
 //   clima, suelo   { data } | { error } | null, as App keeps them
 //   onSelectPoint  ({ nombre, lat, lon }) => void
-export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint, year }) {
+export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint, year, pronostico = null, recomendacion = null }) {
   const reducedMotion = usePrefersReducedMotion();
   const [view, setView] = useState('globe');
   const [terreno, setTerreno] = useState(null);
   const [cultivo, setCultivo] = useState(DEFAULT_CROP);
   const [contextLost, setContextLost] = useState(false);
+  // Parcela que el agricultor tocó en la maqueta (su información sale abajo) y día del pronóstico elegido.
+  const [selId, setSelId] = useState(null);
+  const [dia, setDia] = useState(null);
+  const dias = pronostico?.dias ?? [];
+  const diaSel = dia !== null ? dias[dia] : null;
+  const climaDia = diaSel ? weatherFromCode(diaSel.codigo_clima, diaSel.lluvia_mm) : null;
+  const dayShort = (fecha) => new Date(`${fecha}T12:00:00`).toLocaleDateString('es-MX', { weekday: 'short', day: 'numeric' });
 
   // Section shown in 3D: one parcel id, or ALL_SECTIONS. Each section is its own diorama,
   // centered on its parcels, so a parcel never falls off a block centered somewhere else.
@@ -149,7 +157,11 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
   const exaggeration = terrenoData ? reliefExaggeration(terrenoData.desnivel_m, terrenoData.lado_m) : 1;
   const inParcel = view === 'parcel' && point;
 
-  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, sections };
+  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, sections, rainOverride: climaDia ? climaDia.rain : null, onSelectSection: setSelId };
+  const selected = sections.find((x) => x.id === selId) ?? null;
+  const selParcela = parcelas.find((p) => p.id === selId) ?? null;
+  const selReco = selected ? recomendacion?.cultivos?.find((c) => c.id === selected.cultivo) : null;
+  const selYear = climaData?.lluvia_pv_anual?.find((y) => y.anio === anio) ?? null;
   const sectionName = (id) => `Parcela ${parcelas.findIndex((p) => p.id === id) + 1}`;
 
   if (contextLost) {
@@ -237,6 +249,58 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
 
           <YearControl id="anio3d" year={year} clima={climaData} error={clima?.error} />
 
+          {dias.length > 0 && (
+            <fieldset className="vista3d-forecast">
+              <legend>Clima de los próximos 7 días</legend>
+              <div className="forecast-row">
+                {dias.map((d, i) => {
+                  const w = weatherFromCode(d.codigo_clima, d.lluvia_mm);
+                  return (
+                    <button key={d.fecha} type="button" className={`forecast-day${dia === i ? ' is-on' : ''}`} aria-pressed={dia === i} onClick={() => setDia(dia === i ? null : i)}>
+                      <span className="fd-name">{i === 0 ? 'Hoy' : dayShort(d.fecha)}</span>
+                      <span className="fd-icon" aria-hidden="true">{w.icon}</span>
+                      <span className="fd-mm">{d.lluvia_mm} mm</span>
+                    </button>
+                  );
+                })}
+              </div>
+              {diaSel ? (
+                <p className="forecast-detail" role="status">
+                  <strong>{dayShort(diaSel.fecha)}: {climaDia.label}.</strong> Lluvia {diaSel.lluvia_mm} mm
+                  {diaSel.prob_lluvia_pct != null ? ` (${diaSel.prob_lluvia_pct} % de probabilidad)` : ''}, temperatura de {diaSel.t_min_c} a {diaSel.t_max_c} °C.
+                  {' '}La maqueta muestra la lluvia de ese día. <button type="button" className="secondary" onClick={() => setDia(null)}>Volver al año {anio}</button>
+                </p>
+              ) : (
+                <p className="hint">Toca un día para ver cómo estará el clima sobre tu parcela. Fuente: Open-Meteo{pronostico?.origen === 'cache' ? ' (guardado, sin conexión nueva)' : ''}.</p>
+              )}
+            </fieldset>
+          )}
+
+          {selected && (
+            <aside className="parcel-info" role="status" style={{ '--parcel-color': selected.color }}>
+              <button type="button" className="secondary" onClick={() => setSelId(null)}>Cerrar ✕</button>
+              <h3>
+                <span className="parcel-swatch" aria-hidden="true" /> Parcela {selected.numero}: {CROP_NAMES[selected.cultivo]}
+              </h3>
+              <ul className="facts">
+                {selParcela && <li>Tamaño: <strong>{selParcela.hectareas} hectáreas</strong>.</li>}
+                {selYear && (
+                  <li>
+                    En {anio} llovió <strong>{fmt(selYear.lluvia_mm)} mm</strong> de junio a septiembre{selYear.seco ? ' (fue un año seco)' : ''}.
+                  </li>
+                )}
+                {selReco ? (
+                  <li>
+                    En la recomendación de tu perfil, el {CROP_NAMES[selected.cultivo].toLowerCase()} saca <strong>{Math.round(selReco.puntaje)} de 100</strong> puntos. {selReco.razones?.[0]}
+                  </li>
+                ) : (
+                  <li>Este cultivo no aparece en la recomendación de tu perfil (o todavía no la pides).</li>
+                )}
+                {diaSel && <li>{dayShort(diaSel.fecha)}: {climaDia.label}, lluvia {diaSel.lluvia_mm} mm.</li>}
+              </ul>
+            </aside>
+          )}
+
           {sections.length > 0 ? (
             <>
               <ul className="vista3d-legend">
@@ -246,7 +310,7 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
                   </li>
                 ))}
               </ul>
-              <p className="hint">Cambia el cultivo de cada parcela arriba, en «Tus parcelas». Todavía no es la recomendación.</p>
+              <p className="hint"><strong>Toca una parcela en la maqueta</strong> para ver su información. Cambia su cultivo arriba, en «Tus parcelas».</p>
               {offBlock && (
                 <p className="hint">
                   {seccion === ALL_SECTIONS

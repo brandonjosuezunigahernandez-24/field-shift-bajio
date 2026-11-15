@@ -19,6 +19,7 @@ import {
   sectionCenter,
   sectionParcels,
 } from './parcels.js';
+import { pointInPolygon } from './polygon.js';
 
 // Two ~200 m squares side by side (~4 ha each).
 const lat0 = 20.47;
@@ -45,13 +46,16 @@ test('nextParcelId never reuses an id after a parcel is deleted', () => {
   assert.equal(nextParcelId([east]), 3);
 });
 
-test('farmPoint: center of every corner, and a name with the total area', () => {
+test('farmPoint: inside the largest parcel, and a name with the total area', () => {
   const one = farmPoint([west]);
   assert.match(one.nombre, /^Tu parcela \(4 ha\)$/);
   const both = farmPoint([west, east]);
   assert.match(both.nombre, /^Tus 2 parcelas \(8 ha en total\)$/);
-  assert.ok(Math.abs(both.lon - (-100.81 + dLon)) < 1e-9, 'center is on the shared edge');
-  assert.ok(Math.abs(both.lat - (lat0 + dLat / 2)) < 1e-9);
+  // A bigger parcel 5 km away: the point must fall inside it, not between the two.
+  const far = [-100.76, lat0 + 0.05];
+  const big = createParcel(3, [far, [far[0] + 2 * dLon, far[1]], [far[0] + 2 * dLon, far[1] + 2 * dLat], [far[0], far[1] + 2 * dLat]]);
+  const farm = farmPoint([west, big]);
+  assert.ok(pointInPolygon([farm.lon, farm.lat], big.contorno), 'point is inside the largest parcel');
 });
 
 test('parcelLabel and colors', () => {

@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { createApp } from '../app.js';
-import { DEMO_POINT } from '../lib/seasons.js';
+import { EXAMPLE_POINTS, FIXTURE_POINTS } from '../lib/seasons.js';
 
 // These tests never touch the network: OFFLINE=1 makes the server use cache and fixtures only.
 let server;
@@ -21,43 +21,64 @@ const get = async (path) => {
   return { status: res.status, body: await res.json() };
 };
 
-const demoQuery = `lat=${DEMO_POINT.lat}&lon=${DEMO_POINT.lon}`;
-
 test('GET /api/health', async () => {
   const { status, body } = await get('/api/health');
   assert.equal(status, 200);
   assert.deepEqual(body, { ok: true });
 });
 
-test('GET /api/clima works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/clima?${demoQuery}`);
+// Every button must work offline: the tests below check clima and suelo for all FIXTURE_POINTS.
+test('GET /api/ejemplos lists the client buttons, all of them with fixtures', async () => {
+  const { status, body } = await get('/api/ejemplos');
   assert.equal(status, 200);
-  assert.ok(['cache', 'fixture'].includes(body.origen));
-  assert.equal(body.lat, DEMO_POINT.lat);
-  assert.equal(body.lluvia_pv_anual.length, 25);
-  assert.equal(body.temp_media_mensual.length, 12);
-  assert.ok(Array.isArray(body.anios_secos));
-  assert.ok(body.umbral_seco_mm > 0);
-  assert.match(body.fuente, /NASA POWER/);
+  assert.deepEqual(body, EXAMPLE_POINTS);
+  for (const point of body) {
+    assert.ok(FIXTURE_POINTS.some((f) => f.lat === point.lat && f.lon === point.lon), point.nombre);
+    assert.equal(typeof point.id, 'string');
+    assert.equal(typeof point.boton, 'string');
+  }
 });
 
-test('GET /api/suelo works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/suelo?${demoQuery}`);
-  assert.equal(status, 200);
-  assert.ok(['cache', 'fixture'].includes(body.origen));
-  assert.equal(body.sin_datos, false);
-  assert.equal(body.aviso, null);
-  assert.ok(body.ph > 4 && body.ph < 10);
-  assert.match(body.fuente, /SoilGrids/);
+test('GET /api/clima works offline for every fixture point', async () => {
+  for (const point of FIXTURE_POINTS) {
+    const { status, body } = await get(`/api/clima?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(status, 200, point.nombre);
+    assert.ok(['cache', 'fixture'].includes(body.origen));
+    assert.equal(body.lat, point.lat);
+    assert.equal(body.lluvia_pv_anual.length, 25, point.nombre);
+    assert.equal(body.temp_media_mensual.length, 12);
+    assert.ok(Array.isArray(body.anios_secos));
+    assert.ok(body.umbral_seco_mm > 0);
+    assert.match(body.fuente, /NASA POWER/);
+  }
 });
 
-test('GET /api/terreno works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/terreno?${demoQuery}`);
+test('GET /api/suelo works offline and has soil data for every fixture point', async () => {
+  for (const point of FIXTURE_POINTS) {
+    const { status, body } = await get(`/api/suelo?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(status, 200, point.nombre);
+    assert.ok(['cache', 'fixture'].includes(body.origen));
+    assert.equal(body.sin_datos, false, point.nombre);
+    assert.equal(body.aviso, null);
+    assert.ok(body.ph > 4 && body.ph < 10, point.nombre);
+    assert.match(body.fuente, /SoilGrids/);
+  }
+});
+
+test('GET /api/terreno works offline for the demo point and answers the rounded center', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const { status, body } = await get(`/api/terreno?lat=${demo.lat + 0.0003}&lon=${demo.lon - 0.0002}`);
   assert.equal(status, 200);
+  assert.deepEqual([body.lat, body.lon], [demo.lat, demo.lon]);
   assert.ok(['cache', 'fixture'].includes(body.origen));
   assert.equal(body.alturas.length, body.tam * body.tam);
   assert.equal(body.lado_m, 1000);
   assert.match(body.fuente, /SRTM/);
+  // Every example button shows its 3D relief without internet.
+  for (const point of FIXTURE_POINTS) {
+    const other = await get(`/api/terreno?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(other.status, 200, point.nombre);
+  }
 });
 
 test('bad coordinates answer 400 with a message in Spanish', async () => {
@@ -74,8 +95,122 @@ test('a point without cache or fixture answers 502 offline, never data from anot
   assert.match(body.error, /Celaya/);
 });
 
+test('a plot 760 m from the demo point shares its climate but never borrows its soil', async () => {
+  const query = 'lat=20.4749&lon=-100.8149';
+  const clima = await get(`/api/clima?${query}`);
+  assert.equal(clima.status, 200);
+  const suelo = await get(`/api/suelo?${query}`);
+  assert.equal(suelo.status, 502);
+});
+
 test('unknown /api routes answer 404 as JSON', async () => {
   const { status, body } = await get('/api/nope');
   assert.equal(status, 404);
   assert.equal(typeof body.error, 'string');
+});
+
+test('POST /api/asistente sin coordenadas -> 400', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: '{}' });
+  assert.equal(res.status, 400);
+});
+
+test('POST /api/voz sin audio -> 400', async () => {
+  const res = await fetch(`${baseUrl}/api/voz`, { method: 'POST', headers: { 'content-type': 'application/octet-stream' }, body: new Uint8Array(0) });
+  assert.equal(res.status, 400);
+});
+
+test('un saludo se contesta sin datos ni modelo', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat: 20.47, lon: -100.81, pregunta: 'hola' }) });
+  const body = await res.json();
+  assert.equal(res.status, 200);
+  assert.equal(body.origen, 'plantilla');
+  assert.match(body.respuesta, /Hola/);
+});
+
+test('GET /api/perfil/preguntas devuelve el cuestionario', async () => {
+  const { status, body } = await get('/api/perfil/preguntas');
+  assert.equal(status, 200);
+  assert.equal(body.preguntas[0].campo, 'agua');
+});
+
+test('POST /api/asistente con perfil inválido -> 400', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat: 20.47, lon: -100.81, pregunta: 'hola', perfil: { agua: 'mar' } }) });
+  assert.equal(res.status, 400);
+});
+
+test('GET /api/asistente/temas devuelve la guía de preguntas', async () => {
+  const { status, body } = await get('/api/asistente/temas');
+  assert.equal(status, 200);
+  assert.ok(body.temas.length >= 4 && body.temas.every((t) => t.titulo && t.preguntas.length > 0));
+  assert.ok(body.nota.includes('No doy marcas'));
+});
+
+const post = async (path, body) => {
+  const res = await fetch(`${baseUrl}${path}`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(body) });
+  return { status: res.status, body: await res.json() };
+};
+
+test('POST /api/recomendar answers with the engine: climate, soil, ranking and a 3-year rotation', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const { status, body } = await post('/api/recomendar', { lat: demo.lat, lon: demo.lon, agua: 'temporal', prioridad: 'riesgo' });
+  assert.equal(status, 200);
+  assert.equal(body.clima.lluvia_pv_anual.length, 25);
+  assert.equal(body.suelo.sin_datos, false);
+  assert.deepEqual(body.rotacion.map((s) => s.anio), [1, 2, 3]);
+  assert.ok(body.rotacion.every((s) => body.cultivos.some((c) => c.id === s.cultivo)));
+  // Income comes from the real SIAP summary of the plot's state.
+  assert.ok(body.cultivos[0].razones.some((r) => /pesos por hectárea/.test(r)));
+  assert.match(body.fuentes.join(' '), /NASA POWER/);
+});
+
+test('POST /api/recomendar still answers when the plot has no soil data', async () => {
+  // 760 m from the demo point: same climate cell, but no soil fixture offline.
+  const { status, body } = await post('/api/recomendar', { lat: 20.4749, lon: -100.8149, agua: 'riego', prioridad: 'ganar' });
+  assert.equal(status, 200);
+  assert.equal(body.suelo.sin_datos, true);
+  assert.equal(typeof body.suelo.aviso, 'string');
+  assert.equal(body.rotacion.length, 6);
+});
+
+test('POST /api/recomendar asks for agua and prioridad in Spanish', async () => {
+  const { status, body } = await post('/api/recomendar', { lat: 20.47, lon: -100.81, agua: 'mar', prioridad: 'riesgo' });
+  assert.equal(status, 400);
+  assert.match(body.error, /temporal o de riego/);
+});
+
+test('the assistant recommends with the same engine as /api/recomendar', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const plot = { lat: demo.lat, lon: demo.lon, agua: 'temporal', prioridad: 'riesgo' };
+  const chat = await post('/api/asistente', { ...plot, pregunta: '¿Qué me conviene sembrar?' });
+  const screen = await post('/api/recomendar', plot);
+  assert.equal(chat.status, 200);
+  assert.equal(chat.body.origen, 'motor');
+  assert.deepEqual(chat.body.recomendacion.rotacion, screen.body.rotacion);
+  assert.match(chat.body.respuesta, /Rotación de 3 años/);
+});
+
+test('POST /api/asistente: recomendar fuera de Guanajuato y Querétaro no inventa estado', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat: 20.66, lon: -103.35, pregunta: '¿Qué me conviene sembrar?', agua: 'temporal', prioridad: 'riesgo' }) });
+  const body = await res.json();
+  assert.equal(res.status, 200);
+  assert.match(body.respuesta, /fuera de Guanajuato y Querétaro/);
+  assert.equal(body.recomendacion, undefined);
+});
+
+// Lagos de Moreno, Jal.: inside the old lat/lon rectangle, outside the INEGI boundary of Guanajuato.
+const LAGOS = { lat: 21.356, lon: -101.93 };
+
+test('POST /api/recomendar outside Guanajuato and Querétaro answers 422 before calling any API', async () => {
+  // Offline there is no fixture for this point: a 502 would mean it went to NASA POWER first.
+  const { status, body } = await post('/api/recomendar', { ...LAGOS, agua: 'temporal', prioridad: 'riesgo' });
+  assert.equal(status, 422);
+  assert.equal(body.fuera_de_region, true);
+  assert.match(body.error, /fuera de Guanajuato y Querétaro/);
+});
+
+test('the assistant uses the same INEGI boundary as /api/recomendar', async () => {
+  const { status, body } = await post('/api/asistente', { ...LAGOS, agua: 'temporal', prioridad: 'riesgo', pregunta: '¿Qué me conviene sembrar?' });
+  assert.equal(status, 200);
+  assert.match(body.respuesta, /fuera de Guanajuato y Querétaro/);
+  assert.equal(body.recomendacion, undefined);
 });
