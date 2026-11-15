@@ -8,6 +8,7 @@ import perfilRouter from './routes/perfil.js';
 import pronosticoRouter from './routes/pronostico.js';
 import vozRouter from './routes/voz.js';
 import frutalesRouter from './routes/frutales.js';
+import retroRouter from './routes/retro.js';
 import { HttpError } from './lib/errors.js';
 
 // All routes are mounted here so nobody else needs to edit this file.
@@ -27,6 +28,7 @@ export function createApp() {
   app.use('/api/perfil', perfilRouter);
   app.use('/api/voz', vozRouter);
   app.use('/api/frutales', frutalesRouter);
+  app.use('/api/retroalimentacion', retroRouter);
 
   app.use('/api', (req, res) => {
     res.status(404).json({ error: 'Esa ruta no existe.' });
