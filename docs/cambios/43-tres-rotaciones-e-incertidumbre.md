@@ -42,7 +42,12 @@ resultado de 9 a 17 años si fuera 10 % menor o mayor.
 - **Simulador 3D**:
   - La tarjeta 1 es «Compara 3 rotaciones»:
     - un botón por rotación; la elegida manda en los años y en el mapa;
-    - su resumen;
+    - las 3 lado a lado (`ComparaRotaciones`, con `client/src/lib/comparacion.js` probado):
+      - un bloque por medida: riesgo con rango, leguminosas, familia repetida, agua e ingreso;
+      - en cada renglón, el nombre, la barra y la cifra;
+      - la elegida en verde y las otras en gris;
+      - «✓ mejor» en palabras; en ingreso, menos de 5 % de diferencia cuenta como empate;
+      - en celular la barra baja bajo el nombre;
     - las listas «Lo bueno», «Con qué datos lo sabemos», «Qué no sabemos» y «Revísalo con tu técnico».
   - Tarjeta nueva: «Lo que no sabemos».
   - En el ranking, el riesgo con su rango.
