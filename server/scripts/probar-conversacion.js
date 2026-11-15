@@ -1,5 +1,5 @@
 // Prueba de punta a punta como la pantalla: parcela DIBUJADA (polígono), perfil lleno e historial de la plática.
-// Uso: PORT=3072 node index.js &   y luego   node scripts/probar-conversacion.js [--url http://localhost:3072] [--solo=celaya] [--set=dev|prueba] [--max=N]
+// Uso: PORT=3072 node index.js &   y luego   node scripts/probar-conversacion.js [--url http://localhost:3072] [--solo=celaya] [--set=dev|prueba|especificas] [--parte=dev|prueba] [--max=N]
 // Manda a /api/asistente las preguntas de test/eval/*.json (preguntas, maiz, frutas, maiz-preguntas-agricultor) + test/eval/conversacion.json,
 // califica cada respuesta (tema, incluye/excluye, cita, largo, números verificados) y guarda todo en test/eval/resultados-conversacion-<fecha>.json.
 import { readFileSync, writeFileSync } from 'node:fs';
@@ -9,6 +9,7 @@ const arg = (n, d) => process.argv.find((a) => a.startsWith(`--${n}=`))?.split('
 const BASE = arg('url', 'http://localhost:3072');
 const SOLO = arg('solo', null);
 const SET = arg('set', null);
+const PARTE = arg('parte', null); // con --set=especificas: solo dev o solo prueba
 const MAX = Number(arg('max', 1e9));
 const M_LAT = 111320;
 const leer = (n) => JSON.parse(readFileSync(new URL(`../test/eval/${n}`, import.meta.url), 'utf8'));
@@ -48,6 +49,9 @@ function bateria() {
   for (const q of leer('conversacion.json').preguntas) out.push({ fuente: 'conversacion', ...q, intencion: q.intencion });
   // Banco investigado (docs/investigacion-preguntas-agricultor.md): 1 de cada 3 es prueba (no se entrena con ella).
   leer('preguntas-investigadas.json').preguntas.forEach((p, i) => out.push({ fuente: 'investigadas', id: i + 1, set: setInvestigada(i), pregunta: p.texto, intencion: ESPERA_INV[p.tema] ?? p.tema.replace('-', '_') }));
+  // Preguntas específicas (números, mes, municipio, seguimientos): solo con --set=especificas.
+  const esp = leer('especificas.json').preguntas.map((q) => ({ fuente: 'especificas', ...q }));
+  if (SET === 'especificas') return esp.filter((q) => !PARTE || q.set === PARTE).slice(0, MAX);
   return out.filter((q) => !SET || q.set === SET).slice(0, MAX);
 }
 export const setInvestigada = (i) => (i % 3 === 0 ? 'prueba' : 'dev');
@@ -101,6 +105,7 @@ export function calificar(q, j, { ha, celaya }) {
   for (const c of q.cita ?? []) if (celaya && !citas.includes(c)) add('número sin fuente', `falta cita [${c}]`);
   if (/\d/.test(texto.replace(/\b(19|20)\d\d\b/g, '')) && !citas.length) add('número sin fuente', 'números sin ninguna cita');
   if (j.verificado === false) add('número sin fuente', 'verificador: número que no está en los datos');
+  if (q.debe_accion && !j.que_hacer?.length) add('falta acción', 'sin «Qué hacer»');
   if (frases(texto) > 6) add('demasiado larga', `${frases(texto)} frases`);
   if (/undefined|NaN|\[object/.test(texto)) add('error', 'texto roto');
   return fallas;
@@ -127,7 +132,7 @@ if (process.argv[1].endsWith('probar-conversacion.js')) {
       const p = d.parcelas.find((x) => x.id === r.parcela);
       const ha = Math.round(hectareas(p.esquinas.map((e) => aLatLon(p.ref, e))) * 100) / 100;
       if (!q) continue;
-      const fallas = calificar(q, { respuesta: r.respuesta, verificado: r.verificado, tema_obtenido: r.tema }, { ha, celaya: r.parcela === 'celaya' });
+      const fallas = calificar(q, { respuesta: r.respuesta, verificado: r.verificado, tema_obtenido: r.tema, que_hacer: r.que_hacer }, { ha, celaya: r.parcela === 'celaya' });
       resultados.push({ ...r, esperada: q.intencion ?? null, ok: !fallas.length, fallas });
     }
   }
@@ -153,7 +158,7 @@ if (process.argv[1].endsWith('probar-conversacion.js')) {
       resultados.push({
         parcela: p.id, fuente: q.fuente, id: q.id, set: q.set ?? null, pregunta: q.pregunta, antes: q.antes ?? null,
         esperada: q.intencion ?? null, tema: obtenida(r.json), tema_servidor: j.tema ?? null, origen: j.origen ?? null,
-        respuesta: j.respuesta ?? null, verificado: j.verificado ?? null, graficas: (j.graficas ?? []).map((g) => g.titulo ?? g.tipo ?? g.id ?? 'grafica'), ms: r.ms,
+        respuesta: j.respuesta ?? null, que_hacer: (j.que_hacer ?? []).map((a) => a.accion), verificado: j.verificado ?? null, graficas: (j.graficas ?? []).map((g) => g.titulo ?? g.tipo ?? g.id ?? 'grafica'), ms: r.ms,
         ok: fallas.length === 0, fallas,
       });
       if (!q.antes) historial = [...historial, { pregunta: q.pregunta, respuesta: (j.respuesta ?? '').slice(0, 600) }].slice(-2);
