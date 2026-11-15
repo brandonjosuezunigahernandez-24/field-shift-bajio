@@ -27,3 +27,6 @@
 .an-dato { display: flex; flex-direction: column; gap: 6px; margin: 12px 0; font-size: 16px; }
 .an-dato select, .an-dato input { min-height: 48px; font-size: 16px; padding: 8px 10px; border: 2px solid #b9cbb9; border-radius: 10px; }
 .an-btn { width: 100%; margin-top: 8px; text-align: center; }
+.an-texto-s { font-size: 16px; line-height: 1.5; margin: 8px 0; }
+.an-datos { margin: 8px 0; font-size: 16px; }
+@media print { .asx-fab, .asx, .an-ask, .an-bloque, .an-btn, .fs-btn, .fs-icon-btn, button { display: none !important; } .collapse { display: block !important; } }

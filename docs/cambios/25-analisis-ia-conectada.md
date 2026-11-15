@@ -10,8 +10,17 @@ La pantalla `/analisis` mostraba datos de ejemplo (`FS_DATOS.respuestaIA`) y nun
 - La lógica compartida está en `client/src/hooks/useAsistente.js`; la usan Análisis y el botón flotante (`AsistenteDock`), que ya no guarda estado propio.
 - `?pregunta=...` en la URL hace esa pregunta al cargar (sirve para revisar).
 
+## Diseño completo restaurado (segunda vuelta)
+La pantalla vuelve a tener la estructura del diseño original (clases `fs-*`), llena solo con datos reales:
+- Encabezado con parcela (y hectáreas si dibujó) y plan (`recomendacion.rotacion`); burbuja con la pregunta real.
+- "Cómo llegó a la respuesta": los pasos son `proceso` del servidor; el total en segundos se mide en el navegador (`performance.now`), sin tiempos por paso.
+- Respuesta corta: primera frase como titular y el resto en frases cortas (se quitan las citas `[SIAP]`, las fuentes salen aparte).
+- Por qué esta respuesta (razones de los 3 mejores cultivos, de cada parcela o de los escenarios del modelo de riesgo), Riesgos y límites (predicción, modelo, corroboración, notas y aviso de estimación), calendario de lluvia media mensual de la parcela (jun a sep resaltado) con la temporada de cada año de la rotación, y fuentes y enlaces.
+- Columna derecha: Datos usados, "Confianza del modelo" (solo si viene `riesgo_modelo`, sin porcentaje), años analizados, lluvia media al año (suma de la media mensual), años secos "N de M", pH y arcilla (o "—"), plan real, PDF con `window.print()`, ficha, "Lo que me has dicho".
+- Las fechas de siembra NO se muestran: aviso "aún sin verificar".
+
 ## Qué se quitó por ser de ejemplo
-Anillo de confianza, pasos con segundos, transcripción de voz falsa, hora fija, calendario de lluvia inventado, plan de ejemplo, sugerencias fijas y el botón "Guardar en mi ficha PDF".
+Anillo de confianza, segundos por paso, transcripción de voz falsa, hora fija, humedad y fechas de siembra del calendario, plan de ejemplo y sugerencias fijas.
 
 ## La ficha del agricultor
 - `useParcela` ahora tiene `perfil`, `setPerfilCampo(campo, valor)` y `reiniciarPerfil()`.
@@ -26,6 +35,7 @@ Anillo de confianza, pasos con segundos, transcripción de voz falsa, hora fija,
 4. Revisión rápida: `/analisis?pregunta=¿Qué me conviene sembrar?`.
 
 ## Límites
+- En la captura sin cabeza el tiempo sale 0.0 s porque el reloj es virtual; en un navegador normal es el tiempo real.
 - Sin cuentas ni servidor de datos: la ficha vive en el navegador y en el archivo.
 - El micrófono no se probó en un navegador real (necesita permiso y grabación).
 - Si el servidor rechaza un valor guardado (400), se muestra su mensaje de error.

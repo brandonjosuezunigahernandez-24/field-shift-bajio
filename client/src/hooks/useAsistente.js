@@ -21,9 +21,10 @@ export function useAsistente() {
     ultima.current = pregunta;
     setTexto(pregunta);
     setEstado({ fase: 'pensando' }); // esto borra la respuesta anterior
+    const t0 = performance.now();
     try {
       const r = await postAsistente({ lat: point.lat, lon: point.lon, pregunta, perfil: { ...perfil, ...extra }, parcelas: parcelas.map((p) => ({ id: p.id, hectareas: p.hectareas })) });
-      setEstado({ fase: 'listo', r });
+      setEstado({ fase: 'listo', r, pregunta, seg: (performance.now() - t0) / 1000 }); // seg: tiempo real medido aquí
     } catch (e) {
       setEstado({ fase: 'error', mensaje: e.message });
     }
@@ -75,5 +76,5 @@ export function useAsistente() {
   }
 
   const r = estado.fase === 'listo' ? estado.r : null;
-  return { texto, setTexto, estado, grabando, preguntar, contestar, reiniciar, microfono, r, pendiente: r?.preguntar ?? r?.afinar?.[0] ?? null };
+  return { pregunta: estado.pregunta, seg: estado.seg, texto, setTexto, estado, grabando, preguntar, contestar, reiniciar, microfono, r, pendiente: r?.preguntar ?? r?.afinar?.[0] ?? null };
 }
