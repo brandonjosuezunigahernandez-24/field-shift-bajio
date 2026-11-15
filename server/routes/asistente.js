@@ -5,7 +5,7 @@ import { getClimate, summarizeClimate } from '../sources/nasaPower.js';
 import { findLocal } from '../llm/contexto.js';
 import { climatologia } from '../llm/climatologia.js';
 import { detectarTema, redactar } from '../llm/respuestas.js';
-import { actionsFor } from '../llm/acciones.js';
+import { accionesPara, actionsFor } from '../llm/acciones.js';
 import { verifyNumbers } from '../llm/verificador.js';
 import { askModelStream } from '../llm/ollama.js';
 import { getSoil, summarizeSoil } from '../sources/soilGrids.js';
@@ -274,9 +274,34 @@ async function conModelo({ ficha, pregunta, historial, contexto, graficas }, ask
   return { ...out, proceso: buildProceso(out) };
 }
 
+// `que_hacer`: hasta 3 acciones con fuente (llm/acciones.js), añadidas a la respuesta final sin tocar lo demás.
+// Nunca en saludos, fuera de tema, ni cuando el asistente está preguntando algo o no supo contestar.
+const SIN_CLIMA = ['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose'];
+async function conQueHacer(body, req) {
+  try {
+    const { pregunta } = req.body;
+    // Sin tema y con `preguntar` = el asistente pide agua o prioridad antes de contestar (asking): ahí no van acciones.
+    if (!pregunta || GREETING.test(pregunta) || (body.preguntar && !body.tema) || body.sugerencias) return { ...body, que_hacer: [] };
+    if (body.tema === 'fuera') return { ...body, que_hacer: [] };
+    // Sin tema en la respuesta (la contestó el modelo o el recomendador): se toma el de las palabras, salvo 'fuera',
+    // porque si llegó al modelo es que la base de conocimiento sí sabía del tema.
+    const t = detectarTema(pregunta);
+    const tema = body.tema ?? (body.recomendacion || body.recomendacion_finca ? 'recomendar' : t === 'fuera' ? null : t);
+    const { lat, lon } = parseCoords(req.body);
+    const { agua, estado } = req.body;
+    const perfil = parsePerfil({ ...(req.body.perfil ?? {}), ...(agua != null && { agua }), ...(estado != null && { estado }) });
+    perfil.estado ??= inferEstado(lon);
+    let datos = null;
+    if (!SIN_CLIMA.includes(tema)) { try { datos = summarizeClimate((await getClimate(lat, lon)).rows); } catch { /* sin clima: acciones sin el dato */ } }
+    return { ...body, que_hacer: accionesPara({ tema, cultivo: detectCrop(pregunta), perfil, datos, pregunta }) };
+  } catch {
+    return { ...body, que_hacer: [] }; // las acciones nunca tumban la respuesta
+  }
+}
+
 router.post('/', async (req, res) => {
   const r = await resolver(req);
-  res.json(r.final ?? await conModelo(r.llm));
+  res.json(await conQueHacer(r.final ?? await conModelo(r.llm), req));
 });
 
 // POST /api/asistente/stream: mismo cuerpo y misma respuesta final, pero en líneas JSON (NDJSON) mientras el modelo escribe:
@@ -288,7 +313,7 @@ router.post('/stream', async (req, res) => {
   const send = (o) => res.write(JSON.stringify(o) + '\n');
   try {
     const final = r.final ?? await conModelo(r.llm, (f, q, o) => askModelStream(f, q, { ...o, onDelta: (texto) => send({ tipo: 'delta', texto }) }));
-    send({ tipo: 'final', ...final });
+    send({ tipo: 'final', ...(await conQueHacer(final, req)) });
   } catch (err) {
     send({ tipo: 'error', error: err.message });
   }
