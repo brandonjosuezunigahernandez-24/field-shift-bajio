@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react';
+import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
-import { postRecomendar } from '../api/client.js';
+import RainChart from '../components/charts/RainChart.jsx';
+import { getPrueba, postRecomendar } from '../api/client.js';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
 import { readHistory, reducedMotion, saveHistory } from '../lib/fs.js';
 
@@ -25,6 +26,7 @@ export default function Cultivo() {
   const [usedDefault, setUsedDefault] = useState(false);
   const [agua, setAgua] = useState(aguaPerfil === 'riego' ? 'riego' : 'temporal');
   const [rec, setRec] = useState(null); // null while loading, { data } or { error }
+  const [prueba, setPrueba] = useState(null); // every rain-fed crop against the real years, or null
   const [query, setQuery] = useState(params.get('c') ?? ''); // ?c=frijol opens the test directly
   const [probado, setProbado] = useState(params.get('c') ?? ''); // text the farmer tested
   const [history, setHistory] = useState(readHistory);
@@ -48,6 +50,17 @@ export default function Cultivo() {
       live = false;
     };
   }, [point, agua, prioridad]);
+
+  // The year-by-year test is an extra: if it fails, the rest of the screen still works.
+  useEffect(() => {
+    if (!point) return;
+    let live = true;
+    setPrueba(null);
+    getPrueba(point.lat, point.lon).then((p) => live && setPrueba(p), () => {});
+    return () => {
+      live = false;
+    };
+  }, [point]);
 
   const data = rec?.data;
   const cultivos = data?.cultivos ?? [];
@@ -223,6 +236,7 @@ export default function Cultivo() {
             <Resultado
               crop={crop}
               data={data}
+              prueba={prueba}
               agua={agua}
               placeName={placeName}
               verdictRef={verdictRef}
@@ -248,7 +262,7 @@ export default function Cultivo() {
   );
 }
 
-function Resultado({ crop, data, agua, placeName, verdictRef, onProbar, onOtro }) {
+function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, onOtro }) {
   const { cultivos, rotacion } = data;
   const byId = Object.fromEntries(cultivos.map((c) => [c.id, c]));
   const lugar = cultivos.findIndex((c) => c.id === crop.id) + 1;
@@ -327,6 +341,14 @@ function Resultado({ crop, data, agua, placeName, verdictRef, onProbar, onOtro }
         </section>
       </div>
 
+      {agua === 'temporal' && prueba?.cultivos.some((c) => c.id === crop.id) ? (
+        <Historia key={crop.id} crop={crop} prueba={prueba} />
+      ) : (
+        agua === 'riego' && (
+          <p className="fs-note mt-3">Con riego la lluvia no limita al cultivo, así que la prueba año por año solo se muestra en temporal.</p>
+        )
+      )}
+
       <section className="fs-card mt-4 fs-up fs-d2" aria-labelledby="t-fac">
         <div>
           <div className="fs-eyebrow">Por qué · con los datos de tu parcela</div>
@@ -369,4 +391,83 @@ function Anillo({ total, cls }) {
       </span>
     </div>
   );
+}
+
+const MESES = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+const lista = (anios) => anios.join(', ');
+
+// The tested crop against every real year of the plot (GET /api/recomendar/prueba): did the rain of its
+// cycle reach what it needs? The farmer can move the sowing month and put a second crop next to it.
+function Historia({ crop, prueba }) {
+  const [mes, setMes] = useState(6);
+  const [rivalId, setRivalId] = useState('');
+  const entry = prueba.cultivos.find((c) => c.id === crop.id);
+  const rival = prueba.cultivos.find((c) => c.id === rivalId);
+  const siembra = (c) => c.siembras.find((s) => s.mes_siembra === mes);
+  const s = siembra(entry);
+  const junio = entry.siembras.find((x) => x.mes_siembra === 6);
+  const nombre = crop.nombre.toLowerCase();
+  const total = s.anios.length;
+  const rango = `de ${MESES[s.meses[0] - 1]} a ${MESES[s.meses.at(-1) - 1]}`;
+
+  // Years in which one crop had enough rain and the other did not.
+  const sr = rival && siembra(rival);
+  const soloYo = sr ? s.anios.filter((y, i) => y.alcanzo && !sr.anios[i].alcanzo).map((y) => y.anio) : [];
+  const soloRival = sr ? s.anios.filter((y, i) => !y.alcanzo && sr.anios[i].alcanzo).map((y) => y.anio) : [];
+
+  return (
+    <section className="fs-card mt-4 fs-up fs-d2" aria-labelledby="t-hist">
+      <div className="fs-card-head">
+        <div>
+          <div className="fs-eyebrow">25 años reales · NASA POWER</div>
+          <h2 className="fs-card-title xs" id="t-hist">Si lo hubieras sembrado cada año desde {s.anios[0].anio}</h2>
+        </div>
+        <div className="fs-seg" role="group" aria-label="Mes de siembra">
+          {entry.siembras.map((x) => (
+            <button key={x.mes_siembra} type="button" aria-pressed={mes === x.mes_siembra} onClick={() => setMes(x.mes_siembra)}>
+              Sembrar en {MESES[x.mes_siembra - 1]}
+            </button>
+          ))}
+        </div>
+      </div>
+
+      <p className="fs-verdict-sum" aria-live="polite">
+        A {nombre} le alcanzó la lluvia en <strong>{total - s.anios_bajo_minimo.length} de {total} años</strong> (necesita {entry.minimo_mm} mm {rango}).{' '}
+        {s.anios_bajo_minimo.length ? `No le alcanzó en: ${lista(s.anios_bajo_minimo)}.` : 'Le alcanzó todos los años.'}
+        {mes !== 6 && ` Sembrando en ${MESES[mes - 1]} en vez de junio, los años en que no alcanza pasan de ${junio.anios_bajo_minimo.length} a ${s.anios_bajo_minimo.length}.`}
+      </p>
+      <Barras siembra={s} minimo={entry.minimo_mm} />
+
+      <div className="mt-3">
+        <label htmlFor="rival" className="fs-q">Compáralo con otro cultivo en los mismos años</label>
+        <select id="rival" className="form-select" value={rivalId} onChange={(e) => setRivalId(e.target.value)}>
+          <option value="">Sin comparar</option>
+          {prueba.cultivos.filter((c) => c.id !== crop.id).map((c) => (
+            <option key={c.id} value={c.id}>{c.nombre}</option>
+          ))}
+        </select>
+      </div>
+      {rival && (
+        <>
+          <p className="fs-verdict-sum mt-3" aria-live="polite">
+            A {rival.nombre.toLowerCase()} le alcanzó en <strong>{total - sr.anios_bajo_minimo.length} de {total} años</strong> (necesita {rival.minimo_mm} mm).{' '}
+            {soloRival.length ? `En ${soloRival.length} años le alcanzó a ${rival.nombre.toLowerCase()} y a ${nombre} no: ${lista(soloRival)}. ` : ''}
+            {soloYo.length ? `En ${soloYo.length} años le alcanzó a ${nombre} y a ${rival.nombre.toLowerCase()} no: ${lista(soloYo)}.` : ''}
+            {!soloRival.length && !soloYo.length ? 'Les alcanzó y les faltó en los mismos años.' : ''}
+          </p>
+          <Barras siembra={sr} minimo={rival.minimo_mm} />
+        </>
+      )}
+      <p className="fs-note mt-3">
+        Cada barra es la lluvia real del ciclo del cultivo en ese año; la línea es lo que necesita. Cambiar el mes de siembra solo recalcula la lluvia, no la
+        temperatura. Lo que necesita cada cultivo son valores aproximados que falta confirmar.
+      </p>
+    </section>
+  );
+}
+
+function Barras({ siembra, minimo }) {
+  const anios = useMemo(() => siembra.anios.map((y) => y.anio), [siembra]);
+  const valores = useMemo(() => siembra.anios.map((y) => y.lluvia_mm), [siembra]);
+  return <RainChart anios={anios} valores={valores} umbral={minimo} etiquetaBajo="no le alcanzó" />;
 }

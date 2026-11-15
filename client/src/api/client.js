@@ -33,6 +33,9 @@ export const postRecomendar = (payload) =>
     body: JSON.stringify(payload),
   });
 
+// Each rain-fed crop against every real year, sown in June and July ("Probar cultivo" screen).
+export const getPrueba = (lat, lon) => request(`/api/recomendar/prueba?${pointQuery(lat, lon)}`);
+
 // Relief of the 1 km square around the plot, for the 3D view.
 export const getTerreno = (lat, lon) => request(`/api/terreno?${pointQuery(lat, lon)}`);
 
