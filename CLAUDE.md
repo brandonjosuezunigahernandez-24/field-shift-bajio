@@ -65,6 +65,8 @@ Debe ser simple, explicable y con pruebas unitarias.
    - ajuste de suelo (pH; la textura solo como nota).
 2. **Riesgo** = porcentaje de años, del 2000 en adelante, en que la lluvia de PV quedó por debajo del mínimo del cultivo.
    Se mide en los meses del ciclo de cada cultivo, empezando en junio.
+   **Heladas y calor** (`extremeTempRisk`): años en que la hora más fría del mes (`T2M_MIN`) bajó a `helada_dano_c` o menos, o la más caliente (`T2M_MAX`) llegó a `calor_dano_c` o más, en algún mes del ciclo. Aplica en temporal y en riego.
+   La parte de seguridad del puntaje usa los años con algún problema (faltó lluvia, helada o calor; un año con dos cuenta una vez). El campo `riesgo` sigue siendo solo lluvia.
 3. La prioridad del agricultor cambia los pesos: `ganar` (ingreso bruto por hectárea del SIAP, por estado), `suelo` (leguminosas y diversidad), `agua` (menos lluvia o riego requerido), `riesgo` (menor riesgo).
 4. Rotación de 3 años. Reglas:
    - no repetir la misma familia en temporadas seguidas,
@@ -90,7 +92,7 @@ Debe ser simple, explicable y con pruebas unitarias.
 - En las tres rutas, `lat` y `lon` son el centro de la parcela que dibujó el agricultor (con varias parcelas, el de la más grande). El front no los redondea.
 - `GET /api/ejemplos`: las parcelas de los botones de ejemplo. `GET /api/terreno?lat&lon`: relieve para la vista 3D.
 - `POST /api/recomendar` con `{ lat, lon, agua: "temporal"|"riego", prioridad: "ganar"|"suelo"|"agua"|"riesgo", rotacion_actual?: ["frijol", "maiz"] }`
-  responde `{ clima, suelo, cultivos: [{ id, puntaje, riesgo, riesgo_rango, sensibilidad, razones }], rotacion: [{ anio, temporada, cultivo, porque }], estrategias: [{ id, nombre, rotacion, resumen, porque, evidencia, beneficios, huecos, revisar }], incertidumbre: [{ tema, texto }], fuentes }`.
+  responde `{ clima, suelo, cultivos: [{ id, puntaje, riesgo, riesgo_rango, sensibilidad, helada, calor, riesgo_total, razones }], rotacion: [{ anio, temporada, cultivo, porque }], estrategias: [{ id, nombre, rotacion, resumen, porque, evidencia, beneficios, huecos, revisar }], incertidumbre: [{ tema, texto }], fuentes }`.
   Fuera de Guanajuato y Querétaro (límites del INEGI, `server/lib/state.js`) responde 422 con `fuera_de_region: true`: se recomienda solo en el Bajío; clima y suelo se ven en todo México.
 
 ## Pantallas (4 rutas: Parcela, Simulador 3D, Análisis IA y Probar cultivo)

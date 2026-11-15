@@ -180,7 +180,7 @@ Petición:
 { "lat": 20.47, "lon": -100.81, "agua": "temporal", "prioridad": "riesgo" }
 ```
 
-Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en temporal: el mes con mejor puntaje).
+Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en primavera-verano: el mes con mejor puntaje; desde el cambio 44 también con riego, porque el calor de junio cuenta).
 
 Opcional: `"rotacion_actual": ["frijol", "maiz"]`, lo que siembra hoy, del más viejo al más nuevo (el front manda `[ultimo_cultivo, cultivo_actual]` del perfil).
 - Es la primera de las 3 rotaciones que se comparan (`estrategias`): un cultivo se repite y dos distintos se alternan.
@@ -258,6 +258,9 @@ Respuesta (valores reales del punto demo, recortados):
 - `cultivos` va ordenado de mayor a menor `puntaje`, una fila por cultivo. Solo salen los que se pueden sembrar con esa `agua`.
   En temporal cada uno trae `riesgo_rango` (intervalo de Wilson al 90 %) y `sensibilidad: { menos10, mas10, anios_total }`
   (años sin lluvia suficiente si necesitara 10 % menos o más lluvia; los requerimientos no están verificados). Con riego son `null`.
+  Con temporal y con riego cada uno trae `helada` y `calor`: `{ riesgo, anios, anios_total, umbral_c }` (años reales en que la hora más fría
+  o la más caliente de algún mes del ciclo llegó al umbral del cultivo) y `riesgo_total` (parte de los años con algún problema: lluvia, helada o calor).
+  `riesgo` no cambió: sigue siendo solo lluvia. El `resumen` de cada estrategia trae `riesgo_helada` y `riesgo_calor` (temporadas con el problema entre temporadas sembradas).
 - `estrategias`:
   - Trae 3 rotaciones distintas.
   - La alternativa es la de la primera meta, en el orden suelo, riesgo, ganar, agua, que dé un plan distinto.
@@ -331,6 +334,8 @@ recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cult
 - **Lluvia** (solo en temporal): la lluvia de un año normal (mediana) en los meses del ciclo, contra el rango del cultivo.
 - **Suelo:** el pH contra el rango; un punto de pH fuera lo lleva a cero. La textura va solo como nota.
 - **Riesgo:** años en que la lluvia del ciclo quedó bajo el mínimo del cultivo. Con riego no se calcula.
+- **Heladas y calor** (temporal y riego): años en que, en algún mes del ciclo, `t_min_c` (la hora más fría del mes) bajó a `helada_dano_c` o menos, o `t_max_c` (la hora más caliente) llegó a `calor_dano_c` o más. La temporada de otoño-invierno cruza diciembre: enero y febrero cuentan para la siembra del noviembre anterior.
+- **Seguridad** (la parte del puntaje que pesa 50 % con la prioridad `riesgo` y 20 % con las demás): 1 menos la parte de los años con algún problema, sea falta de lluvia (solo temporal), helada o calor. Un año con dos problemas cuenta una vez.
 - **Puntaje:** 30 % es qué tan bien se da el cultivo ahí (los tres ajustes) y de 40 a 50 % es la prioridad del agricultor: `riesgo` (menos años malos), `suelo` (leguminosas), `agua` (menor mínimo de lluvia) o `ganar` (ingreso bruto por hectárea del SIAP, sin descontar costos).
 - **Rotación:** en cada temporada entra el mejor cultivo que no repita la familia de la temporada anterior, primero los que aún no se usan. Si no quedó ninguna leguminosa, se mete la mejor donde menos puntos cueste.
 
@@ -338,6 +343,7 @@ recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cult
 
 1. Confirmar contra FAO Ecocrop los rangos de temperatura, lluvia y pH y la duración del ciclo. Hoy son los valores ilustrativos de la maqueta del diseño. Ojo: con el rango actual el sorgo sale bajo en temperatura (1 de 4 meses en rango en Celaya).
 2. `temporadas` y `agua` salen de lo que el SIAP reporta sembrado en Guanajuato. Trigo, cebada y garbanzo quedaron como OI con riego; hay trigo y cebada de temporal (unas 13 mil ha cada uno) que el esquema actual no puede expresar.
+4. `helada_dano_c` y `calor_dano_c` son aproximados (cambio 44): confirmar con FAO Ecocrop o INIFAP. Cuentan igual en todo el ciclo, no solo en floración. Con 32 °C el frijol sembrado en junio sale con calor en 18 de 25 años en Celaya, y por eso el motor lo pasa a julio.
 3. El brócoli gana en `ganar` con riego porque su ingreso bruto es muy alto; no hay costos para compararlo con los granos.
 
 ## Puntos que estaban abiertos (ya resueltos)

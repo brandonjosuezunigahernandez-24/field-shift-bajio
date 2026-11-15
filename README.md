@@ -87,7 +87,7 @@ Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2024)  ┐
 
 | NASA data | How it is used |
 |---|---|
-| **NASA POWER**, monthly point data 2000–2024, community AG: `T2M`, `T2M_MAX`, `T2M_MIN`, `PRECTOTCORR`, `ALLSKY_SFC_SW_DWN`, `GWETROOT` | **Core of the recommendation.** Summer rain per real year, dry years, temperature fit and each crop's year-by-year test. Root-zone wetness and temperatures also feed the assistant. |
+| **NASA POWER**, monthly point data 2000–2024, community AG: `T2M`, `T2M_MAX`, `T2M_MIN`, `PRECTOTCORR`, `ALLSKY_SFC_SW_DWN`, `GWETROOT` | **Core of the recommendation.** Summer rain per real year, dry years, temperature fit, frost and heat years (`T2M_MIN`, `T2M_MAX`) and each crop's year-by-year test. Root-zone wetness and temperatures also feed the assistant. |
 | **NASA GIBS**: MODIS Terra NDVI (16-day), MODIS Terra true color, SMAP L4 root-zone soil moisture, Blue Marble | Map layers that show the region's greenness and soil moisture (12 Aug 2024). **Visual context only**; they do not change the scores. |
 | **SRTM** elevation (through AWS Terrain Tiles) | The 3D relief of the plot on the map and in the 3D model. |
 
@@ -116,7 +116,10 @@ Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2024)  ┐
   250 m estimate, not a lab test. SIAP prices and losses are state averages without costs.
 - **Region.** Crops, seasons and prices are calibrated for Guanajuato and Querétaro only. Elsewhere in Mexico the app
   shows climate and soil but does not recommend.
-- **Not modeled yet:** frost and heat stress, and irrigation water availability.
+- **Frost and heat are coarse.** They come from the coldest and hottest hour of each month in the NASA POWER cell
+  (`T2M_MIN`, `T2M_MAX`), against approximate damage thresholds per crop, over the whole cycle (not by growth stage).
+  A plot in a low spot gets colder than the cell.
+- **Not modeled yet:** irrigation water availability.
 
 ## Run it
 
