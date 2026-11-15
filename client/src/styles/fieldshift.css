@@ -588,3 +588,25 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
    ========================================================= */
 /* Páginas: el enlace activo de .fs-steps lo marca react-router con aria-current="page" */
 .fs-steps a.active{background:var(--fs-g700);color:#fff;font-weight:700}
+
+/* Parcela: mapa a la izquierda y tarjetas que se abren una por una a la derecha */
+.fs-flujo{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:20px;align-items:start}
+.fs-flujo.is-solo{grid-template-columns:minmax(0,1fr)}
+.fs-flujo:not(.is-solo) .fs-flujo-mapa{position:sticky;top:144px;margin-top:0} /* debajo del encabezado fijo */
+.fs-flujo:not(.is-solo) .v3d-hero .parcel-map-canvas{height:min(64vh,620px);min-height:360px}
+.fs-tarjetas{list-style:none;margin:0;padding:0;display:flex;flex-direction:column;gap:14px}
+.fs-tarjeta{background:var(--fs-g50);box-shadow:none;padding:18px;gap:10px;border-radius:var(--fs-r-box)}
+.fs-tarjeta.is-activa{background:#fff;border-color:var(--fs-g500);box-shadow:var(--fs-shadow-active)}
+.fs-tarjeta p{margin:0}
+.fs-tarjeta-head{all:unset;cursor:pointer;display:flex;flex-direction:column;gap:2px;border-radius:var(--fs-r-sm)}
+.fs-tarjeta-head:focus-visible{outline:3px solid var(--fs-g400);outline-offset:3px}
+.fs-hero-map .fs-tarjeta .fs-card-title{font-size:19px;margin:0}
+.fs-dato{font-size:20px;color:var(--fs-g800)}
+.fs-tarjeta-sig{align-self:flex-end}
+@media (max-width:899.98px){
+  .fs-flujo{grid-template-columns:minmax(0,1fr)}
+  .fs-flujo:not(.is-solo) .fs-flujo-mapa{position:static}
+}
+/* FarmSummary y YearControl traen sus estilos de .v3d: dentro de la tarjeta, sin su fondo ni su letra */
+.fs-tarjeta .v3d{background:none;font:inherit;color:inherit;min-height:0}
+.fs-tarjeta .v3d .farm-summary{grid-template-columns:1fr;margin:0}
