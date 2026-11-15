@@ -218,7 +218,8 @@ const REDACTORES = {
 
   'lluvia-comparar': (q, { resumen }) => {
     const m = municipioNombrado(q);
-    const anios = resumen.lluvia_pv_anual.map((y) => y.lluvia_mm);
+    // Mismos años que la tabla de municipios (2000-2024) para comparar parejo.
+    const anios = resumen.lluvia_pv_anual.filter((y) => y.anio <= 2024).map((y) => y.lluvia_mm);
     if (!m || !anios.length) return null;
     const aqui = Math.round(anios.reduce((a, b) => a + b, 0) / anios.length), alla = Math.round(m.normal.lluvia_pv);
     const dif = Math.abs(aqui - alla), pctDif = Math.round((100 * dif) / alla);
