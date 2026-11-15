@@ -18,7 +18,9 @@ export async function loadRaw({ source, label, lat, lon, url, fetcher, timeoutMs
 
   if (process.env.OFFLINE !== '1') {
     try {
-      const raw = fetcher ? await fetcher() : await fetchJson(url, { timeoutMs });
+      // SoilGrids tarda de 5 a 45 s según el momento: un segundo intento rescata la mayoría de los 502 (se vio en pruebas).
+      const attempt = () => (fetcher ? fetcher() : fetchJson(url, { timeoutMs }));
+      const raw = await attempt().catch(() => attempt());
       validate?.(raw);
       await writeCache(key, raw);
       return { raw, origen: 'api' };

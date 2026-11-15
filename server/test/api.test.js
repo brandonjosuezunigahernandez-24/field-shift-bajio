@@ -115,3 +115,11 @@ test('GET /api/asistente/temas devuelve la guía de preguntas', async () => {
   assert.ok(body.temas.length >= 4 && body.temas.every((t) => t.titulo && t.preguntas.length > 0));
   assert.ok(body.nota.includes('No doy marcas'));
 });
+
+test('POST /api/asistente: recomendar fuera de Guanajuato y Querétaro no inventa estado', async () => {
+  const res = await fetch(`${baseUrl}/api/asistente`, { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify({ lat: 20.66, lon: -103.35, pregunta: '¿Qué me conviene sembrar?', agua: 'temporal', prioridad: 'riesgo' }) });
+  const body = await res.json();
+  assert.equal(res.status, 200);
+  assert.match(body.respuesta, /fuera de Guanajuato y Querétaro/);
+  assert.equal(body.recomendacion, undefined);
+});
