@@ -37,15 +37,25 @@ export function sceneForYear(year) {
   return 'tormenta';
 }
 
+// Which scene the sky right now looks like, from the WMO code of Open-Meteo's `current`.
+export function sceneForCode(code) {
+  if (code === 0) return 'soleado';
+  if (code === 3 || (code >= 45 && code <= 48)) return 'nublado';
+  if ((code >= 51 && code <= 67) || (code >= 80 && code <= 82)) return 'lluvia';
+  if (code >= 95) return 'tormenta';
+  return 'normal'; // 1-2 (poco nublado) or no data
+}
+
 // The scene to draw: { id, label, clouds, rain, dust, light, warm, lightning, plant, example }.
-// `choice` is a WEATHER_OPTIONS id; `year` is parcelState.yearState(...) for the chosen year.
-// In "auto", the plants keep the real year's look; a hand-picked scene brings its own.
-export function weatherScene(choice, year) {
+// `choice` is a WEATHER_OPTIONS id or 'hoy'; `year` is parcelState.yearState(...) for the chosen year;
+// `code` is the WMO code of the weather right now (only for 'hoy').
+// In "auto" and "hoy" the plants keep the real year's look; a hand-picked scene brings its own.
+export function weatherScene(choice, year, code = null) {
   if (choice === 'apagado') {
     return { id: 'apagado', label: 'Sin clima', clouds: 0, rain: 0, dust: 0, light: 1, warm: false, lightning: false, plant: null, example: false };
   }
-  if (choice === 'auto') {
-    const id = sceneForYear(year);
+  if (choice === 'auto' || choice === 'hoy') {
+    const id = choice === 'hoy' ? sceneForCode(code) : sceneForYear(year);
     return { id, ...SCENES[id], plant: null, example: false };
   }
   const id = SCENES[choice] ? choice : 'normal';
