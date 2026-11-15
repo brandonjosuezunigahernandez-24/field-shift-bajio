@@ -27,13 +27,13 @@ const SCHEMA = {
   required: ['respuesta', 'datos_usados', 'fuentes'],
 };
 
-export async function askModel(ficha, pregunta, { historial = [], model = MODEL, timeoutMs = 60000 } = {}) {
-  const res = await fetch(`${URL}/api/chat`, {
+function chat(ficha, pregunta, { historial = [], model = MODEL, timeoutMs = 60000, stream = false } = {}) {
+  return fetch(`${URL}/api/chat`, {
     method: 'POST',
     signal: AbortSignal.timeout(timeoutMs),
     body: JSON.stringify({
       model,
-      stream: false,
+      stream,
       format: SCHEMA,
       // num_ctx chico y num_predict corto: menos RAM y respuestas rápidas en laptops débiles.
       options: { temperature: 0.1, num_ctx: Number(process.env.OLLAMA_CTX) || 3072, num_predict: 300 },
@@ -45,6 +45,39 @@ export async function askModel(ficha, pregunta, { historial = [], model = MODEL,
       ],
     }),
   });
+}
+
+export async function askModel(ficha, pregunta, opts = {}) {
+  const res = await chat(ficha, pregunta, opts);
   if (!res.ok) throw new Error(`Ollama respondió ${res.status}`);
   return JSON.parse((await res.json()).message.content);
+}
+
+// Texto de "respuesta" que ya se escribió en el JSON parcial que va soltando el modelo.
+export function partialRespuesta(content) {
+  const m = content.match(/"respuesta"\s*:\s*"((?:[^"\\]|\\.)*)/);
+  if (!m) return '';
+  const raw = m[1].replace(/\\$/, '');
+  try { return JSON.parse(`"${raw}"`); } catch { return raw; }
+}
+
+// Igual que askModel, pero avisa con onDelta(texto nuevo) mientras el modelo escribe (Ollama stream:true).
+export async function askModelStream(ficha, pregunta, { onDelta = () => {}, ...opts } = {}) {
+  const res = await chat(ficha, pregunta, { ...opts, stream: true });
+  if (!res.ok) throw new Error(`Ollama respondió ${res.status}`);
+  const dec = new TextDecoder();
+  let buf = '', content = '', sent = 0;
+  for await (const chunk of res.body) {
+    buf += dec.decode(chunk, { stream: true });
+    let i;
+    while ((i = buf.indexOf('\n')) >= 0) {
+      const line = buf.slice(0, i).trim();
+      buf = buf.slice(i + 1);
+      if (!line) continue;
+      content += JSON.parse(line).message?.content ?? '';
+      const t = partialRespuesta(content);
+      if (t.length > sent) { onDelta(t.slice(sent)); sent = t.length; }
+    }
+  }
+  return JSON.parse(content);
 }
