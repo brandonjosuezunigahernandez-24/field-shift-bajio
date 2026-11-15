@@ -1,0 +1,345 @@
+{
+ "fecha": "2026-11-15",
+ "municipios": 64,
+ "nota": "Presente = al menos 5 ha sembradas en 2024 en el municipio (SIAP). Validación: dejar un municipio fuera.",
+ "A": {
+  "fresa": {
+   "n_presentes": 22,
+   "n_municipios": 64,
+   "auc_regla": 0.5,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0
+  },
+  "aguacate": {
+   "n_presentes": 20,
+   "n_municipios": 64,
+   "auc_regla": 0.534,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0.068
+  },
+  "uva": {
+   "n_presentes": 11,
+   "n_municipios": 64,
+   "auc_regla": 0.271,
+   "nivel_en_presentes": 0.909,
+   "nivel_en_ausentes": 0.453
+  },
+  "durazno": {
+   "n_presentes": 9,
+   "n_municipios": 64,
+   "auc_regla": 0.468,
+   "nivel_en_presentes": 1.222,
+   "nivel_en_ausentes": 1.145
+  },
+  "guayaba": {
+   "n_presentes": 13,
+   "n_municipios": 64,
+   "auc_regla": 0.498,
+   "nivel_en_presentes": 1.154,
+   "nivel_en_ausentes": 1.157
+  },
+  "tuna": {
+   "n_presentes": 10,
+   "n_municipios": 64,
+   "auc_regla": 0.397,
+   "nivel_en_presentes": 0.7,
+   "nivel_en_ausentes": 0.5
+  },
+  "nopalitos": {
+   "n_presentes": 11,
+   "n_municipios": 64,
+   "auc_regla": 0.433,
+   "nivel_en_presentes": 0.636,
+   "nivel_en_ausentes": 0.509
+  },
+  "limon": {
+   "n_presentes": 8,
+   "n_municipios": 64,
+   "auc_regla": 0.527,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0.054
+  },
+  "naranja": {
+   "n_presentes": 3,
+   "nota": "muy pocos casos para evaluar"
+  },
+  "manzana": {
+   "n_presentes": 0,
+   "nota": "muy pocos casos para evaluar"
+  },
+  "arandano": {
+   "n_presentes": 7,
+   "n_municipios": 64,
+   "auc_regla": 0.553,
+   "nivel_en_presentes": 0.571,
+   "nivel_en_ausentes": 0.684
+  },
+  "frambuesa": {
+   "n_presentes": 11,
+   "n_municipios": 64,
+   "auc_regla": 0.521,
+   "nivel_en_presentes": 0.091,
+   "nivel_en_ausentes": 0.132
+  },
+  "nuez": {
+   "n_presentes": 7,
+   "n_municipios": 64,
+   "auc_regla": 0.5,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0
+  },
+  "esparrago": {
+   "n_presentes": 28,
+   "n_municipios": 64,
+   "auc_regla": 0.5,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0
+  },
+  "jitomate": {
+   "n_presentes": 34,
+   "n_municipios": 64,
+   "auc_regla": 0.528,
+   "nivel_en_presentes": 0.353,
+   "nivel_en_ausentes": 0.467
+  },
+  "chile": {
+   "n_presentes": 34,
+   "n_municipios": 64,
+   "auc_regla": 0.5,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0
+  },
+  "cebolla": {
+   "n_presentes": 38,
+   "n_municipios": 64,
+   "auc_regla": 0.5,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0
+  },
+  "papa": {
+   "n_presentes": 3,
+   "nota": "muy pocos casos para evaluar"
+  },
+  "brocoli": {
+   "n_presentes": 37,
+   "n_municipios": 64,
+   "auc_regla": 0.5,
+   "nivel_en_presentes": 0,
+   "nivel_en_ausentes": 0
+  }
+ },
+ "B": {
+  "fresa": {
+   "brier_frecuencia": 0.233,
+   "brier_frecuencia_estado": 0.187,
+   "brier_vecinos5": 0.186,
+   "auc_vecinos5": 0.758,
+   "auc_frecuencia_estado": 0.429
+  },
+  "aguacate": {
+   "brier_frecuencia": 0.222,
+   "brier_frecuencia_estado": 0.229,
+   "brier_vecinos5": 0.242,
+   "auc_vecinos5": 0.594,
+   "auc_frecuencia_estado": 0
+  },
+  "uva": {
+   "brier_frecuencia": 0.147,
+   "brier_frecuencia_estado": 0.148,
+   "brier_vecinos5": 0.134,
+   "auc_vecinos5": 0.773,
+   "auc_frecuencia_estado": 0.343
+  },
+  "durazno": {
+   "brier_frecuencia": 0.125,
+   "brier_frecuencia_estado": 0.129,
+   "brier_vecinos5": 0.154,
+   "auc_vecinos5": 0.609,
+   "auc_frecuencia_estado": 0
+  },
+  "guayaba": {
+   "brier_frecuencia": 0.167,
+   "brier_frecuencia_estado": 0.172,
+   "brier_vecinos5": 0.174,
+   "auc_vecinos5": 0.673,
+   "auc_frecuencia_estado": 0.226
+  },
+  "tuna": {
+   "brier_frecuencia": 0.136,
+   "brier_frecuencia_estado": 0.136,
+   "brier_vecinos5": 0.149,
+   "auc_vecinos5": 0.616,
+   "auc_frecuencia_estado": 0.38
+  },
+  "nopalitos": {
+   "brier_frecuencia": 0.147,
+   "brier_frecuencia_estado": 0.152,
+   "brier_vecinos5": 0.182,
+   "auc_vecinos5": 0.407,
+   "auc_frecuencia_estado": 0
+  },
+  "limon": {
+   "brier_frecuencia": 0.113,
+   "brier_frecuencia_estado": 0.108,
+   "brier_vecinos5": 0.13,
+   "auc_vecinos5": 0.638,
+   "auc_frecuencia_estado": 0.321
+  },
+  "arandano": {
+   "brier_frecuencia": 0.101,
+   "brier_frecuencia_estado": 0.097,
+   "brier_vecinos5": 0.104,
+   "auc_vecinos5": 0.607,
+   "auc_frecuencia_estado": 0.316
+  },
+  "frambuesa": {
+   "brier_frecuencia": 0.147,
+   "brier_frecuencia_estado": 0.137,
+   "brier_vecinos5": 0.157,
+   "auc_vecinos5": 0.688,
+   "auc_frecuencia_estado": 0.34
+  },
+  "nuez": {
+   "brier_frecuencia": 0.101,
+   "brier_frecuencia_estado": 0.104,
+   "brier_vecinos5": 0.098,
+   "auc_vecinos5": 0.754,
+   "auc_frecuencia_estado": 0
+  },
+  "esparrago": {
+   "brier_frecuencia": 0.254,
+   "brier_frecuencia_estado": 0.251,
+   "brier_vecinos5": 0.201,
+   "auc_vecinos5": 0.782,
+   "auc_frecuencia_estado": 0.297
+  },
+  "jitomate": {
+   "brier_frecuencia": 0.257,
+   "brier_frecuencia_estado": 0.265,
+   "brier_vecinos5": 0.269,
+   "auc_vecinos5": 0.553,
+   "auc_frecuencia_estado": 0.221
+  },
+  "chile": {
+   "brier_frecuencia": 0.257,
+   "brier_frecuencia_estado": 0.262,
+   "brier_vecinos5": 0.251,
+   "auc_vecinos5": 0.592,
+   "auc_frecuencia_estado": 0.255
+  },
+  "cebolla": {
+   "brier_frecuencia": 0.249,
+   "brier_frecuencia_estado": 0.229,
+   "brier_vecinos5": 0.2,
+   "auc_vecinos5": 0.746,
+   "auc_frecuencia_estado": 0.389
+  },
+  "brocoli": {
+   "brier_frecuencia": 0.252,
+   "brier_frecuencia_estado": 0.235,
+   "brier_vecinos5": 0.186,
+   "auc_vecinos5": 0.817,
+   "auc_frecuencia_estado": 0.372
+  }
+ },
+ "C": {
+  "fresa": {
+   "municipios": 22,
+   "error_mediano_pct_promedio_estado": 20.687,
+   "error_mediano_pct_vecinos5": 17.457,
+   "gana_vecinos": true
+  },
+  "aguacate": {
+   "municipios": 20,
+   "error_mediano_pct_promedio_estado": 17.629,
+   "error_mediano_pct_vecinos5": 22.869,
+   "gana_vecinos": false
+  },
+  "uva": {
+   "municipios": 11,
+   "error_mediano_pct_promedio_estado": 15.232,
+   "error_mediano_pct_vecinos5": 20.561,
+   "gana_vecinos": false
+  },
+  "durazno": {
+   "municipios": 9,
+   "error_mediano_pct_promedio_estado": 25.537,
+   "error_mediano_pct_vecinos5": 48.653,
+   "gana_vecinos": false
+  },
+  "guayaba": {
+   "municipios": 13,
+   "error_mediano_pct_promedio_estado": 26.431,
+   "error_mediano_pct_vecinos5": 26.364,
+   "gana_vecinos": true
+  },
+  "tuna": {
+   "municipios": 10,
+   "error_mediano_pct_promedio_estado": 20.714,
+   "error_mediano_pct_vecinos5": 181.248,
+   "gana_vecinos": false
+  },
+  "nopalitos": {
+   "municipios": 11,
+   "error_mediano_pct_promedio_estado": 37.249,
+   "error_mediano_pct_vecinos5": 42.481,
+   "gana_vecinos": false
+  },
+  "limon": {
+   "municipios": 8,
+   "error_mediano_pct_promedio_estado": 9.638,
+   "error_mediano_pct_vecinos5": 12.472,
+   "gana_vecinos": false
+  },
+  "frambuesa": {
+   "municipios": 11,
+   "error_mediano_pct_promedio_estado": 12.265,
+   "error_mediano_pct_vecinos5": 11.098,
+   "gana_vecinos": true
+  },
+  "esparrago": {
+   "municipios": 28,
+   "error_mediano_pct_promedio_estado": 10.988,
+   "error_mediano_pct_vecinos5": 14.598,
+   "gana_vecinos": false
+  },
+  "jitomate": {
+   "municipios": 34,
+   "error_mediano_pct_promedio_estado": 40.746,
+   "error_mediano_pct_vecinos5": 67.012,
+   "gana_vecinos": false
+  },
+  "chile": {
+   "municipios": 34,
+   "error_mediano_pct_promedio_estado": 76.805,
+   "error_mediano_pct_vecinos5": 76.066,
+   "gana_vecinos": true
+  },
+  "cebolla": {
+   "municipios": 38,
+   "error_mediano_pct_promedio_estado": 20.979,
+   "error_mediano_pct_vecinos5": 12.073,
+   "gana_vecinos": true
+  },
+  "brocoli": {
+   "municipios": 37,
+   "error_mediano_pct_promedio_estado": 8.037,
+   "error_mediano_pct_vecinos5": 5.434,
+   "gana_vecinos": true
+  }
+ },
+ "A_agrupado": {
+  "auc_regla": 0.566,
+  "nota": "Mezcla cultivos; sube si el cultivo común está en más municipios."
+ },
+ "B_agrupado": {
+  "brier_frecuencia_estado": 0.178,
+  "brier_vecinos5": 0.176,
+  "auc_frecuencia_estado": 0.715,
+  "auc_vecinos5": 0.771
+ },
+ "C_resumen": {
+  "cultivos": 14,
+  "gana_vecinos": 6
+ }
+}

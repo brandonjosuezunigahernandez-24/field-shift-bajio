@@ -229,13 +229,14 @@ async function resolver(req) {
 async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   const ctx = {};
   if (tema === 'fuera' && (hayHistorial || findLocal(pregunta).length)) return null; // seguimiento o tema de la base de conocimiento: // la base de conocimiento sí sabe de esto
-  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales'].includes(tema)) {
+  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose'].includes(tema)) {
     const { rows } = await getClimate(lat, lon);
     ctx.resumen = summarizeClimate(rows);
     ctx.clim = climatologia(rows);
   }
   ctx.perfil = perfil;
   if (tema === 'pronostico') ctx.pronostico = await getForecast(lat, lon);
+  if (tema === 'aptitud') ctx.suelo = await Promise.race([getSoil(lat, lon).then(({ soil }) => summarizeSoil(soil)), new Promise((ok) => setTimeout(ok, 4000, null))]).catch(() => null); // el pH compara con lo que aguanta el cultivo
   if (tema === 'suelo') ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil);
   if (tema === 'siap' || tema === 'cultivo') ctx.siap = cropFacts(pregunta);
   const r = redactar(tema, pregunta, ctx);

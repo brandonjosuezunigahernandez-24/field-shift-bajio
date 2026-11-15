@@ -37,7 +37,7 @@ test('detectarTema', () => {
     '¿En qué mes llueve más?': 'lluvia', '¿Hay riesgo de heladas?': 'heladas', 'hace frio en inviernp?': 'heladas',
     '¿Está llegando menos lluvia que antes?': 'tendencia', '¿Cuánto llovió en 2023?': 'anio', 'cuando siembro': 'siembra',
     '¿Qué pesticida le echo al maíz y cuánto?': 'peligro', '¿Cuánto cuesta el fertilizante?': 'insumos',
-    '¿A cuánto se vende el sorgo?': 'siap', '¿Puedo sembrar fresas?': 'cultivo', '¿Llovió mucho el año pasado?': 'anio', '¿Quién ganó el mundial de 2022?': 'fuera',
+    '¿A cuánto se vende el sorgo?': 'siap', '¿Puedo sembrar fresas?': 'aptitud', '¿Llovió mucho el año pasado?': 'anio', '¿Quién ganó el mundial de 2022?': 'fuera',
     '¿Para qué sirve la rotación de cultivos?': null, '¿Qué ayuda a que el suelo guarde humedad?': null, '¿Y el ingreso?': null,
   };
   for (const [q, tema] of Object.entries(casos)) assert.equal(detectarTema(q), tema, q);
