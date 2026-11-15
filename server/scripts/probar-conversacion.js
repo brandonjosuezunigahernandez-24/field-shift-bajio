@@ -82,6 +82,8 @@ const VECINOS = [['lluvia', 'secos', 'anio', 'tendencia', 'pronostico', 'siembra
 const esVecino = (e, got) => [e].flat().some((x) => got.startsWith('maiz_') && x.startsWith('maiz_') || VECINOS.some((g) => g.includes(x) && g.includes(got)));
 const MAIZ_RE = /ma[ií]z|milpa|elote|mazorca/i;
 
+// Legibilidad: palabras de cada frase (sin las citas entre corchetes).
+export const largos = (t) => t.replace(/\[[^\]]*\]/g, '').split(/(?<=[.!?])\s+(?=[¿¡A-ZÁÉÍÓÚÑ0-9(])/).filter((s) => s.trim().length > 2).map((s) => s.trim().split(/\s+/).length);
 export const frases = (t) => t.replace(/\[[^\]]*\]/g, '').split(/(?<=[.!?])\s+(?=[¿¡A-ZÁÉÍÓÚÑ0-9(])/).filter((s) => s.trim().length > 2).length;
 
 // Califica una respuesta. Devuelve la lista de fallas, cada una con su tipo.
@@ -182,6 +184,15 @@ if (process.argv[1].endsWith('probar-conversacion.js')) {
     ms_mediana: resultados.map((r) => r.ms).sort((a, b) => a - b)[Math.floor(resultados.length / 2)],
     al_modelo_de_lenguaje: resultados.filter((r) => r.origen === 'llm').length,
   };
+  const ls = resultados.flatMap((r) => largos(r.respuesta ?? ''));
+  resumen.legibilidad = {
+    palabras_por_frase: Math.round((10 * ls.reduce((a, b) => a + b, 0)) / (ls.length || 1)) / 10,
+    pct_frases_mas_de_20_palabras: Math.round((100 * ls.filter((n) => n > 20).length) / (ls.length || 1)),
+    respuestas_mas_de_5_frases: resultados.filter((r) => frases(r.respuesta ?? '') > 5).length,
+    con_t_ha_o_mm_sin_explicar: resultados.filter((r) => /t\/ha|\d ?mm\b/.test(r.respuesta ?? '') && !/toneladas por hect|milímetros/.test(r.respuesta ?? '')).length,
+    palabras_tecnicas: resultados.filter((r) => /siniestr|mediana|umbral|precio medio rural|\bPV\b/i.test(r.respuesta ?? '')).length,
+  };
+  console.log('Legibilidad:', resumen.legibilidad);
   console.log(`Tema correcto: ${resumen.tema_acierta}/${resumen.tema_con_etiqueta} (${pct(resumen.tema_acierta, resumen.tema_con_etiqueta)})`);
   console.log(`Bien contestadas (pasan todo): ${resumen.bien}/${resumen.preguntas} (${pct(resumen.bien, resumen.preguntas)})`);
   console.log('Fallas por tipo:', resumen.por_tipo);

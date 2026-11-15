@@ -200,6 +200,7 @@ const REDACTORES = {
     const malo = /mal ano|peor|me queda|llueve poco|ano seco/.test(q) && ha;
     const titular = malo
       ? `En un mal año, con tus ${ha} ha te quedarían unas ${tons(ha * a.peor.t_ha)} t de maíz ${nom(a)}.`
+      : ha && ss.length === 1 ? `Con tus ${ha} ha sacarías unas ${tons(ha * a.t_ha)} toneladas de maíz ${nom(a)} en un año normal.`
       : `El maíz ${ss.map((s) => `${nom(s)} rinde en promedio ${s.t_ha} t por hectárea`).join(' y el ')} en ${estado}.`;
     const uno = ss.length === 1, pre = (x) => (uno ? '' : `${nom(x)}: `);
     const rango = ss.map((x) => `${pre(x)}entre ${x.peor.t_ha} t/ha (${x.peor.anio}) y ${x.mejor.t_ha} t/ha (${x.mejor.anio})`).join('; ');
@@ -210,11 +211,16 @@ const REDACTORES = {
     if (!uno) {
       return salida(titular, [ha ? `Con tus ${ha} ha sacarías ${totales}.` : `Años ${a.desde}-${a.hasta}: ${rango}.`, 'Es por hectárea sembrada, contando pérdidas; son promedios del estado, no de tu parcela. [SIAP]'], ['SIAP'], { ss, ha, tot: ha ? ss.map((s) => [ha * s.t_ha, ha * s.peor.t_ha, ha * s.mejor.t_ha]) : null });
     }
-    const frases = [
-      `De ${a.desde} a ${a.hasta} rindió ${rango}, por hectárea sembrada y contando las pérdidas.`,
-      totales && !malo ? `Con tus ${ha} ha sacarías ${totales}.` : malo ? null : 'Dime cuántas hectáreas son y te calculo el total de tu parcela.',
-      cercano ? `En ${cercano.municipio} (el municipio más cercano) rindió de ${cercano.min} a ${cercano.max} t/ha (${cercano.desde}-${cercano.hasta}).` : null,
-      parecidos.length ? `En ${parecidos.length} municipios con clima como el tuyo, ${r1(avg(parecidos))} t/ha en promedio.` : null,
+    // Primero su parcela (sus hectáreas), luego el estado y el municipio cercano. Los municipios parecidos van a la gráfica.
+    const frases = ha && !malo ? [
+      `En un año malo serían unas ${tons(ha * a.peor.t_ha)} toneladas y en uno bueno unas ${tons(ha * a.mejor.t_ha)}.`,
+      `Lo saqué del promedio de ${estado}: ${a.t_ha} t/ha, contando lo que se pierde.`,
+      cercano ? `En ${cercano.municipio}, el municipio más cercano, rindió de ${cercano.min} a ${cercano.max} t/ha.` : null,
+      'Son promedios oficiales, no de tu parcela. [SIAP]',
+    ] : [
+      `De ${a.desde} a ${a.hasta} rindió ${rango}, contando lo que se pierde.`,
+      malo ? null : 'Dime cuántas hectáreas son y te calculo el total de tu parcela.',
+      cercano ? `En ${cercano.municipio}, el municipio más cercano, rindió de ${cercano.min} a ${cercano.max} t/ha.` : null,
       'Son promedios del estado y de municipios, no de tu parcela. [SIAP]',
     ];
     return salida(titular, frases, ['SIAP'], { ss, ha, cercano, parecidos, tot: ha ? ss.map((s) => [ha * s.t_ha, ha * s.peor.t_ha, ha * s.mejor.t_ha]) : null });
@@ -233,12 +239,12 @@ const REDACTORES = {
     const riesgo = clima ? riesgoPorEscenarios({ estado, cultivo: CULTIVO, clima }) : null;
     const badY = riesgo ? riesgo.escenarios.map((e) => predictBadYear({ estado, cultivo: CULTIVO, lluviaPV: e.lluvia_mm, medianaPV: riesgo.mediana, tempPV: riesgo.tempPV })).filter((x) => x.disponible) : [];
     const frases = [
-      riesgo ? `Daño estimado a la superficie en año seco, normal y lluvioso: ${riesgo.escenarios.map((e) => `${e.siniestro_pct} %`).join(', ')} (con ${riesgo.escenarios.map((e) => e.lluvia_mm).join(', ')} mm de lluvia).` : 'No pude consultar la lluvia de tu parcela para calcular el riesgo.',
-      badY.length === 3 ? `Probabilidad de año malo (más de 10 % dañado): ${badY.map((b) => `${Math.round(b.probabilidad * 100)} %`).join(', ')}.` : null,
-      `De ${s.desde} a ${s.hasta}, ${s.anios_danos_altos.length} de ${s.n} años ${s.anios_danos_altos.length === 1 ? 'tuvo' : 'tuvieron'} pérdidas altas en ${estado}.`,
-      'Observa las primeras lluvias de la temporada y el pronóstico de la semana; es riesgo estimado, no pronóstico (modelo entrenado con SIAP y NASA POWER). [SIAP, NASA POWER]',
+      riesgo ? `Si el año viene seco, se pierde cerca de ${riesgo.escenarios[0].siniestro_pct} % del maíz; si viene normal, ${riesgo.escenarios[1].siniestro_pct} %.` : 'No pude consultar la lluvia de tu parcela para calcular el riesgo.',
+      badY.length === 3 ? `La probabilidad de un año malo va de ${Math.round(badY[2].probabilidad * 100)} % a ${Math.round(badY[0].probabilidad * 100)} %, según llueva.` : null,
+      `En ${estado} hubo pérdidas altas en ${s.anios_danos_altos.length} de ${s.n} años.`,
+      'Es un cálculo con la lluvia de NASA y las cosechas del SIAP, no un pronóstico. [SIAP, NASA POWER]',
     ];
-    return salida('No te puedo decir sí o no: la lluvia de esta temporada no se puede pronosticar con estos datos.', frases, ['SIAP', 'NASA POWER'], { s, riesgo: riesgo?.escenarios, badY: badY.map((b) => Math.round(b.probabilidad * 100)), pct: badY.map((b) => b.probabilidad) }, { origen: 'modelo' });
+    return salida('No te puedo decir sí o no: nadie sabe aún cómo lloverá esta temporada.', frases, ['SIAP', 'NASA POWER'], { s, riesgo: riesgo?.escenarios, badY: badY.map((b) => Math.round(b.probabilidad * 100)), pct: badY.map((b) => b.probabilidad) }, { origen: 'modelo' });
   },
 
   riesgo: (q, ctx) => {
@@ -259,11 +265,11 @@ const REDACTORES = {
     const poca = /llueve poco|poca lluvia|llueve menos|sin lluvia|no llueve|sequia|seco/.test(q) && riesgo;
     const peor = s.anios.reduce((a, b) => (b.dano_pct > a.dano_pct ? b : a));
     if (/peor|mal ano/.test(q)) return salida(`El peor año para el maíz ${nom(s)} en ${estado} fue ${peor.anio}: se dañó ${r1(peor.dano_pct)} % de la superficie.`, [`En ${s.anios_danos_altos.length} de ${s.n} años (${s.desde}-${s.hasta}) la pérdida pasó de 10 %.`, '"Pérdida" incluye sequía, heladas, plagas y otras causas. [SIAP]'], ['SIAP'], { s, peor });
-    return salida(poca ? `Si llueve poco, el modelo estima que se daña cerca de ${riesgo.escenarios[0].siniestro_pct} % del maíz de temporal.` : `El maíz ${nom(s)} en ${estado} tuvo pérdidas altas en ${s.anios_danos_altos.length} de ${s.n} años.`, [
-      `Perdió en promedio ${s.dano_prom_pct} % de la superficie sembrada (${s.desde}-${s.hasta}); pérdida alta es más de 10 %${s.anios_danos_altos.length ? `, y pasó en ${s.anios_danos_altos.join(', ')}` : ''}.`,
-      riesgo ? `Según el modelo, en un año seco se daña cerca de ${riesgo.escenarios[0].siniestro_pct} % y en uno lluvioso ${riesgo.escenarios[2].siniestro_pct} %. Es riesgo estimado, no pronóstico.` : null,
+    return salida(poca ? `Si llueve poco, el modelo estima que se daña cerca de ${riesgo.escenarios[0].siniestro_pct} % del maíz de temporal.` : `Tu maíz ${nom(s)} tiene pérdidas altas (más de 10 %) en ${s.anios_danos_altos.length} de cada ${s.n} años en ${estado}.`, [
+      `En promedio se pierde ${s.dano_prom_pct} % de lo sembrado${s.anios_danos_altos.length ? `; los años malos fueron ${s.anios_danos_altos.join(', ')}` : ''}.`,
+      riesgo ? `Con la lluvia de tu parcela, un año seco pierde cerca de ${riesgo.escenarios[0].siniestro_pct} % y uno lluvioso ${riesgo.escenarios[2].siniestro_pct} %.` : null,
       !perfil.agua ? 'Los números son de temporal; si tu parcela tiene riego, dímelo.' : null,
-      '"Pérdida" incluye sequía, heladas, plagas y otras causas. [SIAP]',
+      'Cuenta sequía, heladas y plagas; es un cálculo, no un pronóstico. [SIAP]',
     ], ['SIAP', ...(riesgo ? ['NASA POWER'] : [])], { s, riesgo: riesgo?.escenarios }, riesgo ? { origen: 'modelo' } : {});
   },
 
