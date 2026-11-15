@@ -24,11 +24,11 @@ test('cycleMonths starts in June for PV and wraps the year for OI', () => {
 });
 
 test('dryYearRisk counts the real years below the crop minimum in Celaya', () => {
-  const maiz = dryYearRisk(crop('maiz'), rows); // needs 520 mm from June to September
+  const maiz = dryYearRisk(crop('maiz'), rows); // needs 500 mm from June to September (FAO Manual 3, table 14)
   assert.equal(maiz.anios_total, 25);
   assert.equal(maiz.anios_bajo_minimo.length, 12);
   assert.equal(maiz.riesgo, 12 / 25);
-  assert.equal(dryYearRisk(crop('sorgo'), rows).anios_bajo_minimo.length, 3); // needs 400 mm
+  assert.equal(dryYearRisk(crop('sorgo'), rows).anios_bajo_minimo.length, 8); // needs 450 mm (FAO Manual 3, table 14)
 });
 
 test('rain-fed plot: 3 PV years, no family twice in a row, one legume, reasons with real numbers', () => {
@@ -39,7 +39,7 @@ test('rain-fed plot: 3 PV years, no family twice in a row, one legume, reasons w
   assert.deepEqual(cultivos.map((c) => c.puntaje), cultivos.map((c) => c.puntaje).sort((a, b) => b - a));
   const maiz = cultivos.find((c) => c.id === 'maiz');
   assert.equal(maiz.riesgo, 0.48);
-  assert.match(maiz.razones[0], /En 12 de 25 años llovió menos .* \(520 mm de junio a septiembre\)/);
+  assert.match(maiz.razones[0], /En 12 de 25 años llovió menos .* \(500 mm de junio a septiembre\)/);
 });
 
 test('irrigated plot: PV and OI every year, same rotation rules, no dry-year risk', () => {

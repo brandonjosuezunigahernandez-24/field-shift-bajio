@@ -242,7 +242,7 @@ Respuesta (valores reales del punto demo, recortados):
     { "anio": 2, "temporada": "PV", "cultivo": "sorgo", "porque": "Va después de frijol: cambiar de familia ayuda a cortar plagas y enfermedades. ..." },
     { "anio": 3, "temporada": "PV", "cultivo": "frijol", "porque": "..." }
   ],
-  "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "SIAP ...", "Requerimientos de los cultivos: valores aproximados (estilo FAO Ecocrop), sin verificar"]
+  "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "SIAP ...", "Requerimientos de los cultivos: FAO Ecocrop (temperatura y pH óptimos) y FAO ... tabla 14 (agua por ciclo); ..."]
 }
 ```
 
@@ -313,9 +313,15 @@ recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cult
 - **Puntaje:** 30 % es qué tan bien se da el cultivo ahí (los tres ajustes) y de 40 a 50 % es la prioridad del agricultor: `riesgo` (menos años malos), `suelo` (leguminosas), `agua` (menor mínimo de lluvia) o `ganar` (ingreso bruto por hectárea del SIAP, sin descontar costos).
 - **Rotación:** en cada temporada entra el mejor cultivo que no repita la familia de la temporada anterior, primero los que aún no se usan. Si no quedó ninguna leguminosa, se mete la mejor donde menos puntos cueste.
 
-**Pendientes de `cultivos.json`** (todo está con `"verificado": false`)
+**Verificación de `cultivos.json`** (15 de noviembre de 2026)
 
-1. Confirmar contra FAO Ecocrop los rangos de temperatura, lluvia y pH y la duración del ciclo. Hoy son los valores ilustrativos de la maqueta del diseño. Ojo: con el rango actual el sorgo sale bajo en temperatura (1 de 4 meses en rango en Celaya).
+- `temp_opt_*` y `ph_*` son los rangos **óptimos** de la ficha oficial de FAO Ecocrop de cada especie (`ecocrop.url` en cada cultivo). En `ecocrop` se guardan además los rangos absolutos, la lluvia anual y los días de ciclo, tal como vienen en la ficha.
+- `lluvia_ciclo_*` sale de FAO, *Irrigation Water Management Training Manual No. 3*, tabla 14 (mm en todo el ciclo): maíz 500–800, sorgo 450–650, frijol 300–500, trigo y cebada 450–650. **No** sale de Ecocrop, porque Ecocrop da lluvia anual.
+- `verificacion.antes` guarda los valores anteriores. Cambios que mueven el motor: el sorgo pide 450 mm (antes 400; en Celaya quedan 8 de 25 años por debajo, antes 3) y su temperatura óptima es 22–35 °C, más alta que la de junio a septiembre en el Bajío; el maíz prefiere pH 5–7, así que en suelos de pH 7.4 pierde algo de puntaje de suelo.
+
+**Pendientes de `cultivos.json`**
+
+1. El agua por ciclo del garbanzo y del brócoli: no están en la tabla 14 (`"verificado": false` y `todo` en cada uno).
 2. `temporadas` y `agua` salen de lo que el SIAP reporta sembrado en Guanajuato. Trigo, cebada y garbanzo quedaron como OI con riego; hay trigo y cebada de temporal (unas 13 mil ha cada uno) que el esquema actual no puede expresar.
 3. El brócoli gana en `ganar` con riego porque su ingreso bruto es muy alto; no hay costos para compararlo con los granos.
 

@@ -13,14 +13,14 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 | Fase | Qué incluye | Estado |
 |------|-------------|--------|
 | F1 | Esqueleto, `/api/clima`, `/api/suelo`, caché y respaldo sin internet | Lista |
-| F2 | `cultivos.json`, motor de reglas con pruebas, `/api/recomendar`, mapa y formulario | Lista (los rangos de los cultivos están sin verificar) |
+| F2 | `cultivos.json`, motor de reglas con pruebas, `/api/recomendar`, mapa y formulario | Lista (rangos de los cultivos verificados contra FAO; falta el agua del garbanzo y del brócoli) |
 | F3 | Integración de punta a punta con una parcela real | Lista en la rama de integración; falta ensayarla en la laptop de la demo |
 | F4 | Explicaciones, gráfica, errores y estados de carga | Parcial |
 | F5 | README en inglés con capturas y créditos completos | Pendiente |
 
 **Pendientes conocidos**
 
-- Confirmar contra FAO Ecocrop los rangos de `server/data/cultivos.json` (todos tienen `"verificado": false`).
+- Confirmar el agua por ciclo del garbanzo y del brócoli en `server/data/cultivos.json` (no están en la tabla 14 de FAO; quedan con `"verificado": false`).
 - Las pantallas "Análisis IA" y "Probar cultivo" todavía usan datos de ejemplo del diseño.
 - La voz (micrófono) no se ha probado con un micrófono real.
 
@@ -106,7 +106,7 @@ server/
   lib/                 coordenadas, caché en disco, fetch con timeout, temporadas y parcelas de ejemplo
   engine/              motor de reglas: puntaje, riesgo por años secos y rotación (funciones puras)
   llm/                 asistente: ficha de la parcela, modelo local (Ollama), verificador, datos del SIAP
-  data/                cultivos.json (7 cultivos, sin verificar) y siap_resumen.json
+  data/                cultivos.json (7 cultivos, verificados contra FAO salvo el agua de garbanzo y brócoli) y siap_resumen.json
   fixtures/            respuestas reales de 6 parcelas (respaldo sin internet)
   cache/               caché en disco, no se versiona
   scripts/             fetch-fixtures.js, siap-descargar.js
@@ -174,7 +174,11 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 - **Open-Meteo**, pronóstico de 7 días (CC BY 4.0). <https://open-meteo.com/>
 - **OpenStreetMap / Nominatim**, búsqueda de pueblos y direcciones. © colaboradores de OpenStreetMap (ODbL).
 - **Wikipedia en español** (CC BY-SA), textos de apoyo del asistente para preguntas generales; cada respuesta enlaza su página.
-- **Requerimientos de los cultivos** (`server/data/cultivos.json`): valores aproximados al estilo de FAO Ecocrop. **No están verificados**; falta confirmarlos contra FAO Ecocrop.
+- **Requerimientos de los cultivos** (`server/data/cultivos.json`), verificados el 15 de noviembre de 2026:
+  - **FAO Ecocrop**, fichas oficiales de cada especie (temperatura y pH óptimos; también se guardan los rangos absolutos, la lluvia anual y el ciclo). <https://ecocrop.apps.fao.org/>
+  - **FAO**, Brouwer, C. y Heibloem, M. (1986). *Irrigation Water Management: Training Manual No. 3, Irrigation Water Needs*, tabla 14 (agua que necesita el cultivo en todo su ciclo). <https://www.fao.org/4/s2022e/s2022e07.htm>
+  - Ecocrop da la lluvia **anual**, no la del ciclo; por eso el agua por ciclo sale de la tabla 14. Garbanzo y brócoli no están en esa tabla: su agua sigue aproximada (`"verificado": false`).
+  - Son rangos generales de cada especie, no de las variedades que se siembran en el Bajío. El ciclo en meses es el típico del Bajío.
 
 **Software**
 

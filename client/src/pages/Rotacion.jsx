@@ -169,7 +169,7 @@ export default function Rotacion() {
                 );
               })}
             </ul>
-            <p className="fs-note">Fuente: NASA POWER, lluvia real de cada año. Lo que necesita cada cultivo es aproximado, falta confirmarlo.</p>
+            <p className="fs-note">Fuente: NASA POWER, lluvia real de cada año. Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); el agua del garbanzo y del brócoli sigue aproximada.</p>
           </>
         );
       }

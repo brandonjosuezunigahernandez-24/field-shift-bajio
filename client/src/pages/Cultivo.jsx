@@ -371,7 +371,7 @@ function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, 
         </div>
       </section>
       <p className="fs-note mt-3">
-        Mismo motor de reglas que el Simulador 3D. Lo que necesita cada cultivo son valores aproximados de FAO Ecocrop que falta confirmar.
+        Mismo motor de reglas que el Simulador 3D. Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); el agua del garbanzo y del brócoli sigue aproximada.
       </p>
     </>
   );
@@ -460,7 +460,7 @@ function Historia({ crop, prueba }) {
       )}
       <p className="fs-note mt-3">
         Cada barra es la lluvia real del ciclo del cultivo en ese año; la línea es lo que necesita. Cambiar el mes de siembra solo recalcula la lluvia, no la
-        temperatura. Lo que necesita cada cultivo son valores aproximados que falta confirmar.
+        temperatura. Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); el agua del garbanzo y del brócoli sigue aproximada.
       </p>
     </section>
   );

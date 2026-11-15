@@ -20,7 +20,7 @@ const FUENTES = [
   POWER_CREDIT,
   SOILGRIDS_CREDIT,
   'SIAP, Cierre de la producción agrícola 2018-2024 (ingreso bruto promedio por estado)',
-  'Requerimientos de los cultivos: valores aproximados (estilo FAO Ecocrop), sin verificar',
+  'Requerimientos de los cultivos: FAO Ecocrop (temperatura y pH óptimos) y FAO, Irrigation Water Management Training Manual No. 3, tabla 14 (agua por ciclo); el agua del garbanzo y del brócoli sigue aproximada',
 ];
 
 // SoilGrids fails or has no data for some points: the plot still gets a recommendation, without pH.
@@ -82,7 +82,7 @@ export function explainPlot(r) {
     `Para sembrar de ${r.agua} y con la meta de ${ETIQUETA[r.prioridad]}, en tu parcela te salen mejor: ${top}. ` +
     `Rotación de 3 años: ${rotation}. Sobre ${first.nombre.toLowerCase()}: ${first.razones[0]} ` +
     predictionSentences(r.prediccion).map((s) => `${s} `).join('') +
-    'Los requerimientos de cada cultivo son aproximados y falta confirmarlos; esto no sustituye a un técnico.'
+    'Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); esto no sustituye a un técnico.'
   );
 }
 
