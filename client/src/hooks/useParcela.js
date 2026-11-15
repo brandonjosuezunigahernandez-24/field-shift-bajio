@@ -5,9 +5,6 @@ import { CUSTOM_POINT, DEFAULT_POINT } from '../config/examplePoints.js';
 import { createParcel, farmPoint, nextParcelId } from '../map/parcels.js';
 import { useYearPlayer } from '../year.jsx';
 
-// Server and cache work at 2 decimals (about 1 km). Round here so the UI shows the same point.
-export const roundCoord = (value) => Math.round(value * 100) / 100;
-
 const settle = (result) => (result.status === 'fulfilled' ? { data: result.value } : { error: result.reason.message });
 
 // Single owner of the app state, shared by the four screens through context/ParcelaContext.jsx:
@@ -49,8 +46,9 @@ export function useParcela() {
         id: id || CUSTOM_POINT.id,
         nombre: nombre || CUSTOM_POINT.nombre,
         boton: boton || nombre || CUSTOM_POINT.boton,
-        lat: roundCoord(lat),
-        lon: roundCoord(lon),
+        // Sent as is: the server rounds per source (climate ~1 km, soil ~110 m). Rounding here moved the soil off the parcel.
+        lat,
+        lon,
       };
       setPoint(selected);
       setRecomendacion(null);
