@@ -241,6 +241,10 @@ const REDACTORES = {
   // Sin fuente propia: se dice y se apunta a «Qué hacer» solo si ahí hay algo para esta pregunta.
   apoyos: (q, { perfil = {} }) => {
     const hay = accionesPara({ tema: 'apoyos', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;
+    // Seguro por pérdida: lo primero es avisar a tiempo (acción seguro-catastrofico-gto, con su fuente en «Qué hacer»).
+    if (/segur|asegur|catastrof|pierd|perd[ií]/.test(q)) {
+      return out(`${perfil.estado === 'Guanajuato' ? 'Sí hay un seguro del gobierno para pérdidas por clima en Guanajuato: avisa pronto a tu municipio para que registre tus hectáreas (detalle abajo, en «Qué hacer»).' : 'No tengo una fuente verificada del seguro por clima en tu estado.'} Si tienes un seguro propio, avisa a tu aseguradora en cuanto veas el daño. Montos y papeles, confírmalos en el CADER de tu municipio.`, [], {});
+    }
     return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Montos, fechas y papeles, confírmalos en el CADER de tu municipio. Es la ventanilla de la Secretaría de Agricultura; también te orientan en la presidencia municipal.`, [], {});
   },
   credito: (q, { perfil = {} }) => {

@@ -171,6 +171,15 @@ export function precioDicho(q) {
 }
 const nom = (s) => (s.modalidad === 'Riego' ? 'de riego' : 'de temporal');
 
+// "Lo sembré en junio": con el ciclo de la FAO (125 a 180 días) sale el mes en que estaría listo para cosechar.
+const MESES_Q = ['enero', 'febrero', 'marzo', 'abril', 'mayo', 'junio', 'julio', 'agosto', 'septiembre', 'octubre', 'noviembre', 'diciembre'];
+function cosechaDesde(q = '') {
+  const i = MESES_Q.findIndex((m) => new RegExp(`\\ben ${m}\\b`).test(q));
+  if (i < 0 || !/sembr|siembr|plant/.test(q)) return null;
+  const a = MESES_Q[(i + 4) % 12], b = MESES_Q[(i + 6) % 12]; // ~125 días = 4 meses; 180 días = 6 meses
+  return `Si lo sembraste en ${MESES_Q[i]}, estaría listo para cosechar entre ${a} y ${b}.`;
+}
+
 const REDACTORES = {
   produccion: (q, { estado, perfil = {}, rows, lat, lon }) => {
     const ss = escoge(perfil, estado, q);
@@ -392,8 +401,8 @@ const REDACTORES = {
       'No tengo qué variedades ni fechas sirven para dos ciclos; pregunta a INIFAP.'], ['SIAP'], { oi, pv });
   },
 
-  ciclo: () => salida('El maíz de grano tarda entre 125 y 180 días de la siembra a la madurez, según el clima.', [
-    'Así lo da la FAO (Tabla 11 de FAO-56): 125 días en Nigeria y la India, 150 en siembras de abril en España y California, 180 en África oriental. La primera etapa dura 20 a 30 días.',
+  ciclo: (q) => salida(cosechaDesde(q) ?? 'El maíz de grano tarda entre 125 y 180 días de la siembra a la madurez, según el clima.', [
+    cosechaDesde(q) ? 'Son de 125 a 180 días según la FAO; depende de la variedad y del clima.' : 'Así lo da la FAO (Tabla 11 de FAO-56): 125 días en Nigeria y la India, 150 en siembras de abril en España y California, 180 en África oriental. La primera etapa dura 20 a 30 días.',
     'No tengo el ciclo de las variedades del Bajío ni de tu parcela: pregunta a INIFAP o a un técnico. [FAO-56]',
   ], ['FAO-56'], { dias: [125, 180, 150, 20, 30, 56] }, { enlaces: [FAO_URL] }),
 
