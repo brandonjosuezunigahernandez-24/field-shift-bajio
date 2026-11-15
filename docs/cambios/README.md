@@ -39,3 +39,8 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | [22](22-asistente-mas-datos-nasa.md) | Asistente con más datos de NASA, plantillas con citas por código y set de evaluación | En curso (agente) |
 | [25](25-analisis-ia-conectada.md) | Pantalla Análisis IA conectada al asistente real y ficha guardada del agricultor | En curso (agente) |
 | [26](26-ml-segunda-ronda.md) | Segunda ronda de aprendizaje automático (clasificar año malo, más variables, incertidumbre, municipios parecidos, hortalizas y frutales) | Hecho; solo falta decidir qué integrar |
+| [27](27-maiz-respuestas-especificas.md) | Respuestas específicas del maíz (producción en tu parcela, decisión, ciclo FAO-56, precio, riego, comparar); 32 preguntas reales de agricultor | Hecho |
+| [28](28-frutas-aptitud-y-desglose.md) | Frutas y verduras: ¿se da aquí? (FAO EcoCrop + NASA) y desglose por cultivo (SIAP); el ML no mejoró y no se integró | Hecho |
+| 29 | Perfil completo en pantalla (lo último que sembró, lo que tiene sembrado, cómo riega) y etiqueta «Calculado con tus datos». Doc en la rama `integracion/todo` | Hecho |
+| [30](30-graficas-por-pregunta.md) | Gráficas con datos reales según la pregunta (campo `graficas`), también para frutas | Hecho |
+| 31 | Entender la pregunta con aprendizaje automático (clasificador de intención) | En curso (agente) |
