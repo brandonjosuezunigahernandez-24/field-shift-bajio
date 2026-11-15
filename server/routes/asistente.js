@@ -22,6 +22,7 @@ import { parsePerfil } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
 import { compactPlot, explainPlot, recommendPlot } from './recomendar.js';
+import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, sugerenciasMaiz } from '../llm/maiz.js';
 
 const router = Router();
 // Preguntas sobre el riesgo del maíz por la lluvia: las contesta el modelo entrenado (solo maíz), con su aviso.
@@ -116,9 +117,33 @@ async function resolver(req) {
   }
 
   const estado = perfil.estado ?? inferEstado(lon);
+  // "¿Qué siembro después del maíz?": el último cultivo es el maíz de la pregunta (lo contesta el recomendador de abajo).
+  const idMaiz = pregunta && esMaiz(pregunta) ? intencionMaiz(pregunta) : null;
+  if (idMaiz === 'despues') perfil.ultimo_cultivo = 'maiz';
   // El recomendador solo corre si piden una recomendación o un seguimiento de ella. El dock manda agua y prioridad
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
   const needsReco = pregunta && (wantsRecommendation(pregunta) || isFollowUp(pregunta));
+  // Maíz: respuestas específicas con desglose (producción en tu parcela, decisión, ciclo, precio, riego, comparación...), calculadas por el código.
+  // Una pregunta de maíz que no entendemos NO se manda a las tarjetas (podían traer una que no responde): se dice que no hay ese dato.
+  const temaPrev = pregunta ? detectarTema(pregunta) : null;
+  if (idMaiz === 'helada' && temaPrev !== 'peligro') {
+    const h = await porPlantilla('heladas', pregunta, lat, lon, false, perfil); // las heladas son del clima (NASA), no del modelo de lluvia
+    if (h) return res.json(h);
+  }
+  if (pregunta && esMaiz(pregunta) && !['peligro', 'insumos'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
+    const id = idMaiz;
+    const extra = extraPerfil(req.body.perfil);
+    const ha = perfil.hectareas ?? (parcelas.length >= 2 && parcelas.every((p) => p.hectareas) ? parcelas.reduce((t, p) => t + p.hectareas, 0) : undefined);
+    const ctx = { estado, perfil: { ...perfil, ...extra, hectareas: ha }, lat, lon };
+    if (id && necesitaClima(id)) {
+      try { ctx.rows = (await getClimate(lat, lon)).rows; ctx.clima = summarizeClimate(ctx.rows); } catch { /* sin clima, la respuesta sale sin esas partes */ }
+    }
+    if (necesitaSuelo(id)) { try { ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil); } catch { /* sin suelo, la respuesta lo dice */ } }
+    const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || /(para que sirve|que es|que son|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
+    if (m?.preguntar) return res.json(asking(m.preguntar));
+    if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos && { datos: m.datos }), ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }) });
+  }
+
   if (pregunta && wantsRecommendation(pregunta)) {
     // Los datos del SIAP son de Guanajuato y Querétaro: fuera de ahí (y sin estado dicho por el agricultor) no se recomienda.
     if (!perfil.estado && (lat < 19.9 || lat > 21.9 || lon < -102.2 || lon > -99)) {
@@ -146,7 +171,7 @@ async function resolver(req) {
   }
 
   // Riesgo del maíz según la lluvia: lo calcula el modelo entrenado y lo redacta el código (el modelo de lenguaje no toca estos números).
-  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta))) {
+  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|fri[oa]/.test(norm(pregunta))) {
     try {
       const { rows: filas } = await getClimate(lat, lon);
       const riesgo = riesgoPorEscenarios({ estado, cultivo: 'maiz', clima: summarizeClimate(filas) });
@@ -204,7 +229,7 @@ async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   const conAccion = ['secos', 'anio', 'suelo'].includes(tema);
   return {
     respuesta: r.respuesta, acciones: conAccion ? actionsFor(r.respuesta) : [], fuentes: r.fuentes,
-    verificado: true, origen: 'plantilla', tema, base: 'ficha', enlaces: [], ...(r.preguntar && { preguntar: r.preguntar }),
+    verificado: true, origen: 'plantilla', tema, base: 'ficha', enlaces: [], ...(r.datos && { datos: r.datos }), ...(r.preguntar && { preguntar: r.preguntar }),
   };
 }
 

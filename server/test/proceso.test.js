@@ -31,3 +31,11 @@ test('no trae tiempos inventados', () => {
     assert.ok(buildProceso({ origen: o, fuentes: ['SIAP'] }).every((x) => !('tiempo_s' in x)));
   }
 });
+
+test('una plantilla con tema no se presenta como "respaldo por falla"', () => {
+  const p = buildProceso({ origen: 'plantilla', tema: 'maiz-produccion', fuentes: ['SIAP'] });
+  assert.ok(p.some((x) => x.titulo === 'Respuesta armada por el código con tus datos'));
+  assert.ok(!p.some((x) => /respaldo/i.test(x.titulo)));
+  const respaldo = buildProceso({ origen: 'plantilla', fuentes: ['SIAP'] });
+  assert.ok(respaldo.some((x) => /respaldo/i.test(x.titulo)), 'sin tema sí es un respaldo');
+});

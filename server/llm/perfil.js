@@ -34,6 +34,21 @@ export const PREGUNTAS = [
     opciones: [...CULTIVOS.map((c) => ({ valor: c, texto: NOMBRES[c] })), { valor: 'otro', texto: 'Otro' }, NO_SE],
   },
   {
+    campo: 'cultivo_actual', pregunta: '¿Qué tienes sembrado ahorita?',
+    porque: 'Para planear lo que sigue y no repetir el mismo tipo de cultivo.',
+    opciones: [...CULTIVOS.map((c) => ({ valor: c, texto: NOMBRES[c] })), { valor: 'ninguno', texto: 'Nada por ahora' }, { valor: 'otro', texto: 'Otro' }, NO_SE],
+  },
+  {
+    campo: 'riego_tipo', solo_si: { agua: 'riego' }, pregunta: '¿Cómo riegas?',
+    porque: 'Cambia cada cuánto y cuánta agua se ocupa.',
+    opciones: [{ valor: 'goteo', texto: 'Por goteo' }, { valor: 'aspersion', texto: 'Con aspersores' }, { valor: 'rodado', texto: 'Por gravedad o rodado' }, NO_SE],
+  },
+  {
+    campo: 'riego_frecuencia_dias', solo_si: { agua: 'riego' }, tipo: 'numero', min: 1, max: 60, pregunta: '¿Cada cuántos días riegas?',
+    porque: 'Para comparar con lo que necesita el cultivo cuando haya datos verificados.',
+    opciones: [NO_SE],
+  },
+  {
     campo: 'hectareas', tipo: 'numero', min: 0.1, max: 5000, pregunta: '¿Cuántas hectáreas son?',
     porque: 'Para calcular el total de tu parcela. Si la dibujaste en el mapa se calcula sola.',
     opciones: [NO_SE],
@@ -52,7 +67,7 @@ export const PREGUNTAS = [
 
 const ENUMS = {
   agua: ['temporal', 'riego'], prioridad: PRIORIDADES, estado: ESTADOS,
-  ultimo_cultivo: [...CULTIVOS, 'otro'], textura: ['arenosa', 'arcillosa'], encharca: ['si', 'no'],
+  ultimo_cultivo: [...CULTIVOS, 'otro'], cultivo_actual: [...CULTIVOS, 'ninguno', 'otro'], riego_tipo: ['goteo', 'aspersion', 'rodado'], textura: ['arenosa', 'arcillosa'], encharca: ['si', 'no'],
 };
 
 // Limpia y valida lo que manda el front. "no_se" y vacíos se descartan; un valor raro es error 400.
@@ -66,6 +81,10 @@ export function parsePerfil(input) {
       const n = Number(valor);
       if (!Number.isFinite(n) || n < 0.1 || n > 5000) throw new HttpError(400, 'hectareas debe ser un número entre 0.1 y 5000.');
       out.hectareas = n;
+    } else if (campo === 'riego_frecuencia_dias') {
+      const n = Number(valor);
+      if (!Number.isFinite(n) || n < 1 || n > 60) throw new HttpError(400, 'riego_frecuencia_dias debe ser un número de días entre 1 y 60.');
+      out.riego_frecuencia_dias = Math.round(n);
     } else if (ENUMS[campo]) {
       if (!ENUMS[campo].includes(valor)) throw new HttpError(400, `${campo} debe ser uno de: ${ENUMS[campo].join(', ')}.`);
       out[campo] = valor;
@@ -79,5 +98,5 @@ export function parsePerfil(input) {
 // el front las manda como no_se y aquí cuentan como respondidas.
 export function pendientes(raw, perfil = parsePerfil(raw)) {
   const respondidas = (campo) => campo in perfil || raw?.[campo] === 'no_se';
-  return PREGUNTAS.filter((p) => !respondidas(p.campo)).sort((a, b) => Number(!!b.obligatoria) - Number(!!a.obligatoria));
+  return PREGUNTAS.filter((p) => !p.solo_si || Object.entries(p.solo_si).every(([k, v]) => perfil[k] === v)).filter((p) => !respondidas(p.campo)).sort((a, b) => Number(!!b.obligatoria) - Number(!!a.obligatoria));
 }
