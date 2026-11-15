@@ -581,13 +581,15 @@ export default function ParcelMap({
     const map = mapRef.current;
     if (!ready) return;
     applyView(map, view, { camera: false });
-    if (map.isMoving()) return; // a correction or a detection is already framing the map
     const duration = reducedMotion() ? 0 : 1200;
     const pitch = VIEW_PITCH[view];
     const farm = parcelasRef.current;
-    if (lejos && point) map.flyTo({ center: [point.lon, point.lat], zoom: FAR_ZOOM, pitch, bearing: 0, duration });
-    else if (!placing && farm.length) map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration });
-    else map.easeTo({ pitch, ...(view === 'aerea' ? { bearing: 0 } : {}), duration });
+    if (placing) {
+      // A correction or a detection may already be framing the map: only level it if nothing moves.
+      if (!map.isMoving()) map.easeTo({ pitch, bearing: 0, duration });
+    } else if (lejos && point) map.flyTo({ center: [point.lon, point.lat], zoom: FAR_ZOOM, pitch, bearing: 0, duration });
+    else if (farm.length) map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration });
+    else map.easeTo({ pitch, duration });
   }, [ready, view, lejos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Follow the place chosen anywhere in the page. With drawn parcels, frame all of them;

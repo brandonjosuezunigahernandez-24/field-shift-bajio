@@ -30,32 +30,46 @@ const TARJETAS = [
 
 const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
-// Screen 1: first the farmer finds and draws the plot; then cards open one by one (Siguiente) and
-// each one sets the map (view, NASA picture, weather). The last card is the profile (old step 2).
+// Screen 1: first the farmer finds and draws the plot; then one card at a time (Anterior/Siguiente),
+// next to the map that stays in sight, and each card sets the map (view, NASA picture, weather). The last card is the profile (old step 2).
 // Climate and soil are real (/api/clima + /api/suelo), the weather right now is Open-Meteo.
 export default function Parcela() {
   const { point, loading, clima, suelo, parcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year, pronostico } =
     useParcelaContext();
   const listo = parcelas.length > 0 || (point != null && !SIN_PARCELA.has(point.id));
   const [cambiar, setCambiar] = useState(false);
-  const [alcanzado, setAlcanzado] = useState(0); // la última tarjeta que ya se abrió
-  const [activa, setActiva] = useState(0); // la que manda en el mapa
-  const listaRef = useRef(null);
+  const [activa, setActiva] = useState(0); // la única tarjeta que se ve; manda en el mapa
+  const tarjetaRef = useRef(null);
+  const navegado = useRef(false);
 
   // Otro lugar (o volver a dibujar desde cero): las tarjetas empiezan otra vez.
   useEffect(() => {
-    setAlcanzado(0);
     setActiva(0);
   }, [listo, point?.id]);
 
+  // El encabezado es fijo y su alto cambia (en celular ocupa dos renglones): el mapa fijo va justo debajo.
   useEffect(() => {
-    if (alcanzado > 0) listaRef.current?.lastElementChild?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
-  }, [alcanzado]);
+    const header = document.querySelector('.fs-header');
+    if (!header || typeof ResizeObserver === 'undefined') return undefined;
+    const medir = () => document.documentElement.style.setProperty('--fs-head', `${header.offsetHeight}px`);
+    medir();
+    const observer = new ResizeObserver(medir);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
 
-  const siguiente = () => {
-    setAlcanzado(alcanzado + 1);
-    setActiva(alcanzado + 1);
+  // Al cambiar de tarjeta con los botones, que se vea su inicio (el mapa queda fijo arriba o al lado).
+  useEffect(() => {
+    if (!navegado.current) return;
+    navegado.current = false;
+    tarjetaRef.current?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
+  }, [activa]);
+
+  const ir = (i) => {
+    navegado.current = true;
+    setActiva(i);
   };
+  const tarjeta = TARJETAS[activa];
 
   const climaData = clima?.data;
   const soil = suelo?.data;
@@ -224,7 +238,7 @@ export default function Parcela() {
                   suelo={soil ?? null}
                   clima={climaData ?? null}
                   year={year}
-                  escena={listo ? TARJETAS[activa].escena : ESCENA_DIBUJO}
+                  escena={listo ? tarjeta.escena : ESCENA_DIBUJO}
                   actual={actual}
                   onAddParcela={addParcela}
                   onUpdateParcela={updateParcela}
@@ -235,25 +249,34 @@ export default function Parcela() {
             </div>
 
             {listo && (
-              <ol className="fs-tarjetas" ref={listaRef} aria-label="Lo que sabemos de tu parcela">
-                {TARJETAS.slice(0, alcanzado + 1).map((t, i) => (
-                  <li key={t.id} className={`fs-card fs-tarjeta fs-up${i === activa ? ' is-activa' : ''}`}>
-                    <button type="button" className="fs-tarjeta-head" aria-pressed={i === activa} onClick={() => setActiva(i)}>
-                      <span className="fs-eyebrow">
-                        {i + 1} de {TARJETAS.length}
-                        {i !== activa && ' · ver en el mapa'}
-                      </span>
-                      <span className="fs-card-title xs">{t.titulo}</span>
+              <section key={tarjeta.id} ref={tarjetaRef} className="fs-card fs-tarjeta fs-up" aria-labelledby="t-tarjeta">
+                <div className="fs-tarjeta-head">
+                  <span className="fs-eyebrow">
+                    {activa + 1} de {TARJETAS.length}
+                  </span>
+                  <h2 className="fs-card-title xs" id="t-tarjeta">
+                    {tarjeta.titulo}
+                  </h2>
+                  <span className="fs-tarjeta-pasos" aria-hidden="true">
+                    {TARJETAS.map((t, i) => (
+                      <span key={t.id} className={i <= activa ? 'is-on' : undefined} />
+                    ))}
+                  </span>
+                </div>
+                {cuerpo(tarjeta.id)}
+                <div className="fs-tarjeta-nav">
+                  {activa > 0 && (
+                    <button type="button" className="fs-btn fs-btn-sec" onClick={() => ir(activa - 1)}>
+                      <i className="bi bi-arrow-left" aria-hidden="true"></i>Anterior
                     </button>
-                    {cuerpo(t.id)}
-                    {i === alcanzado && i < TARJETAS.length - 1 && (
-                      <button type="button" className="fs-btn fs-btn-primary fs-tarjeta-sig" onClick={siguiente}>
-                        Siguiente<i className="bi bi-arrow-right" aria-hidden="true"></i>
-                      </button>
-                    )}
-                  </li>
-                ))}
-              </ol>
+                  )}
+                  {activa < TARJETAS.length - 1 && (
+                    <button type="button" className="fs-btn fs-btn-primary" onClick={() => ir(activa + 1)}>
+                      Siguiente<i className="bi bi-arrow-right" aria-hidden="true"></i>
+                    </button>
+                  )}
+                </div>
+              </section>
             )}
           </div>
         </section>
