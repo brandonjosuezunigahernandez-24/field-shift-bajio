@@ -4,11 +4,10 @@ import PerfilForm from '../components/PerfilForm.jsx';
 import RespuestaCard, { EstadoAsistente, preguntasSiguientes } from '../components/Respuesta.jsx';
 import Header from '../components/layout/Header.jsx';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
-import { getPerfilPreguntas, getTemas } from '../api/client.js';
+import { getTemas } from '../api/client.js';
 import { useAsistente } from '../hooks/useAsistente.js';
-import { toast } from '../lib/fs.js';
-import { PARCELAS_PRUEBA } from '../config/parcelasPrueba.js';
 import { conGlosario } from '../components/Glosario.jsx';
+import { PARCELAS_PRUEBA } from '../config/parcelasPrueba.js';
 
 const pesos = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
 const num = (v) => typeof v === 'number';
@@ -76,20 +75,17 @@ const LLUVIAS = [6, 7, 8, 9]; // meses_pv del servidor: jun a sep
 // Pantalla 3: el asistente de verdad (modelo local). Todo lo que se ve sale de la respuesta del servidor o de los datos reales de la parcela.
 export default function Analisis() {
   const ctx = useParcelaContext();
-  const { point, parcelas, perfil, setPerfilCampo, reiniciarPerfil, ensurePoint, cargarPrueba } = ctx;
+  const { point, parcelas, reiniciarPerfil, ensurePoint, cargarPrueba } = ctx;
   const clima = ctx.clima?.data;
   const suelo = ctx.suelo?.data;
   const labels = selectionLabels(ctx);
   const { pregunta, seg, texto, setTexto, estado, grabando, preguntar, contestar, reintentar, microfono, r, pendiente } = useAsistente();
   const [temas, setTemas] = useState(null);
   const [tema, setTema] = useState(0);
-  const [preguntas, setPreguntas] = useState([]);
-  const archivo = useRef(null);
   const auto = useRef(false);
 
   useEffect(() => {
     getTemas().then(setTemas).catch(() => setTemas({ temas: [], nota: '' }));
-    getPerfilPreguntas().then((d) => setPreguntas(d.preguntas ?? [])).catch(() => {});
   }, []);
 
   // ?pregunta=... hace la pregunta al cargar (sirve para revisar la ruta completa).
@@ -124,75 +120,67 @@ export default function Analisis() {
 
   const vistos = new Set(); // glosario de «Por qué esta respuesta»: cada palabra una vez
   const hayRiesgos = rec?.prediccion || finca || r?.corroboracion || modelo || rec?.notas?.length || finca?.notas?.length;
-
-  function guardarFicha() {
-    const url = URL.createObjectURL(new Blob([JSON.stringify({ ficha: 'field-shift-bajio', perfil }, null, 2)], { type: 'application/json' }));
-    Object.assign(document.createElement('a'), { href: url, download: 'mi-ficha.json' }).click();
-    URL.revokeObjectURL(url);
-  }
-
-  // Solo entran campos que el servidor conoce y con un valor que acepta; lo demás se ignora.
-  async function cargarFicha(e) {
-    const file = e.target.files?.[0];
-    e.target.value = '';
-    if (!file) return;
-    try {
-      const data = JSON.parse(await file.text());
-      const src = data?.perfil ?? data;
-      if (!src || typeof src !== 'object' || Array.isArray(src)) throw new Error('no es objeto');
-      let n = 0;
-      for (const q of preguntas) {
-        const v = src[q.campo];
-        const ok = q.tipo === 'numero' ? num(v) && v >= q.min && v <= q.max : q.opciones.some((o) => o.valor === v && v !== 'no_se');
-        if (ok) { setPerfilCampo(q.campo, v); n++; }
-      }
-      toast(n ? `Ficha cargada: ${n} datos` : 'El archivo no trae datos que yo conozca');
-    } catch {
-      toast('Ese archivo no es una ficha válida');
-    }
-  }
-
+  const ha = has ? `${Math.round(has * 10) / 10} ha` : null;
 
   return (
-    <div className="fs-p3">
+    <>
       <Header
         sub="ASISTENTE AGRÓNOMO · ANÁLISIS IA"
         pills={
           <>
-            <span className="fs-pill">{labels.lugar}{has ? ` · ${Math.round(has * 10) / 10} ha` : ''}</span>
+            <span className="fs-pill">{labels.lugar}{ha ? ` · ${ha}` : ''}</span>
             {rotacion.length > 0 && <span className="fs-pill is-white">Plan: {rotacion.map((p) => p.cultivo).join(' → ')}</span>}
           </>
         }
       />
 
-      <main className="fs-container">
+      <main className="fs-container fs-an">
         <div className="fs-row align-items-start">
           <div className="fs-conv-col">
-            <div className="fs-up">
-              <div className="fs-eyebrow">Paso 3 · Conversación con tu asistente</div>
-              <h1 className="fs-h1">Pregúntale a tu asistente</h1>
-            </div>
+            <section className="fs-card fs-up" aria-labelledby="t-preg">
+              <div>
+                <div className="fs-eyebrow">Paso 3 · Análisis IA</div>
+                <h1 className="fs-card-title" id="t-preg">Pregúntale a tu asistente</h1>
+                <p className="fs-parcel-line">
+                  <i className="bi bi-geo-alt" aria-hidden="true"></i>
+                  <span>{labels.lugar}</span>
+                  {ha && <> · <span className="fs-mono">{ha}</span></>}
+                  <Link to="/">Cambiar parcela</Link>
+                </p>
+                {/* Demo: carga una parcela dibujada con su perfil y ya se puede preguntar (funciona con y sin internet). */}
+                <div className="an-prueba" role="group" aria-label="Parcelas de prueba">
+                  <span className="an-prueba-t">O prueba con una parcela de ejemplo:</span>
+                  {PARCELAS_PRUEBA.map((p) => (
+                    <button key={p.id} type="button" className="fs-btn fs-btn-sec" onClick={() => { cargarPrueba(p); setTexto(''); }}>
+                      <i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {p.boton}
+                    </button>
+                  ))}
+                </div>
+              </div>
 
-            {/* Demo: carga una parcela dibujada con su perfil y ya se puede preguntar (funciona con y sin internet). */}
-            <div className="an-prueba" role="group" aria-label="Parcelas de prueba">
-              <span className="an-prueba-t">Probar con una parcela de ejemplo:</span>
-              {PARCELAS_PRUEBA.map((p) => (
-                <button key={p.id} type="button" className="fs-btn fs-btn-sec" onClick={() => { cargarPrueba(p); setTexto(''); toast(`Parcela cargada: ${p.boton}`); }}>
-                  <i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {p.boton}
-                </button>
-              ))}
-            </div>
+              <form onSubmit={(e) => { e.preventDefault(); if (texto.trim()) preguntar(texto.trim()); }}>
+                <label htmlFor="an-pregunta" className="fs-q">Escribe tu pregunta o toca «Hablar» y dila en voz alta</label>
+                <div className="fs-askbar">
+                  <input id="an-pregunta" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Por ejemplo: ¿qué me conviene sembrar?" maxLength={300} autoComplete="off" />
+                  <button
+                    type="button"
+                    className={`fs-btn fs-btn-sec an-mic${grabando ? ' rec' : ''}`}
+                    onClick={microfono}
+                    aria-pressed={grabando}
+                    aria-label={grabando ? 'Escuchando, toca para terminar' : 'Hablar'}
+                  >
+                    <i className={`bi ${grabando ? 'bi-stop-fill' : 'bi-mic-fill'}`} aria-hidden="true"></i>
+                    <span className="lbl">{grabando ? 'Escuchando… toca para terminar' : 'Hablar'}</span>
+                  </button>
+                  <button type="submit" className="fs-btn fs-btn-primary" aria-label="Preguntar">
+                    <i className="bi bi-send-fill" aria-hidden="true"></i>
+                    <span className="lbl">Preguntar</span>
+                  </button>
+                </div>
+              </form>
 
-            <form className="an-ask" onSubmit={(e) => { e.preventDefault(); if (texto.trim()) preguntar(texto.trim()); }}>
-              <label htmlFor="an-pregunta" className="visually-hidden">Tu pregunta</label>
-              <input id="an-pregunta" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Escribe tu pregunta" maxLength={300} autoComplete="off" />
-              <button type="button" className={`an-mic${grabando ? ' rec' : ''}`} onClick={microfono} aria-pressed={grabando}>
-                <i className={`bi ${grabando ? 'bi-stop-fill' : 'bi-mic-fill'}`} aria-hidden="true"></i>{grabando ? ' Escuchando… toca para terminar' : ' Hablar'}
-              </button>
-              <button type="submit" className="an-go">Preguntar</button>
-            </form>
-
-            <EstadoAsistente estado={estado} point={point} reintentar={reintentar} inicio="Escribe tu pregunta o toca «Hablar». Abajo hay preguntas de ejemplo por tema." />
+              <EstadoAsistente estado={estado} point={point} reintentar={reintentar} inicio="Abajo hay preguntas de ejemplo por tema: toca una y te contesto." />
+            </section>
 
             {r && (
               <RespuestaCard
@@ -222,11 +210,7 @@ export default function Analisis() {
                     {finca && [['Repartiendo los cultivos', finca.repartido], ['Sembrando lo mismo en todas', finca.igual]].map(([t, x]) => x && (
                       <div key={t}><b>{t}</b><Filas filas={filasPrediccion(x)} /></div>
                     ))}
-                    {modelo && (
-                      <>
-                        {modelo.aviso && <p className="an-texto-s"><b>{modelo.aviso}</b></p>}
-                      </>
-                    )}
+                    {modelo?.aviso && <p className="an-texto-s"><b>{modelo.aviso}</b></p>}
                     {r.corroboracion && <Corroboracion c={r.corroboracion} />}
                     <Notas lista={[...(rec?.notas ?? []), ...(finca?.notas ?? [])]} />
                     <p className="an-texto-s"><b>Es una estimación con datos pasados, no un pronóstico. No sustituye a un técnico.</b></p>
@@ -266,27 +250,38 @@ export default function Analisis() {
             )}
 
             {temas?.temas?.length > 0 && (
-              <section className="an-bloque" aria-label="Guía de temas">
-                <h3 className="rc-h">{r ? 'Otros temas' : 'Ideas para preguntar'}</h3>
-                <div className="an-tabs" role="tablist">
+              <section className="fs-card fs-up fs-d1" aria-labelledby="t-ideas">
+                <div>
+                  <div className="fs-eyebrow">{r ? 'Otros temas' : 'Ideas para preguntar'}</div>
+                  <h2 className="fs-card-title xs" id="t-ideas">Elige un tema y toca una pregunta</h2>
+                </div>
+                <div className="fs-chips" role="group" aria-label="Temas">
                   {temas.temas.map((t, i) => (
-                    <button key={t.id} type="button" role="tab" aria-selected={tema === i} className={tema === i ? 'on' : ''} onClick={() => setTema(i)}>
-                      <i className={`bi ${t.icono}`} aria-hidden="true"></i> {t.titulo}
+                    <button key={t.id} type="button" className="fs-btn fs-btn-pill" aria-pressed={tema === i} onClick={() => setTema(i)}>
+                      <i className={`bi ${t.icono}`} aria-hidden="true"></i>
+                      {t.titulo}
                     </button>
                   ))}
                 </div>
                 <div className="an-qs">
-                  {temas.temas[tema].preguntas.map((p) => <button key={p} type="button" onClick={() => preguntar(p)}>{p}</button>)}
+                  {temas.temas[tema].preguntas.map((p) => (
+                    <button key={p} type="button" className="fs-btn fs-btn-sec fs-btn-block" onClick={() => preguntar(p)}>
+                      <i className="bi bi-chat-dots" aria-hidden="true"></i>
+                      <span>{p}</span>
+                    </button>
+                  ))}
                 </div>
+                {temas.nota && <p className="fs-note">{temas.nota}</p>}
               </section>
             )}
-
-            {temas?.nota && <p className="fs-note">{temas.nota}</p>}
           </div>
 
           <aside className="fs-aside-col">
-            <section className="fs-card fs-side" aria-labelledby="t-res">
-              <div className="fs-eyebrow" id="t-res">Resumen del análisis</div>
+            <section className="fs-card fs-side fs-up fs-d1" aria-labelledby="t-res">
+              <div>
+                <div className="fs-eyebrow">Resumen del análisis</div>
+                <h2 className="fs-card-title xs" id="t-res">Lo que sé de tu parcela</h2>
+              </div>
               {r && (
                 <div className="an-datos">
                   <b>Datos usados</b>
@@ -305,8 +300,11 @@ export default function Analisis() {
               </dl>
             </section>
 
-            <section className="fs-card fs-side" aria-labelledby="t-plan">
-              <div className="fs-eyebrow" id="t-plan">Cómo queda tu plan</div>
+            <section className="fs-card fs-side fs-up fs-d2" aria-labelledby="t-plan">
+              <div>
+                <div className="fs-eyebrow">Tu plan</div>
+                <h2 className="fs-card-title xs" id="t-plan">Cómo queda tu rotación</h2>
+              </div>
               {rotacion.length ? (
                 <ul className="fs-planlist">
                   {rotacion.map((p) => (
@@ -314,23 +312,25 @@ export default function Analisis() {
                   ))}
                 </ul>
               ) : <p className="an-peq">Pregunta «¿Qué me conviene sembrar?» y aquí aparece tu rotación.</p>}
-              <button type="button" className="an-btn" onClick={() => { document.querySelectorAll('details').forEach((d) => { d.open = true; }); window.print(); }}><i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i> Guardar la página en PDF</button>
-              <button type="button" className="an-btn" onClick={guardarFicha}><i className="bi bi-download" aria-hidden="true"></i> Guardar mi ficha en un archivo</button>
-              <button type="button" className="an-btn" onClick={() => archivo.current?.click()}><i className="bi bi-upload" aria-hidden="true"></i> Cargar mi ficha</button>
-              <input ref={archivo} type="file" accept="application/json,.json" hidden onChange={cargarFicha} />
-              <Link className="fs-btn fs-btn-sec fs-btn-block" to="/rotacion">Volver al simulador 3D</Link>
+              <Link className="fs-btn fs-btn-primary fs-btn-block" to="/rotacion">
+                <i className="bi bi-arrow-left" aria-hidden="true"></i>Volver al simulador 3D
+              </Link>
             </section>
 
-            <section className="fs-card fs-side" aria-labelledby="t-dicho">
-              <div className="fs-eyebrow" id="t-dicho">Lo que me has dicho</div>
-              <p className="an-peq">Así no te lo vuelvo a preguntar. Se guarda solo en este navegador y en el archivo que guardes.</p>
+            <section className="fs-card fs-side fs-up fs-d3" aria-labelledby="t-dicho">
+              <div>
+                <div className="fs-eyebrow">Tu perfil</div>
+                <h2 className="fs-card-title xs" id="t-dicho">Lo que me has dicho</h2>
+              </div>
+              <p className="an-peq">Así no te lo vuelvo a preguntar. Se guarda solo en este navegador; no hay cuentas ni servidor de datos.</p>
               <PerfilForm />
-              <button type="button" className="an-btn" onClick={reiniciarPerfil}>Borrar todo lo que me dije</button>
-              <p className="an-peq">No hay cuentas ni servidor de datos.</p>
+              <button type="button" className="fs-btn fs-btn-sec fs-btn-block" onClick={reiniciarPerfil}>
+                <i className="bi bi-trash3" aria-hidden="true"></i>Borrar todo lo que me dijiste
+              </button>
             </section>
           </aside>
         </div>
       </main>
-    </div>
+    </>
   );
 }

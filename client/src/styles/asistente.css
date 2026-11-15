@@ -22,7 +22,7 @@
 .asx button { font-family: inherit; }
 /* Temas en una sola fila que se desliza: antes 11 botones llenaban la pantalla del celular. */
 .asx-tabs { display: flex; flex-wrap: nowrap; gap: 6px; margin-bottom: 8px; overflow-x: auto; padding-bottom: 4px; scrollbar-width: thin; }
-.asx-tabs button, .an-tabs button { flex: 0 0 auto; white-space: nowrap; }
+.asx-tabs button { flex: 0 0 auto; white-space: nowrap; }
 .asx-ideas { margin-top: 14px; }
 .asx-tabs button, .asx-qs button, .asx-opts button, .asx-reset {
   min-height: 48px; padding: 10px 14px; font-size: 16px; border-radius: 12px; border: 2px solid #1f7a45; background: #fff; color: #14532d; cursor: pointer; text-align: left;
