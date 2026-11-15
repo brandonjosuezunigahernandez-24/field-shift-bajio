@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { getTerreno } from '../api/client.js';
+import { getPrueba, getTerreno } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES, DEFAULT_CROP } from '../crops.js';
 import { ALL_SECTIONS, fitsOneBlock, parcelColor, sectionCenter, sectionParcels } from '../map/parcels.js';
 import { toDiorama } from '../map/polygon.js';
@@ -8,7 +8,7 @@ import { latLonToXYZ, round2, wrapLon } from './geo.js';
 import { preloadModels } from './models.js';
 import { YearControl } from '../year.jsx';
 import { weatherFromCode } from '../weather.js';
-import { reliefExaggeration } from './parcelState.js';
+import { cropYearState, reliefExaggeration, yearState } from './parcelState.js';
 import Scene from './Scene.jsx';
 
 const STEP_DEG = 0.01; // ~1 km, the same resolution as the server cache
@@ -46,12 +46,21 @@ const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 //   point          { nombre, lat, lon } or null
 //   clima, suelo   { data } | { error } | null, as App keeps them
 //   onSelectPoint  ({ nombre, lat, lon }) => void
-export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint, year, pronostico = null, recomendacion = null }) {
+export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint, year, pronostico = null, recomendacion = null, agua = 'temporal' }) {
   const reducedMotion = usePrefersReducedMotion();
   const [view, setView] = useState('globe');
   const [terreno, setTerreno] = useState(null);
   const [cultivo, setCultivo] = useState(DEFAULT_CROP);
   const [contextLost, setContextLost] = useState(false);
+  // Every rain-fed crop against the real years of this plot (the engine's backtest): the maqueta grows each crop with it.
+  const [prueba, setPrueba] = useState(null);
+  useEffect(() => {
+    if (!point) return undefined;
+    let live = true;
+    setPrueba(null);
+    getPrueba(point.lat, point.lon).then((p) => live && setPrueba(p), () => {}); // without it the general year state is drawn
+    return () => { live = false; };
+  }, [point?.lat, point?.lon]); // eslint-disable-line react-hooks/exhaustive-deps
   // Parcela que el agricultor tocó en la maqueta (su información sale abajo) y día del pronóstico elegido.
   const [selId, setSelId] = useState(null);
   const [dia, setDia] = useState(null);
@@ -157,11 +166,14 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
   const exaggeration = terrenoData ? reliefExaggeration(terrenoData.desnivel_m, terrenoData.lado_m) : 1;
   const inParcel = view === 'parcel' && point;
 
-  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, sections, rainOverride: climaDia ? climaDia.rain : null, onSelectSection: setSelId };
+  // Sowing month the engine chose for each crop ({ frijol: 7, ... }); stable while the recommendation is the same.
+  const siembras = useMemo(() => Object.fromEntries((recomendacion?.cultivos ?? []).map((c) => [c.id, c.mes_siembra])), [recomendacion]);
+  const diorama = { terreno: terrenoData, clima: climaData, suelo: sueloData, anio, cultivo, sections, rainOverride: climaDia ? climaDia.rain : null, onSelectSection: setSelId, prueba, agua, siembras };
   const selected = sections.find((x) => x.id === selId) ?? null;
   const selParcela = parcelas.find((p) => p.id === selId) ?? null;
   const selReco = selected ? recomendacion?.cultivos?.find((c) => c.id === selected.cultivo) : null;
   const selYear = climaData?.lluvia_pv_anual?.find((y) => y.anio === anio) ?? null;
+  const selCrop = selected ? cropYearState(yearState(climaData, anio), prueba?.cultivos?.find((c) => c.id === selected.cultivo), anio, agua, siembras[selected.cultivo]) : null;
   const sectionName = (id) => `Parcela ${parcelas.findIndex((p) => p.id === id) + 1}`;
 
   if (contextLost) {
@@ -287,6 +299,12 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
                 {selYear && (
                   <li>
                     En {anio} llovió <strong>{fmt(selYear.lluvia_mm)} mm</strong> de junio a septiembre{selYear.seco ? ' (fue un año seco)' : ''}.
+                  </li>
+                )}
+                {selCrop?.riego && <li>Con riego, la lluvia de ese año no limita a este cultivo.</li>}
+                {selCrop?.minimo_mm && (
+                  <li>
+                    A este cultivo le llovieron <strong>{fmt(selCrop.lluvia_ciclo_mm)} mm</strong> en su ciclo (sembrado en {selCrop.mes_siembra === 7 ? 'julio' : 'junio'}); necesita al menos {fmt(selCrop.minimo_mm)} mm: <strong>{selCrop.alcanzo ? 'sí le alcanzó' : 'no le alcanzó'}</strong>.
                   </li>
                 )}
                 {selReco ? (

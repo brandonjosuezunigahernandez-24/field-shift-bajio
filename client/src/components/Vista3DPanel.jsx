@@ -35,7 +35,7 @@ class ErrorBoundary extends Component {
 
 // Vista 3D de la parcela, alimentada por el estado compartido (parcelas dibujadas, clima, suelo y año).
 export default function Vista3DPanel() {
-  const { point, parcelas, clima, suelo, year, choosePoint, pronostico, recomendacion } = useParcelaContext();
+  const { point, parcelas, clima, suelo, year, choosePoint, pronostico, recomendacion, agua } = useParcelaContext();
   const [supported] = useState(hasWebGL);
 
   return (
@@ -43,7 +43,7 @@ export default function Vista3DPanel() {
       {supported ? (
         <ErrorBoundary>
           <Suspense fallback={<p className="status">Cargando la vista 3D…</p>}>
-            <Vista3D point={point} parcelas={parcelas} clima={clima} suelo={suelo} year={year} onSelectPoint={choosePoint} pronostico={pronostico?.disponible ? pronostico : null} recomendacion={recomendacion?.data ?? null} />
+            <Vista3D point={point} parcelas={parcelas} clima={clima} suelo={suelo} year={year} onSelectPoint={choosePoint} pronostico={pronostico?.disponible ? pronostico : null} recomendacion={recomendacion?.data ?? null} agua={agua} />
           </Suspense>
         </ErrorBoundary>
       ) : (

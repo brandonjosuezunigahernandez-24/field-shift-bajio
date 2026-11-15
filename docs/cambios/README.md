@@ -52,3 +52,4 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | [37](37-retroalimentacion.md) | «¿Te sirvió?» 👍/👎, de los votos al entrenamiento (con confirmación humana) y juez automático | Hecho |
 | [38](38-tarjetas-y-modelo.md) | 32 tarjetas de conocimiento con fuente; el modelo ya no se niega (17 → 2); prueba 7 % → 50 % | Hecho |
 | 39 | Lectura fácil en pantalla: número grande, glosario al tocar, gráficas con pregunta. Doc en la rama `integracion/todo` | Hecho |
+| [41](41-motor-de-simulacion.md) | Revisión del motor de simulación: rotación que respeta el cultivo actual, componente de agua, mes de siembra y maqueta 3D por cultivo | Hecho |

@@ -180,6 +180,8 @@ Petición:
 { "lat": 20.47, "lon": -100.81, "agua": "temporal", "prioridad": "riesgo" }
 ```
 
+Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en temporal: el mes con mejor puntaje).
+
 - `agua`: `"temporal"` o `"riego"`.
 - `prioridad`: `"ganar"`, `"suelo"`, `"agua"` o `"riesgo"`.
 - `estado` (opcional): `"Guanajuato"` o `"Querétaro"`, para el ingreso del SIAP. Si no viene, sale de los límites oficiales del INEGI (`server/lib/state.js`).
@@ -253,7 +255,7 @@ Para la pantalla "Probar cultivo": cada cultivo de temporal contra cada año rea
 }
 ```
 
-- El `riesgo` de junio es el mismo que usa `/api/recomendar`. El de julio solo se muestra: el ranking y la rotación siguen con siembra en junio.
+- El `riesgo` de junio es el mismo que usa `/api/recomendar`. Desde el cambio 41, `/api/recomendar` prueba junio y julio y usa el mes de mejor puntaje (`mes_siembra`).
 - Cambiar el mes solo recalcula la lluvia, no el ajuste de temperatura.
 
 ## Motor de reglas (`server/engine/index.js`)

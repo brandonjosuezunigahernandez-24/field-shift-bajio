@@ -18,7 +18,7 @@ import { clamp, surfaceFrame } from './geo.js';
 import { modelMaterial } from './mergeModels.js';
 import { useModelGeometries } from './models.js';
 import { soilTexture, strataTexture } from './textures.js';
-import { reliefExaggeration, soilColors, yearState } from './parcelState.js';
+import { cropYearState, reliefExaggeration, soilColors, yearState } from './parcelState.js';
 
 // The diorama is built in local units: the 1 km square goes from -0.5 to 0.5 on x (east)
 // and z (south); y is up. The whole group is then scaled to SIZE globe units.
@@ -228,7 +228,7 @@ function Rain({ intensity, animate }) {
 
 // sections: drawn parcels [{ id, cultivo, color, outline: [[x, z], ...] }] in diorama units.
 // Without sections the whole block is one field of `cultivo`.
-export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, sections = [], showRain, reducedMotion, rainOverride = null, onSelectSection = null }) {
+export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo, sections = [], showRain, reducedMotion, rainOverride = null, onSelectSection = null, prueba = null, agua = 'temporal', siembras = null }) {
   const invalidate = useThree((s) => s.invalidate);
   const models = useModelGeometries(sections.length ? sections.map((sec) => sec.cultivo) : [cultivo]);
   const groupRef = useRef();
@@ -366,11 +366,13 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     writeSkirt(skirtGeometry, pos, tam, { top: linear(soil.top), sub: linear(soil.sub) });
 
     const dummy = new Object3D();
-    const tint = linear(state.tint);
-    const g = state.growth;
     for (const field of fields) {
       const mesh = cropMeshes.current.get(field.key);
       if (!mesh) continue;
+      // Each crop against its own water need in that year (irrigated crops do not depend on the rain).
+      const own = cropYearState(state, prueba?.cultivos?.find((c) => c.id === field.cultivo), anio, agua, siembras?.[field.cultivo]);
+      const tint = linear(own.tint);
+      const g = own.growth;
       const scale = cropScale(cropGeometry(field.cultivo));
       field.plants.forEach((p, i) => {
         const sz = scale * p.size;
@@ -389,7 +391,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
 
   // Redraw when the year, crops, soil or relief change.
   const fieldsKey = fields.map((fld) => fld.key).join('|');
-  useLayoutEffect(redraw, [state, soil, fieldsKey, terrainGeometry, plantsByField, targetY, insideMask]); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(redraw, [state, soil, prueba, agua, siembras, fieldsKey, terrainGeometry, plantsByField, targetY, insideMask]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Parcel outlines draped on the final relief, a little above so they never hide in the ground.
   const drape = (outline) => {

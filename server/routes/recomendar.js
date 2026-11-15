@@ -38,11 +38,12 @@ async function soilSummary(lat, lon) {
 // The recommendation of one plot, for POST /api/recomendar and for the assistant: both must say the same.
 // Outside Guanajuato and Querétaro it throws a 422 with `fuera_de_region: true` before calling any API:
 // the SIAP data, the crop list and the season calendar are only for those two states.
-export async function recommendPlot({ lat, lon, agua, prioridad, estado }) {
+// previo: id of the crop the farmer has now or had last (optional); year 1 of the plan does not repeat its family.
+export async function recommendPlot({ lat, lon, agua, prioridad, estado, previo = null }) {
   const state = ESTADOS.includes(estado) ? estado : stateAt(lat, lon);
   if (!state) throw new HttpError(422, OUTSIDE_REGION, { fuera_de_region: true });
   const [{ rows, origen }, suelo] = await Promise.all([getClimate(lat, lon), soilSummary(lat, lon)]);
-  const result = recommend({ rows, soil: suelo, crops: CROPS, agua, prioridad, ingresos: incomeByCrop(state, agua), estado: state });
+  const result = recommend({ rows, soil: suelo, crops: CROPS, agua, prioridad, ingresos: incomeByCrop(state, agua), estado: state, previo });
   return {
     clima: { lat, lon, origen, ...summarizeClimate(rows), fuente: POWER_CREDIT },
     suelo,
@@ -81,12 +82,12 @@ export const compactPlot = (r) => ({
 // POST /api/recomendar { lat, lon, agua, prioridad, estado? } -> { clima, suelo, cultivos, rotacion, fuentes }
 router.post('/', async (req, res) => {
   const { lat, lon } = parseCoords(req.body);
-  const { agua, prioridad, estado } = req.body;
+  const { agua, prioridad, estado, cultivo_previo } = req.body;
   if (!['temporal', 'riego'].includes(agua)) throw new HttpError(400, 'Dinos si tu parcela es de temporal o de riego.');
   if (!PRIORIDADES.includes(prioridad)) {
     throw new HttpError(400, 'Elige qué te importa más: ganar más, cuidar el suelo, gastar menos agua o arriesgar menos.');
   }
-  res.json(await recommendPlot({ lat, lon, agua, prioridad, estado }));
+  res.json(await recommendPlot({ lat, lon, agua, prioridad, estado, previo: typeof cultivo_previo === 'string' ? cultivo_previo : null }));
 });
 
 // GET /api/recomendar/prueba?lat&lon -> each rain-fed crop against every real year, sown in June and in July.

@@ -30,24 +30,27 @@ export function cycleMonths(crop, temporada, inicio = SEASON_START[temporada]) {
 // shortcut: a cycle that crosses December would mix two calendar years; fine for June and July sowings.
 export function backtest(crop, rows, inicio = SEASON_START.PV) {
   const meses = cycleMonths(crop, 'PV', inicio);
-  const anios = seasonRainByYear(rows, meses).map((y) => ({
-    anio: y.year,
-    lluvia_mm: Math.round(y.rain_mm),
-    alcanzo: y.rain_mm >= crop.lluvia_ciclo_min_mm,
-  }));
+  const anios = seasonRainByYear(rows, meses).map((y) => {
+    const lluvia_mm = Math.round(y.rain_mm); // compared rounded: the same number the farmer reads
+    return { anio: y.year, lluvia_mm, alcanzo: lluvia_mm >= crop.lluvia_ciclo_min_mm };
+  });
   const low = anios.filter((y) => !y.alcanzo).map((y) => y.anio);
   return { mes_siembra: inicio, meses, anios, anios_bajo_minimo: low, riesgo: anios.length ? low.length / anios.length : 0 };
 }
 
-// Share of years in which the rain of the crop's cycle (sown in June) stayed below its minimum.
-export function dryYearRisk(crop, rows) {
-  const { riesgo, anios_bajo_minimo, anios } = backtest(crop, rows);
+// Share of years in which the rain of the crop's cycle (sown in month `inicio`) stayed below its minimum.
+export function dryYearRisk(crop, rows, inicio = SEASON_START.PV) {
+  const { riesgo, anios_bajo_minimo, anios } = backtest(crop, rows, inicio);
   return { riesgo, anios_bajo_minimo, anios_total: anios.length };
 }
 
+// Rain-fed sowing months tried by the engine (INIFAP Bajío sows beans from late June to mid July).
+// Each one is scored whole (rain fit, temperature and failed years); the crop keeps the month with the higher score.
+export const SOWING_MONTHS = [6, 7];
+
 // Each fit goes from 0 (bad) to 1 (ideal). `lluvia` is null with irrigation: rain does not limit the crop.
-export function scoreCrop(crop, temporada, { rows, soil, agua }) {
-  const meses = cycleMonths(crop, temporada);
+export function scoreCrop(crop, temporada, { rows, soil, agua, inicio = SEASON_START[temporada] }) {
+  const meses = cycleMonths(crop, temporada, inicio);
   const temps = meses.map((m) => mean(rows.filter((r) => r.month === m && r.t_mean_c !== null).map((r) => r.t_mean_c)));
   const meses_en_rango = temps.filter((t) => t !== null && t >= crop.temp_opt_min_c && t <= crop.temp_opt_max_c).length;
 
@@ -77,13 +80,13 @@ export function totalScore(components, prioridad) {
 // candidates: sorted by score, best first, each { crop, temporada, puntaje }.
 // 3 years, PV every year and OI too with irrigation. Never the same family in back-to-back seasons;
 // a crop not used yet goes first (diversity); at least one legume in the plan.
-export function buildRotation(candidates, { agua }) {
+export function buildRotation(candidates, { agua, familiaPrevia = null }) {
   const seasons = agua === 'riego' ? ['PV', 'OI'] : ['PV'];
   const plan = [];
   const used = new Set();
   for (let anio = 1; anio <= 3; anio++) {
     for (const temporada of seasons) {
-      const previous = plan.at(-1)?.cand.crop.familia;
+      const previous = plan.at(-1)?.cand.crop.familia ?? familiaPrevia;
       const pool = candidates.filter((c) => c.temporada === temporada && c.crop.familia !== previous);
       const cand = pool.find((c) => !used.has(c.crop.id)) ?? pool[0];
       if (!cand) continue;
@@ -96,7 +99,7 @@ export function buildRotation(candidates, { agua }) {
     // Put the best legume where it costs the fewest points and still changes family with its neighbors.
     let best = null;
     plan.forEach((slot, i) => {
-      const neighbors = [plan[i - 1], plan[i + 1]].map((s) => s?.cand.crop.familia);
+      const neighbors = [plan[i - 1]?.cand.crop.familia ?? (i === 0 ? familiaPrevia : undefined), plan[i + 1]?.cand.crop.familia];
       const legume = candidates.find(
         (c) => c.crop.leguminosa && c.temporada === slot.temporada && !neighbors.includes(c.crop.familia)
       );
@@ -150,10 +153,11 @@ export function buildReasons({ crop, parts, risk, ingreso_mxn_ha }, { agua, soil
   return reasons;
 }
 
-function why(slot, previous, agua) {
+function why(slot, previous, agua, previo, esMejor) {
   const { crop, puntaje, risk, parts } = slot.cand;
   const bits = [];
-  if (!previous) bits.push(`Es el que mejor queda en tu parcela para lo que pediste (${Math.round(puntaje)} de 100).`);
+  if (!previous && previo && !esMejor) bits.push(`Va después de tu ${previo.nombre.toLowerCase()}: cambiar de familia ayuda a cortar plagas y enfermedades (${Math.round(puntaje)} de 100).`);
+  else if (!previous) bits.push(`Es el que mejor queda en tu parcela para lo que pediste (${Math.round(puntaje)} de 100).`);
   else bits.push(`Va después de ${previous.cand.crop.nombre.toLowerCase()}: cambiar de familia ayuda a cortar plagas y enfermedades.`);
   if (crop.leguminosa) bits.push('Es leguminosa: deja algo de nitrógeno para el siguiente cultivo.');
   if (agua === 'temporal') bits.push(riskSentence(risk, crop, parts.meses));
@@ -162,25 +166,29 @@ function why(slot, previous, agua) {
 
 // rows: monthly climate (getClimate). soil: /api/suelo summary (may be all null). crops: cultivos.json.
 // ingresos: optional { "<id>|<temporada>": pesos per hectare } (SIAP average), used by the "ganar" priority.
-export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, estado = null }) {
-  const minimums = crops.map((c) => c.lluvia_ciclo_min_mm);
-  const [low, high] = [Math.min(...minimums), Math.max(...minimums)];
+// previo: optional id of the crop the farmer has now or had last; the plan does not repeat its family in year 1.
+export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, estado = null, previo = null }) {
 
   const candidates = [];
   for (const crop of crops) {
     if (!crop.agua.includes(agua)) continue;
     for (const temporada of crop.temporadas) {
       if (temporada === 'OI' && agua !== 'riego') continue; // OI only with irrigation
-      candidates.push({
-        crop,
-        temporada,
-        parts: scoreCrop(crop, temporada, { rows, soil, agua }),
-        risk: agua === 'temporal' ? dryYearRisk(crop, rows) : { riesgo: 0, anios_bajo_minimo: [], anios_total: 0 },
-        ingreso_mxn_ha: ingresos[`${crop.id}|${temporada}`] ?? null,
-      });
+      for (const inicio of agua === 'temporal' && temporada === 'PV' ? SOWING_MONTHS : [SEASON_START[temporada]]) {
+        candidates.push({
+          crop,
+          temporada,
+          inicio,
+          parts: scoreCrop(crop, temporada, { rows, soil, agua, inicio }),
+          risk: agua === 'temporal' ? dryYearRisk(crop, rows, inicio) : { riesgo: 0, anios_bajo_minimo: [], anios_total: 0 },
+          ingreso_mxn_ha: ingresos[`${crop.id}|${temporada}`] ?? null,
+        });
+      }
     }
   }
 
+  const minimums = candidates.map((c) => c.crop.lluvia_ciclo_min_mm);
+  const [low, high] = [Math.min(...minimums), Math.max(...minimums)];
   const maxIncome = Math.max(0, ...candidates.map((c) => c.ingreso_mxn_ha ?? 0));
   for (const c of candidates) {
     const fits = [c.parts.temp, c.parts.suelo, ...(c.parts.lluvia === null ? [] : [c.parts.lluvia])];
@@ -195,9 +203,14 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
       prioridad
     );
   }
-  candidates.sort((a, b) => b.puntaje - a.puntaje);
+  candidates.sort((a, b) => b.puntaje - a.puntaje || a.inicio - b.inicio);
+  // One sowing month per crop and season: the best one (June wins a tie).
+  for (let i = candidates.length - 1; i >= 0; i--) {
+    if (candidates.findIndex((c) => c.crop.id === candidates[i].crop.id && c.temporada === candidates[i].temporada) < i) candidates.splice(i, 1);
+  }
 
-  const plan = buildRotation(candidates, { agua });
+  const previoCrop = crops.find((c) => c.id === previo) ?? null;
+  const plan = buildRotation(candidates, { agua, familiaPrevia: previoCrop?.familia ?? null });
   // One row per crop: its best season.
   const best = candidates.filter((c, i) => candidates.findIndex((other) => other.crop.id === c.crop.id) === i);
 
@@ -206,6 +219,7 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
       id: c.crop.id,
       nombre: c.crop.nombre,
       temporada: c.temporada,
+      mes_siembra: c.inicio,
       puntaje: Math.round(c.puntaje),
       riesgo: Math.round(c.risk.riesgo * 100) / 100,
       razones: buildReasons(c, { agua, soil, estado }),
@@ -214,7 +228,7 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
       anio: slot.anio,
       temporada: slot.temporada,
       cultivo: slot.cand.crop.id,
-      porque: why(slot, plan[i - 1], agua),
+      porque: why(slot, plan[i - 1], agua, previoCrop, slot.cand === candidates.find((c) => c.temporada === slot.temporada)),
     })),
   };
 }

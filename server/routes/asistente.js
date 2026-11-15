@@ -164,8 +164,10 @@ async function resolver(req) {
       return res.json({ respuesta: 'Esta parcela está fuera de Guanajuato y Querétaro, y mis datos de cultivos (SIAP) son solo de esos dos estados, así que no te recomiendo cultivos aquí. Si de todos modos quieres verlos, dime de cuál de los dos estados quieres la referencia.', acciones: [], fuentes: [], verificado: true, origen: 'motor', base: 'ficha', enlaces: [] });
     }
   }
+  // Lo que tiene sembrado ahora (o lo último que sembró) cuenta como la temporada anterior del plan.
+  const previo = idMaiz === 'despues' ? 'maiz' : extraPerfil(req.body.perfil).cultivo_actual ?? perfil.ultimo_cultivo ?? null;
   // Es el mismo motor de POST /api/recomendar (clima NASA, suelo y cultivos.json): el chat y la pantalla dicen lo mismo.
-  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado }) : null;
+  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo }) : null;
   // Ingreso esperado de 3 años: el SIAP del estado para la rotación del motor (la misma simulación del recomendador del SIAP).
   if (reco) reco.prediccion = simulateRotation({ rotacion: reco.rotacion, estado: reco.estado, agua, costos, hectareas: perfil.hectareas });
 
@@ -218,7 +220,7 @@ async function resolver(req) {
   // Usa el motor de la pantalla (recommendPlot), así el chat y /api/recomendar dan el mismo lugar.
   if (tema === 'cultivo' && agua && prioridad && regionEstado) {
     const cultivo = detectCrop(pregunta);
-    const r = reco ?? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado });
+    const r = reco ?? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo });
     const lugar = r.cultivos.findIndex((c) => c.id === cultivo);
     if (lugar >= 0) {
       const c = r.cultivos[lugar];
