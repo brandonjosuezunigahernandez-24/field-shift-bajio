@@ -53,6 +53,24 @@ export function soilColors(suelo) {
   };
 }
 
+// Color of each SoilGrids layer (0-5 ... 60-100 cm) for the sides of the block: more clay is
+// darker, more organic carbon darker still, more stones paler. [] when there are no layers.
+export function soilLayerColors(suelo) {
+  if (!suelo || suelo.sin_datos) return [];
+  const capas = (suelo.capas ?? []).filter((c) => c.arcilla_pct !== null && c.arcilla_pct !== undefined);
+  return capas.map((c) => {
+    const clay = clamp((c.arcilla_pct - 15) / 35, 0, 1);
+    const organic = clamp((c.carbono_organico_g_kg ?? 0) / 25, 0, 1);
+    const stones = clamp((c.piedras_pct ?? 0) / 40, 0, 1);
+    const base = mix(SANDY_TOP, CLAY_TOP, clay);
+    return {
+      desde: c.desde_cm,
+      hasta: c.hasta_cm,
+      color: mix(mix(base, [0.2, 0.15, 0.11], organic * 0.6), [0.8, 0.74, 0.64], stones * 0.35),
+    };
+  });
+}
+
 // Vertical exaggeration so the relief can be seen: the highest point ends at ~8% of the side.
 // Between x1 (already hilly) and x10 (very flat, like most Bajío farmland). Shown to the user.
 export function reliefExaggeration(desnivelM, sideM = 1000, target = 0.08) {

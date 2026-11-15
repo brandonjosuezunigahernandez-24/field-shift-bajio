@@ -78,7 +78,7 @@ Las parcelas de los botones de ejemplo, con los mismos `id` y `boton` del diseñ
 
 ## GET /api/clima?lat=20.47&lon=-100.81
 
-Fuente: NASA POWER, serie mensual 2000–2024.
+Fuente: NASA POWER, serie mensual desde 2000 hasta el **último año completo** (`powerEndYear` en `server/sources/nasaPower.js`: hasta marzo es el antepenúltimo, desde abril el año pasado; en noviembre de 2026 es 2025). Avanza solo cada año: una caché a la que le falta ese año se vuelve a bajar, y sin internet se sigue usando. Los fixtures se quedan en 2000–2024 porque las pruebas del motor y del asistente tienen fijos esos números; para moverlos hay que correr `npm run fixtures -- --only=power` y actualizar esas pruebas.
 
 ```jsonc
 {
@@ -103,6 +103,11 @@ Fuente: NASA POWER, serie mensual 2000–2024.
     { "mes": 1, "lluvia_mm": 8.6 }
     // ... 12 meses
   ],
+  "humedad_suelo_pv": { "superficie_pct": 59, "raiz_pct": 57, "perfil_pct": 56 },
+  "humedad_suelo_pv_anual": [
+    { "anio": 2025, "superficie_pct": 68, "raiz_pct": 64, "perfil_pct": 62 }
+    // ... un elemento por año
+  ],
   "fuente": "NASA POWER (Prediction Of Worldwide Energy Resources), NASA Langley Research Center, comunidad AG"
 }
 ```
@@ -116,6 +121,7 @@ Fuente: NASA POWER, serie mensual 2000–2024.
 | `temp_media_mensual[].t_media_c` | Promedio (de todos los años) de la temperatura media del mes. |
 | `t_max_c`, `t_min_c` | Promedio (de todos los años) de **la hora más caliente y la más fría del mes**. |
 | `lluvia_media_mensual[].lluvia_mm` | Promedio (de todos los años) de la lluvia del mes. |
+| `humedad_suelo_pv*` | Humedad del suelo de junio a septiembre según NASA POWER: `GWETTOP` (superficie, 0–5 cm), `GWETROOT` (zona de raíces, 0–100 cm) y `GWETPROF` (todo el perfil), de 0 % (seco) a 100 % (saturado). Promedio de todos los años y de cada año. `null` donde la caché es de antes de pedirlos. |
 
 **Ojo con dos cosas:**
 
@@ -124,7 +130,7 @@ Fuente: NASA POWER, serie mensual 2000–2024.
 
 ## GET /api/suelo?lat=20.47&lon=-100.81
 
-Fuente: SoilGrids 2.0 (ISRIC). Promedio de 0 a 30 cm, ponderado por el espesor de cada capa (0–5, 5–15, 15–30 cm).
+Fuente: SoilGrids 2.0 (ISRIC). Los valores de arriba son el promedio de 0 a 30 cm, ponderado por el espesor de cada capa (0–5, 5–15, 15–30 cm): son los que usa el motor. `capas` trae cada capa hasta 1 m y `tipo` el tipo de suelo (WRB), para la tarjeta "Tu suelo" y los lados de la maqueta 3D.
 
 ```json
 {
@@ -138,13 +144,31 @@ Fuente: SoilGrids 2.0 (ISRIC). Promedio de 0 a 30 cm, ponderado por el espesor d
   "limo_pct": 20.4,
   "carbono_organico_g_kg": 12.1,
   "nitrogeno_g_kg": 1.48,
+  "densidad_aparente_g_cm3": 1.43,
+  "cic_cmol_kg": 31.9,
+  "piedras_pct": 11.5,
+  "capas": [
+    { "profundidad_cm": "0-5", "desde_cm": 0, "hasta_cm": 5, "ph": 7.3, "arcilla_pct": 36.5, "arena_pct": 42.3, "limo_pct": 21.2,
+      "carbono_organico_g_kg": 18.4, "nitrogeno_g_kg": 1.68, "densidad_aparente_g_cm3": 1.42, "cic_cmol_kg": 32.2, "piedras_pct": 11.9 }
+    // ... 5-15, 15-30, 30-60 y 60-100 cm
+  ],
   "sin_datos": false,
   "aviso": null,
-  "fuente": "SoilGrids 2.0, ISRIC World Soil Information (CC BY 4.0)"
+  "tipo": {
+    "wrb": "Vertisols", "nombre": "Vertisol", "probabilidad_pct": 30,
+    "descripcion": "Suelo con mucha arcilla que se hincha con el agua y se agrieta en secas. ...",
+    "alternativas": [{ "wrb": "Phaeozems", "nombre": "Feozem", "probabilidad_pct": 13 }]
+  },
+  "fuente": "SoilGrids 2.0, ISRIC World Soil Information (CC BY 4.0)",
+  "fuente_tipo": "SoilGrids 2.0 (ISRIC), clasificación WRB; ..."
 }
 ```
 
 - **`sin_datos: true`**: SoilGrids respondió pero no tiene suelo en ese punto (ciudades y cuerpos de agua están enmascarados). En ese caso los valores vienen en `null` y `aviso` trae un texto para mostrar. Pasa, por ejemplo, en el centro de Celaya (20.52, -100.81). El front y el motor deben aguantar `null`.
+- **`densidad_aparente_g_cm3`** es qué tan apretado está el suelo (SoilGrids `bdod`), **`cic_cmol_kg`** cuántos nutrientes puede retener (`cec`) y **`piedras_pct`** el volumen de piedras (`cfvo`).
+- **`tipo`** sale de otra consulta, `/soilgrids/v2.0/classification/query` (`server/sources/soilClass.js`): el grupo de la Base Referencial Mundial (WRB) más probable según el modelo de SoilGrids, con su probabilidad y los dos siguientes. Es una predicción de mapas de 250 m, no un muestreo de la parcela. Los nombres en español y las descripciones son las generales de cada grupo WRB. Si esa consulta falla, `tipo` es `null` y el resto responde igual.
+- `POST /api/recomendar` devuelve en `suelo` exactamente lo mismo (con `capas` y `tipo`), porque la pantalla reemplaza su suelo con ese.
+- Una caché de antes de pedir las capas profundas se vuelve a bajar (y se usa la vieja si no hay internet). SoilGrids permite unas 5 consultas por minuto y a veces tarda más de 15 s; con dos consultas por punto nuevo, la primera vez puede faltar el tipo.
 
 ## GET /api/terreno?lat=20.47&lon=-100.81&lado=1000
 

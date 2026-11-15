@@ -129,9 +129,12 @@ test('powerEndYear: the last complete year, one more each April', () => {
 });
 
 test('powerStaleReason flags a cache without the last complete year', () => {
-  const raw = (keys) => ({ properties: { parameter: { PRECTOTCORR: Object.fromEntries(keys.map((k) => [k, 1])) } } });
+  const names = ['T2M', 'T2M_MAX', 'T2M_MIN', 'PRECTOTCORR', 'ALLSKY_SFC_SW_DWN', 'GWETROOT', 'GWETTOP', 'GWETPROF'];
+  const raw = (keys, list = names) => ({ properties: { parameter: Object.fromEntries(list.map((n) => [n, Object.fromEntries(keys.map((k) => [k, 1]))])) } });
   assert.equal(powerStaleReason(raw(['202412', '202512']), 2025), null);
   assert.match(powerStaleReason(raw(['202412']), 2025), /2025/);
+  // A cache from before the soil wetness was asked for.
+  assert.match(powerStaleReason(raw(['202512'], names.slice(0, 6)), 2025), /GWETTOP/);
 });
 
 test('buildPowerUrl asks for the monthly AG series from 2000 to the last complete year', () => {
@@ -166,4 +169,17 @@ test('real Celaya fixture: full years from 2000 with plausible Bajío values', a
   // The rainy season must be wetter than the dry season.
   const rain = (mes) => summary.lluvia_media_mensual[mes - 1].lluvia_mm;
   assert.ok(rain(7) > rain(2) * 5);
+});
+
+test('summarizeClimate: soil wetness of the rainy season in % (NASA POWER GWET)', () => {
+  const rows = [];
+  for (const year of [2000, 2001]) {
+    for (let month = 1; month <= 12; month++) {
+      const wet = month >= 6 && month <= 9 ? (year === 2000 ? 0.6 : 0.4) : 0.2;
+      rows.push({ year, month, t_mean_c: 20, t_max_c: 30, t_min_c: 10, rain_mm: 50, top_wetness: wet, root_wetness: wet, profile_wetness: null });
+    }
+  }
+  const summary = summarizeClimate(rows);
+  assert.deepEqual(summary.humedad_suelo_pv, { superficie_pct: 50, raiz_pct: 50, perfil_pct: null });
+  assert.deepEqual(summary.humedad_suelo_pv_anual.map((y) => [y.anio, y.raiz_pct]), [[2000, 60], [2001, 40]]);
 });

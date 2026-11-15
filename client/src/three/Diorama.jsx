@@ -17,8 +17,8 @@ import { pointInPolygon } from '../map/polygon.js';
 import { clamp, surfaceFrame } from './geo.js';
 import { modelMaterial } from './mergeModels.js';
 import { useModelGeometries } from './models.js';
-import { soilTexture, strataTexture } from './textures.js';
-import { reliefExaggeration, soilColors, yearState } from './parcelState.js';
+import { soilProfileTexture, soilTexture, strataTexture } from './textures.js';
+import { reliefExaggeration, soilColors, soilLayerColors, yearState } from './parcelState.js';
 
 // The diorama is built in local units: the 1 km square goes from -0.5 to 0.5 on x (east)
 // and z (south); y is up. The whole group is then scaled to SIZE globe units.
@@ -342,6 +342,15 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
 
   const state = useMemo(() => yearState(clima, anio), [clima, anio]);
   const soil = useMemo(() => soilColors(suelo), [suelo]);
+  // With the SoilGrids layers (0 to 100 cm), the sides show them as bands; otherwise one soil color.
+  const layerColors = useMemo(() => soilLayerColors(suelo), [suelo]);
+  const profileTexture = useMemo(() => soilProfileTexture(layerColors), [layerColors]);
+  useEffect(() => {
+    soilMaterial.map = profileTexture ?? strataTexture();
+    soilMaterial.needsUpdate = true;
+    invalidate();
+    return () => profileTexture?.dispose();
+  }, [profileTexture, soilMaterial, invalidate]);
 
   // Writes every buffer from the current heights, year and soil. Cheap: ~4k vertices + ~450
   // instance matrices, and it only runs when something changes (or during the 0.9 s morph).
@@ -365,7 +374,8 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
     terrainGeometry.attributes.color.needsUpdate = true;
     terrainGeometry.computeVertexNormals();
     terrainGeometry.computeBoundingSphere();
-    writeSkirt(skirtGeometry, pos, tam, { top: linear(soil.top), sub: linear(soil.sub) });
+    const white = linear([1, 1, 1]); // the layer texture already carries the colors
+    writeSkirt(skirtGeometry, pos, tam, profileTexture ? { top: white, sub: white } : { top: linear(soil.top), sub: linear(soil.sub) });
 
     const dummy = new Object3D();
     const tint = linear(state.tint);
@@ -391,7 +401,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
 
   // Redraw when the year, crops, soil or relief change.
   const fieldsKey = fields.map((fld) => fld.key).join('|');
-  useLayoutEffect(redraw, [state, soil, fieldsKey, terrainGeometry, plantsByField, targetY, insideMask]); // eslint-disable-line react-hooks/exhaustive-deps
+  useLayoutEffect(redraw, [state, soil, profileTexture, fieldsKey, terrainGeometry, plantsByField, targetY, insideMask]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Parcel outlines draped on the final relief, a little above so they never hide in the ground.
   const drape = (outline) => {

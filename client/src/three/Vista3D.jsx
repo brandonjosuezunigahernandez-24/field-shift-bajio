@@ -10,6 +10,7 @@ import { YearControl } from '../year.jsx';
 import { weatherFromCode } from '../weather.js';
 import { reliefExaggeration } from './parcelState.js';
 import Scene from './Scene.jsx';
+import SoilCard from '../components/SoilCard.jsx';
 
 const STEP_DEG = 0.01; // ~1 km, the same resolution as the server cache
 
@@ -356,7 +357,8 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
           <ul className="facts">
             {sueloData && !sueloData.sin_datos && (
               <li>
-                Suelo: pH {sueloData.ph}, arcilla {sueloData.arcilla_pct} %. Los lados del bloque tienen el color de este suelo.
+                Suelo: pH {sueloData.ph}, arcilla {sueloData.arcilla_pct} %.{' '}
+                {sueloData.capas?.length ? 'Los lados del bloque muestran sus capas hasta 1 m.' : 'Los lados del bloque tienen el color de este suelo.'}
               </li>
             )}
             {sueloData?.sin_datos && <li className="error">{sueloData.aviso}</li>}
@@ -370,6 +372,8 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
             )}
             {terreno?.error && <li className="error">{terreno.error} La maqueta se muestra plana.</li>}
           </ul>
+
+          <SoilCard suelo={sueloData} clima={climaData} anio={anio} />
         </div>
       ) : (
         <p className="hint vista3d-panel">Gira el globo hasta el Bajío y toca tu región, o usa el botón de ejemplo de arriba.</p>

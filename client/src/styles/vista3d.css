@@ -894,3 +894,13 @@
 .detect-tools .hint {
   margin: 6px 0 0;
 }
+
+/* "Tu suelo, con datos oficiales" (SoilCard) */
+.v3d .vista3d-soil { border: 2px solid var(--border); border-radius: 12px; padding: 12px 14px; margin: 12px 0; }
+.v3d .vista3d-soil legend { font-weight: 700; padding: 0 6px; }
+.v3d .soil-table-wrap { overflow-x: auto; margin: 8px 0; }
+.v3d .soil-table { border-collapse: collapse; width: 100%; font-size: 14px; }
+.v3d .soil-table caption { caption-side: top; text-align: left; color: var(--muted); padding-bottom: 6px; }
+.v3d .soil-table th, .v3d .soil-table td { padding: 6px 8px; border-bottom: 1px solid var(--border); text-align: left; white-space: nowrap; }
+.v3d .soil-table thead th { font-weight: 700; }
+.v3d .soil-swatch { display: inline-block; width: 14px; height: 14px; border-radius: 3px; margin-right: 6px; vertical-align: -2px; border: 1px solid rgba(0, 0, 0, 0.25); }

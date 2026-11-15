@@ -7,6 +7,7 @@ import { writeFixture } from '../lib/cache.js';
 import { fetchJson } from '../lib/fetchJson.js';
 import { FIXTURE_POINTS } from '../lib/seasons.js';
 import { POWER_SOURCE, buildPowerUrl, validatePower } from '../sources/nasaPower.js';
+import { SOILCLASS_SOURCE, buildSoilClassUrl, validateSoilClass } from '../sources/soilClass.js';
 import { SOILGRIDS_DECIMALS, SOILGRIDS_SOURCE, buildSoilGridsUrl, validateSoilGrids } from '../sources/soilGrids.js';
 import { TERRAIN_DECIMALS, TERRAIN_SOURCE, fetchTerrainGrid, validateTerrain } from '../sources/terrain.js';
 
@@ -14,6 +15,7 @@ import { TERRAIN_DECIMALS, TERRAIN_SOURCE, fetchTerrainGrid, validateTerrain } f
 const sources = [
   { source: POWER_SOURCE, buildUrl: buildPowerUrl, validate: validatePower },
   { source: SOILGRIDS_SOURCE, buildUrl: buildSoilGridsUrl, validate: validateSoilGrids, decimals: SOILGRIDS_DECIMALS },
+  { source: SOILCLASS_SOURCE, buildUrl: buildSoilClassUrl, validate: validateSoilClass, decimals: SOILGRIDS_DECIMALS },
   {
     source: TERRAIN_SOURCE,
     fetcher: (lat, lon) => fetchTerrainGrid(lat, lon, { timeoutMs: 60000 }),

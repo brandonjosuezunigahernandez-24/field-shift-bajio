@@ -126,11 +126,12 @@ docs/
 
 ### Vista 3D
 
-Arriba de los datos hay un globo de la Tierra. Lo giras, tocas tu región y la parcela se levanta del globo como una maqueta de 1 km por lado, con:
+Arriba de los datos hay un globo de la Tierra. Lo giras, tocas tu región y la parcela se levanta del globo como una maqueta **del tamaño de tu parcela** (250 m a 4 km por lado; 1 km si solo eliges un punto), con:
 
 - el **relieve real** del terreno (exagerado para que se note; la página dice cuántas veces),
-- los lados del bloque con el **color del suelo** según SoilGrids (más arcilla, más oscuro),
-- un control de **años 2000–2024**: en años secos la tierra se ve café, las plantas chaparras y amarillas y casi no llueve.
+- los lados del bloque con las **capas reales del suelo hasta 1 m** según SoilGrids (más arcilla o más materia orgánica, más oscuro), y abajo una tarjeta "Tu suelo" con el tipo de suelo, cada capa y la humedad de NASA POWER,
+- en "Simulador 3D", el **cultivo del año elegido en el plan** de rotación,
+- un control de **años desde 2000 hasta el último año completo** (se recorre solo cada año): en años secos la tierra se ve café, las plantas chaparras y amarillas y casi no llueve.
 
 Cuidados de rendimiento: three.js se descarga solo si el navegador tiene WebGL y en un archivo aparte; la escena se dibuja solo cuando algo cambia (`frameloop="demand"`); cada cultivo es un único `InstancedMesh`; la resolución se limita a 1.5×; si el 3D falla, el resto de la página sigue funcionando. Con "reducir movimiento" activado en el sistema, no hay animaciones.
 
@@ -152,9 +153,10 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 
 **Datos**
 
-- **NASA POWER** (Prediction Of Worldwide Energy Resources), NASA Langley Research Center. Serie mensual 2000–2024, comunidad AG: temperatura, precipitación, radiación y humedad del suelo en la zona de raíces. <https://power.larc.nasa.gov/>
+- **NASA POWER** (Prediction Of Worldwide Energy Resources), NASA Langley Research Center. Serie mensual desde 2000 hasta el último año completo, comunidad AG: temperatura, precipitación, radiación y humedad del suelo en superficie, zona de raíces y perfil (GWETTOP, GWETROOT, GWETPROF). <https://power.larc.nasa.gov/>
   *These data were obtained from the NASA Langley Research Center (LaRC) POWER Project funded through the NASA Earth Science/Applied Science Program.*
-- **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 30 cm. <https://soilgrids.org/>
+- **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 100 cm (textura, pH, carbono orgánico, nitrógeno, densidad aparente, CIC y piedras) y tipo de suelo (clasificación WRB). <https://soilgrids.org/>
+  IUSS Working Group WRB (2015). *World Reference Base for Soil Resources 2014, update 2015*. World Soil Resources Reports No. 106. FAO, Roma. (Nombres y descripciones generales de los tipos de suelo.)
   Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B. M., Kempen, B., Ribeiro, E., and Rossiter, D. (2021). SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty. *SOIL*, 7, 217–240. <https://doi.org/10.5194/soil-7-217-2021>
 - **INEGI, Censo Agropecuario 2022**: en Guanajuato el 63.9 % de la superficie agrícola es de temporal.
 - **INEGI, Marco Geoestadístico** (diciembre de 2025), límites de Guanajuato y Querétaro (`server/data/estados_bajio.json`, de <https://gaia.inegi.org.mx/wscatgeo/v2/geo/mgee/11> y `/22`): deciden si una parcela está en el Bajío, donde se recomiendan cultivos.

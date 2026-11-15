@@ -87,6 +87,29 @@ export function soilTexture() {
   return soil;
 }
 
+// Sides of the block painted with the real soil layers (soilLayerColors): one band per layer, as
+// thick as the layer (0 to 100 cm, top to bottom), with the strata detail multiplied on top.
+// A new texture per soil: the caller disposes it.
+export function soilProfileTexture(layers) {
+  if (!layers?.length) return null;
+  const detail = strataTexture().image;
+  const canvas = document.createElement('canvas');
+  canvas.width = detail.width;
+  canvas.height = detail.height;
+  const ctx = canvas.getContext('2d');
+  const total = layers[layers.length - 1].hasta;
+  for (const layer of layers) {
+    const [r, g, b] = layer.color.map((v) => Math.round(Math.max(0, Math.min(1, v)) * 255));
+    const y0 = Math.round((layer.desde / total) * canvas.height);
+    const y1 = Math.round((layer.hasta / total) * canvas.height);
+    ctx.fillStyle = `rgb(${r},${g},${b})`;
+    ctx.fillRect(0, y0, canvas.width, y1 - y0);
+  }
+  ctx.globalCompositeOperation = 'multiply';
+  ctx.drawImage(detail, 0, 0);
+  return finish(canvas, false);
+}
+
 let strata = null;
 // Side of the soil block: dark topsoil with roots, lighter subsoil, wavy layers, pebbles.
 // u runs along the block's edge (tiles), v goes from the bottom (0) to the top (1).

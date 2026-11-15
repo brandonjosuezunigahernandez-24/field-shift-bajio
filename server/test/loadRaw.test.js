@@ -92,6 +92,7 @@ test('loadRaw uses the fixture when the network fails twice', async () => {
 });
 
 test('loadRaw passes the rounded point to a custom fetcher', async () => {
+  await rm(new URL('test-loadraw_0.000_0.000.json', CACHE_DIR), { force: true });
   const seen = [];
   const fetcher = async (lat, lon) => {
     seen.push([lat, lon]);
@@ -100,7 +101,7 @@ test('loadRaw passes the rounded point to a custom fetcher', async () => {
   const { origen } = await loadRaw({ ...options, lat: 0.0004, lon: -0.0004, decimals: 3, fetcher });
   assert.equal(origen, 'api');
   assert.deepEqual(seen, [[0, 0]]);
-  await rm(new URL(`../cache/test-loadraw_0.000_0.000.json`, import.meta.url), { force: true });
+  await rm(new URL('test-loadraw_0.000_0.000.json', CACHE_DIR), { force: true });
 });
 
 test('loadRaw gives up after two failed calls (502 when there is no fixture)', async () => {

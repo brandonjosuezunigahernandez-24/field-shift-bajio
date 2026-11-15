@@ -30,13 +30,16 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
 
 ## Datos (APIs gratis, sin API key)
 1. **NASA POWER**, clima mensual por punto:
-   `https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,ALLSKY_SFC_SW_DWN,GWETROOT&community=AG&latitude={lat}&longitude={lon}&start=2000&end=2024&format=JSON`
+   `https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,ALLSKY_SFC_SW_DWN,GWETROOT,GWETTOP,GWETPROF&community=AG&latitude={lat}&longitude={lon}&start=2000&end={ultimo_anio_completo}&format=JSON`
+   - `end` es el último año con sus 12 meses publicados (cambia cada abril, `powerEndYear`). Una caché sin ese año se vuelve a bajar.
    - Los valores vienen en `properties.parameter.<PARAM>["YYYYMM"]`. El mes `13` es el resumen anual: ignóralo para series mensuales.
    - `-999` es valor faltante: descártalo.
    - Revisa las unidades en `parameters.<PARAM>.units`. Si la lluvia viene en mm/day, multiplica por los días del mes para tener mm.
    - Máximo 20 parámetros por llamada. Cachea siempre.
 2. **SoilGrids (ISRIC)**, suelo por punto:
-   `https://rest.isric.org/soilgrids/v2.0/properties/query?lat={lat}&lon={lon}&property=clay&property=sand&property=silt&property=phh2o&property=soc&property=nitrogen&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean`
+   `https://rest.isric.org/soilgrids/v2.0/properties/query?lat={lat}&lon={lon}&property=clay&property=sand&property=silt&property=phh2o&property=soc&property=nitrogen&property=bdod&property=cec&property=cfvo&depth=0-5cm&depth=5-15cm&depth=15-30cm&depth=30-60cm&depth=60-100cm&value=mean`
+   - El motor usa el promedio de 0 a 30 cm; las capas hasta 1 m y `bdod`/`cec`/`cfvo` son para mostrar el suelo.
+   - Tipo de suelo (WRB): `https://rest.isric.org/soilgrids/v2.0/classification/query?lat={lat}&lon={lon}&number_classes=3`.
    - Divide cada valor entre `unit_measure.d_factor` para tener unidades normales (por ejemplo, el pH viene ×10).
    - A veces es lento o falla: timeout de 15 s y respaldo con el fixture.
 3. **Opcional, MODIS NDVI (ORNL DAAC)**: `https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?latitude={lat}&longitude={lon}&startDate=A2024001&endDate=A2024160&kmAboveBelow=0&kmLeftRight=0`.

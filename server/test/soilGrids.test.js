@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
-import { buildSoilGridsUrl, parseSoilGrids, summarizeSoil } from '../sources/soilGrids.js';
+import { buildSoilGridsUrl, parseSoilGrids, parseSoilLayers, soilGridsStaleReason, summarizeSoil } from '../sources/soilGrids.js';
 
 const readJson = async (relativePath) =>
   JSON.parse(await readFile(new URL(relativePath, import.meta.url), 'utf8'));
@@ -55,8 +55,8 @@ test('buildSoilGridsUrl repeats property and depth and asks for the mean', () =>
   const url = new URL(buildSoilGridsUrl(20.47, -100.81));
   assert.equal(url.searchParams.get('lat'), '20.47');
   assert.equal(url.searchParams.get('lon'), '-100.81');
-  assert.deepEqual(url.searchParams.getAll('property'), ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen']);
-  assert.deepEqual(url.searchParams.getAll('depth'), ['0-5cm', '5-15cm', '15-30cm']);
+  assert.deepEqual(url.searchParams.getAll('property'), ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen', 'bdod', 'cec', 'cfvo']);
+  assert.deepEqual(url.searchParams.getAll('depth'), ['0-5cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm']);
   assert.equal(url.searchParams.get('value'), 'mean');
 });
 
@@ -75,4 +75,27 @@ test('real urban response (downtown Celaya) is reported as "sin_datos", not as z
   assert.equal(summary.sin_datos, true);
   assert.equal(summary.ph, null);
   assert.equal(summary.arcilla_pct, null);
+});
+
+test('parseSoilLayers: one entry per depth, in conventional units, down to 1 m', () => {
+  const deep = (name, factor, values) => ({
+    name,
+    unit_measure: { d_factor: factor, target_units: '' },
+    depths: [[0, 5], [5, 15], [15, 30], [30, 60], [60, 100]].map(([t, b], i) => depth(t, b, values[i])),
+  });
+  const raw = { properties: { layers: [deep('clay', 10, [400, 410, 420, 440, 440]), deep('bdod', 100, [130, 135, 140, 145, 149]), deep('cfvo', 10, [100, 105, 110, 123, 116])] } };
+  const capas = parseSoilLayers(raw);
+  assert.equal(capas.length, 5);
+  assert.deepEqual(capas.map((c) => c.profundidad_cm), ['0-5', '5-15', '15-30', '30-60', '60-100']);
+  assert.equal(capas[3].arcilla_pct, 44);
+  assert.equal(capas[4].densidad_aparente_g_cm3, 1.49);
+  assert.equal(capas[3].piedras_pct, 12.3);
+  assert.equal(capas[0].ph, null); // not asked in this payload
+});
+
+test('soilGridsStaleReason: a cache without the new properties or the deep layers is refreshed', () => {
+  const old = { properties: { layers: ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen'].map((n) => layer(n, 10, '', [1, 1, 1])) } };
+  assert.match(soilGridsStaleReason(old), /bdod/);
+  const shallow = { properties: { layers: ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen', 'bdod', 'cec', 'cfvo'].map((n) => layer(n, 10, '', [1, 1, 1])) } };
+  assert.match(soilGridsStaleReason(shallow), /100 cm/);
 });
