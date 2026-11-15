@@ -39,21 +39,21 @@ export function intencionMaiz(pregunta = '') {
   if (/despues del maiz|tras el maiz|siguiente cultivo|que siembro despues/.test(q)) return 'despues';
   if (/helad|\belada|hiela|congel|\bfri[oa]/.test(q)) return 'helada';
   // Lo que dice el agricultor manda: su cosecha, la lluvia en mm, el mes de siembra, un precio ofrecido.
-  if (rendPropio(q)) return 'produccion';
+  if (rendPropio(q) && !precioDicho(q)) return 'produccion'; // con cosecha Y precio dichos pregunta cuánto gana: precio
   if (mmDe(q) != null) return 'riesgo';
   if (mesesDe(q).length && /(siembr|sembr|plant|\becho\b)/.test(q) && !/levant|cosech/.test(q)) return 'siembra';
   if (precioDicho(q)) return 'precio';
   if (/cogollero|gusano|plaga|enfermedad|hongo|insecto|fertiliz|abono|urea|herbicid|fumig/.test(q)) return 'plaga';
   if (/semilla|variedad|hibrido|densidad/.test(q)) return 'semilla';
-  if (/asegur|seguro/.test(q)) return 'seguro';
+  if (/asegur|(el|un|del|al|algun|hay) seguro|seguro (agricola|catastrof|de|para|contra)/.test(q)) return 'seguro'; // \"¿qué tan seguro es?\" es riesgo
   if (/cuanto (me )?(cuesta|gasto|invierto)|costo|inversion|cuanto cuesta/.test(q)) return 'costo';
   if (/dos veces|segundo ciclo|otono.invierno|dos cosechas|doble cosecha/.test(q)) return 'dosciclos';
-  if (/(cuanta|cuanto|que cantidad de) (lluvia|agua)|necesita (de )?(agua|lluvia)|requiere|cada cuanto (riego|rego|se riega)|cuantas veces (riego|se riega)|frecuencia de riego/.test(q)) return 'agua';
-  if (/(mi )?(suelo|tierra)|\bph\b/.test(q) && /(sirve|sirva|bueno|buena|apto|adecuad|sembrar|para maiz)/.test(q)) return 'suelo';
-  if (/(sembre|siembre|sembraba|tenia|antes tuve|ano pasado)/.test(q) && (otro || /ahorita|ahora|este ano|puedo|se puede/.test(q))) return 'rotacion';
+  if (/(cuanta|cuanto|que cantidad de) (lluvia|agua)|(necesita|ocupa|requiere|pide|lleva) (de )?((mucha|poca|tanta|cuanta|cuantos) )?(agua|lluvia|milimetros|mm)|cuant[oa]s? (milimetros|mm)\b|requiere|cada cuanto (riego|rego|se riega)|cuantas veces (riego|se riega)|frecuencia de riego/.test(q)) return 'agua';
+  if (/(mi )?(suelo|tierra)|\bph\b/.test(q) && /(sirve|sirva|bueno|buena|apto|adecuad|sembrar|para maiz|pal maiz|aguanta|se da)/.test(q)) return 'suelo';
+  if (/(sembre|siembre|sembraba|tenia|antes tuve|\btuve\b|ano pasado|ciclo pasado|despues del? (frijol|sorgo|trigo|cebada|garbanzo|avena)|vengo de|venia de)/.test(q) && (otro || /ahorita|ahora|este ano|puedo|se puede/.test(q))) return 'rotacion';
   if (/riego|regar/.test(q) && (/temporal/.test(q) || /conviene|vale la pena|meter|poner|instalar/.test(q)) && !/saco|sacar|cosech|queda/.test(q)) return 'riego';
   if (!otro && /dinero|ganancia|ingreso|pesos|cuanto (gano|voy a ganar)|cuanto (me )?(deja|dejaria)/.test(q)) return 'precio';
-  if (/cuant[oa]s? (maiz |cosecha |toneladas )?(\w+ ){0,3}(saco|sacar|saca|cosech|levant|produc|rinde|rendira|queda|dara)|cuanto puedo (sacar|producir|cosechar)|mal ano.*(queda|saco|cosech)/.test(q) || alguna(ws, ['produc']) || (alguna(ws, ['rend', 'rind']) && !otro)) return 'produccion';
+  if (/cuant[oa]s? (?!(dias|meses|semanas|tiempo|anos)\b)(maiz |cosecha |toneladas )?(\w+ ){0,3}(saco|sacar|saca|cosech|levant|produc|rinde|rendira|queda|dara|salen|sale)|cuanto puedo (sacar|producir|cosechar)|mal ano.*(queda|saco|cosech)/.test(q) || alguna(ws, ['produc']) || (alguna(ws, ['rend', 'rind']) && !otro)) return 'produccion';
   if (otro && (alguna(ws, ['compar', 'mejor', 'contra', 'conviene', 'recomiend', 'vs']) || /(o|que|en vez de|en lugar de) (el )?(sorgo|frijol|trigo|cebada|garbanzo|avena)/.test(q))) return 'comparar';
   if (alguna(ws, ['recomiend', 'conviene', 'aconsej', 'espero', 'esperar', 'siguiente']) || /ano (bueno|malo)|bueno o malo|vale la pena|ano que viene|proximo ano|este ano o|le entro|me animo|me aviento|buen (ano|momento)|(ira|va a ir) bien/.test(q)) return 'decision';
   if (/cuando (esta|sube|baja|se paga|esta mas)|mas caro|mejor precio|por mes|que mes/.test(q) && alguna(ws, ['caro', 'precio', 'pagan', 'paga', 'barato', 'sube', 'baja'])) return 'precio_mes';
@@ -64,10 +64,10 @@ export function intencionMaiz(pregunta = '') {
   if (/llueve poco|poca lluvia|llueve menos|sin lluvia|no llueve|sequia|ano seco/.test(q)) return 'riesgo';
   if (/peor ano|ano mas (malo|seco)|mal ano/.test(q)) return 'riesgo';
   if (alguna(ws, ['precio', 'tonelada', 'pagan', 'paga', 'vende', 'vender', 'venden', 'ingreso', 'ganancia', 'gana', 'ganar', 'vale', 'dinero', 'pesos'])) return 'precio';
-  if (alguna(ws, ['riesg', 'perdid', 'siniestr', 'pierd', 'granizo']) || /ano (malo|seco)/.test(q)) return 'riesgo';
+  if (alguna(ws, ['riesg', 'perdid', 'siniestr', 'pierd', 'granizo']) || /ano (malo|seco)|que tan seguro|es seguro/.test(q)) return 'riesgo';
   if (alguna(ws, ['riego', 'regar', 'regado']) || /\btemporal(es)?\b|de lluvia|de agua/.test(q)) return 'riego';
   if (otro) return 'comparar';
-  if (/donde|que municipio|municipios|se siembra mas|mas maiz|\bsiembran\b|\bsiembra\b.*\bmas\b/.test(q)) return 'donde';
+  if (/donde|que municipio|municipios|que (partes|zonas|lugares|regiones)|maicer|se siembra mas|mas maiz|\bsiembran\b|\bsiembra\b.*\bmas\b/.test(q)) return 'donde';
   if (alguna(ws, ['plantar', 'sembrar', 'siembro', 'planto', 'cultivar'])) return 'decision';
   return null;
 }
@@ -153,13 +153,15 @@ function escoge(perfil, estado, q = '') {
 const haDelTexto = (q) => { const m = q.match(/(\d+(?:[.,]\d+)?)\s*(?:ha\b|hect|ect)/); const n = m && Number(m[1].replace(',', '.')); return n >= 0.1 && n <= 5000 ? n : undefined; };
 // "me dieron 1.2 toneladas" en "3.5 hectáreas", o "4 t por ha": lo que sacó el agricultor, en t/ha.
 export function rendPropio(q) {
-  if (!/(me dieron|me dio|saque|sacamos|levante|levantamos|coseche|cosechamos|me salieron|me salio|junte)/.test(q)) return null;
+  if (!/(me dieron|me dio|\bdio\b|saque|\bsaco\b|sacamos|levante|\blevanto\b|levantamos|coseche|\bcosecho\b|cosechamos|me salieron|me salio|me salen|junte)/.test(q)) return null;
   const m = q.match(/(\d+(?:[.,]\d+)?)\s*(?:t\b|ton)/);
   if (!m) return null;
   const t = Number(m[1].replace(',', '.'));
-  if (/^\S*\s*(por|x|\/)\s*(ha\b|hect)/.test(q.slice(m.index + m[1].length).trim())) return { t_ha: t };
+  if (/^\S*(\s+(de|del|el)?\s*\S+){0,2}?\s*(por|x|\/|cada|la)\s*(ha\b|hect)/.test(q.slice(m.index + m[1].length).trim())) return { t_ha: t };
   const ha = haDelTexto(q);
-  return ha ? { t, ha, t_ha: r2(t / ha) } : null;
+  if (ha) return { t, ha, t_ha: r2(t / ha) };
+  // shortcut: sin hectáreas dichas y con 15 t o menos se supone que es por hectárea (la respuesta lo dice); si confunde, preguntar.
+  return t > 0 && t <= 15 ? { t_ha: t, supuesto: true } : null;
 }
 // "me ofrecen 4,500 la tonelada", "a 18 mil": el precio que le dan, en pesos por tonelada.
 export function precioDicho(q) {
@@ -193,7 +195,7 @@ const REDACTORES = {
     const p = rendPropio(q);
     if (p) {
       const como = p.t_ha >= a.t_ha * 1.1 ? 'arriba del' : p.t_ha <= a.t_ha * 0.9 ? 'abajo del' : 'cerca del';
-      return salida(`Sacaste ${p.t_ha} toneladas por hectárea${p.ha ? ` (${p.t} t en ${p.ha} ha)` : ''}: quedaste ${como} promedio de ${estado}.`, [
+      return salida(`${p.supuesto ? `Si son ${p.t_ha} toneladas por hectárea, quedaste` : `Sacaste ${p.t_ha} toneladas por hectárea${p.ha ? ` (${p.t} t en ${p.ha} ha)` : ''}: quedaste`} ${como} promedio de ${estado}.`, [
         `El maíz ${nom(a)} de ${estado} promedia ${a.t_ha} t/ha, contando lo que se pierde.`,
         enMuni,
         'Son promedios oficiales, no tu parcela: tu año, tu semilla y tu suelo cuentan. [SIAP]',

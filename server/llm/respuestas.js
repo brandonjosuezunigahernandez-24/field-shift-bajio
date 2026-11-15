@@ -20,26 +20,26 @@ const anioDe = (q) => { const m = q.match(/\b(19\d\d|20\d\d)\b/); return m ? Num
 const dia = (f) => { const [, m, d] = f.split('-').map(Number); return `${d} de ${MESES[m - 1]}`; };
 const neg = (n) => (n < 0 ? `−${Math.abs(n)}` : `${n}`);
 
-const PELIGRO = /(pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|rocio)|que (le )?pongo (al|a la|para|contra) (plaga|gusano|hierba|maleza|hongo)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
-const INSUMO = /(cuesta|precio|cuanto vale|costo|caro|carisim|no me alcanza|gasto)/;
-const INSUMOS = /(fertiliz|abono|semilla|diesel|insumo|urea|tractor)/;
+const PELIGRO = /((cuant[oa]s?|dosis|kilos|litros|bultos)(?! (cuesta|vale|sale|gasto|cobran))( \w+){0,3} (de )?(fertiliz|abono|urea)|pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|rocio)|que (le )?pongo (al|a la|para|contra) (plaga|gusano|hierba|maleza|hongo)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
+const INSUMO = /(cuesta|precio|cuanto vale|cuanto sale|costo|caro|carisim|no me alcanza|gasto)/;
+const INSUMOS = /(fertiliz|abono|semilla|diesel|insumo|urea|tractor|bulto)/;
 const PRON = /(semana|se espera|\bhoy\b|manana|pronostico|proximos dias|proxima|va a llover|llovera|habra|^\W*llueve\W*$)/;
-const TREND = /(tendencia|cambiando|cambio climatico|cada vez|que antes|llovia|va a la baja|ultimos \d+ anos|hace \d+ anos|disminu|aument|empeor|mejor[ao]n? )/;
-const SECOS = /(llovio poco|poca lluvia|anos? sec|sequi|\bsecos?\b|\bsecoss\b|anos? de (poca|mala) lluvia)/;
-const LLUVIA = /(llov|lluvi|llue|agua(?!cate))/; // "aguacate" no es lluvia
+const TREND = /(tendencia|cambiando|cambiad|cambio la|como antes|ya no (llueve|llovia)|antes llov|cambio climatico|cada vez|que antes|llovia|va a la baja|ultimos \d+ anos|hace \d+ anos|disminu|aument|empeor|mejor[ao]n? )/;
+const SECOS = /(llovio poco|no llovio|anos? (malos?|sin lluvia)|poca lluvia|anos? sec|sequi|\bsecos?\b|\bsecoss\b|anos? de (poca|mala) lluvia)/;
+const LLUVIA = /(llov|lluvi|llue|\bagua\b|milimetr)/; // "aguacate" y "aguanta" no son lluvia
 const FRIO = /(helad|\belada|hiela|congel|\bfri[oa]|invierno|inviern|temperatura minima)/;
 const CALOR = /(grados|calor|calur|temperatura maxima|temperatura|caliente)/;
 const SIAP_PRECIO = /(se paga|vende|vender|venden|precio|pagan|pago por|valor de la tonelada)/;
 const SIAP_RINDE = /(rinde|rendimiento|cuanto saca|saca mi|toneladas|produce)/;
 const SIAP_RIESGO = /(riesgo|le va|riesgoso|pierde|perdida|siniestr|que tan seguro)/;
-const DENTRO = /(apoyo|bienestar|seguro|acopio|garantia|credito|coyote|rastrojo|barbech|canicula|bordo|surco|plaga|gusano|cogollero|ganado|forraje|pastura|estiercol|llu|llov|clima|tiempo|temperatura|suelo|tierra|parcela|terreno|campo|cultiv|siembr|sembr|cosech|plant|semilla|riego|regar|agua|plaga|sequi|seco|helad|calor|frio|humed|\bsol\b|solar|precio|vende|rinde|rendimiento|riesgo|fertiliz|abono|rotacion|invernadero|finca|milpa|huerto|agricol|verdura|fruta|hortaliza|\bph\b|arcilla|arena|\bmes\b|\bano\b|verano|invierno|hectarea|ayuda|que sabes|que puedes)/;
+const DENTRO = /(apoyo|programa|tonelad|milimetr|urea|diesel|bulto|bienestar|seguro|acopio|garantia|credito|coyote|rastrojo|barbech|canicula|bordo|surco|plaga|gusano|cogollero|ganado|forraje|pastura|estiercol|llu|llov|clima|tiempo|temperatura|suelo|tierra|parcela|terreno|campo|cultiv|siembr|sembr|cosech|plant|semilla|riego|regar|agua|plaga|sequi|seco|helad|calor|frio|humed|\bsol\b|solar|precio|vende|rinde|rendimiento|riesgo|fertiliz|abono|rotacion|invernadero|finca|milpa|huerto|agricol|verdura|fruta|hortaliza|\bph\b|arcilla|arena|\bmes\b|\bano\b|verano|invierno|hectarea|ayuda|que sabes|que puedes)/;
 // Frutales y perennes (el SIAP los trae aparte). "Fresa" y "aguacate" también salen en el resumen de cultivos y se siguen contestando ahí.
 const FRUTAL = /(frutal|\bfrutas?\b|esparrag|arandan|frambues|zarzamor|\btunas?\b|\buvas?\b|\bnuez|nueces|naranj|manzan|durazn|guayab|limon|nopal tunero)/;
 const CONCEPTO = /(para que sirve|que es\b|que son\b|como funciona|ayuda a|guard|retener|conservar)/;
 
 // Programas de gobierno, seguros y crédito: no hay datos propios; se contesta honesto y se apunta a «Qué hacer» (data/acciones.json).
-const CREDITO = /(credito|prestamo|financiamiento|\bfira\b|me presta)/;
-const APOYOS = /(apoyo|bienestar|subsidio|acopio|precio de garantia|asegurad|catastrof|seguro (agricola|catastrofico|de cosecha|para|si)|(cobr|paga)\w* el seguro|(perdi|se perdio|se me (helo|seco|murio)|granizo|se inundo).{0,40}(que hago|a quien|aviso|me ayudan))/;
+const CREDITO = /(credito|prestamo|financiamiento|\bfira\b|\bprest(a|an|ar|ado|en|ame|amos)\b)/;
+const APOYOS = /(apoyo|bienestar|subsidio|gratis|regalan|acopio|precio de garantia|programas? (de|del|para|hay)|asegur|(un|el|algun|del|al|hay) seguro|catastrof|seguro (agricola|catastrofico|de cosecha|para|si)|(cobr|paga)\w* el seguro|(perdi|se perdio|se me (helo|seco|murio)|granizo|se inundo).{0,40}(que hago|a quien|aviso|me ayudan))/;
 
 export function detectarTema(pregunta = '') {
   const q = strip(pregunta);
@@ -59,17 +59,18 @@ export function detectarTema(pregunta = '') {
   if (has(TREND, q) && has(LLUVIA, q)) return 'tendencia';
   // "¿Con 400 mm alcanza?": la lluvia que dice el agricultor contra la de su parcela.
   if (mmDe(q) != null && !detectCrop(q)) return has(SECOS, q) ? 'secos' : 'lluvia';
-  if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal)/, q)) return 'anio';
+  if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal|\bagua\b|cayo|temporal)/, q)) return 'anio';
   if (has(SECOS, q)) return 'secos';
   if (has(FRIO, q)) return 'heladas';
   if (has(CALOR, q)) return 'calor';
   if (has(/(radiacion|solar|\bsol\b|insolacion)/, q)) return 'radiacion';
-  if (has(/(hum[ea]d|mojad)/, q) && has(/(tierra|suelo|raiz|parcela)/, q)) return 'humedad';
+  if (has(/(hum[ea]d|mojad)/, q) && has(/(tierra|suelo|raiz|parcela|terreno)/, q)) return 'humedad';
   if (has(LLUVIA, q)) return 'lluvia';
-  if (has(/(cuando|que fecha|en que mes) ((puedo|debo|conviene|se puede|es bueno) )?(siembro|sembrar|planto|plantar|se siembra|echo)/, q)) return 'siembra';
+  if (has(/(cuando|que fecha|en que (mes|tiempo|fecha)|fecha de siembra|mejor (fecha|mes|epoca))\b.{0,25}\b(siembr|sembr|plant|echo\b|echar)/, q)) return 'siembra';
   if (has(/(mi suelo|\bph\b|arcilla|textura de mi|como esta (la )?tierra)/, q)) return 'suelo';
   // "¿Puedo sembrar fresas?": no hay agronomía verificada del cultivo; se dice y se da lo que sí hay (SIAP). Antes el modelo usaba la tarjeta del maíz.
-  if (detectCrop(q) && has(/(puedo|se puede|conviene|vale la pena)/, q)) return 'cultivo';
+  // Verbos modales y formas comunes: "¿podría?", "¿debo?", "¿está bien si…?", "¿le pongo…?", "¿qué tal el…?", "¿me recomienda el…?".
+  if (detectCrop(q) && has(/(puedo|podria|se puede|conviene|convendria|vale la pena|debo|deberia|esta bien si|seria bueno|es buena idea|recomiend|aconsej|que tal (el|la|los|las|si)|le (pongo|meto|echo)|sirve)/, q)) return 'cultivo';
   // Sin ninguna palabra del campo, el clima o los cultivos: fuera de tema (lo contesta el código; el modelo inventaba).
   if (q.trim().split(/\s+/).length >= 3 && !has(DENTRO, q) && !detectCrop(q) && !isFollowUp(q)) return 'fuera';
   return null;

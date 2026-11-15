@@ -23,7 +23,9 @@ test('entrenar aprende un ejemplo chico', () => {
 
 test('el conjunto etiquetado: 300+ preguntas, prueba >= 25 % y ningún grupo partido', () => {
   assert.ok(preguntas.length >= 300);
-  assert.ok(preguntas.filter((p) => p.set === 'prueba').length / preguntas.length >= 0.25);
+  // Las "retro" (retroalimentación y paráfrasis de desarrollo) siempre van a entrena: el 25 % se cuenta sin ellas.
+  const base = preguntas.filter((p) => !p.retro);
+  assert.ok(base.filter((p) => p.set === 'prueba').length / base.length >= 0.25);
   const lado = new Map();
   for (const p of preguntas) { assert.equal(lado.get(p.grupo) ?? p.set, p.set, p.grupo); lado.set(p.grupo, p.set); }
 });
