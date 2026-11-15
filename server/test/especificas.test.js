@@ -106,3 +106,8 @@ test('la respuesta cierra con lo que conviene hacer y coincide con «Qué hacer�
   const cierre = b.respuesta.match(/Lo que conviene: ([^.]+)/)?.[1];
   assert.ok(cierre && b.que_hacer[0].accion.toLowerCase().startsWith(cierre.slice(0, 20).toLowerCase()), b.respuesta);
 });
+
+test('"me dieron 1.2 t" sin decir el cultivo usa el cultivo actual (maíz), no sale fuera de tema', async () => {
+  const { conCultivoActual } = await import('../llm/seguimiento.js');
+  assert.match(conCultivoActual('Tengo 3.5 ha y me dieron 1.2 t, ¿estuvo bien?', 'maiz'), /\(maíz\)$/);
+});

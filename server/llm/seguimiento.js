@@ -32,7 +32,7 @@ export function seguimiento(pregunta, historial = []) {
 
 // 2) Habla de su propio cultivo sin nombrarlo.
 // Primera persona sobre su propia cosecha ("saco", "voy a cosechar", "pierdo") también cuenta.
-const PROPIO = /(mi cultivo|mis cultivos|mi siembra|mi cosecha|lo que (tengo|sembre|siembro|plante)|lo cosecho|lo levanto|me lo (van a )?(pagan|pagar)|me (lo )?(deja|dejaria)|voy a (cosechar|sacar|levantar)|\b(saco|sacaria|levanto|cosecho|pierdo)\b|me queda)/;
+const PROPIO = /(mi cultivo|mis cultivos|mi siembra|mi cosecha|lo que (tengo|sembre|siembro|plante)|lo cosecho|lo levanto|me lo (van a )?(pagan|pagar)|me (lo )?(deja|dejaria)|voy a (cosechar|sacar|levantar)|\b(saco|sacaria|levanto|cosecho|pierdo|saque|levante|coseche)\b|me (dieron|dio|salio|salieron)|me queda)/;
 const DEL_CULTIVO = ['produccion', 'precio', 'ciclo', 'decision', 'riesgo', 'riego'];
 export function conCultivoActual(pregunta, cultivoActual) {
   if (cultivoActual !== 'maiz' || !pregunta || esMaiz(pregunta) || wantsRecommendation(pregunta)) return pregunta;
