@@ -20,7 +20,7 @@ const mean = (values) => (values.length ? values.reduce((a, b) => a + b, 0) / va
 
 export default function Cultivo() {
   const ctx = useParcelaContext();
-  const { point, ensurePoint, prioridad, agua: aguaPerfil } = ctx;
+  const { point, ensurePoint, prioridad, agua: aguaPerfil, cultivoPrevio, rotacionHoy } = ctx;
   const labels = selectionLabels(ctx);
   const [params] = useSearchParams();
 
@@ -42,14 +42,15 @@ export default function Cultivo() {
     if (!point) return;
     let live = true;
     setRec(null);
-    postRecomendar({ lat: point.lat, lon: point.lon, agua, prioridad }).then(
+    // Same answers as the 3D screen (last crop and today's rotation), so «tu plan» here is the plan seen there.
+    postRecomendar({ lat: point.lat, lon: point.lon, agua, prioridad, cultivo_previo: cultivoPrevio, rotacion_actual: rotacionHoy }).then(
       (data) => live && setRec({ data }),
       (err) => live && setRec({ error: err.message, outsideRegion: err.outsideRegion === true })
     );
     return () => {
       live = false;
     };
-  }, [point, agua, prioridad]);
+  }, [point, agua, prioridad, cultivoPrevio, rotacionHoy]);
 
   // The year-by-year test is an extra: if it fails, the rest of the screen still works.
   useEffect(() => {
@@ -159,6 +160,12 @@ export default function Cultivo() {
                 No tengo «{probado}» entre los cultivos que el motor evalúa {agua === 'riego' ? 'con riego' : 'de temporal'}
                 {agua === 'temporal' ? '. Con riego entran también los de otoño-invierno.' : '.'}
               </p>
+              {/* The assistant knows more crops (FAO EcoCrop sheets): a way out instead of a dead end. */}
+              {missing && (
+                <Link className="fs-btn fs-btn-sec fs-test-otro" to={`/analisis?pregunta=${encodeURIComponent(`¿Se da ${probado.trim()} en mi parcela?`)}`}>
+                  <i className="bi bi-chat-dots" aria-hidden="true"></i>Pregúntale al asistente si {probado.trim()} se da en tu parcela
+                </Link>
+              )}
             </form>
 
             <div>
@@ -238,6 +245,7 @@ export default function Cultivo() {
               data={data}
               prueba={prueba}
               agua={agua}
+              aguaPlan={aguaPerfil}
               placeName={placeName}
               verdictRef={verdictRef}
               onProbar={probar}
@@ -262,7 +270,10 @@ export default function Cultivo() {
   );
 }
 
-function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, onOtro }) {
+function Resultado({ crop, data, prueba, agua, aguaPlan, placeName, verdictRef, onProbar, onOtro }) {
+  // The water chosen on this screen may not be the farmer's: then the plan compared is not "tu plan".
+  const esSuPlan = agua === aguaPlan;
+  const modo = (a) => (a === 'riego' ? 'con riego' : 'de temporal');
   const { cultivos, rotacion } = data;
   const byId = Object.fromEntries(cultivos.map((c) => [c.id, c]));
   const lugar = cultivos.findIndex((c) => c.id === crop.id) + 1;
@@ -284,10 +295,13 @@ function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, 
               <div className="fs-eyebrow">Veredicto · temporada {crop.temporada}</div>
               <h2 id="t-ver" ref={verdictRef} tabIndex={-1}>
                 <i className={`bi ${enPlan ? 'bi-check2-circle' : 'bi-exclamation-circle'}`} aria-hidden="true"></i>
-                {enPlan ? 'Ya está en tu plan' : 'No entró en tu plan de 3 años'}
+                {esSuPlan
+                  ? enPlan ? 'Ya está en tu plan' : 'No entró en tu plan de 3 años'
+                  : enPlan ? `Entra en el plan ${modo(agua)}` : `No entró en el plan ${modo(agua)}`}
               </h2>
               <p className="fs-verdict-crop">
                 {crop.nombre} en {placeName} · {agua === 'riego' ? 'con riego' : 'temporal'}
+                {crop.mes_siembra ? ` · sembrado en ${MESES[crop.mes_siembra - 1]}` : ''}
               </p>
             </div>
           </div>
@@ -298,7 +312,8 @@ function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, 
             {crop.calor?.anios.length > 0 && ` Le tocó calor que daña en ${crop.calor.anios.length} de ${crop.calor.anios_total} años.`}
           </p>
           <div className="fs-verdict-cmp">
-            <span className="fs-eyebrow">Comparado con tu plan</span>
+            <span className="fs-eyebrow">{esSuPlan ? 'Comparado con tu plan' : `Comparado con el plan ${modo(agua)}`}</span>
+            {!esSuPlan && <small className="fs-note">Tu plan es {modo(aguaPlan)}; esto es solo para comparar.</small>}
             {comp.map((k, i) => (
               <div key={`${k.nombre}-${k.sub}`} className={`fs-cmp${k.yo ? ' yo' : ''}`}>
                 <span>
@@ -401,13 +416,15 @@ const lista = (anios) => anios.join(', ');
 // The tested crop against every real year of the plot (GET /api/recomendar/prueba): did the rain of its
 // cycle reach what it needs? The farmer can move the sowing month and put a second crop next to it.
 function Historia({ crop, prueba }) {
-  const [mes, setMes] = useState(6);
-  const [rivalId, setRivalId] = useState('');
   const entry = prueba.cultivos.find((c) => c.id === crop.id);
+  // Starts on the month the engine chose for the verdict, so the chart and the verdict tell the same story.
+  const mesMotor = entry.siembras.some((x) => x.mes_siembra === crop.mes_siembra) ? crop.mes_siembra : 6;
+  const [mes, setMes] = useState(mesMotor);
+  const [rivalId, setRivalId] = useState('');
   const rival = prueba.cultivos.find((c) => c.id === rivalId);
   const siembra = (c) => c.siembras.find((s) => s.mes_siembra === mes);
   const s = siembra(entry);
-  const junio = entry.siembras.find((x) => x.mes_siembra === 6);
+  const base = entry.siembras.find((x) => x.mes_siembra === mesMotor);
   const nombre = crop.nombre.toLowerCase();
   const total = s.anios.length;
   const rango = `de ${MESES[s.meses[0] - 1]} a ${MESES[s.meses.at(-1) - 1]}`;
@@ -436,7 +453,8 @@ function Historia({ crop, prueba }) {
       <p className="fs-verdict-sum" aria-live="polite">
         A {nombre} le alcanzó la lluvia en <strong>{total - s.anios_bajo_minimo.length} de {total} años</strong> (necesita {entry.minimo_mm} mm {rango}).{' '}
         {s.anios_bajo_minimo.length ? `No le alcanzó en: ${lista(s.anios_bajo_minimo)}.` : 'Le alcanzó todos los años.'}
-        {mes !== 6 && ` Sembrando en ${MESES[mes - 1]} en vez de junio, los años en que no alcanza pasan de ${junio.anios_bajo_minimo.length} a ${s.anios_bajo_minimo.length}.`}
+        {mes !== mesMotor &&
+          ` Sembrando en ${MESES[mes - 1]} en vez de ${MESES[mesMotor - 1]} (el mes que eligió el motor), los años en que no alcanza pasan de ${base.anios_bajo_minimo.length} a ${s.anios_bajo_minimo.length}.`}
       </p>
       <Barras siembra={s} minimo={entry.minimo_mm} />
 

@@ -139,6 +139,8 @@ export function useParcela() {
   const previo = [perfilGuardado.cultivo_actual, perfilGuardado.ultimo_cultivo].find((c) => c && !['ninguno', 'otro', 'no_se'].includes(c)) ?? null;
   // The rotation of today (oldest first) is the first of the 3 rotations the engine compares.
   const hoy = rotacionActualDe(perfilGuardado).join('-');
+  // The same two answers for the screens that call the engine on their own («4. Probar cultivo»), so their plan is this one.
+  const rotacionHoy = useMemo(() => (hoy ? hoy.split('-') : []), [hoy]);
   const recomendar = useCallback(async () => {
     if (!point) return;
     const key = [point.lat, point.lon, agua, prioridad, previo, hoy].join(',');
@@ -152,7 +154,7 @@ export function useParcela() {
         agua,
         prioridad,
         cultivo_previo: previo,
-        rotacion_actual: hoy ? hoy.split('-') : [],
+        rotacion_actual: rotacionHoy,
       });
       setRecomendacion({ data });
       if (data.clima) setClima({ data: data.clima });
@@ -161,7 +163,7 @@ export function useParcela() {
       recKey.current = null; // "Intentar de nuevo" can ask again
       setRecomendacion({ error: err.message, outsideRegion: err.outsideRegion === true });
     }
-  }, [point, agua, prioridad, previo, hoy]);
+  }, [point, agua, prioridad, previo, hoy, rotacionHoy]);
 
   // Restore the saved plot's data on first load.
   useEffect(() => {
@@ -196,5 +198,6 @@ export function useParcela() {
   return {
     perfil, setPerfilCampo, reiniciarPerfil, point, agua, prioridad, loading, clima, suelo, recomendacion, selectPoint, ensurePoint, setAgua, setPrioridad, recomendar,
     parcelas, setParcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year, pronostico, cargarPrueba,
+    cultivoPrevio: previo, rotacionHoy,
   };
 }
