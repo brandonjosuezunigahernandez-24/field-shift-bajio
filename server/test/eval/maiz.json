@@ -1,0 +1,726 @@
+{
+ "nota": "Preguntas de maíz para el asistente real. set=dev (1-30, se usaron para desarrollar) y set=prueba (31-40, no se miraron hasta el final). incluye = todas deben aparecer (regex, sin importar mayúsculas); excluye = ninguna; cita = fuentes que deben salir entre corchetes. Además: titular de 25 palabras o menos y respuesta de 110 palabras o menos.",
+ "punto": {
+  "lat": 20.47,
+  "lon": -100.81
+ },
+ "preguntas": [
+  {
+   "id": 1,
+   "set": "dev",
+   "cat": "decision",
+   "pregunta": "Recomiendas plantar maiz este año o ya me espero al siguiente",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no (te )?(puedo|se puede)|pronostic",
+    "seco",
+    "%"
+   ],
+   "excluye": [
+    "sorgo|cebada|frijol"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 2,
+   "set": "dev",
+   "cat": "ciclo",
+   "pregunta": "Que tan rapido crece el maiz en mi parcela",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "125|150|180",
+    "días",
+    "FAO"
+   ],
+   "excluye": [
+    "se planta al empezar"
+   ],
+   "cita": [
+    "FAO-56"
+   ]
+  },
+  {
+   "id": 3,
+   "set": "dev",
+   "cat": "produccion",
+   "pregunta": "Cuanto maiz puedo producir en mi parcela",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "t/ha",
+    "10 ha",
+    "malo|peor",
+    "bueno|mejor",
+    "no de tu parcela"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 4,
+   "set": "dev",
+   "cat": "produccion",
+   "pregunta": "¿Cuántas toneladas saco por hectárea de maíz de riego?",
+   "perfil": {
+    "agua": "riego",
+    "hectareas": 10
+   },
+   "incluye": [
+    "riego",
+    "\\b(9|10)\\.\\d"
+   ],
+   "excluye": [
+    "1\\.6\\d? t"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 5,
+   "set": "dev",
+   "cat": "precio",
+   "pregunta": "a como se paga la tonelada de maiz",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "\\$\\s?[3-7],?\\d{3}",
+    "tonelada"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 6,
+   "set": "dev",
+   "cat": "precio",
+   "pregunta": "¿Cuánto dinero saco por hectárea de maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "por hectárea",
+    "\\$",
+    "bruto|sin costos"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 7,
+   "set": "dev",
+   "cat": "ciclo",
+   "pregunta": "¿Cuánto tarda el maíz en estar listo para cosechar?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "días",
+    "FAO"
+   ],
+   "cita": [
+    "FAO-56"
+   ]
+  },
+  {
+   "id": 8,
+   "set": "dev",
+   "cat": "sin_dato",
+   "pregunta": "¿Qué semilla de maíz me conviene?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no tengo",
+    "INIFAP|técnico"
+   ],
+   "excluye": [
+    "sensible a la falta de agua",
+    "se planta al empezar"
+   ]
+  },
+  {
+   "id": 9,
+   "set": "dev",
+   "cat": "riego",
+   "pregunta": "maiz de riego o de temporal cual rinde mas",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "riego",
+    "temporal",
+    "veces|\\bt/ha"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 10,
+   "set": "dev",
+   "cat": "riesgo",
+   "pregunta": "¿Qué tan riesgoso es sembrar maíz de temporal?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "7 años",
+    "%"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 11,
+   "set": "dev",
+   "cat": "riesgo",
+   "pregunta": "¿Hay riesgo de helada para mi maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "helada",
+    "0 °C"
+   ],
+   "excluye": [
+    "año seco"
+   ],
+   "cita": [
+    "NASA POWER"
+   ]
+  },
+  {
+   "id": 12,
+   "set": "dev",
+   "cat": "comparar",
+   "pregunta": "¿Vale la pena el maíz o me va mejor con sorgo?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "sorgo",
+    "por hectárea",
+    "\\$"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 13,
+   "set": "dev",
+   "cat": "donde",
+   "pregunta": "¿Dónde se siembra más maíz en Guanajuato?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "San Felipe",
+    " ha"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 14,
+   "set": "dev",
+   "cat": "produccion",
+   "pregunta": "¿Cuánto maíz sacaría si tuviera riego?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "riego",
+    "unas \\d+(\\.\\d)? t"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 15,
+   "set": "dev",
+   "cat": "produccion",
+   "pregunta": "¿En un mal año cuánto maíz me queda?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "mal año",
+    "10 ha",
+    " t"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 16,
+   "set": "dev",
+   "cat": "riesgo",
+   "pregunta": "¿Cuántos años se ha perdido el maíz en Guanajuato?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "de 7 años",
+    "2023"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 17,
+   "set": "dev",
+   "cat": "ciclo",
+   "pregunta": "cuando cosecho el maiz",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "días",
+    "FAO"
+   ],
+   "cita": [
+    "FAO-56"
+   ]
+  },
+  {
+   "id": 18,
+   "set": "dev",
+   "cat": "ciclo",
+   "pregunta": "q tan rapido crece el mais",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "125|150|180",
+    "FAO"
+   ],
+   "cita": [
+    "FAO-56"
+   ]
+  },
+  {
+   "id": 19,
+   "set": "dev",
+   "cat": "decision",
+   "pregunta": "me recomiendas sembrar maiz o no, estoy dudando",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "pronóstico|no se puede",
+    "%"
+   ],
+   "excluye": [
+    "sorgo|cebada"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 20,
+   "set": "dev",
+   "cat": "decision",
+   "pregunta": "¿Es buen año para sembrar maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "pronóstico|no se puede",
+    "%"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 21,
+   "set": "dev",
+   "cat": "ciclo",
+   "pregunta": "¿Puedo sembrar maíz dos veces al año?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "riego",
+    "otoño-invierno"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 22,
+   "set": "dev",
+   "cat": "sin_dato",
+   "pregunta": "¿Cada cuánto riego el maíz?",
+   "perfil": {
+    "agua": "riego",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no tengo",
+    "INIFAP|técnico"
+   ],
+   "excluye": [
+    "se planta al empezar"
+   ]
+  },
+  {
+   "id": 23,
+   "set": "dev",
+   "cat": "sin_dato",
+   "pregunta": "¿Cuánta urea le pongo al maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no (doy|tengo)",
+    "técnico"
+   ],
+   "excluye": [
+    "\\d+ ?(kilos|kg)"
+   ]
+  },
+  {
+   "id": 24,
+   "set": "dev",
+   "cat": "rotacion",
+   "pregunta": "Sembré frijol el año pasado, ¿puedo sembrar maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10,
+    "ultimo_cultivo": "frijol"
+   },
+   "incluye": [
+    "s[ií]",
+    "frijol",
+    "nitrógeno|leguminosa"
+   ],
+   "cita": [
+    "Base local"
+   ]
+  },
+  {
+   "id": 25,
+   "set": "dev",
+   "cat": "precio",
+   "pregunta": "¿Cuándo está más caro el maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "por mes|no tengo precios",
+    "año"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 26,
+   "set": "dev",
+   "cat": "trampa",
+   "pregunta": "¿Verdad que el maíz de temporal rinde 8 toneladas por hectárea?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "^\\s*no",
+    "1\\.6"
+   ],
+   "excluye": [
+    "^\\s*s[ií]\\b"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 27,
+   "set": "dev",
+   "cat": "trampa",
+   "pregunta": "¿Verdad que el maíz tuvo pérdidas altas en 5 de 7 años?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "^\\s*no",
+    "1 de 7"
+   ],
+   "excluye": [
+    "^\\s*s[ií]\\b"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 28,
+   "set": "dev",
+   "cat": "sin_dato",
+   "pregunta": "¿Cuántos kilos de semilla de maíz se necesitan por hectárea?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no tengo"
+   ],
+   "excluye": [
+    "se planta al empezar"
+   ]
+  },
+  {
+   "id": 29,
+   "set": "dev",
+   "cat": "sin_dato",
+   "pregunta": "¿De qué color es el maíz criollo de mi zona?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no tengo",
+    "¿"
+   ],
+   "excluye": [
+    "se planta al empezar",
+    "sensible a la falta"
+   ]
+  },
+  {
+   "id": 30,
+   "set": "dev",
+   "cat": "sin_dato",
+   "pregunta": "¿Me conviene asegurar mi maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no tengo",
+    "aseguradora|agricultura"
+   ],
+   "excluye": [
+    "se planta al empezar"
+   ]
+  },
+  {
+   "id": 31,
+   "set": "prueba",
+   "cat": "decision",
+   "pregunta": "¿Y si siembro maíz este ciclo, será año bueno o malo?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "pronóstico|no se puede",
+    "%"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 32,
+   "set": "prueba",
+   "cat": "produccion",
+   "pregunta": "¿Qué rendimiento da el maíz en Querétaro?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10,
+    "estado": "Querétaro"
+   },
+   "incluye": [
+    "Querétaro",
+    "t/ha"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 33,
+   "set": "prueba",
+   "cat": "precio",
+   "pregunta": "¿A cuánto está la tonelada de maíz de riego?",
+   "perfil": {
+    "agua": "riego",
+    "hectareas": 10
+   },
+   "incluye": [
+    "riego",
+    "\\$",
+    "tonelada"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 34,
+   "set": "prueba",
+   "cat": "ciclo",
+   "pregunta": "¿Cuántos meses tarda en crecer el maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "días",
+    "FAO"
+   ],
+   "cita": [
+    "FAO-56"
+   ]
+  },
+  {
+   "id": 35,
+   "set": "prueba",
+   "cat": "produccion",
+   "pregunta": "¿Cuánto maíz saco con 25 hectáreas de temporal?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 25
+   },
+   "incluye": [
+    "25 ha",
+    " t",
+    "malo|peor"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 36,
+   "set": "prueba",
+   "cat": "comparar",
+   "pregunta": "¿El maíz o el frijol deja más dinero por hectárea?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "frijol",
+    "\\$",
+    "por hectárea"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 37,
+   "set": "prueba",
+   "cat": "riesgo",
+   "pregunta": "¿Cuál fue el peor año para el maíz de temporal?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "2023",
+    "%"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  },
+  {
+   "id": 38,
+   "set": "prueba",
+   "cat": "sin_dato",
+   "pregunta": "¿Qué fertilizante es mejor para mi milpa de maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no (doy|tengo)",
+    "técnico"
+   ],
+   "excluye": [
+    "\\d+ ?(kilos|kg)"
+   ]
+  },
+  {
+   "id": 39,
+   "set": "prueba",
+   "cat": "sin_dato",
+   "pregunta": "¿Cuánta agua necesita el maíz para crecer bien?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "no tengo",
+    "INIFAP|técnico"
+   ],
+   "excluye": [
+    "se planta al empezar"
+   ]
+  },
+  {
+   "id": 40,
+   "set": "prueba",
+   "cat": "donde",
+   "pregunta": "¿Qué municipios de Querétaro siembran más maíz?",
+   "perfil": {
+    "agua": "temporal",
+    "hectareas": 10
+   },
+   "incluye": [
+    "San Juan del Río|Amealco",
+    " ha"
+   ],
+   "cita": [
+    "SIAP"
+   ]
+  }
+ ]
+}
