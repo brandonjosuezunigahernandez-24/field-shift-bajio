@@ -160,8 +160,8 @@ export function rendPropio(q) {
   if (/^\S*(\s+(de|del|el)?\s*\S+){0,2}?\s*(por|x|\/|cada|la)\s*(ha\b|hect)/.test(q.slice(m.index + m[1].length).trim())) return { t_ha: t };
   const ha = haDelTexto(q);
   if (ha) return { t, ha, t_ha: r2(t / ha) };
-  // shortcut: sin hectáreas dichas y con 15 t o menos se supone que es por hectárea (la respuesta lo dice); si confunde, preguntar.
-  return t > 0 && t <= 15 ? { t_ha: t, supuesto: true } : null;
+  // Sin hectáreas no se adivina: la respuesta pregunta en cuántas (y seguimiento.js junta la respuesta corta).
+  return t > 0 ? { t, falta_ha: true } : null;
 }
 // "me ofrecen 4,500 la tonelada", "a 18 mil": el precio que le dan, en pesos por tonelada.
 export function precioDicho(q) {
@@ -193,9 +193,15 @@ const REDACTORES = {
     const enMuni = mu && `En ${mu.municipio}${dicho ? '' : ' (el municipio más cercano)'} el maíz ${nom(a)} rindió de ${mu.min} a ${mu.max} t/ha (${mu.desde}-${mu.hasta})${dicho ? `; en ${mu.hasta} se sembraron ${mil(mu.ha_ultimo)} ha` : ''}.`;
     // "Me dieron 1.2 t en 3.5 ha": su rendimiento contra el del estado y el del municipio.
     const p = rendPropio(q);
+    if (p?.falta_ha) {
+      return salida(`¿Las ${p.t} toneladas fueron en cuántas hectáreas?`, [
+        'Dime, por ejemplo, «en 3 hectáreas», o «por hectárea» si ya es lo de una hectárea.',
+        `Así lo comparo con el promedio del maíz ${nom(a)} de ${estado}, que es de ${a.t_ha} t/ha. [SIAP]`,
+      ], ['SIAP'], { a, p });
+    }
     if (p) {
       const como = p.t_ha >= a.t_ha * 1.1 ? 'arriba del' : p.t_ha <= a.t_ha * 0.9 ? 'abajo del' : 'cerca del';
-      return salida(`${p.supuesto ? `Si son ${p.t_ha} toneladas por hectárea, quedaste` : `Sacaste ${p.t_ha} toneladas por hectárea${p.ha ? ` (${p.t} t en ${p.ha} ha)` : ''}: quedaste`} ${como} promedio de ${estado}.`, [
+      return salida(`Sacaste ${p.t_ha} toneladas por hectárea${p.ha ? ` (${p.t} t en ${p.ha} ha)` : ''}: quedaste ${como} promedio de ${estado}.`, [
         `El maíz ${nom(a)} de ${estado} promedia ${a.t_ha} t/ha, contando lo que se pierde.`,
         enMuni,
         'Son promedios oficiales, no tu parcela: tu año, tu semilla y tu suelo cuentan. [SIAP]',

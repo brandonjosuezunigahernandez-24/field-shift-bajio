@@ -5,7 +5,7 @@
 // Solo cambia el texto con que se enruta; si no aplica, devuelve la pregunta igual.
 import { MESES } from './climatologia.js';
 import { detectCrop } from './siap.js';
-import { esMaiz, intencionMaiz } from './maiz.js';
+import { esMaiz, intencionMaiz, rendPropio } from './maiz.js';
 import { detectarTema } from './respuestas.js';
 import { esConcepto, wantsRecommendation } from './intencion.js';
 
@@ -19,7 +19,9 @@ const quita = (s) => s.replace(/^[\s¿¡]*y\s+/, '').replace(/[?¿!¡.]/g, '').t
 export function seguimiento(pregunta, historial = []) {
   const q = strip(pregunta ?? '');
   const prev = historial.at(-1)?.pregunta;
-  if (!prev || !/^[\s¿¡]*y\s/.test(q) || q.split(/\s+/).length > 7) return pregunta;
+  // "en 3 hectáreas" / "por hectárea" después de "me salieron 2 toneladas": la respuesta corta completa la anterior.
+  if (prev && rendPropio(strip(prev))?.falta_ha && /\b(ha|hect\w*)\b/.test(q) && q.split(/\s+/).length <= 6) return `${strip(prev).replace(/[?¿!¡.]/g, '')} ${q}`;
+  if (!prev ||!/^[\s¿¡]*y\s/.test(q) || q.split(/\s+/).length > 7) return pregunta;
   const p = strip(prev);
   const resto = quita(q);
   for (const re of [CULTIVO_RE, ANIO_RE, MES_RE]) {

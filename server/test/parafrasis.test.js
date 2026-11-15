@@ -70,6 +70,7 @@ test('recomiéndame sí; "me recomiendas una película" o "el frijol" no es pedi
 
 test('lo que sacó: "3 toneladas de maíz por hectárea" es por hectárea; sin hectáreas se supone por hectárea y se dice', () => {
   assert.deepEqual(rendPropio('saque 3 toneladas de maiz por hectarea'), { t_ha: 3 });
-  assert.deepEqual(rendPropio('me salieron 2 toneladas de maiz'), { t_ha: 2, supuesto: true });
-  assert.equal(rendPropio('saque 40 toneladas'), null);
+  assert.deepEqual(rendPropio('me salieron 2 toneladas de maiz'), { t: 2, falta_ha: true }); // sin hectáreas: se pregunta
+  assert.deepEqual(rendPropio('me salieron 2 toneladas de maiz por hectarea'), { t_ha: 2 });
+  assert.deepEqual(rendPropio('me salieron 2 toneladas de maiz en 4 hectareas'), { t: 2, ha: 4, t_ha: 0.5 });
 });

@@ -97,7 +97,8 @@ Otras mediciones (para no romper lo que ya salía bien):
   «le pongo…», «me recomienda el…», «sirve».
 - **Cuándo sembrar**: «cuándo es buena fecha para sembrar», «en qué tiempo se siembra», «cuándo empiezo a sembrar».
 - **Maíz** (`maiz.js`): lo que sacó el agricultor («me salieron 2 toneladas», «3 toneladas *de maíz* por hectárea», «saco»,
-  «dio»); sin hectáreas y con 15 t o menos se supone por hectárea y la respuesta lo dice («Si son 2 toneladas por hectárea…»).
+  «dio»); sin hectáreas **pregunta** «¿Las 2 toneladas fueron en cuántas hectáreas?» (decisión del equipo: no suponer), y la
+  respuesta corta («en 4 hectáreas», «por hectárea») se junta con la pregunta anterior en `seguimiento.js`.
   Con cosecha y precio dichos es precio. «¿Qué tan seguro es el maíz?» es riesgo (no seguro agrícola). «En cuántos meses se cosecha»
   es ciclo. «Necesita mucha agua», «cuántos milímetros» es agua. «Mi tierra aguanta el maíz» es suelo. «Qué partes/zonas» es dónde.
   «Después del frijol / vengo de frijol / tuve frijol» es rotación.
@@ -131,7 +132,7 @@ Otras mediciones (para no romper lo que ya salía bien):
 ## Límites
 - Las frases las escribió la misma persona que arregló las reglas; con agricultores reales el número puede bajar.
 - Se mide que entienda la intención, no que la respuesta sea correcta (eso lo miden `evaluar-*.js` y `probar-conversacion.js`).
-- El supuesto «sin hectáreas = por hectárea» puede equivocarse si dijo el total; la respuesta lo dice con «Si son…».
+- Garbanzo, trigo y cebada en temporal: se queda «no tengo información verificada»; no se agregan al motor (decisión del equipo).
 
 ## Cómo correr
 ```
