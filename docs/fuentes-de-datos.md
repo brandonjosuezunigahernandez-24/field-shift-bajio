@@ -53,7 +53,46 @@ Recomendación: seguir con FAO EcoCrop para ciclos en días (ya está en el proy
 - **Sequía**: Monitor de Sequía CONAGUA por municipio (fila 4), para validar contra las pérdidas del SIAP.
 - **Sequía por lluvia**: el índice SPI se calcula con la lluvia mensual de POWER que ya tenemos; no necesita fuente nueva.
 
-## Las 3 que integraría primero
+## 7. Ampliación: todo lo plantable (granos, hortalizas, frutas, frutales)
+
+Se pidió calendarios por mes, tiempo a producción y costo de establecer de frutales, y riego. Resultado honesto: **para calendarios por mes y para costos de establecer no encontré fuente abierta, descargable y verificable**; para riego sí hay una base seria (FAO-56).
+
+### 7.1 Calendarios de siembra y cosecha por mes
+
+| Fuente | Resultado | Estado |
+|---|---|---|
+| **FAO Crop Calendar** (`cropcalendar.apps.fao.org`, API `https://api-cropcalendar.apps.fao.org/api/v1/countries`) | La API responde sin llave, pero lista **58 países y México no está** (comprobé que `MX` no aparece). Inútil para este proyecto. | Verificado (negativo) |
+| **SIAP cierre agrícola (fila 2)** | Da ciclo (PV, OI, Perennes) y modalidad, no meses. Para hortalizas sirve para saber **en qué ciclo** se siembra cada una en GTO/QRO. | Verificado |
+| **SIAP Avance de siembras y cosechas** (`nube.agricultura.gob.mx/avance_agricola/`) | Reporta por mes, municipio, ciclo y cultivo (superficie sembrada y cosechada mensual), así que de ahí saldrían los **meses reales** de siembra y cosecha por cultivo, incluidas hortalizas y frutales. Filtros: año, mes, ciclo, modalidad, estado, municipio, cultivo. Es un formulario xajax (JavaScript), **no extraje ningún dato**; habría que reproducir las llamadas xajax o usar un navegador automático. Es la **mejor candidata** para un calendario "de verdad". | Existe (verificado); datos **no verificados**; esfuerzo L |
+| **INIFAP / SADER / UG** | Solo ensayos sueltos (maíz, frijol, cebada) y una guía didáctica de la Universidad de Guanajuato de hortalizas sin fechas. No hay "Agenda Técnica Agrícola" de Guanajuato que encontrara (sí existen de otros estados, por ejemplo Puebla y Sinaloa, no verificadas en contenido). No encontré calendario oficial de siembra y cosecha por mes para jitomate, chile, cebolla, brócoli, papa, calabaza, fresa, espárrago, aguacate, uva, durazno ni tuna. | No encontrado |
+| **FAO-56, tabla 11** (`https://www.fao.org/4/x0490e/x0490e0b.htm`) | Duración del ciclo **en días** por etapa (inicial, desarrollo, media, final) para tomate, cebolla, col, uva, espárrago, etc., con **fecha de siembra típica por región del mundo** (ej. cebolla seca 150 días, siembra abril, mediterráneo). **Ninguna región es México/Bajío**, así que la duración sirve como referencia y las fechas no. | Verificado |
+
+Recomendación para calendarios sencillos: mostrar **duración del ciclo en meses** (FAO-56 y EcoCrop) y el **ciclo SIAP** (primavera-verano / otoño-invierno / perenne); para "meses de siembra y cosecha" decir que son orientativos hasta que se extraiga el Avance del SIAP. Todo calendario escrito a mano debe llevar la etiqueta "no verificado".
+
+### 7.2 Tiempo a producción y costo de establecer un frutal
+
+- Búsquedas dirigidas (INIFAP, SADER, revistas) **no devolvieron una tabla abierta** de años a primera cosecha ni de costo de establecimiento para fresa, espárrago, aguacate, uva, durazno, tuna, arándano o frambuesa en Guanajuato/Querétaro. Lo más cercano: una ficha técnica del estado de Colima de aguacate (no da costos ni años) y una tesis de espárrago en el Bajío con un capítulo de costos pero de hace décadas. **No usar esas cifras.**
+- Candidatas **no verificadas** (no se abrieron): FIRA (su sitio dio error 500 en la prueba), fichas de costos de la SADER y las Agendas Técnicas de INIFAP. Si no hay fuente, lo correcto es que el asistente diga "no tengo dato verificado" y que el agricultor capture su costo.
+- Lo que sí hay verificable: SIAP muestra **qué frutales existen y cuánta superficie** (sección 4), y **FAO-56 tabla 12** trae Kc de aguacate, cítricos, durazno, uva, fresa y otros (no tiempo a producción).
+
+### 7.3 Riego
+
+| Fuente | Qué da | Estado |
+|---|---|---|
+| **FAO Irrigation and Drainage Paper 56** (capítulo 6, `x0490e0b.htm`; y capítulos de ET0 `x0490e0a.htm`, `x0490e0e.htm`) | Coeficientes de cultivo **Kc** (inicial, medio, final) y altura máxima para cientos de cultivos (tabla 12), duraciones de etapas (tabla 11), y el método para calcular el requerimiento de agua: `ETc = Kc x ET0`. Tomate, cebolla, col, fresa, uva, espárrago, aguacate, durazno, cítricos aparecen en las tablas (verificado buscando cada nombre en la página). | Verificado. Libre de leer en el sitio de FAO; **no revisé la licencia de reutilización**, así que citar la fuente y copiar solo los números necesarios |
+| **ET0 diaria de Open-Meteo (fila 5)** | Entrada para `ETc = Kc x ET0` en cualquier punto, histórica y pronóstico | Verificado |
+| **FAO CROPWAT** | Programa de riego de la FAO. Las páginas que probé (`fao.org/land-water/databases-and-software/cropwat/...`) dieron 404, así que **no pude verificar la descarga ni su licencia**. No hace falta: con Kc y ET0 se calcula lo mismo en unas líneas. | No verificado |
+| **INIFAP / CONAGUA** (láminas por cultivo en el Bajío) | No encontré una tabla abierta de lámina e intervalo de riego por cultivo y método (goteo, aspersión, rodado). Aparecieron estudios de otras regiones (Zacatecas, Veracruz) que **no son aplicables**, y el programa "D'Riego" de INIFAP mencionado en un resultado (no lo abrí). | No encontrado |
+
+**Cómo responder "cada cuánto riego" con datos serios sin tabla regional:** necesidad de agua diaria = `Kc` (FAO-56) x `ET0` (Open-Meteo) menos la lluvia efectiva. Con la lámina que da el método (la eficiencia típica: goteo mayor que aspersión mayor que rodado) y la capacidad de retención del suelo (arcilla de SoilGrids), se estima el intervalo. Es un **cálculo**, no una recomendación oficial regional: el asistente debe decirlo así. Las eficiencias por método no las verifiqué en una fuente; no inventarlas.
+
+### 7.4 Las 3 para integrar primero (ampliación)
+
+1. **FAO-56 (Kc y duración de etapas) + ET0 de Open-Meteo**: respuesta de riego con fórmula y datos verificables; esfuerzo S (copiar una tabla chica de Kc de los cultivos del catálogo y marcar su origen).
+2. **SIAP cierre municipal (ciclo y modalidad por cultivo)**, ya recomendado: dice en qué ciclo se siembra cada hortaliza o frutal en cada municipio, sin inventar meses.
+3. **SIAP Avance de siembras y cosechas**, solo si el equipo acepta el esfuerzo L: única vía abierta identificada para meses reales de siembra y cosecha por cultivo y municipio. Si no, dejar los meses como "no verificado".
+
+## Las 3 que integraría primero (datos del modelo)
 
 1. **INEGI centroides + SIAP municipal 2003-2025 (filas 1 y 2) como un solo paso.** El cruce por clave INEGI es exacto (64 de 64). Pasa el modelo de "por estado" a "por municipio" con 23 años de datos en vez de 7, y trae 2025. Es lo que más cambia el entrenamiento y es de esfuerzo bajo. Todo se baja una vez y funciona sin internet.
 2. **NASA POWER con parámetros extra (fila 3):** `GWETROOT`, `FROST_DAYS`/`T2M_MIN`, `EVLAND`, `RH2M`. Mismo endpoint y formato que ya usamos, sin llave; añade humedad de suelo y heladas, las variables agronómicas que hoy faltan. Sirve igual para los 64 centroides.
