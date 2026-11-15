@@ -25,6 +25,16 @@ test('"¿Por qué ese cultivo?" lo explica el recomendador con su puntaje real, 
   assert.match(b.respuesta, new RegExp(`puntaje ${top.puntaje}`));
 });
 
+test('«¿qué siembro?» compara contra lo que el agricultor dijo que siembra (último cultivo y el de ahorita)', async () => {
+  const reco = await ask('¿Qué me conviene sembrar?');
+  assert.equal(reco.origen, 'motor');
+  const [hoy] = reco.recomendacion.estrategias;
+  assert.equal(hoy.id, 'actual');
+  assert.equal(hoy.supuesto, false);
+  assert.deepEqual(hoy.rotacion.map((s) => s.cultivo), ['frijol', 'maiz', 'frijol']);
+  assert.match(reco.respuesta, /Comparada con seguir igual \(frijol, maíz grano, frijol\)/);
+});
+
 test('el seguro por sequía es de apoyos, no del modelo de riesgo', async () => {
   const b = await ask('¿Hay seguro si pierdo la cosecha por sequía?');
   assert.notEqual(b.origen, 'modelo');

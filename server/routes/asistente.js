@@ -172,8 +172,10 @@ async function resolver(req) {
   }
   // Lo que tiene sembrado ahora (o lo último que sembró) cuenta como la temporada anterior del plan.
   const previo = idMaiz === 'despues' ? 'maiz' : extraPerfil(req.body.perfil).cultivo_actual ?? perfil.ultimo_cultivo ?? null;
+  // Lo que siembra hoy, del más viejo al más nuevo (como lo manda la pantalla): es la primera de las 3 rotaciones que se comparan.
+  const actual = idMaiz === 'despues' ? ['maiz'] : [perfil.ultimo_cultivo, extraPerfil(req.body.perfil).cultivo_actual].filter(Boolean);
   // Es el mismo motor de POST /api/recomendar (clima NASA, suelo y cultivos.json): el chat y la pantalla dicen lo mismo.
-  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo }) : null;
+  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo, actual }) : null;
   // Ingreso esperado de 3 años: el SIAP del estado para la rotación del motor (la misma simulación del recomendador del SIAP).
   if (reco) reco.prediccion = simulateRotation({ rotacion: reco.rotacion, estado: reco.estado, agua, costos, hectareas: perfil.hectareas });
 
@@ -226,7 +228,7 @@ async function resolver(req) {
   // Usa el motor de la pantalla (recommendPlot), así el chat y /api/recomendar dan el mismo lugar.
   if (tema === 'cultivo' && agua && prioridad && regionEstado) {
     const cultivo = detectCrop(pregunta);
-    const r = reco ?? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo });
+    const r = reco ?? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo, actual });
     const lugar = r.cultivos.findIndex((c) => c.id === cultivo);
     if (lugar >= 0) {
       const c = r.cultivos[lugar];

@@ -205,7 +205,13 @@ Petición:
 { "lat": 20.47, "lon": -100.81, "agua": "temporal", "prioridad": "riesgo" }
 ```
 
-Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en temporal: el mes con mejor puntaje).
+Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en primavera-verano: el mes con mejor puntaje; desde el cambio 44 también con riego, porque el calor de junio cuenta).
+
+Opcional: `"rotacion_actual": ["frijol", "maiz"]`, lo que siembra hoy, del más viejo al más nuevo (el front manda `[ultimo_cultivo, cultivo_actual]` del perfil).
+- Es la primera de las 3 rotaciones que se comparan (`estrategias`): un cultivo se repite y dos distintos se alternan.
+- Solo cuentan los ids de `cultivos.json`; los demás se ignoran.
+- Si no viene, se usa `[cultivo_previo]`.
+- Si tampoco hay eso, se usa lo más sembrado del SIAP en su estado, agua y temporada (`topCropBySeason`), con `supuesto: true`.
 
 - `agua`: `"temporal"` o `"riego"`.
 - `prioridad`: `"ganar"`, `"suelo"`, `"agua"` o `"riesgo"`.
@@ -242,15 +248,58 @@ Respuesta (valores reales del punto demo, recortados):
     { "anio": 2, "temporada": "PV", "cultivo": "sorgo", "porque": "Va después de frijol: cambiar de familia ayuda a cortar plagas y enfermedades. ..." },
     { "anio": 3, "temporada": "PV", "cultivo": "frijol", "porque": "..." }
   ],
+  // Las 3 rotaciones que se comparan: la de hoy, la recomendada (= `rotacion`) y la mejor para otra meta.
+  "estrategias": [
+    {
+      "id": "actual",               // "actual" | "recomendada" | "alternativa"
+      "nombre": "Seguir como siembras hoy",
+      "prioridad": null,            // la meta con que se armó (null en la de hoy)
+      "supuesto": true,             // true: el agricultor no dijo qué siembra y se usó lo más sembrado del SIAP
+      "porque": "Es lo que más se siembra aquí; lo usamos como tu rotación de hoy porque no tenemos la tuya.",
+      "rotacion": [{ "anio": 1, "temporada": "PV", "cultivo": "maiz", "porque": "..." } /* ... */], // cultivo null = sin sembrar
+      "resumen": {
+        "temporadas_sembradas": 3, "leguminosas": 0, "familias": 1, "familia_repetida": 2,
+        "riesgo": 0.48,              // años sin lluvia suficiente de todas sus temporadas PV (null con riego)
+        "riesgo_rango": [0.33, 0.64], // intervalo de Wilson al 90 % con los 25 años reales
+        "lluvia_necesaria_mm": 1560, "ingreso_bruto_mxn_ha": 27131, "ingreso_parcial": false
+      },
+      "evidencia": ["Con la lluvia real de 2000 a 2024, a este plan le hubiera faltado lluvia en 5 de cada 10 temporadas (48 %; con solo 25 años puede ser de 33 a 64 %).", "..."],
+      "beneficios": ["No cambias nada: ya conoces el cultivo, la semilla y a quién venderle."], // en las otras: contra la de hoy, con números
+      "huecos": ["No nos dijiste qué siembras, así que comparamos contra lo más sembrado de temporal en Guanajuato: maíz en primavera-verano (58 % de la superficie), según el SIAP 2018 a 2024.", "Si el maíz necesitara 10 % menos o más lluvia, le hubiera faltado en 8 a 15 de 25 años, no en 12.", "..."],
+      "revisar": ["Repite gramíneas en temporadas seguidas: eso junta plagas y enfermedades en la tierra.", "Confirma fechas de siembra y variedades con un técnico de tu zona (por ejemplo, del INIFAP)."]
+    }
+    // ... "recomendada" (frijol-sorgo-frijol, riesgo 0.16) y "alternativa" (en Celaya todas las metas dan la misma, así que es "Otra opción: empezar con sorgo": sorgo-frijol-maíz, 0.29)
+  ],
+  // Lo que los datos no saben (temas: clima, años, cultivos, suelo, ingreso, riego si aplica, técnico).
+  "incertidumbre": [
+    { "tema": "clima", "texto": "La lluvia y la temperatura vienen de NASA POWER: son el promedio de un cuadro de unos 50 km alrededor de tu parcela, no una medición en tu parcela." },
+    { "tema": "años", "texto": "Son 25 años (2000 a 2024). Con tan pocos años el riesgo es una estimación: al maíz le faltó lluvia en 12 de 25 años, pero su riesgo real puede estar entre 33 % y 64 %." }
+    // ...
+  ],
   "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "SIAP ...", "Requerimientos de los cultivos: FAO Ecocrop (temperatura y pH óptimos) y FAO ... tabla 14 (agua por ciclo); ..."]
 }
 ```
 
 - `cultivos` va ordenado de mayor a menor `puntaje`, una fila por cultivo. Solo salen los que se pueden sembrar con esa `agua`.
+  En temporal cada uno trae `riesgo_rango` (intervalo de Wilson al 90 %) y `sensibilidad: { menos10, mas10, anios_total }`
+  (años sin lluvia suficiente si necesitara 10 % menos o más lluvia; los requerimientos no están verificados). Con riego son `null`.
+  Con temporal y con riego cada uno trae `helada` y `calor`: `{ riesgo, anios, anios_total, umbral_c }` (años reales en que la hora más fría
+  o la más caliente de algún mes del ciclo llegó al umbral del cultivo) y `riesgo_total` (parte de los años con algún problema: lluvia, helada o calor).
+  `riesgo` no cambió: sigue siendo solo lluvia. El `resumen` de cada estrategia trae `riesgo_helada` y `riesgo_calor` (temporadas con el problema entre temporadas sembradas).
+- `estrategias`:
+  - Trae 3 rotaciones distintas.
+  - La alternativa es la de la primera meta, en el orden suelo, riesgo, ganar, agua, que dé un plan distinto.
+  - Si ninguna da un plan distinto, es «Otra opción: empezar con …»: el mejor plan que no empieza con la misma familia.
+    Si eso rompe la regla de familia después de lo que tiene sembrado, lo dice en `revisar[0]`.
+  - Sin rotación de hoy, por ejemplo sin datos del SIAP, salen 2.
+- `rotacion` sigue siendo la recomendada (igual a `estrategias[id=recomendada].rotacion`): las pantallas y el chat de antes siguen funcionando.
 - `rotacion` trae 3 años; con riego hay 6 filas (PV y OI de cada año).
 - **Sin suelo también responde:** si SoilGrids falla o no tiene dato, `suelo.sin_datos` es `true`, `suelo.aviso` lo explica y el pH no cambia el puntaje.
 - Errores: 400 si falta `agua` o `prioridad`; 502 si no se pudo consultar el clima; 422 con `{ error, fuera_de_region: true }` si la parcela está fuera de Guanajuato y Querétaro (sin `estado`). El 422 sale antes de consultar NASA o SoilGrids. Las pantallas siguen mostrando clima y suelo con `/api/clima` y `/api/suelo`, que funcionan en cualquier punto.
 - El asistente (`POST /api/asistente`) contesta "¿qué siembro?" con esta misma recomendación.
+  - Del perfil manda la misma rotación de hoy (`ultimo_cultivo`, `cultivo_actual`).
+  - Su texto compara contra seguir igual («Comparada con seguir igual (...)»).
+  - `compactPlot` lleva las 3 estrategias a la ficha del modelo.
 
 ## GET /api/recomendar/prueba?lat=20.47&lon=-100.81
 
@@ -310,6 +359,8 @@ recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cult
 - **Lluvia** (solo en temporal): la lluvia de un año normal (mediana) en los meses del ciclo, contra el rango del cultivo.
 - **Suelo:** el pH contra el rango; un punto de pH fuera lo lleva a cero. La textura va solo como nota.
 - **Riesgo:** años en que la lluvia del ciclo quedó bajo el mínimo del cultivo. Con riego no se calcula.
+- **Heladas y calor** (temporal y riego): años en que, en algún mes del ciclo, `t_min_c` (la hora más fría del mes) bajó a `helada_dano_c` o menos, o `t_max_c` (la hora más caliente) llegó a `calor_dano_c` o más. La temporada de otoño-invierno cruza diciembre: enero y febrero cuentan para la siembra del noviembre anterior.
+- **Seguridad** (la parte del puntaje que pesa 50 % con la prioridad `riesgo` y 20 % con las demás): 1 menos la parte de los años con algún problema, sea falta de lluvia (solo temporal), helada o calor. Un año con dos problemas cuenta una vez.
 - **Puntaje:** 30 % es qué tan bien se da el cultivo ahí (los tres ajustes) y de 40 a 50 % es la prioridad del agricultor: `riesgo` (menos años malos), `suelo` (leguminosas), `agua` (menor mínimo de lluvia) o `ganar` (ingreso bruto por hectárea del SIAP, sin descontar costos).
 - **Rotación:** en cada temporada entra el mejor cultivo que no repita la familia de la temporada anterior, primero los que aún no se usan. Si no quedó ninguna leguminosa, se mete la mejor donde menos puntos cueste.
 
@@ -323,6 +374,7 @@ recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cult
 
 1. El agua por ciclo del garbanzo y del brócoli: no están en la tabla 14 (`"verificado": false` y `todo` en cada uno).
 2. `temporadas` y `agua` salen de lo que el SIAP reporta sembrado en Guanajuato. Trigo, cebada y garbanzo quedaron como OI con riego; hay trigo y cebada de temporal (unas 13 mil ha cada uno) que el esquema actual no puede expresar.
+4. `helada_dano_c` y `calor_dano_c` son aproximados (cambio 44): confirmar con FAO Ecocrop o INIFAP. Cuentan igual en todo el ciclo, no solo en floración. Con 32 °C el frijol sembrado en junio sale con calor en 18 de 25 años en Celaya, y por eso el motor lo pasa a julio.
 3. El brócoli gana en `ganar` con riego porque su ingreso bruto es muy alto; no hay costos para compararlo con los granos.
 
 ## Puntos que estaban abiertos (ya resueltos)

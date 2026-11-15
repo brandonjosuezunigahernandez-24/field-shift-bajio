@@ -180,6 +180,36 @@ test('POST /api/recomendar asks for agua and prioridad in Spanish', async () => 
   assert.match(body.error, /temporal o de riego/);
 });
 
+const sequence = (e) => e.rotacion.map((s) => s.cultivo ?? '-').join('-');
+
+test('POST /api/recomendar compares 3 rotations: without an answer, today is the most sown crop of the state (SIAP)', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const { status, body } = await post('/api/recomendar', { lat: demo.lat, lon: demo.lon, agua: 'temporal', prioridad: 'riesgo' });
+  assert.equal(status, 200);
+  assert.deepEqual(body.estrategias.map((e) => e.id), ['actual', 'recomendada', 'alternativa']);
+  const [hoy, mejor] = body.estrategias;
+  assert.equal(sequence(hoy), 'maiz-maiz-maiz');
+  assert.equal(hoy.supuesto, true);
+  assert.ok(hoy.huecos.some((h) => /58 % de la superficie.*SIAP/.test(h)));
+  assert.deepEqual(mejor.rotacion, body.rotacion);
+  assert.ok(body.incertidumbre.some((u) => u.tema === 'técnico' && /no sustituye/.test(u.texto)));
+  assert.deepEqual(body.cultivos.find((c) => c.id === 'maiz').riesgo_rango, [0.33, 0.64]);
+});
+
+test('POST /api/recomendar uses the rotation the farmer gave and ignores what the engine does not know', async () => {
+  const plot = { lat: 20.47, lon: -100.81, agua: 'temporal', prioridad: 'suelo' };
+  const dada = await post('/api/recomendar', { ...plot, rotacion_actual: ['frijol', 'maiz'] });
+  assert.equal(sequence(dada.body.estrategias[0]), 'frijol-maiz-frijol');
+  assert.equal(dada.body.estrategias[0].supuesto, false);
+  const rara = await post('/api/recomendar', { ...plot, rotacion_actual: ['jitomate', 5, 'maiz'] });
+  assert.equal(rara.status, 200);
+  assert.equal(sequence(rara.body.estrategias[0]), 'maiz-maiz-maiz');
+  assert.equal(rara.body.estrategias[0].supuesto, false);
+  // Old clients only send cultivo_previo: it still counts as what the farmer sows today.
+  const vieja = await post('/api/recomendar', { ...plot, cultivo_previo: 'sorgo' });
+  assert.equal(sequence(vieja.body.estrategias[0]), 'sorgo-sorgo-sorgo');
+});
+
 test('the assistant recommends with the same engine as /api/recomendar', async () => {
   const [demo] = EXAMPLE_POINTS;
   const plot = { lat: demo.lat, lon: demo.lon, agua: 'temporal', prioridad: 'riesgo' };
@@ -189,6 +219,9 @@ test('the assistant recommends with the same engine as /api/recomendar', async (
   assert.equal(chat.body.origen, 'motor');
   assert.deepEqual(chat.body.recomendacion.rotacion, screen.body.rotacion);
   assert.match(chat.body.respuesta, /Rotación de 3 años/);
+  // Same 3 rotations in the chat as on the screen, and the answer compares against today's.
+  assert.deepEqual(chat.body.recomendacion.estrategias, screen.body.estrategias);
+  assert.match(chat.body.respuesta, /Comparada con seguir igual \(maíz grano, maíz grano, maíz grano, lo más sembrado aquí\)/);
 });
 
 test('POST /api/asistente: recomendar fuera de Guanajuato y Querétaro no inventa estado', async () => {

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { getClima, getPronostico, getSuelo, postRecomendar } from '../api/client.js';
 import { readSelection, saveSelection } from '../lib/fs.js';
+import { rotacionActualDe } from '../lib/rotacionActual.js';
 import { CUSTOM_POINT, DEFAULT_POINT } from '../config/examplePoints.js';
 import { createParcel, farmPoint, nextParcelId } from '../map/parcels.js';
 import { useYearPlayer } from '../year.jsx';
@@ -132,14 +133,23 @@ export function useParcela() {
   // the screens say so and fall back to the design's example plan.
   // What is sown now (or was last) counts as the season before the plan: the engine does not repeat its family.
   const previo = [perfilGuardado.cultivo_actual, perfilGuardado.ultimo_cultivo].find((c) => c && !['ninguno', 'otro', 'no_se'].includes(c)) ?? null;
+  // The rotation of today (oldest first) is the first of the 3 rotations the engine compares.
+  const hoy = rotacionActualDe(perfilGuardado).join('-');
   const recomendar = useCallback(async () => {
     if (!point) return;
-    const key = [point.lat, point.lon, agua, prioridad, previo].join(',');
+    const key = [point.lat, point.lon, agua, prioridad, previo, hoy].join(',');
     if (recKey.current === key) return;
     recKey.current = key;
     setRecomendacion(null);
     try {
-      const data = await postRecomendar({ lat: point.lat, lon: point.lon, agua, prioridad, cultivo_previo: previo });
+      const data = await postRecomendar({
+        lat: point.lat,
+        lon: point.lon,
+        agua,
+        prioridad,
+        cultivo_previo: previo,
+        rotacion_actual: hoy ? hoy.split('-') : [],
+      });
       setRecomendacion({ data });
       if (data.clima) setClima({ data: data.clima });
       if (data.suelo) setSuelo({ data: data.suelo });
@@ -147,7 +157,7 @@ export function useParcela() {
       recKey.current = null; // "Intentar de nuevo" can ask again
       setRecomendacion({ error: err.message, outsideRegion: err.outsideRegion === true });
     }
-  }, [point, agua, prioridad, previo]);
+  }, [point, agua, prioridad, previo, hoy]);
 
   // Restore the saved plot's data on first load.
   useEffect(() => {

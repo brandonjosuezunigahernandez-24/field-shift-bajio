@@ -616,3 +616,46 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 /* FarmSummary y YearControl traen sus estilos de .v3d: dentro de la tarjeta, sin su fondo ni su letra */
 .fs-tarjeta .v3d{background:none;font:inherit;color:inherit;min-height:0}
 .fs-tarjeta .v3d .farm-summary{grid-template-columns:1fr;margin:0}
+/* Simulador 3D: las 3 rotaciones que se comparan (la de hoy, la recomendada y otra meta) */
+.fs-paso-guia{font-size:15px;color:var(--fs-ink-2)}
+.fs-estrategias{display:grid;gap:10px}
+.fs-estrategia{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:4px;padding:12px 14px;min-height:48px;
+  border:1px solid var(--fs-border);border-left:4px solid var(--fs-border);border-radius:var(--fs-r-sm);background:#fff}
+.fs-estrategia:hover{border-color:var(--fs-g300)}
+.fs-estrategia[aria-checked="true"]{border-color:var(--fs-g500);border-left-color:var(--fs-g600);background:var(--fs-g50)}
+.fs-estrategia:focus-visible{outline:3px solid var(--fs-g400);outline-offset:2px}
+.fs-estrategia-nombre{display:flex;align-items:center;gap:8px;font-size:16px;font-weight:700;color:var(--fs-g800)}
+.fs-estrategia-nombre .bi{font-size:18px;color:var(--fs-g600)}
+.fs-estrategia-seq{font-size:15px;color:var(--fs-ink);padding-left:26px}
+.fs-estrategia-nota{font-size:13px;color:var(--fs-muted);padding-left:26px}
+.fs-estrategia-porque{font-size:15px;line-height:1.5}
+.fs-tarjeta .fs-years{grid-template-columns:repeat(auto-fit,minmax(min(96px,100%),1fr));gap:8px}
+.fs-tarjeta .fs-year{padding:10px 12px;min-height:48px}
+.fs-tarjeta .fs-year[aria-pressed="true"]{padding:9.5px 11.5px}
+/* Las 3 rotaciones lado a lado: una medida por bloque, nombre · barra · cifra en cada renglón.
+   La elegida (la del mapa) en verde y las otras en gris; la cifra siempre escrita y «mejor» en palabras. */
+.fs-compara{display:grid;gap:18px}
+.fs-medida{margin:0}
+.fs-medida figcaption{font-size:15px;color:var(--fs-ink);margin-bottom:6px;line-height:1.35}
+.fs-medida-pista{display:block;color:var(--fs-muted);font-size:13px;font-weight:400}
+.fs-medida ul{list-style:none;margin:0;padding:0;display:grid;gap:8px}
+.fs-medida li{display:grid;grid-template-columns:7.5em minmax(0,1fr) auto;align-items:center;gap:10px;font-size:15px;color:var(--fs-ink-2)}
+.fs-medida li.is-activa{color:var(--fs-ink);font-weight:700}
+.fs-medida-barra{height:12px}
+.fs-medida-barra span{display:block;height:100%;background:#9AA59D;border-radius:0 4px 4px 0}
+.fs-medida li.is-activa .fs-medida-barra span{background:var(--fs-g600)}
+.fs-medida-valor{font-variant-numeric:tabular-nums;white-space:nowrap;text-align:right}
+.fs-mejor{color:var(--fs-g800);font-weight:700}
+/* Tarjeta angosta (celular): nombre y cifra arriba, la barra abajo a todo lo ancho. */
+.fs-compara{container-type:inline-size}
+@container (max-width: 420px){
+  .fs-medida li{grid-template-columns:minmax(0,1fr) auto;grid-template-areas:"nombre valor" "barra barra";row-gap:2px}
+  .fs-medida-nombre{grid-area:nombre}
+  .fs-medida-valor{grid-area:valor}
+  .fs-medida-barra{grid-area:barra}
+}
+.fs-listas{display:grid;border-top:1px solid var(--fs-border)}
+.fs-lista{border-bottom:1px solid var(--fs-border)}
+.fs-lista summary{cursor:pointer;font-weight:700;font-size:15px;color:var(--fs-g800);min-height:48px;display:flex;align-items:center}
+.fs-lista summary:focus-visible{outline:3px solid var(--fs-g400);outline-offset:2px}
+.fs-lista ul{margin:0 0 12px;padding-left:20px;display:grid;gap:8px;font-size:15px;line-height:1.5}

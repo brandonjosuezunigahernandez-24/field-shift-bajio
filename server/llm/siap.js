@@ -38,6 +38,25 @@ export function incomeByCrop(estado, agua, filas = loadSiap()?.filas ?? []) {
   return Object.fromEntries(Object.entries(porClave).filter(([, xs]) => xs.length >= MIN_ANIOS).map(([k, xs]) => [k, avg(xs)]));
 }
 
+// Lo más sembrado en el estado por temporada (2018-2024), entre los cultivos `ids` del motor:
+// [{ cultivo, temporada, pct }], con pct = % de la superficie sembrada de esa temporada y modalidad (todos los cultivos).
+// El motor lo usa como «rotación de hoy» cuando el agricultor no dijo qué siembra.
+export function topCropBySeason(estado, agua, ids, filas = loadSiap()?.filas ?? []) {
+  const modalidad = agua === 'riego' ? 'Riego' : 'Temporal';
+  const out = [];
+  for (const temporada of agua === 'riego' ? ['PV', 'OI'] : ['PV']) {
+    const area = {};
+    for (const f of filas) {
+      if (f.estado !== estado || f.modalidad !== modalidad || TEMPORADA[f.ciclo] !== temporada || !f.sembrada_ha) continue;
+      area[f.cultivo] = (area[f.cultivo] ?? 0) + f.sembrada_ha;
+    }
+    const total = Object.values(area).reduce((a, b) => a + b, 0);
+    const [cultivo] = Object.entries(area).filter(([id]) => ids.includes(id)).sort((a, b) => b[1] - a[1])[0] ?? [];
+    if (cultivo && total) out.push({ cultivo, temporada, pct: Math.round((100 * area[cultivo]) / total) });
+  }
+  return out;
+}
+
 // Para el cultivo de la pregunta: por estado, los dos ciclo/modalidad con más superficie.
 export function cropFacts(question) {
   const d = loadSiap();

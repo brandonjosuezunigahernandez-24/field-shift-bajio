@@ -30,12 +30,12 @@ export const PREGUNTAS = [
   },
   {
     campo: 'ultimo_cultivo', pregunta: '¿Qué sembraste la última vez en esa parcela?',
-    porque: 'Para no repetir el mismo tipo de cultivo y cuidar la tierra.',
+    porque: 'Con esto comparamos lo que siembras hoy contra otras rotaciones, y no repetimos el mismo tipo de cultivo.',
     opciones: [...CULTIVOS.map((c) => ({ valor: c, texto: NOMBRES[c] })), { valor: 'otro', texto: 'Otro' }, NO_SE],
   },
   {
     campo: 'cultivo_actual', pregunta: '¿Qué tienes sembrado ahorita?',
-    porque: 'Para planear lo que sigue y no repetir el mismo tipo de cultivo.',
+    porque: 'Con esto comparamos lo que siembras hoy contra otras rotaciones y planeamos lo que sigue.',
     opciones: [...CULTIVOS.map((c) => ({ valor: c, texto: NOMBRES[c] })), { valor: 'ninguno', texto: 'Nada por ahora' }, { valor: 'otro', texto: 'Otro' }, NO_SE],
   },
   {

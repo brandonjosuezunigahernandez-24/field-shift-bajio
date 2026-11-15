@@ -1,34 +1,130 @@
 # Field Shift Bajío
 
-Proyecto del **NASA Space Apps Challenge 2026**, sede Querétaro. Reto: *Field Shift: Adapting Farms with NASA Data*.
+**Crop rotations for rain-fed farmers in central Mexico, measured against the real dry years of their own plot.**
 
-Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Querétaro): dibuja el contorno de tu parcela en el mapa, di qué te importa más, y te propone una rotación de cultivos de 3 años que cuida el suelo y aguanta el clima. El riesgo se calcula con los **años secos reales** de tu parcela (25 años de datos de la NASA), no con un promedio.
+NASA Space Apps Challenge 2026 · Querétaro local event · Challenge: *Field Shift: Adapting Farms with NASA Data*.
 
-> Este README está en español mientras dura el evento. La versión final de entrega irá en inglés.
+> Versión en español para el equipo: [README.es.md](README.es.md). The app itself speaks Spanish, the language of the farmers it is for.
 
-## Estado
+## The problem
 
-**Integrado de punta a punta** (rama `integracion/final`): dibujas la parcela, eliges temporal o riego y tu prioridad, y recibes la rotación de 3 años con sus razones, la maqueta 3D y el asistente.
+In the Bajío region (the states of Guanajuato and Querétaro) most farmland depends on rain alone: **63.9 % of the farmed
+area of Guanajuato is rain-fed** (*temporal*, INEGI Agricultural Census 2022). Farmers there mostly sow maize year after
+year. Maize is 58 % of the rain-fed summer area in Guanajuato and 91 % in Querétaro (SIAP 2018–2024). When the summer
+rain fails, the crop fails. Repeating the same crop also wears down the soil and builds up pests.
 
-| Fase | Qué incluye | Estado |
-|------|-------------|--------|
-| F1 | Esqueleto, `/api/clima`, `/api/suelo`, caché y respaldo sin internet | Lista |
-| F2 | `cultivos.json`, motor de reglas con pruebas, `/api/recomendar`, mapa y formulario | Lista (rangos de los cultivos verificados contra FAO; falta el agua del garbanzo y del brócoli) |
-| F3 | Integración de punta a punta con una parcela real | Lista en la rama de integración; falta ensayarla en la laptop de la demo |
-| F4 | Explicaciones, gráfica, errores y estados de carga | Parcial |
-| F5 | README en inglés con capturas y créditos completos | Pendiente |
+Advice usually comes from averages. But a farmer does not lose a harvest to the average year; they lose it to the dry ones.
 
-**Pendientes conocidos**
+## What it does
 
-- Confirmar el agua por ciclo del garbanzo y del brócoli en `server/data/cultivos.json` (no están en la tabla 14 de FAO; quedan con `"verificado": false`).
-- Las pantallas "Análisis IA" y "Probar cultivo" todavía usan datos de ejemplo del diseño.
-- La voz (micrófono) no se ha probado con un micrófono real.
+Field Shift Bajío is a decision-support tool that compares crop rotations for one specific plot. It uses NASA Earth
+observations, the plot's soil, crop requirements and what the farmer cares about most.
 
-## Cómo correrlo
+1. **Draw your plot.** On a satellite map, the farmer taps the corners of the field (or walks them with GPS, or taps
+   once inside it and the app proposes the outline). The plot then appears as a block in 3D relief. Cards open one at a
+   time and the map changes with each one:
+   - the weather right now;
+   - 25 years of rain (NASA POWER), with the dry years;
+   - the soil (SoilGrids);
+   - vegetation greenness (MODIS NDVI) and root-zone soil moisture (SMAP) from NASA GIBS.
 
-Necesitas **Node.js 20 o más nuevo** (probado con Node 24). No hace falta ninguna API key ni base de datos.
+   The last card asks a few plain questions: rain-fed or irrigated, what matters most (earn more, care for the soil,
+   use less water, risk less), what they sowed last and what is in the ground now.
+2. **Compare 3 rotations** ("2. Simulador 3D"). The challenge asks for at least three rotation strategies, including the
+   existing one:
+   - **Keep doing what you do today.** Taken from the farmer's answers. If they gave none, the app uses the most sown
+     crop of their state (SIAP) and labels it as an assumption.
+   - **The best rotation for the farmer's goal.**
+   - **The best rotation for another goal** that gives a different plan.
 
-Se usan dos terminales. En la primera, el servidor (puerto 3001):
+   The three are shown side by side for each measure:
+   - seasons without enough rain, with an uncertainty range;
+   - seasons with a legume;
+   - times a crop family repeats in a row;
+   - water the crops need;
+   - gross income per hectare.
+
+   For each rotation the app explains why it was suggested, what evidence supports it, its benefits against today's
+   rotation, where the information gaps are, and what a local agronomist should review. Picking a rotation and a year
+   shows that crop growing on the farmer's own plot in the map. Moving through the 25 real years shows whether the
+   rain of each year would have been enough for it.
+3. **Ask the assistant** ("3. Análisis IA"), by text or by voice. "What should I sow?" is answered by the same rule
+   engine, with the same three rotations and the same numbers as the screen.
+4. **Try a crop** ("4. Probar cultivo"): any crop against the plot's 25 real years, sown in June or July.
+
+Every number on screen comes from data and says where it came from. A card called "What we don't know" lists the
+limits of the data. The tool helps the farmer compare; it does not replace their judgment or a local agronomist, and
+it says so.
+
+## How it works
+
+```
+Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2024)  ┐
+                                          SoilGrids (0-30 cm)             ├-> rule engine -> 3 rotations
+                                          SIAP (state yields and prices)  ┘   (server/engine)   + reasons
+                                                                                                 + uncertainty
+```
+
+- **Risk is counted, not averaged.** For each crop and sowing month (June or July), the engine adds up the rain of the
+  crop's own cycle months in each of the 25 real years. A year fails when that rain was below the crop's minimum. A
+  risk of "12 of 25 years" is the count of those years.
+- **Scores** combine how well the crop fits the plot (temperature in range, rain in range, soil pH) with the farmer's
+  goal: income (SIAP), soil (legumes and diversity), water (lower need) or risk (fewer failed years).
+- **Rotation rules:**
+  - never the same crop family in back-to-back seasons;
+  - at least one legume in 3 years;
+  - autumn-winter crops only with irrigation;
+  - the first year does not repeat the family of the crop in the ground now.
+- **Uncertainty is part of the answer:**
+  - **Few years.** With 25 years, "12 of 25" is shown with its 90 % Wilson interval (33 % to 64 %).
+  - **General crop requirements.** The ranges are FAO's for each species, not for local varieties. The app shows how
+    much the result moves if a crop needed 10 % less or more rain: 8 to 15 years instead of 12 for maize in Celaya.
+- **The assistant** is not a second recommender. Recommendations come from the same engine. A local language model
+  (Gemma 3 through Ollama) only words some answers, and a checker verifies that every number it writes comes from the
+  plot's data.
+
+## Use of NASA data
+
+| NASA data | How it is used |
+|---|---|
+| **NASA POWER**, monthly point data from 2000 to the last complete year (the demo fixtures stop at 2024), community AG: `T2M`, `T2M_MAX`, `T2M_MIN`, `PRECTOTCORR`, `ALLSKY_SFC_SW_DWN`, `GWETTOP`, `GWETROOT`, `GWETPROF` | **Core of the recommendation.** Summer rain per real year, dry years, temperature fit, frost and heat years (`T2M_MIN`, `T2M_MAX`) and each crop's year-by-year test. Soil wetness (surface, root zone and profile) is shown on the soil card; root-zone wetness and temperatures also feed the assistant. |
+| **NASA GIBS**: MODIS Terra NDVI (16-day), MODIS Terra true color, SMAP L4 root-zone soil moisture, Blue Marble | Map layers that show the region's greenness and soil moisture (12 Aug 2024). **Visual context only**; they do not change the scores. |
+| **SRTM** elevation (through AWS Terrain Tiles) | The 3D relief of the plot on the map and in the 3D model. |
+
+## Validation
+
+- **Backtest on real years.** Each crop is checked against each of the 25 real years at the plot ("Probar cultivo"
+  shows it year by year).
+- **NASA against the farmers' official losses.** In Celaya, summer rain from NASA POWER against the area lost in
+  Guanajuato (SIAP, 2018–2024) correlates at **−0.70 for maize and −0.79 for beans**: less rain, more loss. These are
+  only 7 years at state level, so it is a hint, not proof.
+- **A trained model, tested honestly.** A ridge regression learned from 64 municipalities (1,018 rows of SIAP losses
+  × NASA POWER summer climate) how much rain-fed maize is lost for a given summer rain. It was tested by leaving whole
+  years out and compared against each municipality's historical average:
+  - **Querétaro:** 29 % less error than the historical average (R² 0.34). The assistant uses it, labeled medium confidence.
+  - **Guanajuato:** only 3.5 % better. The assistant labels it low confidence.
+  - **Beans, sorghum and yield:** no model beat the average, so none is used.
+
+  Details: [docs/modelo-ml.md](docs/modelo-ml.md) (Spanish).
+- **Tests.** 314 server tests and 53 client tests run without internet on stored real responses.
+
+## Limitations
+
+- **Crop requirements** (rain, temperature, pH in `server/data/cultivos.json`) were checked against FAO (Ecocrop and
+  Training Manual No. 3), but they are general ranges for each species, not for the varieties sown in the Bajío. The
+  water need of chickpea and broccoli is still approximate. The app shows how sensitive each result is to them.
+- **NASA POWER is coarse.** It is a grid cell of roughly 50 km, not a measurement on the plot. SoilGrids is a modeled
+  250 m estimate, not a lab test. SIAP prices and losses are state averages without costs.
+- **Region.** Crops, seasons and prices are calibrated for Guanajuato and Querétaro only. Elsewhere in Mexico the app
+  shows climate and soil but does not recommend.
+- **Frost and heat are coarse.** They come from the coldest and hottest hour of each month in the NASA POWER cell
+  (`T2M_MIN`, `T2M_MAX`), against approximate damage thresholds per crop, over the whole cycle (not by growth stage).
+  A plot in a low spot gets colder than the cell.
+- **Not modeled yet:** irrigation water availability.
+
+## Run it
+
+Requires **Node.js 20 or newer** (tested with Node 24). No API keys and no database.
 
 ```bash
 cd server
@@ -36,19 +132,22 @@ npm install
 npm run dev
 ```
 
-En la segunda, la interfaz (puerto 5173):
-
 ```bash
 cd client
 npm install
 npm run dev
 ```
 
-Abre <http://localhost:5173> y presiona **Celaya, Gto. (Temporal)**. Debes ver la lluvia de junio a septiembre, los años secos y el pH del suelo. En "2. Simulador 3D" sale la rotación de 3 años.
+Open <http://localhost:5173> and press **Celaya, Gto. (Temporal)**. For "2. Simulador 3D", draw a plot or use an example.
 
-El asistente responde mejor con [Ollama](https://ollama.com/) abierto y el modelo `gemma3:4b` descargado; sin Ollama contesta con una plantilla. Detalle en [docs/probar-asistente.md](docs/probar-asistente.md).
+The assistant writes better answers with [Ollama](https://ollama.com/) running and the `gemma3:4b` model pulled.
+Without Ollama it answers with templates.
 
-### Pruebas
+**Offline demo.** Six example plots have their real climate, soil and relief responses stored in `server/fixtures/`.
+Start the server with `OFFLINE=1 npm start` (PowerShell: `$env:OFFLINE = "1"; npm start`). Satellite imagery, the
+forecast and address search need internet.
+
+**Tests** (no internet needed):
 
 ```bash
 cd server
@@ -59,139 +158,85 @@ npm test
 cd client
 npm test
 ```
-
-Las pruebas no usan internet: leen los fixtures.
-
-### Demo sin internet
-
-Las tres parcelas de ejemplo (Celaya, El Marqués y Salamanca) y tres más del Bajío tienen sus respuestas reales de clima, suelo y relieve guardadas en `server/fixtures/`, así que funcionan aunque falle la red. Sin internet no hay imagen de satélite, pronóstico ni búsqueda de direcciones. Para ensayar sin internet, arranca el servidor con `OFFLINE=1`:
-
-```bash
-OFFLINE=1 npm run dev
-```
-
-En PowerShell:
-
-```powershell
-$env:OFFLINE = "1"; npm run dev
-```
-
-Cualquier punto que ya se consultó una vez queda en `server/cache/` y también funciona sin internet. Para volver a bajar los fixtures: `npm run fixtures` (dentro de `server/`). La lista de parcelas está en `server/lib/seasons.js`.
-
-Para la demo conviene `npm start` en lugar de `npm run dev`: no reinicia el servidor cuando cambia un archivo.
 
 ## API
 
-| Ruta | Qué responde |
-|------|--------------|
-| `GET /api/ejemplos` | Las parcelas de los botones de ejemplo (todas con respaldo sin internet). |
-| `GET /api/clima?lat&lon` | Lluvia de junio a septiembre por año, años secos, y temperatura y lluvia promedio por mes. |
-| `GET /api/suelo?lat&lon` | pH, arcilla, arena, limo, carbono orgánico y nitrógeno de 0 a 30 cm. |
-| `GET /api/terreno?lat&lon` | Relieve (malla de 65 × 65 alturas) del cuadro de 1 km alrededor de la parcela, para la vista 3D. |
-| `POST /api/recomendar` | Cultivos con puntaje, riesgo y razones, y la rotación de 3 años (motor de reglas). |
-| `GET /api/recomendar/prueba?lat&lon` | Cada cultivo de temporal contra los años reales: lluvia de su ciclo por año y si le alcanzó, sembrando en junio y en julio. |
-| `GET /api/pronostico?lat&lon` | Pronóstico de 7 días. |
-| `POST /api/asistente` | Respuesta del asistente con los datos de la parcela. "¿Qué siembro?" usa el mismo motor que `/api/recomendar`. |
-| `POST /api/voz` | Voz a texto (Whisper local). |
+| Route | Returns |
+|---|---|
+| `GET /api/clima?lat&lon` | Summer rain per year 2000–2024, dry years, monthly temperature and rain (NASA POWER). |
+| `GET /api/suelo?lat&lon` | pH, clay, sand, silt, organic carbon and nitrogen, 0–30 cm (SoilGrids). |
+| `POST /api/recomendar` | Crop scores with risk and its range, the recommended 3-year rotation, the **3 rotations compared** with evidence, benefits, gaps and what to review, and the uncertainty notes. |
+| `GET /api/recomendar/prueba?lat&lon` | Each rain-fed crop against every real year, sown in June and July. |
+| `GET /api/terreno?lat&lon` | Elevation grid around the plot for the 3D view. |
+| `GET /api/pronostico?lat&lon` | Weather right now and the 7-day forecast (Open-Meteo). |
+| `POST /api/asistente` | Assistant answer about the plot; recommendations come from the same engine. |
+| `POST /api/voz` | Local speech-to-text (Whisper). |
 
-Las formas exactas de cada respuesta, con ejemplos reales, están en [docs/api-contract.md](docs/api-contract.md).
+Exact shapes with real examples: [docs/api-contract.md](docs/api-contract.md) (Spanish).
 
-## Estructura
+## Project structure
 
 ```
-server/
-  index.js, app.js     arranque y rutas
-  routes/              clima, suelo, terreno, recomendar, asistente, pronostico, voz
-  sources/             NASA POWER, SoilGrids, relieve y Open-Meteo: descarga y normalización
-  lib/                 coordenadas, caché en disco, fetch con timeout, temporadas y parcelas de ejemplo
-  engine/              motor de reglas: puntaje, riesgo por años secos y rotación (funciones puras)
-  llm/                 asistente: ficha de la parcela, modelo local (Ollama), verificador, datos del SIAP
-  data/                cultivos.json (7 cultivos, verificados contra FAO salvo el agua de garbanzo y brócoli) y siap_resumen.json
-  fixtures/            respuestas reales de 6 parcelas (respaldo sin internet)
-  cache/               caché en disco, no se versiona
-  scripts/             fetch-fixtures.js, siap-descargar.js
-  test/                pruebas
-client/
-  src/pages/           las 4 pantallas: Parcela, Simulador 3D (rotación), Análisis IA y Probar cultivo
-  src/components/      cabecera, buscador de ubicación, gráficas (Chart.js), asistente flotante
-  src/hooks/           useParcela: el estado que comparten las pantallas
-  src/config/          capas de NASA GIBS del mapa y parcela por defecto
-  src/map/             mapa MapLibre donde se dibuja la parcela, y cálculos del polígono
-  src/three/           vista 3D: globo, maqueta de la parcela, cámara (three.js + react-three-fiber)
-  public/models/       bajio.glb, generado con Blender (no se edita a mano)
-  public/textures/     textura del globo (NASA Blue Marble), bajada con `npm run textura`
-assets/blender/        build_models.py: script que genera los modelos 3D
-docs/
-  api-contract.md      contrato entre front, back y motor
+server/   Node + Express
+  engine/    rule engine: scores, dry-year risk, 3 rotations, uncertainty (pure functions)
+  sources/   NASA POWER, SoilGrids, terrain, Open-Meteo: download, cache and parsing
+  llm/       assistant: plot fact sheet, local model, number checker, SIAP data, trained model
+  routes/    the API above
+  data/      cultivos.json, SIAP summary, INEGI state boundaries, trained model weights
+  fixtures/  stored real responses for the offline demo
+client/   React + Vite
+  pages/     1. Parcela, 2. Simulador 3D, 3. Análisis IA, 4. Probar cultivo
+  map/       MapLibre map: drawing, GPS, one-tap plot detection, crops on the plot
+  three/     3D model of the plot (three.js)
+assets/blender/  script that generates the 3D crop models
+docs/            API contract and change log (Spanish)
 ```
-
-### Vista 3D
-
-Arriba de los datos hay un globo de la Tierra. Lo giras, tocas tu región y la parcela se levanta del globo como una maqueta **del tamaño de tu parcela** (250 m a 4 km por lado; 1 km si solo eliges un punto), con:
-
-- el **relieve real** del terreno (exagerado para que se note; la página dice cuántas veces),
-- los lados del bloque con las **capas reales del suelo hasta 1 m** según SoilGrids (más arcilla o más materia orgánica, más oscuro), y abajo una tarjeta "Tu suelo" con el tipo de suelo, cada capa y la humedad de NASA POWER,
-- en "Simulador 3D", el **cultivo del año elegido en el plan** de rotación,
-- un control de **años desde 2000 hasta el último año completo** (se recorre solo cada año): en años secos la tierra se ve café, las plantas chaparras y amarillas y casi no llueve.
-
-Cuidados de rendimiento: three.js se descarga solo si el navegador tiene WebGL y en un archivo aparte; la escena se dibuja solo cuando algo cambia (`frameloop="demand"`); cada cultivo es un único `InstancedMesh`; la resolución se limita a 1.5×; si el 3D falla, el resto de la página sigue funcionando. Con "reducir movimiento" activado en el sistema, no hay animaciones.
-
-**Modelos 3D.** Salen de [assets/blender/build_models.py](assets/blender/build_models.py). Para cambiarlos, edita el script y vuelve a generar `client/public/models/bajio.glb` (Blender 4.2 o más nuevo):
-
-```bash
-blender --background --factory-startup --python assets/blender/build_models.py
-```
-
-**Texturas.** Cada parte tiene un material procedural (nervaduras en hojas, fibras en tallos, granos en espigas y elote, floretes en el brócoli, corteza, aplanado de adobe, tejas y vetas de madera) que Blender hornea en **una sola imagen por modelo** (JPEG dentro de cada `.glb`). Así cada cultivo sigue siendo un solo dibujo aunque tenga cientos de plantas.
-
-**22 cultivos, un archivo por cultivo.** Maíz, sorgo, trigo, cebada, frijol, garbanzo, brócoli, avena, amaranto, girasol, cacahuate, calabaza, papa, cebolla, jitomate, chile, fresa, arroz, alfalfa, agave, nopal y aguacate. Cada uno vive en `client/public/models/<id>.glb` (117 a 355 KB) y la app solo descarga los que el agricultor usa; `escenario.glb` trae la casa y el mezquite. Los 7 primeros son los del motor de reglas; los otros 15 son, por ahora, solo para verlos en el mapa y la maqueta.
-
-**Dos versiones de cada cultivo.** La maqueta 3D usa modelos **detallados** (el maíz tiene hojas anchas que se arquean con su nervadura, tallo con nudos y vainas, elote con hojas y pelos, espiga ramificada y raíces de apoyo; 1,400 a 3,300 triángulos). El mapa satelital usa los detallados cuando está cerca (zoom 16.2 o más, con la mitad de matas) y los **sencillos** (`<id>_lp`) de lejos, donde cada mata mide pocos píxeles. El terreno de la maqueta (surcos, terrones, capas del suelo) y los bloques del mapa (hileras sembradas y terrones) usan texturas que el navegador dibuja al momento (`client/src/three/textures.js`, `client/src/map/patterns.js`). Ninguna textura se descarga de internet.
-
-Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de objeto: `maiz`, `sorgo`, `trigo`, `cebada`, `frijol`, `garbanzo`, `brocoli`, `casa`, `arbol`.
 
 ## Credits
 
-**Datos**
+**Data**
 
-- **NASA POWER** (Prediction Of Worldwide Energy Resources), NASA Langley Research Center. Serie mensual desde 2000 hasta el último año completo, comunidad AG: temperatura, precipitación, radiación y humedad del suelo en superficie, zona de raíces y perfil (GWETTOP, GWETROOT, GWETPROF). <https://power.larc.nasa.gov/>
-  *These data were obtained from the NASA Langley Research Center (LaRC) POWER Project funded through the NASA Earth Science/Applied Science Program.*
-- **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 100 cm (textura, pH, carbono orgánico, nitrógeno, densidad aparente, CIC y piedras) y tipo de suelo (clasificación WRB). <https://soilgrids.org/>
-  IUSS Working Group WRB (2015). *World Reference Base for Soil Resources 2014, update 2015*. World Soil Resources Reports No. 106. FAO, Roma. (Nombres y descripciones generales de los tipos de suelo.)
-  Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B. M., Kempen, B., Ribeiro, E., and Rossiter, D. (2021). SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty. *SOIL*, 7, 217–240. <https://doi.org/10.5194/soil-7-217-2021>
-- **INEGI, Censo Agropecuario 2022**: en Guanajuato el 63.9 % de la superficie agrícola es de temporal.
-- **INEGI, Marco Geoestadístico** (diciembre de 2025), límites de Guanajuato y Querétaro (`server/data/estados_bajio.json`, de <https://gaia.inegi.org.mx/wscatgeo/v2/geo/mgee/11> y `/22`): deciden si una parcela está en el Bajío, donde se recomiendan cultivos.
-- **NASA GIBS** (Global Imagery Browse Services). <https://www.earthdata.nasa.gov/gibs>
-  - **Blue Marble** (capa `BlueMarble_ShadedRelief_Bathymetry`): textura del globo 3D.
-  - Capas que el agricultor puede prender sobre el mapa (solo visuales, imagen del 12 de agosto de 2024): **MODIS Terra, color real** (`MODIS_Terra_CorrectedReflectance_TrueColor`), **MODIS Terra NDVI de 16 días** (`MODIS_Terra_L3_NDVI_16Day`) y **SMAP, humedad en la zona de raíces** (`SMAP_L4_Analyzed_Root_Zone_Soil_Moisture`).
-  *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS).*
-- **Terrain Tiles** en el Registry of Open Data on AWS (formato *terrarium* de Mapzen), relieve de la vista 3D. En México las alturas provienen de **NASA SRTM** (Shuttle Radar Topography Mission). <https://registry.opendata.aws/terrain-tiles/>
+- **NASA POWER** (Prediction Of Worldwide Energy Resources), NASA Langley Research Center. <https://power.larc.nasa.gov/>
+  *These data were obtained from the NASA Langley Research Center (LaRC) POWER Project funded through the NASA Earth
+  Science/Applied Science Program.*
+- **NASA GIBS** (Global Imagery Browse Services): MODIS Terra NDVI and true color, SMAP L4 root-zone soil moisture,
+  Blue Marble. *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services
+  (GIBS), part of NASA's Earth Science Data and Information System (ESDIS).*
+- **SRTM** elevation through **Terrain Tiles** on the Registry of Open Data on AWS (Mapzen terrarium format).
+  <https://registry.opendata.aws/terrain-tiles/>
+- **SoilGrids 2.0**, ISRIC World Soil Information, CC BY 4.0. Poggio, L. et al. (2021). SoilGrids 2.0: producing soil
+  information for the globe with quantified spatial uncertainty. *SOIL*, 7, 217–240. <https://doi.org/10.5194/soil-7-217-2021>
+  Soil properties from 0 to 100 cm and the soil type (WRB classification).
+- **SIAP** (Servicio de Información Agroalimentaria y Pesquera, Mexico), *Cierre de la producción agrícola* 2018–2024,
+  open data.
+- **INEGI**: Agricultural Census 2022, and the Marco Geoestadístico (December 2025) for the state boundaries.
+- **Esri World Imagery** and **World Imagery (Clarity)**, World Boundaries and Places, World Transportation.
+  *Imagery: Esri, Maxar, Earthstar Geographics and the GIS user community.* Used without an API key for this prototype.
+- **Open-Meteo** (CC BY 4.0), current weather and forecast. **OpenStreetMap / Nominatim** (ODbL), address search.
+- **Wikipedia in Spanish** (CC BY-SA), support texts for general questions in the assistant, always linked.
+- **Crop requirements:** temperature and pH are the optimal ranges of the official **FAO Ecocrop** data sheet of each
+  species <https://ecocrop.apps.fao.org/>. Water per growing cycle is from **FAO**, Brouwer, C. and Heibloem, M. (1986),
+  *Irrigation Water Management: Training Manual No. 3*, Table 14 <https://www.fao.org/4/s2022e/s2022e07.htm>. Chickpea and
+  broccoli are not in that table, so their water need is still approximate.
+- **IUSS Working Group WRB** (2015). *World Reference Base for Soil Resources 2014, update 2015*. FAO, Rome. General
+  names and descriptions of the soil types.
 
-- **Esri World Imagery** y **World Imagery (Clarity)**, la versión sin nubes, más **World Boundaries and Places** y **World Transportation** (imagen satelital, nombres de lugares y calles del mapa donde se dibuja la parcela; el agricultor elige "Sin nubes" o "Más rápida"). *Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS.* Se usan sin API key para este prototipo; para un uso en producción hay que revisar los términos de Esri.
-  - "Detectar con un toque" lee esas mismas imágenes y la capa de calles para proponer el contorno de la parcela (visión por computadora clásica en el navegador, sin modelo entrenado).
+**Software:** React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber, @react-three/drei,
+Chart.js, Bootstrap and Bootstrap Icons, transformers.js, Ollama. Fonts: Plus Jakarta Sans and JetBrains Mono (Google
+Fonts). 3D crop models made by the team with a Blender script.
 
-- **SIAP** (Servicio de Información Agroalimentaria y Pesquera), *Cierre de la producción agrícola* 2018–2024, datos abiertos, agregado por estado: superficie, pérdidas, rendimiento y precio medio rural de Guanajuato y Querétaro. Se usa para el ingreso bruto por hectárea de la prioridad "ganar más" y en el asistente. <https://nube.agricultura.gob.mx/>
-- **Open-Meteo**, pronóstico de 7 días (CC BY 4.0). <https://open-meteo.com/>
-- **OpenStreetMap / Nominatim**, búsqueda de pueblos y direcciones. © colaboradores de OpenStreetMap (ODbL).
-- **Wikipedia en español** (CC BY-SA), textos de apoyo del asistente para preguntas generales; cada respuesta enlaza su página.
-- **Requerimientos de los cultivos** (`server/data/cultivos.json`), verificados el 15 de noviembre de 2026:
-  - **FAO Ecocrop**, fichas oficiales de cada especie (temperatura y pH óptimos; también se guardan los rangos absolutos, la lluvia anual y el ciclo). <https://ecocrop.apps.fao.org/>
-  - **FAO**, Brouwer, C. y Heibloem, M. (1986). *Irrigation Water Management: Training Manual No. 3, Irrigation Water Needs*, tabla 14 (agua que necesita el cultivo en todo su ciclo). <https://www.fao.org/4/s2022e/s2022e07.htm>
-  - Ecocrop da la lluvia **anual**, no la del ciclo; por eso el agua por ciclo sale de la tabla 14. Garbanzo y brócoli no están en esa tabla: su agua sigue aproximada (`"verificado": false`).
-  - Son rangos generales de cada especie, no de las variedades que se siembran en el Bajío. El ciclo en meses es el típico del Bajío.
+**Use of AI ("SI")**
 
-**Software**
+- **Claude Code** (Anthropic) helped write and review code during the event. The idea, the design and the decisions
+  are the team's, and every change went through the team's review.
+- Inside the app:
+  - **Gemma 3** (Google), running locally with Ollama, words some assistant answers from the plot's data only; a
+    checker verifies its numbers.
+  - **Whisper** (OpenAI, `whisper-base` through transformers.js) turns speech into text locally.
+  - The crop recommendation is **not** made by an AI model: the rule engine calculates it.
+- The 3D crop models and textures are generated by code (a Blender script and the browser canvas), not by an
+  image-generation model.
 
-React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber, @react-three/drei, Chart.js, Bootstrap y Bootstrap Icons, todos de código abierto. Tipografías Plus Jakarta Sans y JetBrains Mono vía Google Fonts. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
+## License
 
-El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. "Probar cultivo" usa el mismo motor de reglas que el Simulador 3D (`/api/recomendar`); los rangos de sus 7 cultivos están en `server/data/cultivos.json` y aún no están verificados.
-
-**Uso de inteligencia artificial**
-
-- Este proyecto se desarrolla con ayuda de **Claude Code** (Anthropic) para escribir y revisar código. Todo el código se escribió durante el evento y el equipo lo revisa por pull request.
-- Dentro de la app, el asistente redacta sus respuestas con **Gemma 3** (Google), que corre en la misma laptop con **Ollama**, y solo con los datos de la parcela; los números los pone el código y un verificador los revisa. La recomendación de cultivos no la hace un modelo de IA: la calcula el motor de reglas.
-- La voz a texto usa **Whisper** (OpenAI, modelo `whisper-base`) con transformers.js, también local.
-
-## Licencia
-
-MIT. Ver [LICENSE](LICENSE).
+MIT. See [LICENSE](LICENSE).
