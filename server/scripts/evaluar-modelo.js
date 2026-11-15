@@ -12,7 +12,7 @@ const { punto, preguntas } = JSON.parse(readFileSync(new URL('../test/eval/model
 const plain = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '');
 const ADMITS = /no lo se|\bno se\b[,.]|no tengo|no sabria/i; // "no se seque" no cuenta como negarse
 const REFERRAL = /tecnico|inifap|agronom|extensionista|sader|sanidad|asesor/i;
-const ACTION = /\b(deja|revisa|siembra|rota|agrega|mete|pregunta|consulta|cubre|incorpora|mide|observa|acude|elige|evita|alterna|usa|prueba|haz|pon|busca|aprovecha|conviene)\b/i;
+const ACTION = /\b(puedes|sembrar|deja|revisa|siembra|rota|agrega|mete|pregunta|consulta|cubre|incorpora|mide|observa|acude|elige|evita|alterna|usa|prueba|haz|pon|busca|aprovecha|conviene)\b/i;
 const KNOWN = ['NASA POWER', 'SoilGrids', 'Open-Meteo', 'Base local', 'Wikipedia', 'SIAP'];
 
 export function check(q, r) {
@@ -74,7 +74,7 @@ if (process.argv[1].endsWith('evaluar-modelo.js')) {
   console.log(`\nÚTIL: ${res.filter((x) => x.ok).length}/${res.length} (${pct(res.filter((x) => x.ok).length)})`);
   for (const tipo of [...new Set(res.map((x) => x.tipo))]) console.log(`  ${tipo}: ${res.filter((x) => x.tipo === tipo && x.ok).length}/${res.filter((x) => x.tipo === tipo).length}`);
   console.log(`RESPALDO (plantilla en vez del modelo): ${pct(res.filter((x) => x.origen !== 'llm').length)}`);
-  console.log(`TIEMPO: medio ${Math.round(ms.reduce((a, b) => a + b, 0) / ms.length)} ms, p90 ${ms[Math.ceil(ms.length * 0.9) - 1]} ms`);
+  console.log(`TIEMPO: medio ${Math.round(ms.reduce((a, b) => a + b, 0) / ms.length)} ms, mediana ${ms[Math.floor(ms.length / 2)]} ms, p90 ${ms[Math.ceil(ms.length * 0.9) - 1]} ms (Ollama compartido: otros procesos lo alentan)`);
   console.log(`TOKENS: entrada media ${avg('entrada')}, salida media ${avg('salida')}`);
   const out = arg('--json', null);
   if (out) writeFileSync(out, JSON.stringify(res, null, 1));
