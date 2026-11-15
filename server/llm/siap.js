@@ -23,6 +23,21 @@ export function detectCrop(question) {
 const avg = (xs) => xs.reduce((a, b) => a + b, 0) / xs.length;
 const r1 = (n) => Math.round(n * 10) / 10;
 
+const TEMPORADA = { 'Primavera-Verano': 'PV', 'Otoño-Invierno': 'OI' };
+const MIN_ANIOS = 5; // con menos años un promedio no dice nada (p. ej. garbanzo de riego en Querétaro: 1 año)
+
+// Ingreso bruto promedio por hectárea sembrada en el estado, para el motor: { "<cultivo>|<PV u OI>": pesos }.
+// Es lo que se produjo (ya con pérdidas) por el precio medio rural de cada año, sin costos ni inflación.
+export function incomeByCrop(estado, agua, filas = loadSiap()?.filas ?? []) {
+  const modalidad = agua === 'riego' ? 'Riego' : 'Temporal';
+  const porClave = {};
+  for (const f of filas) {
+    if (f.estado !== estado || f.modalidad !== modalidad || !TEMPORADA[f.ciclo] || !f.sembrada_ha) continue;
+    (porClave[`${f.cultivo}|${TEMPORADA[f.ciclo]}`] ??= []).push((f.volumen_t * (f.precio_medio_rural ?? 0)) / f.sembrada_ha);
+  }
+  return Object.fromEntries(Object.entries(porClave).filter(([, xs]) => xs.length >= MIN_ANIOS).map(([k, xs]) => [k, avg(xs)]));
+}
+
 // Para el cultivo de la pregunta: por estado, los dos ciclo/modalidad con más superficie.
 export function cropFacts(question) {
   const d = loadSiap();

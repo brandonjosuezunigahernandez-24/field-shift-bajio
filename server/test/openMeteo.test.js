@@ -2,7 +2,7 @@ import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { buildFicha } from '../llm/ficha.js';
 import { verifyNumbers } from '../llm/verificador.js';
-import { getForecast, parseForecast } from '../sources/openMeteo.js';
+import { buildForecastUrl, getForecast, parseCurrent, parseForecast } from '../sources/openMeteo.js';
 
 const raw = {
   daily: {
@@ -19,6 +19,13 @@ test('parseForecast arma un elemento por día', () => {
   const dias = parseForecast(raw);
   assert.equal(dias.length, 2);
   assert.deepEqual(dias[1], { fecha: '2026-11-15', lluvia_mm: 1.1, prob_lluvia_pct: 31, t_max_c: 24.5, t_min_c: 11.3, codigo_clima: 61 });
+});
+
+test('parseCurrent da el clima de este momento, o null si no viene', () => {
+  const current = { time: '2026-11-15T13:00', temperature_2m: 24.1, precipitation: 0, weather_code: 2 };
+  assert.deepEqual(parseCurrent({ ...raw, current }), { hora: '2026-11-15T13:00', temp_c: 24.1, lluvia_mm: 0, codigo_clima: 2 });
+  assert.equal(parseCurrent(raw), null);
+  assert.match(buildForecastUrl(20.47, -100.81), /current=temperature_2m%2Cprecipitation%2Cweather_code/);
 });
 
 test('parseForecast rechaza una respuesta rara', () => {

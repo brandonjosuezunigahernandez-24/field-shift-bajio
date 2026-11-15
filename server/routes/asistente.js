@@ -17,10 +17,12 @@ import { buildProceso } from '../llm/proceso.js';
 import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
-import { ETIQUETA, ordenParaTi, compactReco, explainFarm, explainRecommendation, inferEstado, recommend, recommendFarm } from '../llm/recomendador.js';
-import { parsePerfil, pendientes } from '../llm/perfil.js';
+import { ETIQUETA, inferEstado, simulateRotation } from '../llm/recomendador.js';
+import { stateAt } from '../lib/state.js';
+import { parsePerfil } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
-import { esConcepto, isFollowUp, quitarMuletillas, wantsRecommendation } from '../llm/intencion.js';
+import { asksWhyThisCrop, esConcepto, isFollowUp, quitarMuletillas, wantsRecommendation } from '../llm/intencion.js';
+import { compactPlot, explainPlot, recommendPlot } from './recomendar.js';
 import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, serie, sugerenciasMaiz } from '../llm/maiz.js';
 import { conGraficas, graficasCultivoPregunta, graficasFinca, graficasMaiz, graficasPlantilla, graficasReco } from '../llm/graficas.js';
 import { ID_MAIZ, TEMAS_PLANTILLA, respaldoSeguro } from '../llm/intencion-ml.js';
@@ -90,13 +92,14 @@ function parseParcelas(list) {
 // GET /api/asistente/temas -> los temas y preguntas de ejemplo que el asistente sabe contestar (botones del chat).
 router.get('/temas', (req, res) => res.json({ temas: TEMAS, nota: NOTA_FUERA_DE_TEMA }));
 
-// POST /api/asistente { lat, lon, pregunta?, agua?, prioridad?, estado?, costos?, historial? }
+// POST /api/asistente { lat, lon, pregunta?, agua?, prioridad?, estado?, historial? }
 //   -> { respuesta, acciones, fuentes, verificado, origen, base, enlaces, preguntar?, recomendacion? }
 // Sin pregunta devuelve el resumen inicial de la parcela.
 // Prepara la respuesta: devuelve { final } si el código ya la tiene, o { llm } con lo que hay que preguntarle al modelo.
 async function resolver(req) {
   const res = { json: (final) => ({ final }) }; // así el resto del código sigue con `return res.json(...)`
   const { lat, lon } = parseCoords(req.body);
+  // `let`: un seguimiento ("¿y el frijol?") se reescribe con la pregunta anterior (llm/seguimiento.js).
   let { pregunta, costos } = req.body;
   // Cada respuesta lleva `proceso`: los pasos reales que se siguieron (para la pantalla "Cómo llegó a la respuesta").
   const info = {};
@@ -124,7 +127,10 @@ async function resolver(req) {
   // Con una sola parcela dibujada, sus hectáreas son las del perfil.
   if (parcelas.length === 1 && parcelas[0].hectareas && perfil.hectareas == null) perfil.hectareas = parcelas[0].hectareas;
 
-  const estado = perfil.estado ?? inferEstado(lon);
+  // Estado dicho por el agricultor o, si no, el de los límites del INEGI. null = fuera de Gto y Qro: el motor no recomienda.
+  const regionEstado = perfil.estado ?? stateAt(lat, lon);
+  // shortcut: fuera de Gto y Qro las plantillas (maíz, SIAP) siguen con el estado adivinado por longitud; que digan "fuera del Bajío" si hace falta.
+  const estado = regionEstado ?? inferEstado(lon);
   // Respaldo con aprendizaje automático: solo cuando las palabras clave no saben qué hacer y el clasificador está seguro (llm/intencion-ml.js).
   const ml = respaldoSeguro(pregunta);
   // "¿Qué siembro después del maíz?": el último cultivo es el maíz de la pregunta (lo contesta el recomendador de abajo).
@@ -132,24 +138,11 @@ async function resolver(req) {
   if (idMaiz === 'despues') perfil.ultimo_cultivo = 'maiz';
   // El recomendador solo corre si piden una recomendación o un seguimiento de ella. El dock manda agua y prioridad
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
-  const pideReco = pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
-  const needsReco = pideReco || (pregunta && isFollowUp(pregunta));
-  const reco = agua && prioridad && needsReco
-    ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, cultivoActual: idMaiz === 'despues' ? 'maiz' : extraPerfil(req.body.perfil).cultivo_actual, hectareas: perfil.hectareas, encharca: perfil.encharca })
-    : null;
-
-  // "¿Por qué?", "¿y eso por qué?", "¿por qué no maíz?" tras una plática: las razones las da el recomendador, no el modelo de
-  // lenguaje (inventaba puntajes). Va antes del maíz y de "recomiéndame": es un seguimiento, no una pregunta nueva.
-  const nq = norm(dicha ?? '');
-  if (reco && historial.length && /\bpor ?que\b/.test(nq) && nq.split(/\s+/).length <= 8 && !esConcepto(nq)) {
-    const primero = reco.rotacion[0];
-    const top = reco.cultivos.find((c) => c.id === primero.cultivo) ?? reco.cultivos[0];
-    return res.json({
-      respuesta: `Puse ${top.nombre ?? top.id} primero (puntaje ${top.puntaje} de 100). ${(top.razones ?? []).filter((r) => !/^Puntaje/.test(r)).slice(0, 3).join(' ')}${primero.porque ? ` ${primero.porque}` : ''} [SIAP]`.replace(/\s+/g, ' ').trim(),
-      acciones: [], fuentes: ['SIAP'], verificado: true, origen: 'motor', tema: 'recomendar-porque', base: 'ficha', enlaces: [], recomendacion: reco, ...conGraficas(graficasReco(reco)),
-    });
-  }
-
+  // "¿Por qué?", "¿y eso por qué?", "¿por qué no maíz?" tras una plática: seguimiento de la recomendación, no pregunta nueva
+  // (se mira lo que dijo, no la pregunta completada con la plática). Va antes del maíz y de "recomiéndame".
+  const pideQue = historial.length > 0 && asksWhyThisCrop(dicha) && !esConcepto(dicha);
+  const pideReco = !pideQue && pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
+  const needsReco = pideReco || pideQue || (pregunta && isFollowUp(pregunta));
   // Maíz: respuestas específicas con desglose (producción en tu parcela, decisión, ciclo, precio, riego, comparación...), calculadas por el código.
   // Una pregunta de maíz que no entendemos NO se manda a las tarjetas (podían traer una que no responde): se dice que no hay ese dato.
   const temaPrev = pregunta ? detectarTema(pregunta) : null;
@@ -157,7 +150,7 @@ async function resolver(req) {
     const h = await porPlantilla('heladas', pregunta, lat, lon, false, perfil); // las heladas son del clima (NASA), no del modelo de lluvia
     if (h) return res.json(h);
   }
-  if (pregunta && esMaiz(pregunta) && !['peligro', 'insumos', 'apoyos', 'credito', 'tarjeta'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
+  if (pregunta && !pideQue && esMaiz(pregunta) && !['peligro', 'insumos', 'apoyos', 'credito', 'tarjeta'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
     const id = idMaiz;
     const extra = extraPerfil(req.body.perfil);
     const ha = perfil.hectareas ?? (parcelas.length >= 2 && parcelas.every((p) => p.hectareas) ? parcelas.reduce((t, p) => t + p.hectareas, 0) : undefined);
@@ -171,44 +164,46 @@ async function resolver(req) {
     if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos && { datos: m.datos }), ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }), ...conGraficas(graficasMaiz(id, m.datos, { estado, pregunta })) });
   }
 
-  // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
   if (pideReco) {
     // Los datos del SIAP son de Guanajuato y Querétaro: fuera de ahí (y sin estado dicho por el agricultor) no se recomienda.
-    if (!perfil.estado && (lat < 19.9 || lat > 21.9 || lon < -102.2 || lon > -99)) {
+    if (!regionEstado) {
       return res.json({ respuesta: 'Esta parcela está fuera de Guanajuato y Querétaro, y mis datos de cultivos (SIAP) son solo de esos dos estados, así que no te recomiendo cultivos aquí. Si de todos modos quieres verlos, dime de cuál de los dos estados quieres la referencia.', acciones: [], fuentes: [], verificado: true, origen: 'motor', base: 'ficha', enlaces: [] });
     }
+  }
+  // Lo que tiene sembrado ahora (o lo último que sembró) cuenta como la temporada anterior del plan.
+  const previo = idMaiz === 'despues' ? 'maiz' : extraPerfil(req.body.perfil).cultivo_actual ?? perfil.ultimo_cultivo ?? null;
+  // Es el mismo motor de POST /api/recomendar (clima NASA, suelo y cultivos.json): el chat y la pantalla dicen lo mismo.
+  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo }) : null;
+  // Ingreso esperado de 3 años: el SIAP del estado para la rotación del motor (la misma simulación del recomendador del SIAP).
+  if (reco) reco.prediccion = simulateRotation({ rotacion: reco.rotacion, estado: reco.estado, agua, costos, hectareas: perfil.hectareas });
+
+  // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
+  if (pideReco) {
     if (!agua) return res.json(asking('agua'));
     if (!prioridad) return res.json(asking('prioridad'));
-    // Dos o más parcelas dibujadas: se analizan juntas (el servidor reparte los cultivos del primer año).
-    if (parcelas.length >= 2) {
-      const finca = recommendFarm({ parcelas, estado, agua, prioridad, encharca: perfil.encharca });
-      if (finca) {
-        return res.json({
-          respuesta: explainFarm(finca, !perfil.estado), acciones: [], fuentes: ['SIAP'], verificado: true,
-          origen: 'motor', base: 'ficha', enlaces: [], recomendacion_finca: finca, ...conGraficas(graficasFinca(finca)),
-          afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria && q.campo !== 'hectareas' && q.campo !== 'ultimo_cultivo'),
-        });
-      }
-    }
     if (reco) {
       // Se comparan los años secos de NASA (en esta parcela) con los años de pérdidas del SIAP, solo en temporal.
-      let corroboracion = null;
-      if (agua === 'temporal') {
-        try {
-          const { rows } = await getClimate(lat, lon);
-          corroboracion = corroborate({ clima: summarizeClimate(rows), filas: loadSiap()?.filas, estado, cultivo: reco.rotacion[0].cultivo });
-        } catch { /* sin clima no hay comparación; la recomendación sale igual */ }
-      }
+      const corroboracion = agua === 'temporal'
+        ? corroborate({ clima: reco.clima, filas: loadSiap()?.filas, estado: reco.estado, cultivo: reco.rotacion[0].cultivo })
+        : null;
       return res.json({
-        respuesta: explainRecommendation(reco, !perfil.estado) + (corroboracion ? ` Comparé con la lluvia de NASA en tu parcela (${reco.rotacion[0].cultivo}): ${corroboracion.corta} [NASA POWER, SIAP]` : ''),
-        acciones: [], fuentes: corroboracion ? ['SIAP', 'NASA POWER'] : ['SIAP'], verificado: true,
+        respuesta: explainPlot(reco) + (corroboracion ? ` Comparé con la lluvia de NASA en tu parcela (${reco.rotacion[0].cultivo}): ${corroboracion.corta} [NASA POWER, SIAP]` : ''),
+        acciones: [], fuentes: ['NASA POWER', 'SoilGrids', 'SIAP'], verificado: true,
         origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco, corroboracion, ...conGraficas(graficasReco(reco)),
-        // Preguntas opcionales que todavía no contesta: con ellas la recomendación se afina.
-        afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria),
       });
     }
   }
 
+  // "¿Por qué ese cultivo?" tras una recomendación: las razones las da el motor, no el modelo de lenguaje (inventaba puntajes).
+  // Solo las razones: el `porque` del motor repite el puntaje y el riesgo que ya trae razones[0].
+  if (reco && !pideReco && (pideQue || asksWhyThisCrop(pregunta))) {
+    const primero = reco.rotacion[0];
+    const top = reco.cultivos.find((c) => c.id === primero.cultivo) ?? reco.cultivos[0];
+    return res.json({
+      respuesta: `Puse ${top.nombre ?? top.id} primero (puntaje ${top.puntaje} de 100). ${(top.razones ?? []).filter((r) => !/^Puntaje/.test(r)).slice(0, 3).join(' ')} [NASA POWER, SoilGrids, SIAP]`.replace(/\s+/g, ' ').trim(),
+      acciones: [], fuentes: ['NASA POWER', 'SoilGrids', 'SIAP'], verificado: true, origen: 'motor', tema: 'recomendar-porque', base: 'ficha', enlaces: [], recomendacion: reco, ...conGraficas(graficasReco(reco)),
+    });
+  }
   // Riesgo del maíz según la lluvia: lo calcula el modelo entrenado y lo redacta el código (el modelo de lenguaje no toca estos números).
   if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta)) && !['apoyos', 'credito', 'tarjeta'].includes(temaPrev)) {
     try {
@@ -228,17 +223,17 @@ async function resolver(req) {
   // Preguntas frecuentes: las contesta el código con plantilla y cita puesta por él (sin modelo, sin Wikipedia).
   const tema = temaPrev === 'tarjeta' ? null : ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
   // "¿Puedo sembrar frijol?": el lugar de ese cultivo en la recomendación para su parcela (mismo cálculo que "¿qué me conviene?").
-  if (tema === 'cultivo' && agua && prioridad) {
+  // Usa el motor de la pantalla (recommendPlot), así el chat y /api/recomendar dan el mismo lugar.
+  if (tema === 'cultivo' && agua && prioridad && regionEstado) {
     const cultivo = detectCrop(pregunta);
-    const r = recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, cultivoActual: extraPerfil(req.body.perfil).cultivo_actual, hectareas: perfil.hectareas, encharca: perfil.encharca });
-    const orden = ordenParaTi(r);
-    const lugar = orden.findIndex((c) => c.id === cultivo);
+    const r = reco ?? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo });
+    const lugar = r.cultivos.findIndex((c) => c.id === cultivo);
     if (lugar >= 0) {
-      const c = orden[lugar];
+      const c = r.cultivos[lugar];
       const razones = (c.razones ?? []).filter((x) => !/^Puntaje/.test(x)).slice(0, 2).join(' ');
       return res.json({
-        respuesta: `${lugar < 3 ? 'Sí, te conviene' : 'Sí se puede, pero hay mejores opciones'}: ${c.nombre.toLowerCase()} sale en el lugar ${lugar + 1} de ${orden.length} para sembrar de ${agua} en ${estado} si quieres ${ETIQUETA[prioridad]} (puntaje ${c.puntaje} de 100). ${razones} [SIAP]`.replace(/\s+/g, ' ').trim(),
-        acciones: [], fuentes: ['SIAP'], verificado: true, origen: 'motor', tema: 'cultivo-puedo', base: 'ficha', enlaces: [], recomendacion: r, ...conGraficas(graficasReco(r)),
+        respuesta: `${lugar < 3 ? 'Sí, te conviene' : 'Sí se puede, pero hay mejores opciones'}: ${c.nombre.toLowerCase()} sale en el lugar ${lugar + 1} de ${r.cultivos.length} en tu parcela si quieres ${ETIQUETA[prioridad]} (puntaje ${c.puntaje} de 100). ${razones} [NASA POWER, SoilGrids, SIAP]`.replace(/\s+/g, ' ').trim(),
+        acciones: [], fuentes: ['NASA POWER', 'SoilGrids', 'SIAP'], verificado: true, origen: 'motor', tema: 'cultivo-puedo', base: 'ficha', enlaces: [], recomendacion: r, ...conGraficas(graficasReco(r)),
       });
     }
   }
@@ -264,7 +259,7 @@ async function resolver(req) {
     pronostico,
     conocimiento: contexto.items,
     siap,
-    recomendacion: reco ? compactReco(reco) : null,
+    recomendacion: reco ? compactPlot(reco) : null,
     agricultor: reco ? perfil : {}, // lo que dijo el agricultor solo importa si hay recomendación que explicar
   });
   return { llm: { ficha, pregunta, historial, contexto, graficas: graficasCultivoPregunta(pregunta, siap) } };

@@ -62,7 +62,7 @@ test('temas con tarjeta (gorgojo, cosecha de agua, canícula, Monitor de Sequía
 test('"¿Qué puedo sembrar?" es una recomendación, y "¿Puedo sembrar frijol?" da el mismo lugar que la recomendación', async () => {
   const reco = await ask('Que puedo sembrar?');
   assert.equal(reco.origen, 'motor');
-  const primero = reco.respuesta.match(/Te conviene más (\w+)/)[1];
+  const primero = reco.recomendacion.cultivos[0].id; // el primero del motor (recommendPlot)
   const b = await ask(`¿Puedo sembrar ${primero}?`);
   assert.equal(b.tema, 'cultivo-puedo');
   assert.match(b.respuesta, /lugar 1 de/);

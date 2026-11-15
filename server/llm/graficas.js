@@ -144,7 +144,7 @@ export function graficasReco(reco) {
   const top = reco.cultivos.filter((c, i, all) => all.findIndex((x) => x.id === c.id && x.temporada === c.temporada) === i).slice(0, 6);
   const p = reco.prediccion;
   return final([
-    barras('Puntaje de cada cultivo', 'puntos', top.map((c) => `${c.nombre} (${c.temporada})`), [{ nombre: 'Puntaje', valores: top.map((c) => c.puntaje) }], 'SIAP', 'Entre más alto, mejor para lo que elegiste.'),
+    barras('Puntaje de cada cultivo', 'puntos', top.map((c) => `${c.nombre} (${c.temporada})`), [{ nombre: 'Puntaje', valores: top.map((c) => c.puntaje) }], reco.clima ? 'NASA POWER, SoilGrids y SIAP' : 'SIAP', 'Entre más alto, mejor para lo que elegiste.'),
     p && barras('Ingreso bruto esperado en 3 años, por hectárea', 'pesos por hectárea', ['Caso malo', 'Esperado', 'Caso bueno'],
       [{ nombre: 'Ingreso bruto', valores: [p.ingreso_bruto_3_anios_peor_10_pct_por_ha, p.ingreso_bruto_3_anios_esperado_por_ha, p.ingreso_bruto_3_anios_mejor_10_pct_por_ha] }], 'SIAP', 'Sin costos ni inflación.'),
   ]);

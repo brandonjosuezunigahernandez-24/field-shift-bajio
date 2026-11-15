@@ -8,6 +8,7 @@ import {
   parsePower,
   seasonRainByYear,
   summarizeClimate,
+  validatePower,
 } from '../sources/nasaPower.js';
 
 // Small hand-made response to check the parsing rules one by one.
@@ -23,6 +24,8 @@ function makeRaw({ rainUnits = 'mm/day' } = {}) {
         T2M: { ...flat(2000, 20), ...flat(2001, 22) },
         T2M_MAX: { ...flat(2000, 28), ...flat(2001, 30) },
         T2M_MIN: { ...flat(2000, 12), ...flat(2001, 14) },
+        ALLSKY_SFC_SW_DWN: { ...flat(2000, 6), ...flat(2001, 6) },
+        GWETROOT: { ...flat(2000, 0.5), ...flat(2001, 0.5) },
         // 13th value is the annual summary and must be ignored.
         PRECTOTCORR: {
           ...months(2000, [0, 1, 0, 0, 0, 2, 3, 4, 1, 0, 0, 0, 99]),
@@ -71,6 +74,13 @@ test('parsePower turns the fill value -999 into null', () => {
 test('parsePower fails loudly on unknown rain units or a wrong payload', () => {
   assert.throws(() => parsePower(makeRaw({ rainUnits: 'kg/m^2/s' })), /units/);
   assert.throws(() => parsePower({ messages: ['error'] }), /Unexpected NASA POWER response/);
+});
+
+test('validatePower rejects a response missing any requested parameter', () => {
+  const raw = makeRaw();
+  delete raw.properties.parameter.GWETROOT;
+  assert.throws(() => validatePower(raw), /missing GWETROOT/);
+  assert.doesNotThrow(() => validatePower(makeRaw()));
 });
 
 test('seasonRainByYear sums the PV months and drops years with a missing month', () => {

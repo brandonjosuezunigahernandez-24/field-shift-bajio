@@ -7,14 +7,21 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "test": "node --test \"src/**/*.test.js\"",
+    "textura": "node scripts/fetch-earth-texture.js"
   },
   "dependencies": {
-    "leaflet": "^1.9.4",
+    "@react-three/drei": "^10.7.9",
+    "@react-three/fiber": "^9.8.2",
+    "bootstrap": "^5.3.3",
+    "bootstrap-icons": "^1.11.3",
+    "chart.js": "^4.4.1",
+    "maplibre-gl": "^6.18.0",
     "react": "^19.3.1",
     "react-dom": "^19.3.1",
-    "react-leaflet": "^5.0.0",
-    "recharts": "^3.10.1"
+    "react-router-dom": "^7.18.5",
+    "three": "^0.187.0"
   },
   "devDependencies": {
     "@vitejs/plugin-react": "^6.3.0",

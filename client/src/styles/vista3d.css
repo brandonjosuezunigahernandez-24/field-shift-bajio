@@ -1,0 +1,896 @@
+/* Generado: estilos de la vista 3D con ámbito .v3d (ver docs/integracion-prueba.md) */
+.v3d {
+  --bg: #f6f4ee;
+  --surface: #ffffff;
+  --text: #22301f;
+  --muted: #5b6657;
+  --accent: #2f6b3a;
+  --accent-text: #ffffff;
+  --border: #d9d6ca;
+  --dry: #fbe9d7;
+  --error: #9b2c1f;
+}
+.v3d * {
+  box-sizing: border-box;
+}
+.v3d {
+  margin: 0;
+  background: var(--bg);
+  color: var(--text);
+  font-family: system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  font-size: 17px;
+  line-height: 1.5;
+}
+.v3d .page {
+  max-width: 760px;
+  margin: 0 auto;
+  padding: 16px;
+}
+.v3d .page-header h1 {
+  margin: 8px 0 0;
+  color: var(--accent);
+}
+.v3d .page-header p {
+  margin: 4px 0 16px;
+  color: var(--muted);
+}
+.v3d .card {
+  background: var(--surface);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.v3d .card h2 {
+  margin: 0 0 8px;
+  font-size: 1.2rem;
+}
+.v3d .hint,
+.v3d .source {
+  color: var(--muted);
+  font-size: 0.9rem;
+  margin: 8px 0 0;
+}
+.v3d .button-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+.v3d button {
+  font: inherit;
+  padding: 10px 18px;
+  border: none;
+  border-radius: 8px;
+  background: var(--accent);
+  color: var(--accent-text);
+  cursor: pointer;
+}
+.v3d button:disabled {
+  opacity: 0.6;
+  cursor: wait;
+}
+.v3d button:focus-visible {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+.v3d .status {
+  padding: 12px 16px;
+}
+.v3d .error {
+  color: var(--error);
+  font-weight: 600;
+}
+.v3d .facts {
+  margin: 0 0 12px;
+  padding-left: 20px;
+}
+.v3d .facts li {
+  margin-bottom: 4px;
+}
+.v3d table {
+  width: 100%;
+  border-collapse: collapse;
+  font-variant-numeric: tabular-nums;
+}
+.v3d caption {
+  text-align: left;
+  font-weight: 600;
+  padding-bottom: 6px;
+}
+.v3d th,
+.v3d td {
+  text-align: left;
+  padding: 4px 8px;
+  border-bottom: 1px solid var(--border);
+}
+.v3d tr.dry {
+  background: var(--dry);
+  font-weight: 600;
+}
+.v3d .page-footer {
+  color: var(--muted);
+  font-size: 0.85rem;
+  padding: 8px 0 24px;
+}
+.v3d .page-footer p {
+  margin: 0 0 4px;
+}
+.v3d button.secondary {
+  background: var(--surface);
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  padding: 8px 14px;
+}
+.v3d .vista3d-canvas {
+  position: relative;
+  height: min(70vh, 520px);
+  min-height: 340px;
+  border-radius: 10px;
+  overflow: hidden;
+  background: #05070d;
+}
+.v3d .vista3d-hint,
+.v3d .vista3d-badge {
+  position: absolute;
+  margin: 0;
+  padding: 6px 10px;
+  border-radius: 6px;
+  background: rgba(5, 7, 13, 0.7);
+  color: #e8eef7;
+  font-size: 0.85rem;
+  pointer-events: none;
+}
+.v3d .vista3d-hint {
+  left: 8px;
+  right: 8px;
+  bottom: 8px;
+}
+.v3d .vista3d-badge {
+  top: 8px;
+  left: 8px;
+}
+.v3d .vista3d-panel {
+  margin-top: 12px;
+}
+.v3d .vista3d-move {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 12px 0;
+  padding: 8px 10px 10px;
+}
+.v3d .vista3d-move legend {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.v3d .vista3d-year {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px 12px;
+}
+.v3d .vista3d-year input[type='range'] {
+  flex: 1 1 180px;
+  accent-color: var(--accent);
+}
+.v3d .vista3d-year p {
+  flex-basis: 100%;
+  margin: 4px 0 0;
+}
+.v3d .vista3d-dry {
+  background: var(--dry);
+  padding: 4px 8px;
+  border-radius: 6px;
+}
+.v3d .vista3d-crop {
+  display: inline-block;
+  margin-top: 12px;
+}
+.v3d .vista3d-crop select {
+  font: inherit;
+  padding: 4px 8px;
+  margin-left: 6px;
+}
+.v3d .parcel-map-canvas {
+  height: min(60vh, 460px);
+  min-height: 320px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+.v3d .parcel-map-tools {
+  margin: 10px 0 12px;
+}
+.v3d .parcel-map-tools .hint {
+  margin: 0 0 8px;
+}
+.v3d .button-row .hint {
+  align-self: center;
+  margin: 0;
+}
+.v3d button:disabled {
+  cursor: not-allowed;
+}
+.v3d .corner-marker {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: #ffffff;
+  color: var(--accent);
+  border: 2px solid var(--accent);
+  font: 700 14px/22px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  text-align: center;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.45);
+  cursor: default;
+  user-select: none;
+}
+.v3d .corner-marker-first {
+  background: var(--accent);
+  color: #ffffff;
+  border-color: #ffffff;
+}
+.v3d .option-switch {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 4px 18px;
+  border: none;
+  margin: 8px 0 0;
+  padding: 0;
+  font-size: 0.95rem;
+}
+.v3d .option-switch legend {
+  float: left;
+  margin-right: 10px;
+  color: var(--muted);
+}
+.v3d .option-switch label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+}
+.v3d .option-switch input {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
+}
+.v3d .option-note {
+  color: var(--muted);
+  font-size: 0.85rem;
+}
+.v3d .gps-tools {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--accent);
+  background: #eef4ec;
+  border-radius: 6px;
+}
+.v3d .gps-tools .hint,
+.v3d .gps-tools .error {
+  margin: 6px 0 0;
+}
+.v3d .map-options {
+  margin-top: 8px;
+}
+.v3d .parcel-list {
+  margin: 12px 0 4px;
+  padding: 10px 12px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+}
+.v3d .parcel-list h3 {
+  margin: 0 0 6px;
+  font-size: 1rem;
+}
+.v3d .parcel-list ul {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+.v3d .parcel-list li {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  padding: 6px 0;
+  border-top: 1px solid var(--border);
+}
+.v3d .parcel-list li:first-child {
+  border-top: none;
+}
+.v3d .parcel-swatch {
+  width: 18px;
+  height: 18px;
+  border-radius: 4px;
+  background: var(--parcel-color);
+  border: 2px solid rgba(0, 0, 0, 0.35);
+}
+.v3d .parcel-name {
+  flex: 1 1 140px;
+  font-weight: 600;
+}
+.v3d .parcel-list select {
+  font: inherit;
+  padding: 4px 8px;
+}
+.v3d button.small {
+  padding: 4px 10px;
+  font-size: 0.9rem;
+}
+.v3d .parcel-tag {
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: rgba(20, 24, 18, 0.78);
+  color: #ffffff;
+  border: 2px solid var(--parcel-color);
+  font: 700 13px/18px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  white-space: nowrap;
+  user-select: none;
+}
+.v3d .visually-hidden {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+.v3d .vista3d-legend {
+  list-style: none;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px 16px;
+  margin: 12px 0 4px;
+  padding: 0;
+}
+.v3d .vista3d-legend li {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+}
+.v3d .vista3d-sections {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 16px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  margin: 12px 0;
+  padding: 8px 10px 10px;
+}
+.v3d .vista3d-sections legend {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.v3d .vista3d-sections label {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 600;
+  cursor: pointer;
+}
+.v3d .vista3d-sections input {
+  accent-color: var(--accent);
+  width: 18px;
+  height: 18px;
+}
+.v3d .vista3d-sections .hint {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+}
+.v3d {
+  --accent: #2f7d3b;
+  --accent-strong: #1f5f2b;
+  --sun: #f2b636;
+  --sky: #2b8fd6;
+  --bg: #f3f6ef;
+  --shadow: 0 10px 30px rgba(31, 61, 26, 0.12), 0 2px 6px rgba(31, 61, 26, 0.08);
+}
+.v3d {
+  background:
+    radial-gradient(1200px 500px at 10% -10%, #e2f0d9 0%, transparent 60%),
+    radial-gradient(900px 400px at 110% 10%, #fdf0cf 0%, transparent 55%),
+    var(--bg);
+  min-height: 100vh;
+}
+.v3d .page {
+  max-width: 900px;
+}
+.v3d .hero {
+  position: relative;
+  overflow: hidden;
+  margin: 8px 0 20px;
+  padding: 28px 24px 22px;
+  border-radius: 22px;
+  color: #ffffff;
+  background:
+    repeating-linear-gradient(115deg, rgba(255, 255, 255, 0.06) 0 14px, transparent 14px 34px),
+    linear-gradient(135deg, #1f5f2b 0%, #2f7d3b 45%, #6a9f2f 100%);
+  box-shadow: var(--shadow);
+}
+.v3d .hero::after {
+  
+  content: '';
+  position: absolute;
+  right: -40px;
+  top: -40px;
+  width: 170px;
+  height: 170px;
+  border-radius: 50%;
+  background: radial-gradient(circle, #ffe08a 0%, #f2b636 55%, rgba(242, 182, 54, 0) 72%);
+  opacity: 0.9;
+}
+.v3d .hero-kicker {
+  margin: 0;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  opacity: 0.85;
+}
+.v3d .hero h1 {
+  position: relative;
+  margin: 4px 0 6px;
+  font-size: clamp(1.8rem, 5vw, 2.6rem);
+  line-height: 1.1;
+}
+.v3d .hero-lead {
+  position: relative;
+  max-width: 34em;
+  margin: 0 0 16px;
+  font-size: 1.05rem;
+  opacity: 0.95;
+}
+.v3d .steps {
+  position: relative;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.v3d .steps a {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px 6px 6px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+  font-weight: 600;
+  text-decoration: none;
+  transition: background 0.2s, transform 0.2s;
+}
+.v3d .steps a:hover {
+  background: rgba(255, 255, 255, 0.28);
+  transform: translateY(-1px);
+}
+.v3d .steps-dot {
+  display: inline-grid;
+  place-items: center;
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.25);
+  font-size: 0.85rem;
+}
+.v3d .steps .current a {
+  background: #ffffff;
+  color: var(--accent-strong);
+}
+.v3d .steps .current .steps-dot {
+  background: var(--sun);
+  color: #3b2a00;
+  animation: pulse 1.8s ease-in-out infinite;
+}
+.v3d .steps .done .steps-dot {
+  background: var(--sun);
+  color: #3b2a00;
+}
+@keyframes pulse {
+  50% {
+    box-shadow: 0 0 0 6px rgba(242, 182, 54, 0.35);
+  }
+}
+.v3d .card {
+  border: none;
+  border-radius: 20px;
+  padding: 20px;
+  margin-bottom: 20px;
+  box-shadow: var(--shadow);
+}
+.v3d .card h2 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 12px;
+  font-size: 1.35rem;
+  color: var(--accent-strong);
+}
+.v3d .step-badge {
+  display: inline-grid;
+  place-items: center;
+  width: 34px;
+  height: 34px;
+  border-radius: 12px;
+  background: linear-gradient(135deg, var(--sun), #f59e2c);
+  color: #3b2a00;
+  font-size: 1.05rem;
+  font-weight: 800;
+  box-shadow: 0 3px 8px rgba(245, 158, 44, 0.35);
+}
+.v3d button {
+  border-radius: 12px;
+  font-weight: 600;
+  background: linear-gradient(180deg, #389447, var(--accent));
+  box-shadow: 0 3px 0 var(--accent-strong);
+  transition: transform 0.12s, box-shadow 0.12s, filter 0.12s;
+}
+.v3d button:hover:not(:disabled) {
+  transform: translateY(-1px);
+  filter: brightness(1.05);
+}
+.v3d button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 1px 0 var(--accent-strong);
+}
+.v3d button.secondary {
+  background: #ffffff;
+  box-shadow: 0 2px 0 #cfe0c9;
+}
+.v3d button:disabled {
+  box-shadow: none;
+}
+.v3d .parcel-map-canvas,
+.v3d .vista3d-canvas {
+  border-radius: 16px;
+  box-shadow: inset 0 0 0 1px rgba(0, 0, 0, 0.06);
+}
+.v3d .farm-summary {
+  display: grid;
+  grid-template-columns: minmax(170px, 0.8fr) 1.6fr;
+  gap: 14px 20px;
+  align-items: center;
+  margin: 14px 0 6px;
+  padding: 16px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #fff8e4, #eef7e8);
+}
+@media (max-width: 560px) {
+.v3d .farm-summary {
+    grid-template-columns: 1fr;
+  }
+
+
+}
+.v3d .farm-total {
+  display: flex;
+  flex-direction: column;
+}
+.v3d .farm-total-label {
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  text-transform: uppercase;
+  color: var(--muted);
+}
+.v3d .farm-total-value {
+  font-size: 2.6rem;
+  font-weight: 800;
+  line-height: 1.05;
+  color: var(--accent-strong);
+  font-variant-numeric: tabular-nums;
+}
+.v3d .farm-total-value small {
+  font-size: 1.1rem;
+  font-weight: 700;
+}
+.v3d .farm-total-note {
+  font-size: 0.9rem;
+  color: var(--muted);
+}
+.v3d .farm-crops {
+  display: grid;
+  gap: 8px;
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.v3d .farm-crops li {
+  display: grid;
+  grid-template-columns: 80px 1fr auto;
+  align-items: center;
+  gap: 10px;
+  font-weight: 600;
+}
+.v3d .farm-crop-bar {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.06);
+  overflow: hidden;
+}
+.v3d .farm-crop-bar span {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.6s cubic-bezier(0.2, 0.8, 0.2, 1);
+}
+.v3d .farm-crop-ha {
+  font-variant-numeric: tabular-nums;
+  white-space: nowrap;
+}
+.v3d .farm-crop-ha small {
+  color: var(--muted);
+  font-weight: 500;
+}
+.v3d .farm-summary .hint {
+  grid-column: 1 / -1;
+  margin: 0;
+}
+.v3d .side-tag {
+  padding: 1px 7px;
+  border-radius: 6px;
+  background: #ffffff;
+  color: #1f2a1c;
+  font: 700 12px/18px system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.4);
+  white-space: nowrap;
+  user-select: none;
+}
+.v3d .side-tag-closing {
+  background: rgba(255, 255, 255, 0.75);
+  border: 1px dashed #1f2a1c;
+}
+@media (prefers-reduced-motion: reduce) {
+.v3d .steps .current .steps-dot {
+    animation: none;
+  }
+.v3d .farm-crop-bar span,
+.v3d button,
+.v3d .steps a {
+    transition: none;
+  }
+
+
+}
+.v3d .maplibregl-ctrl button,
+.v3d .maplibregl-ctrl button:hover:not(:disabled),
+.v3d .maplibregl-ctrl button:active:not(:disabled) {
+  padding: 0;
+  border-radius: 0;
+  background-color: #ffffff;
+  background-image: none;
+  box-shadow: none;
+  transform: none;
+  filter: none;
+  font-weight: normal;
+}
+.v3d .maplibregl-ctrl-group {
+  border-radius: 10px;
+  overflow: hidden;
+}
+.v3d .parcel-map-frame {
+  position: relative;
+}
+.v3d .map-year-badge {
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  margin: 0;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(31, 95, 43, 0.92);
+  color: #ffffff;
+  font-weight: 700;
+  font-size: 0.95rem;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+  transition: background 0.4s;
+}
+.v3d .map-year-dry {
+  background: rgba(166, 98, 24, 0.95);
+}
+.v3d .map-year {
+  margin: 12px 0 6px;
+  padding: 12px 14px;
+  border-radius: 16px;
+  background: #f4f8ff;
+  border: 1px solid #d8e6fb;
+}
+.v3d .map-year-title {
+  margin: 0 0 8px;
+  font-weight: 600;
+  color: #1d4f86;
+}
+.v3d .corner-marker {
+  cursor: grab;
+  transition: transform 0.12s;
+}
+.v3d .corner-marker:hover {
+  transform: scale(1.15);
+}
+.v3d .corner-marker:active {
+  cursor: grabbing;
+}
+.v3d .weather-switch {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 6px;
+  font-size: 0.95rem;
+  cursor: pointer;
+}
+.v3d .weather-switch input {
+  accent-color: var(--sky);
+  width: 18px;
+  height: 18px;
+}
+.v3d .weather-picker {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  border: none;
+  margin: 8px 0 0;
+  padding: 0;
+}
+.v3d .weather-picker legend {
+  float: left;
+  margin: 6px 10px 0 0;
+  color: var(--muted);
+}
+.v3d .weather-picker .hint {
+  flex-basis: 100%;
+  margin: 2px 0 0;
+}
+.v3d .chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 5px 12px;
+  border-radius: 999px;
+  border: 2px solid #d5e3cf;
+  background: #ffffff;
+  font-size: 0.92rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.15s, border-color 0.15s, transform 0.15s;
+}
+.v3d .chip:hover {
+  transform: translateY(-1px);
+}
+.v3d .chip input {
+  position: absolute;
+  opacity: 0;
+  pointer-events: none;
+}
+.v3d .chip-on {
+  background: var(--accent);
+  border-color: var(--accent);
+  color: #ffffff;
+}
+.v3d .chip:focus-within {
+  outline: 3px solid #1d4ed8;
+  outline-offset: 2px;
+}
+.v3d .map-year-example {
+  background: rgba(43, 143, 214, 0.92);
+}
+.v3d .weather-overlay {
+  position: absolute;
+  inset: 0;
+  border-radius: 16px;
+  overflow: hidden;
+  pointer-events: none;
+  transition: background 0.8s;
+}
+.v3d .wx-sun {
+  position: absolute;
+  top: -120px;
+  right: -120px;
+  width: 360px;
+  height: 360px;
+  border-radius: 50%;
+  opacity: 0;
+  background:
+    radial-gradient(circle, rgba(255, 236, 160, 0.95) 0%, rgba(255, 214, 102, 0.55) 22%, rgba(255, 200, 80, 0) 60%),
+    repeating-conic-gradient(rgba(255, 230, 150, 0.22) 0deg 6deg, rgba(255, 230, 150, 0) 6deg 18deg);
+  transition: opacity 0.8s;
+}
+.v3d .wx-soleado .wx-sun,
+.v3d .wx-sequia .wx-sun {
+  opacity: 1;
+  animation: sun-turn 40s linear infinite;
+}
+.v3d .wx-normal .wx-sun {
+  opacity: 0.45;
+  animation: sun-turn 40s linear infinite;
+}
+.v3d .wx-soleado {
+  background: linear-gradient(200deg, rgba(255, 210, 120, 0.12), rgba(255, 210, 120, 0) 60%);
+}
+.v3d .wx-sequia {
+  background:
+    linear-gradient(200deg, rgba(255, 170, 70, 0.22), rgba(230, 160, 80, 0.12) 70%);
+  animation: heat-haze 3s ease-in-out infinite;
+}
+.v3d .wx-nublado {
+  background: linear-gradient(180deg, rgba(110, 120, 135, 0.28), rgba(110, 120, 135, 0.12));
+}
+.v3d .wx-lluvia {
+  background: linear-gradient(180deg, rgba(70, 90, 115, 0.32), rgba(70, 90, 115, 0.16));
+}
+.v3d .wx-tormenta {
+  background: linear-gradient(180deg, rgba(30, 38, 55, 0.5), rgba(30, 38, 55, 0.28));
+}
+.v3d .wx-flash {
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  background: rgba(235, 240, 255, 0.85);
+}
+.v3d .wx-tormenta .wx-flash {
+  animation: lightning 7s infinite;
+}
+@keyframes sun-turn {
+  to {
+    transform: rotate(360deg);
+  }
+}
+@keyframes heat-haze {
+  50% {
+    background-color: rgba(255, 190, 90, 0.06);
+  }
+}
+@keyframes lightning {
+  0%, 88%, 92%, 95%, 100% {
+    opacity: 0;
+  }
+  89%, 94% {
+    opacity: 0.85;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+.v3d .wx-sun,
+.v3d .wx-sequia,
+.v3d .wx-tormenta .wx-flash {
+    animation: none !important;
+  }
+
+
+}
+
+
+/* Integración: la vista 3D y el mapa viven dentro de tarjetas del diseño. */
+.v3d.v3d-embed { background: transparent; font-size: 15px; }
+
+/* Botones más grandes y claros (pedido del equipo) */
+.v3d button { min-height: 44px; font-size: 16px; padding: 10px 18px; }
+.v3d button.secondary { border-width: 2px; font-weight: 600; }
+.v3d .vista3d-forecast { border: 2px solid var(--border); border-radius: 12px; padding: 12px; margin: 12px 0; }
+.v3d .vista3d-forecast legend { font-weight: 700; padding: 0 6px; }
+.v3d .forecast-row { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 6px; }
+.v3d .forecast-day { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 2px; border: 2px solid var(--border); border-radius: 10px; background: var(--surface); color: var(--text); cursor: pointer; }
+.v3d .forecast-day.is-on { border-color: var(--accent); background: #e6f1e8; }
+.v3d .fd-icon { font-size: 26px; line-height: 1; }
+.v3d .fd-name { font-size: 13px; font-weight: 700; text-transform: capitalize; }
+.v3d .fd-mm { font-size: 12px; color: var(--muted); }
+.v3d .forecast-detail { margin: 10px 0 0; }
+.v3d .parcel-info { border: 2px solid var(--parcel-color, var(--accent)); border-radius: 12px; padding: 12px 14px; margin: 12px 0; background: var(--surface); }
+.v3d .parcel-info h3 { margin: 4px 0 8px; font-size: 18px; }
+.v3d .parcel-info > button { float: right; margin-left: 8px; }
+
+/* "Detectar con un toque" */
+.detect-tools {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--sun);
+  background: #fff8e4;
+  border-radius: 6px;
+}
+
+.detect-tools .hint {
+  margin: 6px 0 0;
+}
