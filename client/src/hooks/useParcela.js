@@ -56,8 +56,18 @@ export function useParcela() {
     getPronostico(selected.lat, selected.lon).then((p) => id === requestId.current && setPronostico(p)).catch(() => {});
     const [climaResult, sueloResult] = await Promise.allSettled([getClima(selected.lat, selected.lon), getSuelo(selected.lat, selected.lon)]);
     if (id !== requestId.current) return; // a newer selection won
-    setClima(settle(climaResult));
+    const climaFinal = settle(climaResult);
+    setClima(climaFinal);
     setSuelo(settle(sueloResult));
+    // El estado sale del mapa (límites del INEGI): el agricultor ya no lo tiene que elegir. Fuera de Gto y Qro no se toca.
+    const estado = climaFinal.data?.estado;
+    if (estado) {
+      setPerfilGuardado((antes) => {
+        const nuevo = { ...antes, estado };
+        guardarPerfil(nuevo);
+        return nuevo;
+      });
+    }
     setLoading(false);
   }, []);
 

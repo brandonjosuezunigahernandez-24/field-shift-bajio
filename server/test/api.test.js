@@ -50,7 +50,9 @@ test('GET /api/clima works offline for every fixture point', async () => {
     assert.ok(Array.isArray(body.anios_secos));
     assert.ok(body.umbral_seco_mm > 0);
     assert.match(body.fuente, /NASA POWER/);
+    assert.ok(['Guanajuato', 'Querétaro'].includes(body.estado), point.nombre);
   }
+  assert.equal((await get('/api/clima?lat=20.47&lon=-100.81')).body.estado, 'Guanajuato');
 });
 
 test('GET /api/suelo works offline and has soil data for every fixture point', async () => {
