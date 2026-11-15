@@ -11,7 +11,7 @@ export function readSiapRows(dir = process.env.SIAP_RAW_DIR || SIAP_RAW_DIR_DEFA
   const rows = [];
   for (const y of years) {
     const lines = fs.readFileSync(path.join(dir, `${y}.csv`), 'latin1').split(/\r?\n/);
-    const head = lines[0].split(',').map((h) => (h === 'Nomcultivo Sin Um' ? 'Nomcultivo' : h)); // 2018-2020 usan otro nombre
+    const head = lines[0].split(',').map((h) => (h === 'Nomcultivo Sin Um' ? 'Nomcultivo' : h === 'Precio' ? 'Preciomediorural' : h)); // 2018-2020 usan otro nombre
     for (const l of lines.slice(1)) {
       if (!l) continue;
       const c = l.split(',');

@@ -44,7 +44,7 @@ export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [],
       periodo: `${clima.periodo.inicio}-${clima.periodo.fin}`,
       fuente: 'NASA POWER',
     },
-    suelo: suelo.sin_datos
+    ...(suelo && { suelo: suelo.sin_datos
       ? { sin_datos: true }
       : {
           ph: suelo.ph,
@@ -52,6 +52,6 @@ export function buildFicha({ clima, suelo, pronostico = null, conocimiento = [],
           arena_pct: suelo.arena_pct,
           carbono_organico_g_kg: suelo.carbono_organico_g_kg,
           fuente: 'SoilGrids',
-        },
+        } }),
   };
 }

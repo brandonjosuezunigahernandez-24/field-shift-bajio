@@ -6,6 +6,8 @@ function numbersIn(value, out = new Set()) {
   if (typeof value === 'number') {
     out.add(value);
     out.add(Math.round(value));
+    out.add(Math.abs(value)); // el texto escribe "−2.7" y el número suelto es 2.7
+    out.add(Math.round(Math.abs(value)));
   } else if (typeof value === 'string') {
     (value.match(NUM) ?? []).forEach((m) => out.add(toNum(m)));
   } else if (value && typeof value === 'object') {

@@ -1,0 +1,82 @@
+{
+ "fecha": "2026-11-15",
+ "definicion": "ano malo = siniestrada > 10 % de la superficie sembrada (temporal, primavera-verano)",
+ "features": [
+  "ratio",
+  "t_pv",
+  "estado_queretaro",
+  "cultivo_Sorgo grano",
+  "cultivo_Frijol",
+  "cultivo_Avena forrajera en verde",
+  "cultivo_Garbanzo grano"
+ ],
+ "cultivos": [
+  "Maiz grano",
+  "Sorgo grano",
+  "Frijol",
+  "Avena forrajera en verde",
+  "Garbanzo grano"
+ ],
+ "modelo": {
+  "mean": [
+   0.942,
+   19.792,
+   0.182,
+   0.187,
+   0.298,
+   0.078,
+   0.055
+  ],
+  "sd": [
+   0.273,
+   1.32,
+   0.386,
+   0.39,
+   0.457,
+   0.269,
+   0.227
+  ],
+  "w": [
+   -2.4931,
+   -1.0432,
+   0.2493,
+   0.6163,
+   -0.7182,
+   -0.1188,
+   -0.5359,
+   -0.668
+  ]
+ },
+ "filas": 1174,
+ "validacion_loyo": {
+  "brier": 0.1,
+  "brier_linea_base": 0.126,
+  "auc": 0.824,
+  "calibracion": [
+   {
+    "rango": "0-0.1",
+    "n": 650,
+    "prob_media": 0.03,
+    "frecuencia_obs": 0.049
+   },
+   {
+    "rango": "0.1-0.25",
+    "n": 282,
+    "prob_media": 0.155,
+    "frecuencia_obs": 0.124
+   },
+   {
+    "rango": "0.25-0.5",
+    "n": 143,
+    "prob_media": 0.345,
+    "frecuencia_obs": 0.434
+   },
+   {
+    "rango": "0.5-1",
+    "n": 99,
+    "prob_media": 0.654,
+    "frecuencia_obs": 0.576
+   }
+  ]
+ }
+}

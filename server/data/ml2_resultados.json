@@ -1,0 +1,1317 @@
+{
+ "fecha": "2026-11-15",
+ "filas_siniestro": 1174,
+ "e1_clasificacion": {
+  "baseline_prevalencia_estado_cultivo": {
+   "todo": {
+    "n": 1174,
+    "prevalencia": 0.158,
+    "acc": 0.817,
+    "precision": 0.032,
+    "recall": 0.005,
+    "brier": 0.126,
+    "auc": 0.676
+   },
+   "Gto maiz": {
+    "n": 322,
+    "prevalencia": 0.177,
+    "acc": 0.823,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.168,
+    "auc": 0.08
+   },
+   "Qro maiz": {
+    "n": 126,
+    "prevalencia": 0.444,
+    "acc": 0.556,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.264,
+    "auc": 0.257
+   },
+   "Gto frijol": {
+    "n": 281,
+    "prevalencia": 0.11,
+    "acc": 0.89,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.104,
+    "auc": 0.176
+   },
+   "Gto sorgo": {
+    "n": 217,
+    "prevalencia": 0.028,
+    "acc": 0.972,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.027,
+    "auc": 0.205
+   }
+  },
+  "baseline_prevalencia_municipio": {
+   "todo": {
+    "n": 1174,
+    "prevalencia": 0.158,
+    "acc": 0.769,
+    "precision": 0.242,
+    "recall": 0.215,
+    "brier": 0.132,
+    "auc": 0.711
+   },
+   "Gto maiz": {
+    "n": 322,
+    "prevalencia": 0.177,
+    "acc": 0.748,
+    "precision": 0,
+    "recall": 0,
+    "brier": 0.176,
+    "auc": 0.434
+   },
+   "Qro maiz": {
+    "n": 126,
+    "prevalencia": 0.444,
+    "acc": 0.349,
+    "precision": 0.324,
+    "recall": 0.429,
+    "brier": 0.321,
+    "auc": 0.282
+   },
+   "Gto frijol": {
+    "n": 281,
+    "prevalencia": 0.11,
+    "acc": 0.804,
+    "precision": 0,
+    "recall": 0,
+    "brier": 0.098,
+    "auc": 0.756
+   },
+   "Gto sorgo": {
+    "n": 217,
+    "prevalencia": 0.028,
+    "acc": 0.972,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.03,
+    "auc": 0.592
+   }
+  },
+  "logistica_ratio_t_sep": {
+   "todo": {
+    "n": 1174,
+    "prevalencia": 0.158,
+    "acc": 0.851,
+    "precision": 0.544,
+    "recall": 0.366,
+    "brier": 0.104,
+    "auc": 0.836
+   },
+   "Gto maiz": {
+    "n": 322,
+    "prevalencia": 0.177,
+    "acc": 0.879,
+    "precision": 0.875,
+    "recall": 0.368,
+    "brier": 0.097,
+    "auc": 0.863
+   },
+   "Qro maiz": {
+    "n": 126,
+    "prevalencia": 0.444,
+    "acc": 0.627,
+    "precision": 0.596,
+    "recall": 0.5,
+    "brier": 0.223,
+    "auc": 0.682
+   },
+   "Gto frijol": {
+    "n": 281,
+    "prevalencia": 0.11,
+    "acc": 0.861,
+    "precision": 0.346,
+    "recall": 0.29,
+    "brier": 0.098,
+    "auc": 0.8
+   },
+   "Gto sorgo": {
+    "n": 217,
+    "prevalencia": 0.028,
+    "acc": 0.972,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.027,
+    "auc": 0.202
+   }
+  }
+ },
+ "e2_ablacion": {
+  "ratio": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.86,
+   "precision": 0.606,
+   "recall": 0.339,
+   "brier": 0.101,
+   "auc": 0.825
+  },
+  "ratio_t": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.854,
+   "precision": 0.576,
+   "recall": 0.306,
+   "brier": 0.1,
+   "auc": 0.824
+  },
+  "ratio_julago": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.862,
+   "precision": 0.609,
+   "recall": 0.36,
+   "brier": 0.101,
+   "auc": 0.838
+  },
+  "ratio_suelo": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.864,
+   "precision": 0.625,
+   "recall": 0.349,
+   "brier": 0.1,
+   "auc": 0.83
+  },
+  "ratio_solar": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.865,
+   "precision": 0.617,
+   "recall": 0.382,
+   "brier": 0.1,
+   "auc": 0.828
+  },
+  "ratio_tmaxmin": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.853,
+   "precision": 0.576,
+   "recall": 0.285,
+   "brier": 0.101,
+   "auc": 0.824
+  },
+  "todo": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.847,
+   "precision": 0.523,
+   "recall": 0.36,
+   "brier": 0.103,
+   "auc": 0.847
+  }
+ },
+ "e2_ablacion_separado": {
+  "ratio": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.84,
+   "precision": 0.492,
+   "recall": 0.328,
+   "brier": 0.105,
+   "auc": 0.836
+  },
+  "ratio_t": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.851,
+   "precision": 0.544,
+   "recall": 0.366,
+   "brier": 0.104,
+   "auc": 0.836
+  },
+  "ratio_julago": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.852,
+   "precision": 0.548,
+   "recall": 0.366,
+   "brier": 0.097,
+   "auc": 0.862
+  },
+  "ratio_suelo": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.834,
+   "precision": 0.466,
+   "recall": 0.328,
+   "brier": 0.103,
+   "auc": 0.841
+  },
+  "ratio_solar": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.826,
+   "precision": 0.449,
+   "recall": 0.43,
+   "brier": 0.109,
+   "auc": 0.841
+  },
+  "ratio_tmaxmin": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.853,
+   "precision": 0.549,
+   "recall": 0.392,
+   "brier": 0.104,
+   "auc": 0.834
+  },
+  "todo": {
+   "n": 1174,
+   "prevalencia": 0.158,
+   "acc": 0.847,
+   "precision": 0.519,
+   "recall": 0.452,
+   "brier": 0.1,
+   "auc": 0.86
+  }
+ },
+ "e2_quitar_una": {
+  "ratio": 0.104,
+  "t_pv": 0.102,
+  "lluvia_jul": 0.102,
+  "lluvia_ago": 0.108,
+  "suelo_pv": 0.102,
+  "solar_pv": 0.103,
+  "tmax_pv": 0.103,
+  "tmin_pv": 0.102
+ },
+ "e3_conjunto_vs_separado": {
+  "sep": {
+   "todo": {
+    "n": 1174,
+    "prevalencia": 0.158,
+    "acc": 0.851,
+    "precision": 0.544,
+    "recall": 0.366,
+    "brier": 0.104,
+    "auc": 0.836
+   },
+   "Gto maiz": {
+    "n": 322,
+    "prevalencia": 0.177,
+    "acc": 0.879,
+    "precision": 0.875,
+    "recall": 0.368,
+    "brier": 0.097,
+    "auc": 0.863
+   },
+   "Qro maiz": {
+    "n": 126,
+    "prevalencia": 0.444,
+    "acc": 0.627,
+    "precision": 0.596,
+    "recall": 0.5,
+    "brier": 0.223,
+    "auc": 0.682
+   },
+   "Gto frijol": {
+    "n": 281,
+    "prevalencia": 0.11,
+    "acc": 0.861,
+    "precision": 0.346,
+    "recall": 0.29,
+    "brier": 0.098,
+    "auc": 0.8
+   },
+   "Gto sorgo": {
+    "n": 217,
+    "prevalencia": 0.028,
+    "acc": 0.972,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.027,
+    "auc": 0.202
+   }
+  },
+  "cultivo": {
+   "todo": {
+    "n": 1174,
+    "prevalencia": 0.158,
+    "acc": 0.857,
+    "precision": 0.6,
+    "recall": 0.29,
+    "brier": 0.101,
+    "auc": 0.825
+   },
+   "Gto maiz": {
+    "n": 322,
+    "prevalencia": 0.177,
+    "acc": 0.845,
+    "precision": 1,
+    "recall": 0.123,
+    "brier": 0.106,
+    "auc": 0.871
+   },
+   "Qro maiz": {
+    "n": 126,
+    "prevalencia": 0.444,
+    "acc": 0.659,
+    "precision": 0.623,
+    "recall": 0.589,
+    "brier": 0.223,
+    "auc": 0.702
+   },
+   "Gto frijol": {
+    "n": 281,
+    "prevalencia": 0.11,
+    "acc": 0.9,
+    "precision": 1,
+    "recall": 0.097,
+    "brier": 0.088,
+    "auc": 0.749
+   },
+   "Gto sorgo": {
+    "n": 217,
+    "prevalencia": 0.028,
+    "acc": 0.972,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.027,
+    "auc": 0.216
+   }
+  },
+  "estado": {
+   "todo": {
+    "n": 1174,
+    "prevalencia": 0.158,
+    "acc": 0.854,
+    "precision": 0.559,
+    "recall": 0.382,
+    "brier": 0.105,
+    "auc": 0.825
+   },
+   "Gto maiz": {
+    "n": 322,
+    "prevalencia": 0.177,
+    "acc": 0.879,
+    "precision": 0.875,
+    "recall": 0.368,
+    "brier": 0.097,
+    "auc": 0.863
+   },
+   "Qro maiz": {
+    "n": 126,
+    "prevalencia": 0.444,
+    "acc": 0.635,
+    "precision": 0.614,
+    "recall": 0.482,
+    "brier": 0.233,
+    "auc": 0.67
+   },
+   "Gto frijol": {
+    "n": 281,
+    "prevalencia": 0.11,
+    "acc": 0.861,
+    "precision": 0.346,
+    "recall": 0.29,
+    "brier": 0.096,
+    "auc": 0.785
+   },
+   "Gto sorgo": {
+    "n": 217,
+    "prevalencia": 0.028,
+    "acc": 0.972,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.036,
+    "auc": 0.373
+   }
+  },
+  "todo": {
+   "todo": {
+    "n": 1174,
+    "prevalencia": 0.158,
+    "acc": 0.854,
+    "precision": 0.576,
+    "recall": 0.306,
+    "brier": 0.1,
+    "auc": 0.824
+   },
+   "Gto maiz": {
+    "n": 322,
+    "prevalencia": 0.177,
+    "acc": 0.839,
+    "precision": 1,
+    "recall": 0.088,
+    "brier": 0.112,
+    "auc": 0.855
+   },
+   "Qro maiz": {
+    "n": 126,
+    "prevalencia": 0.444,
+    "acc": 0.675,
+    "precision": 0.619,
+    "recall": 0.696,
+    "brier": 0.221,
+    "auc": 0.702
+   },
+   "Gto frijol": {
+    "n": 281,
+    "prevalencia": 0.11,
+    "acc": 0.9,
+    "precision": 0.8,
+    "recall": 0.129,
+    "brier": 0.083,
+    "auc": 0.791
+   },
+   "Gto sorgo": {
+    "n": 217,
+    "prevalencia": 0.028,
+    "acc": 0.972,
+    "precision": null,
+    "recall": 0,
+    "brier": 0.029,
+    "auc": 0.39
+   }
+  }
+ },
+ "e4_intervalos_80": {
+  "nominal": 0.8,
+  "modelo_residuos_loyo": {
+   "cobertura": 0.842,
+   "ancho_medio_pts": 20.048
+  },
+  "ingenuo_cuantiles_del_objetivo": {
+   "cobertura": 0.887,
+   "ancho_medio_pts": 23.696
+  },
+  "mae_modelo": 9.049,
+  "mae_media_grupo": 10.939
+ },
+ "e4_calibracion_logistica": [
+  {
+   "rango": "0-0.1",
+   "n": 650,
+   "prob_media": 0.03,
+   "frecuencia_obs": 0.049
+  },
+  {
+   "rango": "0.1-0.25",
+   "n": 282,
+   "prob_media": 0.155,
+   "frecuencia_obs": 0.124
+  },
+  {
+   "rango": "0.25-0.5",
+   "n": 143,
+   "prob_media": 0.345,
+   "frecuencia_obs": 0.434
+  },
+  {
+   "rango": "0.5-1",
+   "n": 99,
+   "prob_media": 0.654,
+   "frecuencia_obs": 0.576
+  }
+ ],
+ "e5_rendimiento_todos": {
+  "n": 6355,
+  "mediana_error_pct": {
+   "media": 4.954,
+   "lag1": 2.815,
+   "clima": 5.927,
+   "lag1_mas_media": 3.75
+  }
+ },
+ "e5_precio_todos": {
+  "n": 6355,
+  "mediana_error_pct": {
+   "media": 14.704,
+   "lag1": 5.255,
+   "clima": 14.704,
+   "lag1_mas_media": 10.314
+  }
+ },
+ "e5_rendimiento_granos_temporal": {
+  "n": 635,
+  "mediana_error_pct": {
+   "media": 11.008,
+   "lag1": 5,
+   "clima": 12.818,
+   "lag1_mas_media": 7.4
+  }
+ },
+ "e7_por_cultivo": {
+  "Fresa": {
+   "riego_rendimiento": {
+    "n": 79,
+    "mediana_error_pct": {
+     "media": 4.637,
+     "lag1": 2.784,
+     "clima": 6.265,
+     "lag1_mas_media": 3.541
+    }
+   },
+   "riego_precio": {
+    "n": 79,
+    "mediana_error_pct": {
+     "media": 16.907,
+     "lag1": 7.166,
+     "clima": 16.907,
+     "lag1_mas_media": 11.747
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Tomate rojo (jitomate)": {
+   "riego_rendimiento": {
+    "n": 253,
+    "mediana_error_pct": {
+     "media": 7.526,
+     "lag1": 3.571,
+     "clima": 9.503,
+     "lag1_mas_media": 5.726
+    }
+   },
+   "riego_precio": {
+    "n": 253,
+    "mediana_error_pct": {
+     "media": 13.376,
+     "lag1": 5.442,
+     "clima": 13.376,
+     "lag1_mas_media": 9.083
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Chile verde": {
+   "riego_rendimiento": {
+    "n": 230,
+    "mediana_error_pct": {
+     "media": 7.602,
+     "lag1": 3.542,
+     "clima": 9.342,
+     "lag1_mas_media": 5.018
+    }
+   },
+   "riego_precio": {
+    "n": 230,
+    "mediana_error_pct": {
+     "media": 16.789,
+     "lag1": 5.459,
+     "clima": 16.789,
+     "lag1_mas_media": 10.623
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Cebolla": {
+   "riego_rendimiento": {
+    "n": 279,
+    "mediana_error_pct": {
+     "media": 2.251,
+     "lag1": 1.408,
+     "clima": 2.513,
+     "lag1_mas_media": 2.066
+    }
+   },
+   "riego_precio": {
+    "n": 279,
+    "mediana_error_pct": {
+     "media": 14.469,
+     "lag1": 6.18,
+     "clima": 14.469,
+     "lag1_mas_media": 9.68
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Aguacate": {
+   "riego_rendimiento": {
+    "n": 79,
+    "mediana_error_pct": {
+     "media": 7.173,
+     "lag1": 2.161,
+     "clima": 8.667,
+     "lag1_mas_media": 4.728
+    }
+   },
+   "riego_precio": {
+    "n": 79,
+    "mediana_error_pct": {
+     "media": 16.507,
+     "lag1": 9.819,
+     "clima": 16.507,
+     "lag1_mas_media": 11.944
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Uva": {
+   "riego_rendimiento": {
+    "n": 56,
+    "mediana_error_pct": {
+     "media": 10.349,
+     "lag1": 2.027,
+     "clima": 10.847,
+     "lag1_mas_media": 6.386
+    }
+   },
+   "riego_precio": {
+    "n": 56,
+    "mediana_error_pct": {
+     "media": 8.081,
+     "lag1": 2.557,
+     "clima": 8.081,
+     "lag1_mas_media": 5.768
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Brócoli": {
+   "riego_rendimiento": {
+    "n": 283,
+    "mediana_error_pct": {
+     "media": 4.114,
+     "lag1": 1.596,
+     "clima": 4.05,
+     "lag1_mas_media": 2.714
+    }
+   },
+   "riego_precio": {
+    "n": 283,
+    "mediana_error_pct": {
+     "media": 6.286,
+     "lag1": 1.901,
+     "clima": 6.286,
+     "lag1_mas_media": 4.324
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Lechuga": {
+   "riego_rendimiento": {
+    "n": 231,
+    "mediana_error_pct": {
+     "media": 2.061,
+     "lag1": 1.729,
+     "clima": 4.558,
+     "lag1_mas_media": 1.753
+    }
+   },
+   "riego_precio": {
+    "n": 231,
+    "mediana_error_pct": {
+     "media": 15.584,
+     "lag1": 3.589,
+     "clima": 15.584,
+     "lag1_mas_media": 9.92
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Zanahoria": {
+   "riego_rendimiento": {
+    "n": 207,
+    "mediana_error_pct": {
+     "media": 2.828,
+     "lag1": 1.793,
+     "clima": 3.528,
+     "lag1_mas_media": 2.307
+    }
+   },
+   "riego_precio": {
+    "n": 207,
+    "mediana_error_pct": {
+     "media": 19.607,
+     "lag1": 4.123,
+     "clima": 19.607,
+     "lag1_mas_media": 11.853
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Ajo": {
+   "riego_rendimiento": {
+    "n": 133,
+    "mediana_error_pct": {
+     "media": 4.359,
+     "lag1": 2.322,
+     "clima": 4.364,
+     "lag1_mas_media": 3.125
+    }
+   },
+   "riego_precio": {
+    "n": 133,
+    "mediana_error_pct": {
+     "media": 9.903,
+     "lag1": 3.588,
+     "clima": 9.903,
+     "lag1_mas_media": 8.186
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Espárrago": {
+   "riego_rendimiento": {
+    "n": 109,
+    "mediana_error_pct": {
+     "media": 5.556,
+     "lag1": 2.778,
+     "clima": 6.274,
+     "lag1_mas_media": 3.851
+    }
+   },
+   "riego_precio": {
+    "n": 109,
+    "mediana_error_pct": {
+     "media": 10.779,
+     "lag1": 7.549,
+     "clima": 10.779,
+     "lag1_mas_media": 5.711
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Alfalfa verde": {
+   "riego_rendimiento": {
+    "n": 204,
+    "mediana_error_pct": {
+     "media": 3.205,
+     "lag1": 1.36,
+     "clima": 3.674,
+     "lag1_mas_media": 2.31
+    }
+   },
+   "riego_precio": {
+    "n": 204,
+    "mediana_error_pct": {
+     "media": 5.839,
+     "lag1": 2.94,
+     "clima": 5.839,
+     "lag1_mas_media": 4.142
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Nopalitos": {
+   "riego_rendimiento": {
+    "n": 43,
+    "mediana_error_pct": {
+     "media": 6.849,
+     "lag1": 2.326,
+     "clima": 6.343,
+     "lag1_mas_media": 3.232
+    }
+   },
+   "riego_precio": {
+    "n": 43,
+    "mediana_error_pct": {
+     "media": 9.638,
+     "lag1": 4.762,
+     "clima": 9.638,
+     "lag1_mas_media": 6.75
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Cebada grano": {
+   "riego_rendimiento": {
+    "n": 137,
+    "mediana_error_pct": {
+     "media": 2.812,
+     "lag1": 1.852,
+     "clima": 4.128,
+     "lag1_mas_media": 1.876
+    }
+   },
+   "riego_precio": {
+    "n": 137,
+    "mediana_error_pct": {
+     "media": 15.699,
+     "lag1": 11.392,
+     "clima": 15.699,
+     "lag1_mas_media": 11.59
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Trigo grano": {
+   "riego_rendimiento": {
+    "n": 142,
+    "mediana_error_pct": {
+     "media": 2.214,
+     "lag1": 2.273,
+     "clima": 4.291,
+     "lag1_mas_media": 2.173
+    }
+   },
+   "riego_precio": {
+    "n": 142,
+    "mediana_error_pct": {
+     "media": 25.438,
+     "lag1": 19.417,
+     "clima": 25.438,
+     "lag1_mas_media": 19.772
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Maiz grano": {
+   "riego_rendimiento": {
+    "n": 254,
+    "mediana_error_pct": {
+     "media": 5.694,
+     "lag1": 3.039,
+     "clima": 6.614,
+     "lag1_mas_media": 3.869
+    }
+   },
+   "riego_precio": {
+    "n": 254,
+    "mediana_error_pct": {
+     "media": 31.279,
+     "lag1": 20.101,
+     "clima": 31.279,
+     "lag1_mas_media": 23.983
+    }
+   },
+   "temporal_rendimiento": {
+    "n": 252,
+    "mediana_error_pct": {
+     "media": 13.147,
+     "lag1": 4.231,
+     "clima": 13.742,
+     "lag1_mas_media": 7.871
+    }
+   }
+  },
+  "Frijol": {
+   "riego_rendimiento": {
+    "n": 271,
+    "mediana_error_pct": {
+     "media": 5.036,
+     "lag1": 3.704,
+     "clima": 5.656,
+     "lag1_mas_media": 4.256
+    }
+   },
+   "riego_precio": {
+    "n": 271,
+    "mediana_error_pct": {
+     "media": 14.074,
+     "lag1": 3.549,
+     "clima": 14.074,
+     "lag1_mas_media": 8.343
+    }
+   },
+   "temporal_rendimiento": {
+    "n": 238,
+    "mediana_error_pct": {
+     "media": 7.875,
+     "lag1": 5,
+     "clima": 10.584,
+     "lag1_mas_media": 6.852
+    }
+   }
+  },
+  "Sorgo grano": {
+   "riego_rendimiento": {
+    "n": 162,
+    "mediana_error_pct": {
+     "media": 6.001,
+     "lag1": 3.409,
+     "clima": 5.106,
+     "lag1_mas_media": 4.322
+    }
+   },
+   "riego_precio": {
+    "n": 162,
+    "mediana_error_pct": {
+     "media": 33.169,
+     "lag1": 19.432,
+     "clima": 33.169,
+     "lag1_mas_media": 27.761
+    }
+   },
+   "temporal_rendimiento": {
+    "n": 145,
+    "mediana_error_pct": {
+     "media": 10.933,
+     "lag1": 5.263,
+     "clima": 14.377,
+     "lag1_mas_media": 7.739
+    }
+   }
+  },
+  "Tomate verde": {
+   "riego_rendimiento": {
+    "n": 245,
+    "mediana_error_pct": {
+     "media": 3.553,
+     "lag1": 1.899,
+     "clima": 4.762,
+     "lag1_mas_media": 2.706
+    }
+   },
+   "riego_precio": {
+    "n": 245,
+    "mediana_error_pct": {
+     "media": 18.513,
+     "lag1": 7.639,
+     "clima": 18.513,
+     "lag1_mas_media": 11.385
+    }
+   },
+   "temporal_rendimiento": null
+  },
+  "Coliflor": {
+   "riego_rendimiento": {
+    "n": 128,
+    "mediana_error_pct": {
+     "media": 3.606,
+     "lag1": 2.027,
+     "clima": 5.166,
+     "lag1_mas_media": 2.75
+    }
+   },
+   "riego_precio": {
+    "n": 128,
+    "mediana_error_pct": {
+     "media": 12.715,
+     "lag1": 2.439,
+     "clima": 12.715,
+     "lag1_mas_media": 7.68
+    }
+   },
+   "temporal_rendimiento": null
+  }
+ },
+ "e7_serie_estatal": {
+  "Fresa Guanajuato": {
+   "rendimiento": {
+    "media_pct": 3.035,
+    "lag1_pct": 3.779,
+    "cv_serie_pct": 2.456
+   },
+   "precio": {
+    "media_pct": 14.056,
+    "lag1_pct": 3.837,
+    "cv_serie_pct": 11.474
+   },
+   "hectareas_2024": 1994
+  },
+  "Tomate rojo (jitomate) Guanajuato": {
+   "rendimiento": {
+    "media_pct": 2.394,
+    "lag1_pct": 3.459,
+    "cv_serie_pct": 2.813
+   },
+   "precio": {
+    "media_pct": 10.248,
+    "lag1_pct": 7.407,
+    "cv_serie_pct": 12.037
+   },
+   "hectareas_2024": 1147
+  },
+  "Tomate rojo (jitomate) Querétaro": {
+   "rendimiento": {
+    "media_pct": 16.662,
+    "lag1_pct": 12.772,
+    "cv_serie_pct": 11.182
+   },
+   "precio": {
+    "media_pct": 9.884,
+    "lag1_pct": 3.193,
+    "cv_serie_pct": 10.822
+   },
+   "hectareas_2024": 293
+  },
+  "Chile verde Guanajuato": {
+   "rendimiento": {
+    "media_pct": 9.994,
+    "lag1_pct": 4.55,
+    "cv_serie_pct": 7.767
+   },
+   "precio": {
+    "media_pct": 17.834,
+    "lag1_pct": 7.53,
+    "cv_serie_pct": 14.777
+   },
+   "hectareas_2024": 4649
+  },
+  "Chile verde Querétaro": {
+   "rendimiento": {
+    "media_pct": 13.134,
+    "lag1_pct": 14.53,
+    "cv_serie_pct": 11.835
+   },
+   "precio": {
+    "media_pct": 18.754,
+    "lag1_pct": 9.765,
+    "cv_serie_pct": 15.578
+   },
+   "hectareas_2024": 574
+  },
+  "Cebolla Guanajuato": {
+   "rendimiento": {
+    "media_pct": 6.594,
+    "lag1_pct": 4.251,
+    "cv_serie_pct": 6.698
+   },
+   "precio": {
+    "media_pct": 13.595,
+    "lag1_pct": 6.911,
+    "cv_serie_pct": 13.31
+   },
+   "hectareas_2024": 7009
+  },
+  "Cebolla Querétaro": {
+   "rendimiento": {
+    "media_pct": 3.751,
+    "lag1_pct": 3.689,
+    "cv_serie_pct": 4.856
+   },
+   "precio": {
+    "media_pct": 2.166,
+    "lag1_pct": 1.558,
+    "cv_serie_pct": 3.708
+   },
+   "hectareas_2024": 338
+  },
+  "Aguacate Guanajuato": {
+   "rendimiento": {
+    "media_pct": 7.068,
+    "lag1_pct": 1.783,
+    "cv_serie_pct": 5.404
+   },
+   "precio": {
+    "media_pct": 26.381,
+    "lag1_pct": 15.287,
+    "cv_serie_pct": 24.352
+   },
+   "hectareas_2024": 307
+  },
+  "Aguacate Querétaro": {
+   "rendimiento": {
+    "media_pct": 13.647,
+    "lag1_pct": 7.912,
+    "cv_serie_pct": 13.69
+   },
+   "precio": {
+    "media_pct": 17.778,
+    "lag1_pct": 10.13,
+    "cv_serie_pct": 14.197
+   },
+   "hectareas_2024": 173
+  },
+  "Uva Guanajuato": {
+   "rendimiento": {
+    "media_pct": 3.929,
+    "lag1_pct": 6.337,
+    "cv_serie_pct": 5.243
+   },
+   "precio": {
+    "media_pct": 5.764,
+    "lag1_pct": 3.489,
+    "cv_serie_pct": 6.128
+   },
+   "hectareas_2024": 505
+  },
+  "Uva Querétaro": {
+   "rendimiento": {
+    "media_pct": 10.53,
+    "lag1_pct": 7.522,
+    "cv_serie_pct": 12.572
+   },
+   "precio": {
+    "media_pct": 3.819,
+    "lag1_pct": 3.5,
+    "cv_serie_pct": 11.011
+   },
+   "hectareas_2024": 530
+  },
+  "Brócoli Guanajuato": {
+   "rendimiento": {
+    "media_pct": 2.089,
+    "lag1_pct": 1.751,
+    "cv_serie_pct": 2.316
+   },
+   "precio": {
+    "media_pct": 4.92,
+    "lag1_pct": 1.071,
+    "cv_serie_pct": 4.128
+   },
+   "hectareas_2024": 23281
+  },
+  "Brócoli Querétaro": {
+   "rendimiento": {
+    "media_pct": 11.037,
+    "lag1_pct": 6.198,
+    "cv_serie_pct": 8.893
+   },
+   "precio": {
+    "media_pct": 6.74,
+    "lag1_pct": 3.137,
+    "cv_serie_pct": 5.453
+   },
+   "hectareas_2024": 580
+  },
+  "Espárrago Guanajuato": {
+   "rendimiento": {
+    "media_pct": 3.329,
+    "lag1_pct": 2.962,
+    "cv_serie_pct": 3.202
+   },
+   "precio": {
+    "media_pct": 12.396,
+    "lag1_pct": 8.964,
+    "cv_serie_pct": 11.381
+   },
+   "hectareas_2024": 4615
+  },
+  "Espárrago Querétaro": {
+   "rendimiento": {
+    "media_pct": 23.19,
+    "lag1_pct": 22.206,
+    "cv_serie_pct": 17.843
+   },
+   "precio": {
+    "media_pct": 5.565,
+    "lag1_pct": 3.955,
+    "cv_serie_pct": 6.618
+   },
+   "hectareas_2024": 1240
+  }
+ },
+ "e6_clusters": [
+  {
+   "cluster": 0,
+   "municipios": 22,
+   "lluvia_pv": 567.453,
+   "t_anual": 18.314,
+   "solar": 21.551,
+   "suelo_pv": 0.498
+  },
+  {
+   "cluster": 1,
+   "municipios": 16,
+   "lluvia_pv": 426.31,
+   "t_anual": 17.198,
+   "solar": 20.576,
+   "suelo_pv": 0.47
+  },
+  {
+   "cluster": 2,
+   "municipios": 5,
+   "lluvia_pv": 610.753,
+   "t_anual": 19.31,
+   "solar": 18.817,
+   "suelo_pv": 0.574
+  },
+  {
+   "cluster": 3,
+   "municipios": 21,
+   "lluvia_pv": 526.358,
+   "t_anual": 16.992,
+   "solar": 21.136,
+   "suelo_pv": 0.567
+  }
+ ],
+ "e6_municipio_nuevo_mae": {
+  "Maiz grano rendimiento t/ha": {
+   "n": 445,
+   "mae": {
+    "estado_cultivo": 0.662,
+    "cluster": 0.382,
+    "vecinos5": 0.341,
+    "municipio_propio": 0.244
+   }
+  },
+  "Maiz grano siniestro pts": {
+   "n": 445,
+   "mae": {
+    "estado_cultivo": 15.085,
+    "cluster": 15.494,
+    "vecinos5": 14.32,
+    "municipio_propio": 16.043
+   }
+  },
+  "Frijol rendimiento t/ha": {
+   "n": 350,
+   "mae": {
+    "estado_cultivo": 0.247,
+    "cluster": 0.22,
+    "vecinos5": 0.214,
+    "municipio_propio": 0.101
+   }
+  },
+  "Frijol siniestro pts": {
+   "n": 350,
+   "mae": {
+    "estado_cultivo": 11.847,
+    "cluster": 12.455,
+    "vecinos5": 10.91,
+    "municipio_propio": 11.067
+   }
+  },
+  "Sorgo grano rendimiento t/ha": {
+   "n": 220,
+   "mae": {
+    "estado_cultivo": 0.425,
+    "cluster": 0.432,
+    "vecinos5": 0.449,
+    "municipio_propio": 0.411
+   }
+  },
+  "Sorgo grano siniestro pts": {
+   "n": 220,
+   "mae": {
+    "estado_cultivo": 2.248,
+    "cluster": 2.199,
+    "vecinos5": 2.211,
+    "municipio_propio": 2.462
+   }
+  }
+ },
+ "e8_corr_rendimiento_clima": {
+  "Maiz grano": {
+   "n": 445,
+   "corr_desviacion_rend_vs": {
+    "ratio": 0.043,
+    "t_pv": 0.055,
+    "lluvia_jul": -0.002,
+    "lluvia_ago": 0.051,
+    "suelo_pv": 0.057,
+    "solar_pv": 0.031,
+    "tmax_pv": 0.062,
+    "tmin_pv": 0.117
+   }
+  },
+  "Frijol": {
+   "n": 350,
+   "corr_desviacion_rend_vs": {
+    "ratio": 0.038,
+    "t_pv": 0.03,
+    "lluvia_jul": 0.062,
+    "lluvia_ago": 0.059,
+    "suelo_pv": 0.054,
+    "solar_pv": -0.052,
+    "tmax_pv": 0.015,
+    "tmin_pv": 0.046
+   }
+  },
+  "Sorgo grano": {
+   "n": 220,
+   "corr_desviacion_rend_vs": {
+    "ratio": 0.051,
+    "t_pv": -0.033,
+    "lluvia_jul": -0.099,
+    "lluvia_ago": 0.07,
+    "suelo_pv": 0.056,
+    "solar_pv": 0.026,
+    "tmax_pv": 0.009,
+    "tmin_pv": 0.069
+   }
+  }
+ }
+}
