@@ -56,3 +56,4 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | [42](42-simulador-como-parcela.md) | «2. Simulador 3D» con el mapa de satélite de «1. Parcela» y una tarjeta a la vez; sin globo ni dock de voz simulado | Hecho |
 | [43](43-tres-rotaciones-e-incertidumbre.md) | El motor compara 3 rotaciones (la de hoy, la recomendada y otra meta) con evidencia, beneficios, huecos y qué revisar; incertidumbre con intervalo y sensibilidad | Hecho |
 | [44](44-heladas-y-calor.md) | El motor cuenta los años con helada y con calor (`T2M_MIN` y `T2M_MAX` de NASA POWER) y los suma a la seguridad del puntaje, también con riego | Hecho |
+| [45](45-calidad-de-vida.md) | Calidad de vida: mapa y panel del alto de la ventana, Anterior/Siguiente fijos, asistente en el encabezado, y el clima y el plan ya no esperan a SoilGrids | Hecho |

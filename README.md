@@ -24,7 +24,7 @@ observations, the plot's soil, crop requirements and what the farmer cares about
    once inside it and the app proposes the outline). The plot then appears as a block in 3D relief. Cards open one at a
    time and the map changes with each one:
    - the weather right now;
-   - 25 years of rain (NASA POWER), with the dry years;
+   - 26 years of rain (NASA POWER, 2000–2025), with the dry years;
    - the soil (SoilGrids);
    - vegetation greenness (MODIS NDVI) and root-zone soil moisture (SMAP) from NASA GIBS.
 
@@ -46,11 +46,11 @@ observations, the plot's soil, crop requirements and what the farmer cares about
 
    For each rotation the app explains why it was suggested, what evidence supports it, its benefits against today's
    rotation, where the information gaps are, and what a local agronomist should review. Picking a rotation and a year
-   shows that crop growing on the farmer's own plot in the map. Moving through the 25 real years shows whether the
+   shows that crop growing on the farmer's own plot in the map. Moving through the 26 real years shows whether the
    rain of each year would have been enough for it.
 3. **Ask the assistant** ("3. Análisis IA"), by text or by voice. "What should I sow?" is answered by the same rule
    engine, with the same three rotations and the same numbers as the screen.
-4. **Try a crop** ("4. Probar cultivo"): any crop against the plot's 25 real years, sown in June or July.
+4. **Try a crop** ("4. Probar cultivo"): any crop against the plot's 26 real years, sown in June or July.
 
 Every number on screen comes from data and says where it came from. A card called "What we don't know" lists the
 limits of the data. The tool helps the farmer compare; it does not replace their judgment or a local agronomist, and
@@ -59,15 +59,15 @@ it says so.
 ## How it works
 
 ```
-Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2024)  ┐
+Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2025)  ┐
                                           SoilGrids (0-30 cm)             ├-> rule engine -> 3 rotations
                                           SIAP (state yields and prices)  ┘   (server/engine)   + reasons
                                                                                                  + uncertainty
 ```
 
 - **Risk is counted, not averaged.** For each crop and sowing month (June or July), the engine adds up the rain of the
-  crop's own cycle months in each of the 25 real years. A year fails when that rain was below the crop's minimum. A
-  risk of "12 of 25 years" is the count of those years.
+  crop's own cycle months in each of the 26 real years. A year fails when that rain was below the crop's minimum. A
+  risk of "12 of 26 years" is the count of those years.
 - **Scores** combine how well the crop fits the plot (temperature in range, rain in range, soil pH) with the farmer's
   goal: income (SIAP), soil (legumes and diversity), water (lower need) or risk (fewer failed years).
 - **Rotation rules:**
@@ -76,7 +76,7 @@ Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2024)  ┐
   - autumn-winter crops only with irrigation;
   - the first year does not repeat the family of the crop in the ground now.
 - **Uncertainty is part of the answer:**
-  - **Few years.** With 25 years, "12 of 25" is shown with its 90 % Wilson interval (33 % to 64 %).
+  - **Few years.** With 26 years, "12 of 26" is shown with its 90 % Wilson interval (31 % to 62 %).
   - **General crop requirements.** The ranges are FAO's for each species, not for local varieties. The app shows how
     much the result moves if a crop needed 10 % less or more rain: 8 to 15 years instead of 12 for maize in Celaya.
 - **The assistant** is not a second recommender. Recommendations come from the same engine. A local language model
@@ -93,7 +93,7 @@ Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2024)  ┐
 
 ## Validation
 
-- **Backtest on real years.** Each crop is checked against each of the 25 real years at the plot ("Probar cultivo"
+- **Backtest on real years.** Each crop is checked against each of the 26 real years at the plot ("Probar cultivo"
   shows it year by year).
 - **NASA against the farmers' official losses.** In Celaya, summer rain from NASA POWER against the area lost in
   Guanajuato (SIAP, 2018–2024) correlates at **−0.70 for maize and −0.79 for beans**: less rain, more loss. These are
@@ -106,7 +106,7 @@ Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2024)  ┐
   - **Beans, sorghum and yield:** no model beat the average, so none is used.
 
   Details: [docs/modelo-ml.md](docs/modelo-ml.md) (Spanish).
-- **Tests.** 314 server tests and 53 client tests run without internet on stored real responses.
+- **Tests.** 333 server tests and 60 client tests run without internet on stored real responses.
 
 ## Limitations
 
@@ -163,7 +163,7 @@ npm test
 
 | Route | Returns |
 |---|---|
-| `GET /api/clima?lat&lon` | Summer rain per year 2000–2024, dry years, monthly temperature and rain (NASA POWER). |
+| `GET /api/clima?lat&lon` | Summer rain per year since 2000, dry years, monthly temperature and rain (NASA POWER). |
 | `GET /api/suelo?lat&lon` | pH, clay, sand, silt, organic carbon and nitrogen, 0–30 cm (SoilGrids). |
 | `POST /api/recomendar` | Crop scores with risk and its range, the recommended 3-year rotation, the **3 rotations compared** with evidence, benefits, gaps and what to review, and the uncertainty notes. |
 | `GET /api/recomendar/prueba?lat&lon` | Each rain-fed crop against every real year, sown in June and July. |

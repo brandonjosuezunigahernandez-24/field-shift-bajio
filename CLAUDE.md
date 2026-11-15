@@ -99,6 +99,12 @@ Debe ser simple, explicable y con pruebas unitarias.
   Fuera de Guanajuato y Querétaro (límites del INEGI, `server/lib/state.js`) responde 422 con `fuera_de_region: true`: se recomienda solo en el Bajío; clima y suelo se ven en todo México.
 
 ## Pantallas (4 rutas: Parcela, Simulador 3D, Análisis IA y Probar cultivo)
+**Acomodo de «1. Parcela» y «2. Simulador 3D» (cambio 45):** el mapa de un lado y un panel de pasos del otro (`client/src/components/PanelPasos.jsx`).
+- En escritorio los dos miden lo que la ventana: no se baja la página; el contenido largo se desliza dentro del panel.
+- Anterior y Siguiente no cambian de lugar entre pasos (en celular van en una barra fija al pie). No agregar botones de avance fuera de `PanelPasos`.
+- Las herramientas del mapa (dibujar, GPS, lista de parcelas) se dibujan dentro del panel con la prop `herramientasEn` de `ParcelMap`.
+- El botón del asistente va en el encabezado, arriba a la derecha. Botones y opciones: al menos 44 px de alto.
+
 1. Mapa: el agricultor **dibuja el contorno de su parcela** (un polígono: cada clic agrega una esquina, mínimo 3). No es un solo punto.
    - El front calcula el **centro del polígono** y eso es lo que manda como `lat` y `lon`. La API no cambia: NASA POWER y SoilGrids se consultan por punto.
    - Se hace con MapLibre GL (`client/src/map/`). Al terminar, el mapa se ajusta a la parcela y la vista 3D
