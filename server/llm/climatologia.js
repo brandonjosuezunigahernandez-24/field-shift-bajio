@@ -96,5 +96,5 @@ export function lluviaDicha(mm, resumen) {
   const { lluvia_pv_mediana_mm: med, umbral_seco_mm: umbral, lluvia_pv_anual: a } = resumen;
   const menos = a.filter((y) => y.lluvia_mm < mm).length;
   const como = mm < umbral ? 'sería año seco' : mm < med ? 'es menos de lo normal, pero no año seco' : 'es lo normal o más';
-  return `${mm} mm de junio a septiembre ${como} en tu parcela: lo normal es ${med} mm y año seco es menos de ${umbral} mm. En ${menos} de ${a.length} años llovió menos que eso [NASA POWER].`;
+  return `${mm} mm de junio a septiembre ${como} en tu parcela. Lo normal es ${med} mm; año seco es menos de ${umbral} mm. En ${menos} de ${a.length} años llovió menos que eso [NASA POWER].`;
 }

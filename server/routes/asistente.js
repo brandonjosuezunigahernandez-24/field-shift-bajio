@@ -312,7 +312,8 @@ async function conQueHacer(body, req) {
       ? `${que_hacer[0].accion} [${que_hacer[0].fuente}] Más ideas abajo, en «Qué hacer». ${body.respuesta}` : body.respuesta;
     // Cierra con lo que conviene hacer (la misma acción de «Qué hacer»), si cabe en 5 frases y no lo dijo ya.
     const n = (respuesta ?? '').split(/(?<=[.!?])\s+/).filter((x) => x.trim().length > 2).length;
-    const cierre = !pideAccion && que_hacer.length && n < 5 && !/Qué hacer/.test(respuesta ?? '') ? ` Lo que conviene: ${que_hacer[0].accion[0].toLowerCase()}${que_hacer[0].accion.slice(1)}` : '';
+    const corta = que_hacer[0]?.accion.split(/\s*[(;:]/)[0].replace(/[.,]$/, ''); // sin paréntesis ni detalles: esos van en «Qué hacer»
+    const cierre = !pideAccion && corta && n < 5 && corta.split(/\s+/).length <= 18 && !/Qué hacer/.test(respuesta ?? '') ? ` Lo que conviene: ${corta[0].toLowerCase()}${corta.slice(1)}.` : '';
     return { ...body, respuesta: claro((respuesta ?? '') + cierre), que_hacer };
   } catch {
     return { ...body, que_hacer: [] }; // las acciones nunca tumban la respuesta

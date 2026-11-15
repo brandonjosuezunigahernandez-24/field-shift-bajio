@@ -11,7 +11,7 @@ export function claro(texto) {
   let t = texto;
   // 528.9 -> unos 530 (salvo dinero); 1.65 -> 1.6. Los años y los enteros no se tocan.
   t = t.replace(/(\$)?\b(\d{3,4})\.\d+\b/g, (m, peso, n) => (peso ? m : `unos ${Math.round(Number(m) / 10) * 10}`));
-  t = t.replace(/\b(\d{1,2})\.(\d{2,})\b(?! ?(ha\b|hect))/g, (m) => String(Number(Number(m).toFixed(1)))); // las hectáreas del agricultor van exactas
+  t = t.replace(/\b(\d{1,2})\.(\d{2,})\b(?! ?(ha\b|hect))/g, (m) => (Number(m) < 1 ? m : String(Number(Number(m).toFixed(1))))); // las hectáreas del agricultor y lo menor a 1 van exactos
   t = t.replace(/\bunos unos\b/g, 'unos').replace(/\b(unos|cerca de|como) unos\b/g, 'unos');
   // Unidades en palabras la primera vez.
   t = t.replace(/(\d) ?t\/ha\b/, '$1 toneladas por hectárea');

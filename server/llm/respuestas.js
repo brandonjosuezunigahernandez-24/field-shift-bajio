@@ -152,7 +152,7 @@ const REDACTORES = {
   secos: (q, { clim, resumen }) => {
     const n = resumen.anios_secos.length, p = clim.periodo;
     const dicha = lluviaDicha(mmDe(q), resumen);
-    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length });
+    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length, n_anios: resumen.lluvia_pv_anual.length });
     const pedido = (q.match(/\b\d{1,3}\b/g) ?? []).map(Number).find((x) => x !== n && x !== p.anios && x !== 80);
     const corrige = pedido !== undefined ? `No: según NASA POWER no fueron ${pedido}. ` : '';
     const lista = n ? `: ${resumen.anios_secos.join(', ')}` : '';
@@ -201,7 +201,7 @@ const REDACTORES = {
   lluvia: (q, { clim, resumen }) => {
     const mes = mesDe(q), ms = clim.por_mes, A = clim.periodo.anios;
     const dicha = lluviaDicha(mmDe(q), resumen);
-    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length });
+    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length, n_anios: resumen.lluvia_pv_anual.length });
     const dos = mesesDe(q);
     if (dos.length >= 2) { // "¿llueve más en julio o en agosto?"
       const [a, b] = dos.map((i) => ms[i - 1]), mas = a.lluvia_mm >= b.lluvia_mm ? a : b;
@@ -209,7 +209,7 @@ const REDACTORES = {
     }
     if (mes) {
       const m = ms[mes - 1];
-      return out(`En ${MESES[mes - 1]} llueven en promedio ${m.lluvia_mm} mm (en ${A} años osciló entre ${m.lluvia_min_mm} y ${m.lluvia_max_mm} mm) ${NASA}.`, ['NASA POWER'], { m, A });
+      return out(`En ${MESES[mes - 1]} llueven en promedio ${m.lluvia_mm} mm ${NASA}. Según el año, de ${m.lluvia_min_mm} a ${m.lluvia_max_mm} mm.`, ['NASA POWER'], { m, A });
     }
     if (has(/\b(mas|menos|mes)\b/, q) && has(/(llue|lluvi|seco)/, q)) {
       const a = ms[clim.mes_mas_lluvioso - 1], b = ms[clim.mes_mas_seco - 1];
@@ -241,7 +241,7 @@ const REDACTORES = {
   // Sin fuente propia: se dice y se apunta a «Qué hacer» solo si ahí hay algo para esta pregunta.
   apoyos: (q, { perfil = {} }) => {
     const hay = accionesPara({ tema: 'apoyos', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;
-    return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Para montos, fechas y papeles confirma en la ventanilla de la Secretaría de Agricultura de tu municipio (CADER) o en tu presidencia municipal.`, [], {});
+    return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Montos, fechas y papeles, confírmalos en el CADER de tu municipio. Es la ventanilla de la Secretaría de Agricultura; también te orientan en la presidencia municipal.`, [], {});
   },
   credito: (q, { perfil = {} }) => {
     const hay = accionesPara({ tema: 'credito', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;
