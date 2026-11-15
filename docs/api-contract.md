@@ -182,6 +182,12 @@ Petición:
 
 Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en temporal: el mes con mejor puntaje).
 
+Opcional: `"rotacion_actual": ["frijol", "maiz"]`, lo que siembra hoy, del más viejo al más nuevo (el front manda `[ultimo_cultivo, cultivo_actual]` del perfil).
+- Es la primera de las 3 rotaciones que se comparan (`estrategias`): un cultivo se repite y dos distintos se alternan.
+- Solo cuentan los ids de `cultivos.json`; los demás se ignoran.
+- Si no viene, se usa `[cultivo_previo]`.
+- Si tampoco hay eso, se usa lo más sembrado del SIAP en su estado, agua y temporada (`topCropBySeason`), con `supuesto: true`.
+
 - `agua`: `"temporal"` o `"riego"`.
 - `prioridad`: `"ganar"`, `"suelo"`, `"agua"` o `"riesgo"`.
 - `estado` (opcional): `"Guanajuato"` o `"Querétaro"`, para el ingreso del SIAP. Si no viene, sale de los límites oficiales del INEGI (`server/lib/state.js`).
@@ -217,15 +223,55 @@ Respuesta (valores reales del punto demo, recortados):
     { "anio": 2, "temporada": "PV", "cultivo": "sorgo", "porque": "Va después de frijol: cambiar de familia ayuda a cortar plagas y enfermedades. ..." },
     { "anio": 3, "temporada": "PV", "cultivo": "frijol", "porque": "..." }
   ],
+  // Las 3 rotaciones que se comparan: la de hoy, la recomendada (= `rotacion`) y la mejor para otra meta.
+  "estrategias": [
+    {
+      "id": "actual",               // "actual" | "recomendada" | "alternativa"
+      "nombre": "Seguir como siembras hoy",
+      "prioridad": null,            // la meta con que se armó (null en la de hoy)
+      "supuesto": true,             // true: el agricultor no dijo qué siembra y se usó lo más sembrado del SIAP
+      "porque": "Es lo que más se siembra aquí; lo usamos como tu rotación de hoy porque no tenemos la tuya.",
+      "rotacion": [{ "anio": 1, "temporada": "PV", "cultivo": "maiz", "porque": "..." } /* ... */], // cultivo null = sin sembrar
+      "resumen": {
+        "temporadas_sembradas": 3, "leguminosas": 0, "familias": 1, "familia_repetida": 2,
+        "riesgo": 0.48,              // años sin lluvia suficiente de todas sus temporadas PV (null con riego)
+        "riesgo_rango": [0.33, 0.64], // intervalo de Wilson al 90 % con los 25 años reales
+        "lluvia_necesaria_mm": 1560, "ingreso_bruto_mxn_ha": 27131, "ingreso_parcial": false
+      },
+      "evidencia": ["Con la lluvia real de 2000 a 2024, a este plan le hubiera faltado lluvia en 5 de cada 10 temporadas (48 %; con solo 25 años puede ser de 33 a 64 %).", "..."],
+      "beneficios": ["No cambias nada: ya conoces el cultivo, la semilla y a quién venderle."], // en las otras: contra la de hoy, con números
+      "huecos": ["No nos dijiste qué siembras, así que comparamos contra lo más sembrado de temporal en Guanajuato: maíz en primavera-verano (58 % de la superficie), según el SIAP 2018 a 2024.", "Si el maíz necesitara 10 % menos o más lluvia, le hubiera faltado en 9 a 17 de 25 años, no en 12.", "..."],
+      "revisar": ["Repite gramíneas en temporadas seguidas: eso junta plagas y enfermedades en la tierra.", "Confirma fechas de siembra y variedades con un técnico de tu zona (por ejemplo, del INIFAP)."]
+    }
+    // ... "recomendada" (frijol-sorgo-frijol, riesgo 0.12) y "alternativa" ("La mejor para ganar más": sorgo-frijol-maíz, 0.24)
+  ],
+  // Lo que los datos no saben (temas: clima, años, cultivos, suelo, ingreso, riego si aplica, técnico).
+  "incertidumbre": [
+    { "tema": "clima", "texto": "La lluvia y la temperatura vienen de NASA POWER: son el promedio de un cuadro de unos 50 km alrededor de tu parcela, no una medición en tu parcela." },
+    { "tema": "años", "texto": "Son 25 años (2000 a 2024). Con tan pocos años el riesgo es una estimación: al maíz le faltó lluvia en 12 de 25 años, pero su riesgo real puede estar entre 33 % y 64 %." }
+    // ...
+  ],
   "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "SIAP ...", "Requerimientos de los cultivos: valores aproximados (estilo FAO Ecocrop), sin verificar"]
 }
 ```
 
 - `cultivos` va ordenado de mayor a menor `puntaje`, una fila por cultivo. Solo salen los que se pueden sembrar con esa `agua`.
+  En temporal cada uno trae `riesgo_rango` (intervalo de Wilson al 90 %) y `sensibilidad: { menos10, mas10, anios_total }`
+  (años sin lluvia suficiente si necesitara 10 % menos o más lluvia; los requerimientos no están verificados). Con riego son `null`.
+- `estrategias`:
+  - Trae 3 rotaciones distintas.
+  - La alternativa es la de la primera meta, en el orden suelo, riesgo, ganar, agua, que dé un plan distinto.
+  - Si ninguna da un plan distinto, es «Otra opción: empezar con …»: el mejor plan que no empieza con la misma familia.
+    Si eso rompe la regla de familia después de lo que tiene sembrado, lo dice en `revisar[0]`.
+  - Sin rotación de hoy, por ejemplo sin datos del SIAP, salen 2.
+- `rotacion` sigue siendo la recomendada (igual a `estrategias[id=recomendada].rotacion`): las pantallas y el chat de antes siguen funcionando.
 - `rotacion` trae 3 años; con riego hay 6 filas (PV y OI de cada año).
 - **Sin suelo también responde:** si SoilGrids falla o no tiene dato, `suelo.sin_datos` es `true`, `suelo.aviso` lo explica y el pH no cambia el puntaje.
 - Errores: 400 si falta `agua` o `prioridad`; 502 si no se pudo consultar el clima; 422 con `{ error, fuera_de_region: true }` si la parcela está fuera de Guanajuato y Querétaro (sin `estado`). El 422 sale antes de consultar NASA o SoilGrids. Las pantallas siguen mostrando clima y suelo con `/api/clima` y `/api/suelo`, que funcionan en cualquier punto.
 - El asistente (`POST /api/asistente`) contesta "¿qué siembro?" con esta misma recomendación.
+  - Del perfil manda la misma rotación de hoy (`ultimo_cultivo`, `cultivo_actual`).
+  - Su texto compara contra seguir igual («Comparada con seguir igual (...)»).
+  - `compactPlot` lleva las 3 estrategias a la ficha del modelo.
 
 ## GET /api/recomendar/prueba?lat=20.47&lon=-100.81
 

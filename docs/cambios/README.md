@@ -54,3 +54,4 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | 39 | Lectura fácil en pantalla: número grande, glosario al tocar, gráficas con pregunta. Doc en la rama `integracion/todo` | Hecho |
 | [41](41-motor-de-simulacion.md) | Revisión del motor de simulación: rotación que respeta el cultivo actual, componente de agua, mes de siembra y maqueta 3D por cultivo | Hecho |
 | [42](42-simulador-como-parcela.md) | «2. Simulador 3D» con el mapa de satélite de «1. Parcela» y una tarjeta a la vez; sin globo ni dock de voz simulado | Hecho |
+| [43](43-tres-rotaciones-e-incertidumbre.md) | El motor compara 3 rotaciones (la de hoy, la recomendada y otra meta) con evidencia, beneficios, huecos y qué revisar; incertidumbre con intervalo y sensibilidad | Hecho |
