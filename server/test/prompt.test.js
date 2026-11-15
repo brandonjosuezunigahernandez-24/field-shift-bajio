@@ -19,7 +19,7 @@ test('tarjetas: encuentra la tarjeta por parecido aunque la palabra cambie de fo
 
 test('tarjetas: sin parecido no manda nada (y máximo 2)', () => {
   assert.deepEqual(tarjetas('¿Quién ganó el mundial?'), []);
-  assert.deepEqual(tarjetas('¿Me sirve la ceniza como abono?'), []);
+  assert.deepEqual(tarjetas('¿Conviene sembrar amaranto?'), []);
   assert.ok(tarjetas('¿Para qué sirve la rotación de cultivos con leguminosas y plagas?').length <= 2);
 });
 
@@ -40,7 +40,7 @@ test('recortarFicha: deja lo que la pregunta pide', () => {
 
 test('recortarFicha: "dime todo sobre mi parcela" manda lluvia y suelo; una pregunta sin datos, nada', () => {
   const v = recortarFicha(buildFicha({ clima, suelo }), 'Dime todo sobre mi parcela');
-  assert.deepEqual(recortarFicha(buildFicha({ clima, suelo }), '¿Me sirve la ceniza como abono?'), {});
+  assert.deepEqual(recortarFicha(buildFicha({ clima, suelo }), '¿Conviene sembrar amaranto?'), {});
   assert.ok(v.lluvia_verano && v.suelo);
 });
 
