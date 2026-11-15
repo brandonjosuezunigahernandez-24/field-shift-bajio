@@ -7,6 +7,7 @@ import {
   cycleMonths,
   dryYearRisk,
   existingRotation,
+  extremeTempRisk,
   recommend,
   riskInterval,
   thresholdSensitivity,
@@ -192,7 +193,7 @@ test('recommend compares 3 rotations: today, the best for the goal and the best 
     for (const key of ['evidencia', 'beneficios', 'huecos', 'revisar']) assert.ok(e[key].length > 0, `${e.id}.${key}`);
     assert.match(e.evidencia[0], /lluvia real de 2000 a 2024/);
   }
-  assert.ok(mejor.beneficios.some((b) => /12 % contra 48 % de seguir igual/.test(b)));
+  assert.ok(mejor.beneficios.some((b) => /9 % contra 48 % de seguir igual/.test(b)));
   assert.ok(mejor.huecos.some((h) => /FAO Ecocrop/.test(h)));
   assert.ok(hoy.revisar.some((x) => /gramíneas en temporadas seguidas/.test(x)));
 });
@@ -241,8 +242,9 @@ test('irrigated: the rotation of today has PV and OI, no rain risk, and the unce
 test('incertidumbre explains the data limits with the plot numbers', () => {
   const r = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'riesgo', estado: 'Guanajuato', porDefecto: MAIZ_GTO });
   const tema = (t) => r.incertidumbre.find((u) => u.tema === t)?.texto ?? '';
-  assert.deepEqual(r.incertidumbre.map((u) => u.tema), ['clima', 'años', 'cultivos', 'suelo', 'ingreso', 'técnico']);
+  assert.deepEqual(r.incertidumbre.map((u) => u.tema), ['clima', 'extremos', 'años', 'cultivos', 'suelo', 'ingreso', 'técnico']);
   assert.match(tema('clima'), /NASA POWER.*50 km/);
+  assert.match(tema('extremos'), /hora más fría.*aproximados/);
   assert.match(tema('años'), /al maíz le faltó lluvia en 12 de 25 años.*entre 33 % y 64 %/);
   assert.match(tema('cultivos'), /en 9 a 17 de 25 años, no en 12/);
   assert.match(tema('técnico'), /no sustituye/);
@@ -250,4 +252,60 @@ test('incertidumbre explains the data limits with the plot numbers', () => {
   assert.deepEqual([maiz.riesgo_rango, maiz.sensibilidad], [[0.33, 0.64], { menos10: 9, mas10: 17, anios_total: 25 }]);
   const sinSuelo = recommend({ rows, soil: { ph: null }, crops, agua: 'temporal', prioridad: 'riesgo' });
   assert.match(sinSuelo.incertidumbre.find((u) => u.tema === 'suelo').texto, /No hay dato de suelo/);
+});
+
+test('extremeTempRisk counts the real years with frost or heat in the cycle, and OI crosses December', () => {
+  const maiz = extremeTempRisk(crop('maiz'), rows, 'PV'); // June to September: 2 °C frost, 35 °C heat
+  assert.deepEqual(maiz.helada.anios, []);
+  assert.deepEqual(maiz.helada.record, { c: 2.9, mes: 9, anio: 2011 });
+  assert.deepEqual([maiz.calor.anios, maiz.calor.anios_total, maiz.calor.riesgo], [[2005, 2023, 2024], 25, 3 / 25]);
+  assert.deepEqual(maiz.calor.record, { c: 36.2, mes: 6, anio: 2024 });
+  // Wheat, November to February: the season sown in 2005 has its frost in January 2006; 2024 has no January yet.
+  const trigo = extremeTempRisk(crop('trigo'), rows, 'OI');
+  assert.deepEqual(trigo.meses, [11, 12, 1, 2]);
+  assert.deepEqual([trigo.helada.anios, trigo.helada.anios_total], [[2005, 2007, 2017], 24]);
+  assert.deepEqual(trigo.helada.record, { c: -2.7, mes: 1, anio: 2006 });
+});
+
+test('extremeTempRisk: a crop without thresholds, or with ones never reached, has no risk', () => {
+  const sin = extremeTempRisk({ ciclo_meses: 4 }, rows, 'PV');
+  assert.deepEqual([sin.helada.anios, sin.calor.anios, sin.helada.umbral_c], [[], [], null]);
+  const duro = extremeTempRisk({ ciclo_meses: 4, helada_dano_c: -20, calor_dano_c: 99 }, rows, 'PV');
+  assert.deepEqual([duro.helada.riesgo, duro.calor.riesgo], [0, 0]);
+});
+
+test('beans avoid the June heat: sown in July the hot years go from 18 to 2 of 25, and the engine picks July', () => {
+  assert.equal(extremeTempRisk(crop('frijol'), rows, 'PV', 6).calor.anios.length, 18);
+  assert.equal(extremeTempRisk(crop('frijol'), rows, 'PV', 7).calor.anios.length, 2);
+  for (const agua of ['temporal', 'riego']) {
+    const frijol = recommend({ rows, soil, crops, agua, prioridad: 'riesgo' }).cultivos.find((c) => c.id === 'frijol');
+    assert.equal(frijol.mes_siembra, 7, agua);
+  }
+});
+
+test('frost and heat reach the reasons, the score and the rotations; `riesgo` stays rain only', () => {
+  const r = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'riesgo', estado: 'Guanajuato', porDefecto: MAIZ_GTO });
+  const maiz = r.cultivos.find((c) => c.id === 'maiz');
+  assert.equal(maiz.riesgo, 0.48);
+  assert.deepEqual(maiz.calor, { riesgo: 0.12, anios: [2005, 2023, 2024], anios_total: 25, umbral_c: 35 });
+  assert.deepEqual(maiz.helada, { riesgo: 0, anios: [], anios_total: 25, umbral_c: 2 });
+  assert.equal(maiz.riesgo_total, 0.52); // 12 dry years and 3 hot ones, 2 of them the same year
+  assert.ok(maiz.razones.some((x) => /En 3 de 25 años el calor llegó a 35 °C o más .* Lo más caliente fue 36.2 °C en junio de 2024/.test(x)));
+  assert.ok(maiz.razones.some((x) => /En ninguno de 25 años la temperatura bajó a 2 °C o menos/.test(x)));
+  assert.ok(maiz.razones.some((x) => /algún problema en 13 de 25 años/.test(x)));
+  const [hoy, mejor] = r.estrategias;
+  assert.deepEqual([hoy.resumen.riesgo_helada, hoy.resumen.riesgo_calor], [0, 0.12]);
+  assert.ok(mejor.resumen.riesgo_calor < hoy.resumen.riesgo_calor);
+  assert.ok(mejor.beneficios.some((b) => /calor que daña en menos temporadas: 5 % contra 12 %/.test(b)));
+  assert.ok(hoy.evidencia.some((x) => /temperatura real de 2000 a 2024/.test(x)));
+});
+
+test('irrigated: frost and heat are the risk that tells crops apart (before, every crop was equally safe)', () => {
+  const r = recommend({ rows, soil, crops, agua: 'riego', prioridad: 'riesgo' });
+  const by = (id) => r.cultivos.find((c) => c.id === id);
+  assert.equal(by('sorgo').riesgo_total, 0);
+  assert.deepEqual([by('trigo').helada.anios.length, by('trigo').helada.anios_total], [3, 24]);
+  assert.ok(new Set(r.cultivos.map((c) => c.riesgo_total)).size > 1);
+  assert.ok(r.estrategias.every((e) => e.resumen.riesgo === null && e.resumen.riesgo_helada !== null && e.resumen.riesgo_calor !== null));
+  assert.ok(by('trigo').razones.some((x) => /En 3 de 24 años la temperatura bajó a -2 °C o menos .* enero de 2006/.test(x)));
 });
