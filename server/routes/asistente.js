@@ -21,7 +21,9 @@ import { compactReco, explainFarm, explainRecommendation, inferEstado, recommend
 import { parsePerfil, pendientes } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
-import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, sugerenciasMaiz } from '../llm/maiz.js';
+import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, serie, sugerenciasMaiz } from '../llm/maiz.js';
+import { conGraficas, graficasCultivoPregunta, graficasFinca, graficasMaiz, graficasPlantilla, graficasReco } from '../llm/graficas.js';
+import { ID_MAIZ, TEMAS_PLANTILLA, respaldoSeguro } from '../llm/intencion-ml.js';
 
 const router = Router();
 // Preguntas sobre el riesgo del maíz por la lluvia: las contesta el modelo entrenado (solo maíz), con su aviso.
@@ -116,12 +118,15 @@ async function resolver(req) {
   }
 
   const estado = perfil.estado ?? inferEstado(lon);
+  // Respaldo con aprendizaje automático: solo cuando las palabras clave no saben qué hacer y el clasificador está seguro (llm/intencion-ml.js).
+  const ml = respaldoSeguro(pregunta);
   // "¿Qué siembro después del maíz?": el último cultivo es el maíz de la pregunta (lo contesta el recomendador de abajo).
-  const idMaiz = pregunta && esMaiz(pregunta) ? intencionMaiz(pregunta) : null;
+  const idMaiz = pregunta && esMaiz(pregunta) ? (intencionMaiz(pregunta) ?? ID_MAIZ[ml?.intencion] ?? null) : null;
   if (idMaiz === 'despues') perfil.ultimo_cultivo = 'maiz';
   // El recomendador solo corre si piden una recomendación o un seguimiento de ella. El dock manda agua y prioridad
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
-  const needsReco = pregunta && (wantsRecommendation(pregunta) || isFollowUp(pregunta));
+  const pideReco = pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
+  const needsReco = pideReco || (pregunta && isFollowUp(pregunta));
   const reco = agua && prioridad && needsReco
     ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, hectareas: perfil.hectareas, encharca: perfil.encharca })
     : null;
@@ -142,13 +147,13 @@ async function resolver(req) {
       try { ctx.rows = (await getClimate(lat, lon)).rows; ctx.clima = summarizeClimate(ctx.rows); } catch { /* sin clima, la respuesta sale sin esas partes */ }
     }
     if (necesitaSuelo(id)) { try { ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil); } catch { /* sin suelo, la respuesta lo dice */ } }
-    const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || /(para que sirve|que es|que son|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
+    const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || ml || /(para que sirve|que es|que son|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
     if (m?.preguntar) return res.json(asking(m.preguntar));
-    if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos && { datos: m.datos }), ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }) });
+    if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos && { datos: m.datos }), ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }), ...conGraficas(graficasMaiz(id, m.datos, { estado, pregunta })) });
   }
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
-  if (pregunta && wantsRecommendation(pregunta)) {
+  if (pideReco) {
     // Los datos del SIAP son de Guanajuato y Querétaro: fuera de ahí (y sin estado dicho por el agricultor) no se recomienda.
     if (!perfil.estado && (lat < 19.9 || lat > 21.9 || lon < -102.2 || lon > -99)) {
       return res.json({ respuesta: 'Esta parcela está fuera de Guanajuato y Querétaro, y mis datos de cultivos (SIAP) son solo de esos dos estados, así que no te recomiendo cultivos aquí. Si de todos modos quieres verlos, dime de cuál de los dos estados quieres la referencia.', acciones: [], fuentes: [], verificado: true, origen: 'motor', base: 'ficha', enlaces: [] });
@@ -161,7 +166,7 @@ async function resolver(req) {
       if (finca) {
         return res.json({
           respuesta: explainFarm(finca, !perfil.estado), acciones: [], fuentes: ['SIAP'], verificado: true,
-          origen: 'motor', base: 'ficha', enlaces: [], recomendacion_finca: finca,
+          origen: 'motor', base: 'ficha', enlaces: [], recomendacion_finca: finca, ...conGraficas(graficasFinca(finca)),
           afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria && q.campo !== 'hectareas' && q.campo !== 'ultimo_cultivo'),
         });
       }
@@ -178,7 +183,7 @@ async function resolver(req) {
       return res.json({
         respuesta: explainRecommendation(reco, !perfil.estado) + (corroboracion ? ` Comparé con la lluvia de NASA en tu parcela (${reco.rotacion[0].cultivo}): ${corroboracion.lectura} [NASA POWER, SIAP]` : ''),
         acciones: [], fuentes: corroboracion ? ['SIAP', 'NASA POWER'] : ['SIAP'], verificado: true,
-        origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco, corroboracion,
+        origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco, corroboracion, ...conGraficas(graficasReco(reco)),
         // Preguntas opcionales que todavía no contesta: con ellas la recomendación se afina.
         afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria),
       });
@@ -194,6 +199,7 @@ async function resolver(req) {
         return res.json({
           respuesta: riesgo.lectura, acciones: [], fuentes: ['SIAP', 'NASA POWER'], verificado: true,
           origen: 'modelo', base: 'ficha', enlaces: [], riesgo_modelo: riesgo,
+          ...conGraficas(graficasMaiz('riesgo', { riesgo: riesgo.escenarios, s: serie(estado, 'Temporal') }, { estado })),
         });
       }
     } catch { /* sin clima no hay estimación: sigue el camino normal */ }
@@ -201,9 +207,13 @@ async function resolver(req) {
 
 
   // Preguntas frecuentes: las contesta el código con plantilla y cita puesta por él (sin modelo, sin Wikipedia).
-  const tema = pregunta ? detectarTema(pregunta) : null;
+  const tema = ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
   const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
   if (plantilla) return res.json(plantilla);
+  // Confianza baja y nada que la respalde: decirlo y sugerir 3 preguntas que sí sabe (solo si la validación lo aprobó: modelo.negar).
+  if (ml?.sugerencias && !historial.length) {
+    return res.json({ respuesta: `No tengo ese dato. Te puedo contestar, por ejemplo: ${ml.sugerencias.join(' ')}`, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [], sugerencias: ml.sugerencias });
+  }
 
   // La ficha solo lleva lo que la pregunta pide (contexto chico = modelo más rápido y menos errores).
   const q = (pregunta ?? '').toLowerCase();
@@ -213,29 +223,31 @@ async function resolver(req) {
     !pregunta || /(semana|dias|hoy|manana|mañana|llov|lluvi|temperatura|pronostico|pronóstico|clima)/.test(q) ? getForecast(lat, lon) : null,
     findContext(pregunta),
   ]);
+  const siap = pregunta ? cropFacts(pregunta) : null;
   const ficha = buildFicha({
     clima: summarizeClimate(rows),
     suelo,
     pronostico,
     conocimiento: contexto.items,
-    siap: pregunta ? cropFacts(pregunta) : null,
+    siap,
     recomendacion: reco ? compactReco(reco) : null,
     agricultor: reco ? perfil : {}, // lo que dijo el agricultor solo importa si hay recomendación que explicar
   });
-  return { llm: { ficha, pregunta, historial, contexto } };
+  return { llm: { ficha, pregunta, historial, contexto, graficas: graficasCultivoPregunta(pregunta, siap) } };
 }
 
 // Plantilla del tema detectado, o null si no se puede (entonces contesta el modelo). Solo pide los datos que el tema necesita.
 async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   const ctx = {};
   if (tema === 'fuera' && (hayHistorial || findLocal(pregunta).length)) return null; // seguimiento o tema de la base de conocimiento: // la base de conocimiento sí sabe de esto
-  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales'].includes(tema)) {
+  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose'].includes(tema)) {
     const { rows } = await getClimate(lat, lon);
     ctx.resumen = summarizeClimate(rows);
     ctx.clim = climatologia(rows);
   }
   ctx.perfil = perfil;
   if (tema === 'pronostico') ctx.pronostico = await getForecast(lat, lon);
+  if (tema === 'aptitud') ctx.suelo = await Promise.race([getSoil(lat, lon).then(({ soil }) => summarizeSoil(soil)), new Promise((ok) => setTimeout(ok, 4000, null))]).catch(() => null); // el pH compara con lo que aguanta el cultivo
   if (tema === 'suelo') ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil);
   if (tema === 'siap' || tema === 'cultivo') ctx.siap = cropFacts(pregunta);
   const r = redactar(tema, pregunta, ctx);
@@ -245,14 +257,15 @@ async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   return {
     respuesta: r.respuesta, acciones: conAccion ? actionsFor(r.respuesta) : [], fuentes: r.fuentes,
     verificado: true, origen: 'plantilla', tema, base: 'ficha', enlaces: [], ...(r.datos && { datos: r.datos }), ...(r.preguntar && { preguntar: r.preguntar }),
+    ...conGraficas(graficasPlantilla(tema, pregunta, ctx, r.datos)),
   };
 }
 
-async function conModelo({ ficha, pregunta, historial, contexto }, ask) {
+async function conModelo({ ficha, pregunta, historial, contexto, graficas }, ask) {
   const result = await answer({ ficha, pregunta, historial, ask });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.
   const usedExtra = result.origen === 'llm' && !REFUSAL.test(result.respuesta);
-  const out = { ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [] };
+  const out = { ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [], ...conGraficas(graficas) };
   return { ...out, proceso: buildProceso(out) };
 }
 

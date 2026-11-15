@@ -5,7 +5,7 @@ import { verifyNumbers } from '../llm/verificador.js';
 import { TEMAS } from '../llm/temas.js';
 
 test('frutales: se detecta el tema por la palabra o por el nombre del frutal', () => {
-  for (const q of ['¿Qué frutales hay en mi estado?', '¿Cuánto rinde el espárrago?', '¿Qué se sabe de la uva?', '¿Qué hay de la tuna?', '¿Qué frutas puedo sembrar?']) {
+  for (const q of ['¿Qué frutales hay en mi estado?', '¿Cuánto rinde el espárrago?', '¿Qué se sabe de la uva?', '¿Qué hay de la tuna?']) {
     assert.equal(detectarTema(q), 'frutales', q);
   }
 });

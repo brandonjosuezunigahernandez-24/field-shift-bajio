@@ -131,13 +131,15 @@ function escoge(perfil, estado, q = '') {
   const agua = /riego/.test(q) && perfil.agua === 'temporal' ? ['Temporal', 'Riego'] : perfil.agua === 'riego' ? ['Riego'] : perfil.agua === 'temporal' ? ['Temporal'] : ['Temporal', 'Riego'];
   return agua.map((m) => serie(estado, m)).filter(Boolean);
 }
+// "mis 3 hectáreas" en la pregunta cuenta si el perfil no trae las hectáreas.
+const haDelTexto = (q) => { const m = q.match(/(\d+(?:[.,]\d+)?)\s*(?:ha\b|hect)/); const n = m && Number(m[1].replace(',', '.')); return n >= 0.1 && n <= 5000 ? n : undefined; };
 const nom = (s) => (s.modalidad === 'Riego' ? 'de riego' : 'de temporal');
 
 const REDACTORES = {
   produccion: (q, { estado, perfil = {}, rows, lat, lon }) => {
     const ss = escoge(perfil, estado, q);
     if (!ss.length) return null;
-    const ha = perfil.hectareas;
+    const ha = perfil.hectareas ?? haDelTexto(q);
     const [a] = ss;
     const malo = /mal ano|peor|me queda/.test(q) && ha;
     const titular = malo
@@ -203,7 +205,7 @@ const REDACTORES = {
   precio: (q, { estado, perfil = {} }) => {
     const ss = escoge(perfil, estado);
     if (!ss.length) return null;
-    const ha = perfil.hectareas;
+    const ha = perfil.hectareas ?? haDelTexto(q);
     const f = ss.map((s) => `${nom(s)} se pagó a ${money(s.precio)} la tonelada en ${s.anio_precio}`).join(' y el ');
     const ing = ss.map((s) => ({ s, ha_: Math.round(s.t_ha * s.precio) }));
     return salida(`En ${estado} el maíz ${f}.`, [
