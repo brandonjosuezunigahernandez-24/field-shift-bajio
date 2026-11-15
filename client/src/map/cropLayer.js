@@ -25,7 +25,7 @@ import {
   WebGLRenderer,
 } from 'three';
 import { GLTFLoader } from 'three/examples/jsm/loaders/GLTFLoader.js';
-import { MODELS_URL, modelGeometries } from '../three/mergeModels.js';
+import { lowPoly, modelGeometries, modelMaterial, modelUrl } from '../three/mergeModels.js';
 import { allCorners, mapPlantSpots } from './parcels.js';
 import { polygonCenter } from './polygon.js';
 
@@ -59,17 +59,38 @@ function seeded(seed) {
 //   plants   { growth, tint } how the crops look (yearState, or the hand-picked weather's look)
 //   weather  scene from weather.js weatherScene() (clouds, rain, dust, light, warm)
 //   animate  false with "reduce motion" or when the map is off screen
+//   detail   true when the map is zoomed in: detailed models (fewer, bigger plants);
+//            false: low-poly models, enough for a far view where a plant is a few pixels
 export function createCropLayer() {
   let map = null;
   let renderer = null;
-  let models = null;
+  const models = {}; // geometries by name, filled as each crop file arrives
+  const loading = new Set();
+  const loader = new GLTFLoader();
+  // Downloads a crop's file the first time it is needed; the plants appear when it arrives.
+  function ensureModel(id) {
+    if (models[id] || loading.has(id)) return;
+    loading.add(id);
+    loader.load(
+      modelUrl(id),
+      (gltf) => {
+        Object.assign(models, modelGeometries(gltf.scene));
+        rebuild();
+        map?.triggerRepaint();
+      },
+      undefined,
+      (err) => {
+        loading.delete(id);
+        console.error('Modelo de ' + id + ' en el mapa:', err);
+      }
+    );
+  }
   const scene = new Scene();
   const camera = new Camera();
-  const material = new MeshStandardMaterial({ vertexColors: true, roughness: 0.9, flatShading: true });
   const meshes = new Map(); // cultivo -> InstancedMesh
   const spotCache = new Map(); // parcel key -> { spots, spacing }
   let origin = null; // { lat, lon, merc, scale }
-  let state = { parcels: [], plants: null, weather: null, animate: true };
+  let state = { parcels: [], plants: null, weather: null, animate: true, detail: false };
 
   const ambient = new AmbientLight(0xffffff, 0.9);
   const sun = new DirectionalLight(0xffffff, 1.7);
@@ -270,20 +291,26 @@ export function createCropLayer() {
     }
     stepWeather(0);
 
-    if (!models) return; // the .glb is still loading; rebuild() runs again when it arrives
     for (const [cultivo, groups] of byCrop) {
-      const geometry = models[cultivo] ?? models.maiz;
+      ensureModel(cultivo);
+      // Zoomed in: the detailed model, on every other spot (a detailed plant is ~15x heavier).
+      // Far away: the low-poly one, where a plant is only a few pixels tall.
+      const detail = state.detail;
+      const geometry = detail ? models[cultivo] : models[lowPoly(cultivo)];
+      if (!geometry) continue; // its file is still downloading; rebuild() runs again when it arrives
+      const every = detail ? 2 : 1;
       if (!geometry.boundingBox) geometry.computeBoundingBox();
       const modelHeight = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-      const count = groups.reduce((n, g) => n + g.spots.length, 0);
-      const mesh = new InstancedMesh(geometry, material, count);
+      const count = groups.reduce((n, g) => n + Math.ceil(g.spots.length / every), 0);
+      const mesh = new InstancedMesh(geometry, modelMaterial(geometry), count); // baked texture
       mesh.frustumCulled = false;
       let i = 0;
       for (const { spots, spacing, base } of groups) {
         // Plants are drawn bigger and bushier than life (like the relief) so a field reads from the sky.
-        const target = Math.min(18, Math.max(6, spacing * 1.1));
-        const bushy = 1.8;
-        for (const s of spots) {
+        const target = Math.min(18, Math.max(6, spacing * 1.1)) * (detail ? 1.35 : 1);
+        const bushy = detail ? 1.25 : 1.8; // the detailed models are already leafy
+        for (let n = 0; n < spots.length; n += every) {
+          const s = spots[n];
           const k = (target / modelHeight) * s.size;
           dummy.position.set(s.x, base, s.z);
           dummy.rotation.set(0, s.yaw, 0);
@@ -310,16 +337,6 @@ export function createCropLayer() {
       map = m;
       renderer = new WebGLRenderer({ canvas: m.getCanvas(), context: gl, antialias: true });
       renderer.autoClear = false;
-      new GLTFLoader().load(
-        MODELS_URL,
-        (gltf) => {
-          models = modelGeometries(gltf.scene);
-          rebuild();
-          map?.triggerRepaint();
-        },
-        undefined,
-        (err) => console.error('Modelos de cultivos en el mapa:', err)
-      );
     },
     render(gl, args) {
       if (!origin || !state.parcels.length) return;
@@ -343,7 +360,6 @@ export function createCropLayer() {
     onRemove() {
       for (const mesh of meshes.values()) mesh.dispose();
       meshes.clear();
-      material.dispose();
       cloudMaterial.dispose();
       clouds.dispose();
       rainGeometry.dispose();

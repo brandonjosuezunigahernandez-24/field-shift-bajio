@@ -141,6 +141,12 @@ Cuidados de rendimiento: three.js se descarga solo si el navegador tiene WebGL y
 blender --background --factory-startup --python assets/blender/build_models.py
 ```
 
+**Texturas.** Cada parte tiene un material procedural (nervaduras en hojas, fibras en tallos, granos en espigas y elote, floretes en el brócoli, corteza, aplanado de adobe, tejas y vetas de madera) que Blender hornea en **una sola imagen por modelo** (JPEG dentro de cada `.glb`). Así cada cultivo sigue siendo un solo dibujo aunque tenga cientos de plantas.
+
+**22 cultivos, un archivo por cultivo.** Maíz, sorgo, trigo, cebada, frijol, garbanzo, brócoli, avena, amaranto, girasol, cacahuate, calabaza, papa, cebolla, jitomate, chile, fresa, arroz, alfalfa, agave, nopal y aguacate. Cada uno vive en `client/public/models/<id>.glb` (117 a 355 KB) y la app solo descarga los que el agricultor usa; `escenario.glb` trae la casa y el mezquite. Los 7 primeros son los del motor de reglas; los otros 15 son, por ahora, solo para verlos en el mapa y la maqueta.
+
+**Dos versiones de cada cultivo.** La maqueta 3D usa modelos **detallados** (el maíz tiene hojas anchas que se arquean con su nervadura, tallo con nudos y vainas, elote con hojas y pelos, espiga ramificada y raíces de apoyo; 1,400 a 3,300 triángulos). El mapa satelital usa los detallados cuando está cerca (zoom 16.2 o más, con la mitad de matas) y los **sencillos** (`<id>_lp`) de lejos, donde cada mata mide pocos píxeles. El terreno de la maqueta (surcos, terrones, capas del suelo) y los bloques del mapa (hileras sembradas y terrones) usan texturas que el navegador dibuja al momento (`client/src/three/textures.js`, `client/src/map/patterns.js`). Ninguna textura se descarga de internet.
+
 Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de objeto: `maiz`, `sorgo`, `trigo`, `cebada`, `frijol`, `garbanzo`, `brocoli`, `casa`, `arbol`.
 
 ## Credits
@@ -160,6 +166,7 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 - **Terrain Tiles** en el Registry of Open Data on AWS (formato *terrarium* de Mapzen), relieve de la vista 3D. En México las alturas provienen de **NASA SRTM** (Shuttle Radar Topography Mission). <https://registry.opendata.aws/terrain-tiles/>
 
 - **Esri World Imagery** y **World Imagery (Clarity)**, la versión sin nubes, más **World Boundaries and Places** y **World Transportation** (imagen satelital, nombres de lugares y calles del mapa donde se dibuja la parcela; el agricultor elige "Sin nubes" o "Más rápida"). *Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS.* Se usan sin API key para este prototipo; para un uso en producción hay que revisar los términos de Esri.
+  - "Detectar con un toque" lee esas mismas imágenes y la capa de calles para proponer el contorno de la parcela (visión por computadora clásica en el navegador, sin modelo entrenado).
 
 - **SIAP** (Servicio de Información Agroalimentaria y Pesquera), *Cierre de la producción agrícola* 2018–2024, datos abiertos, agregado por estado: superficie, pérdidas, rendimiento y precio medio rural de Guanajuato y Querétaro. Se usa para el ingreso bruto por hectárea de la prioridad "ganar más" y en el asistente. <https://nube.agricultura.gob.mx/>
 - **Open-Meteo**, pronóstico de 7 días (CC BY 4.0). <https://open-meteo.com/>

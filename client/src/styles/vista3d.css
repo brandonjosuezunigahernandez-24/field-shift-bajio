@@ -881,3 +881,16 @@
 .v3d .parcel-info { border: 2px solid var(--parcel-color, var(--accent)); border-radius: 12px; padding: 12px 14px; margin: 12px 0; background: var(--surface); }
 .v3d .parcel-info h3 { margin: 4px 0 8px; font-size: 18px; }
 .v3d .parcel-info > button { float: right; margin-left: 8px; }
+
+/* "Detectar con un toque" */
+.detect-tools {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--sun);
+  background: #fff8e4;
+  border-radius: 6px;
+}
+
+.detect-tools .hint {
+  margin: 6px 0 0;
+}

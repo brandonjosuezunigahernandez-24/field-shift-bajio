@@ -81,7 +81,7 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
   }, [point]);
 
   useEffect(() => {
-    preloadModels();
+    preloadModels([DEFAULT_CROP]);
   }, []);
 
 
