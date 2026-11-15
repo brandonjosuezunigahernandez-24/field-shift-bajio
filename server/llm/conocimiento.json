@@ -13,6 +13,14 @@
     "respaldo": [
       "https://sti-portal.fao.org/innovations/crop-rotation-conservation-agriculture",
       "https://www.ers.usda.gov/topics/farm-practices-management/crop-livestock-practices/soil-tillage-and-crop-rotation"
+    ],
+    "fuente": {
+      "nombre": "sti-portal.fao.org",
+      "url": "https://sti-portal.fao.org/innovations/crop-rotation-conservation-agriculture"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -30,6 +38,14 @@
     "respaldo": [
       "https://extension.psu.edu/inoculation-of-forage-and-grain-legumes",
       "https://www.fao.org/4/ar126e/ar126e.pdf"
+    ],
+    "fuente": {
+      "nombre": "extension.psu.edu",
+      "url": "https://extension.psu.edu/inoculation-of-forage-and-grain-legumes"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -46,6 +62,14 @@
     "respaldo": [
       "https://oar.icrisat.org/6113/1/Sorghum_142-151_2012_FAO.pdf",
       "https://www.fao.org/fileadmin/user_upload/inpho/docs/Post_Harvest_Compendium_-_SORGHUM.pdf"
+    ],
+    "fuente": {
+      "nombre": "oar.icrisat.org",
+      "url": "https://oar.icrisat.org/6113/1/Sorghum_142-151_2012_FAO.pdf"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -61,6 +85,14 @@
     "respaldo": [
       "https://www.fao.org/4/y3655e/y3655e03.htm",
       "https://www.fao.org/4/t7202e/t7202e05.htm"
+    ],
+    "fuente": {
+      "nombre": "www.fao.org",
+      "url": "https://www.fao.org/4/y3655e/y3655e03.htm"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -77,6 +109,14 @@
     "respaldo": [
       "https://extension.psu.edu/soil-quality-information",
       "https://blog-crop-news.extension.umn.edu/2020/03/the-connection-between-soil-organic.html"
+    ],
+    "fuente": {
+      "nombre": "extension.psu.edu",
+      "url": "https://extension.psu.edu/soil-quality-information"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -96,7 +136,15 @@
       "https://www.fao.org/4/x5869e/x5869e04.htm",
       "https://extension.psu.edu/soil-quality-information"
     ],
-    "nota": "Arenoso: drena rápido y guarda poca agua (confirmado). Arcilla guarda más agua (confirmado con fuente débil); que se encharque es conocimiento general."
+    "nota": "Arenoso: drena rápido y guarda poca agua (confirmado). Arcilla guarda más agua (confirmado con fuente débil); que se encharque es conocimiento general.",
+    "fuente": {
+      "nombre": "www.fao.org",
+      "url": "https://www.fao.org/4/x5869e/x5869e04.htm"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ]
   },
   {
     "id": "ph",
@@ -112,6 +160,14 @@
     "respaldo": [
       "https://extension.psu.edu/soil-acidity-and-aglime",
       "https://www.nrcs.usda.gov/sites/default/files/2022-11/pH%20-%20Soil%20Health%20Guide_0.pdf"
+    ],
+    "fuente": {
+      "nombre": "extension.psu.edu",
+      "url": "https://extension.psu.edu/soil-acidity-and-aglime"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -128,6 +184,14 @@
     "respaldo": [
       "https://www.fao.org/conservation-agriculture/impact/benefits-of-ca/en/",
       "https://www.fao.org/4/y4690e/y4690e09.htm"
+    ],
+    "fuente": {
+      "nombre": "www.fao.org",
+      "url": "https://www.fao.org/conservation-agriculture/impact/benefits-of-ca/en/"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -135,12 +199,21 @@
     "palabras": [
       "temporal",
       "riego",
-      "lluvia",
-      "regar"
+      "regar",
+      "otono",
+      "invierno"
     ],
-    "texto": "En temporal el cultivo depende solo de la lluvia, así que conviene elegir el cultivo y la fecha según la lluvia que suele caer en la parcela.",
-    "verificado": "definición",
-    "nota": "Es una definición (temporal = depende de la lluvia), no se buscó fuente."
+    "texto": "En temporal, la cosecha depende de cómo llueva y de cuánta agua guarde la tierra; su ventaja es que cuesta menos producir porque no se invierte en riego. Los cultivos de cada año se siembran en dos ciclos: primavera-verano y otoño-invierno. En el Bajío el ciclo otoño-invierno solo se puede sembrar si hay riego.",
+    "verificado": "parcial",
+    "nota": "SADER dice: temporal 'depende del comportamiento de las lluvias y de la capacidad del suelo para captar el agua'; 'el gasto en la producción es menor al no tener que invertir en el tema de riego'; dos ciclos PV y OI. La página NO dice que OI necesite riego; esa frase viene del contexto del proyecto (CLAUDE.md) y la agenda INIFAP Guanajuato muestra siembras de OI e invierno bajo riego, pero no lo afirma tal cual. Quitar esa frase si se quiere 100% verificado.",
+    "fuente": {
+      "nombre": "SADER (Secretaría de Agricultura), 'Tipos de cultivo, estacionalidad y ciclos'",
+      "url": "https://www.gob.mx/agricultura/es/articulos/tipos-de-cultivo-estacionalidad-y-ciclos"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ]
   },
   {
     "id": "invernadero",
@@ -157,7 +230,15 @@
       "https://www.nrcs.usda.gov/plantmaterials/mipmcar9778.pdf",
       "https://www.nrcs.usda.gov/state-offices/alaska/alaska-high-tunnels"
     ],
-    "nota": "Las fuentes (NRCS) hablan de túneles tipo high tunnel de EE.UU.; el aumento de temporada citado es de unas dos semanas por lado, no se promete cifra."
+    "nota": "Las fuentes (NRCS) hablan de túneles tipo high tunnel de EE.UU.; el aumento de temporada citado es de unas dos semanas por lado, no se promete cifra.",
+    "fuente": {
+      "nombre": "www.nrcs.usda.gov",
+      "url": "https://www.nrcs.usda.gov/plantmaterials/mipmcar9778.pdf"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ]
   },
   {
     "id": "jitomate",
@@ -172,7 +253,15 @@
     "respaldo": [
       "https://zacatecas.inifap.gob.mx/PotAgric/JitomateR.pdf"
     ],
-    "nota": "INIFAP Zacatecas confirma trasplantar después del riesgo de heladas; riego constante y drenaje son conocimiento general sin fuente directa."
+    "nota": "INIFAP Zacatecas confirma trasplantar después del riesgo de heladas; riego constante y drenaje son conocimiento general sin fuente directa.",
+    "fuente": {
+      "nombre": "zacatecas.inifap.gob.mx",
+      "url": "https://zacatecas.inifap.gob.mx/PotAgric/JitomateR.pdf"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ]
   },
   {
     "id": "brocoli",
@@ -186,6 +275,14 @@
     "respaldo": [
       "https://www.gob.mx/cms/uploads/attachment/file/832758/brocoli.pdf",
       "https://iplaneg2.guanajuato.gob.mx/infomun/media/docs/infografia_agroalimentaria.pdf"
+    ],
+    "fuente": {
+      "nombre": "www.gob.mx",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/832758/brocoli.pdf"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -196,7 +293,15 @@
     ],
     "texto": "El trigo y la cebada son cereales de clima fresco. En Guanajuato se siembran sobre todo en otoño-invierno y con riego.",
     "verificado": "parcial",
-    "nota": "Ciclo y riego respaldados por datos del SIAP de Guanajuato 2023 (archivo parcial)."
+    "nota": "Ciclo y riego respaldados por datos del SIAP de Guanajuato 2023 (archivo parcial).",
+    "fuente": {
+      "nombre": "SIAP, Cierre de la producción agrícola 2023 (datos abiertos que descarga scripts/siap-descargar.js)",
+      "url": "https://nube.agricultura.gob.mx/index.php?view=10AE434F-A2158368-A120BC5A-EDF4AFAA&ANIO=2023"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ]
   },
   {
     "id": "garbanzo",
@@ -208,6 +313,14 @@
     "respaldo": [
       "https://oar.icrisat.org/8535/1/LegumPerspectives_3_29-32_2014.pdf",
       "https://openknowledge.fao.org/server/api/core/bitstreams/bf36068f-5838-4614-9545-3a458f5a9b95/content"
+    ],
+    "fuente": {
+      "nombre": "oar.icrisat.org",
+      "url": "https://oar.icrisat.org/8535/1/LegumPerspectives_3_29-32_2014.pdf"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
     ]
   },
   {
@@ -223,7 +336,15 @@
     "respaldo": [
       "https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4146_4843_Agenda_T%C3%A9cnica_Tlaxcala_2017.pdf"
     ],
-    "nota": "Regla general (sembrar al inicio de las lluvias, con humedad en el suelo) confirmada en agendas de INIFAP de otras regiones. No encontré fechas específicas del Bajío."
+    "nota": "Regla general (sembrar al inicio de las lluvias, con humedad en el suelo) confirmada en agendas de INIFAP de otras regiones. No encontré fechas específicas del Bajío.",
+    "fuente": {
+      "nombre": "vun.inifap.gob.mx",
+      "url": "https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4146_4843_Agenda_T%C3%A9cnica_Tlaxcala_2017.pdf"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ]
   },
   {
     "id": "plagas",
@@ -242,6 +363,695 @@
       "https://www.gob.mx/senasica/articulos/senasica-refuerza-vigilancia-epidemiologica-vegetal?idiom=es",
       "https://www.gob.mx/agricultura/prensa/mexico-referente-mundial-en-sanidad-vegetal-con-prestigio-en-la-produccion-y-exportacion-de-alimentos-agricultura?idiom=es"
     ],
-    "nota": "SENASICA trabaja manejo integrado de plagas y monitoreo con Comités Estatales de Sanidad Vegetal en las 32 entidades. Fuentes sobre programas de cultivos específicos (cítricos, caña, vid); apoyo indirecto."
+    "nota": "SENASICA trabaja manejo integrado de plagas y monitoreo con Comités Estatales de Sanidad Vegetal en las 32 entidades. Fuentes sobre programas de cultivos específicos (cítricos, caña, vid); apoyo indirecto.",
+    "fuente": {
+      "nombre": "www.gob.mx",
+      "url": "https://www.gob.mx/senasica/articulos/senasica-refuerza-vigilancia-epidemiologica-vegetal?idiom=es"
+    },
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ]
+  },
+  {
+    "id": "quemar-rastrojo",
+    "palabras": [
+      "quemar",
+      "quema",
+      "quemo",
+      "fuego",
+      "lumbre",
+      "soca"
+    ],
+    "texto": "Quemar el rastrojo hace que la tierra pierda nutrientes y mata a los organismos que descomponen la materia orgánica; el humo también daña la salud. Mejor aprovecha el rastrojo en la parcela para nutrir la tierra. Si de plano tienes que quemar, primero da el aviso de uso del fuego en tu municipio.",
+    "fuente": {
+      "nombre": "SADER, #MiParcelaNoSeQuema",
+      "url": "https://www.gob.mx/agricultura/acciones-y-programas/miparcelanosequema"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "La página dice: pérdida de nutrientes, elimina organismos que descomponen la materia orgánica, afecta aireación, contingencias por mala calidad del aire; aprovechar los residuos; Aviso de uso del fuego ante el municipio (NOM-015). No habla de humedad ni erosión."
+  },
+  {
+    "id": "labranza-conservacion",
+    "palabras": [
+      "labranza",
+      "barbechar",
+      "barbecho",
+      "voltear",
+      "arado",
+      "rastra"
+    ],
+    "texto": "Mover la tierra lo menos posible es uno de los principios de la agricultura de conservación, junto con dejar el suelo cubierto de rastrojo y rotar cultivos. Si no se remueve, el agua de lluvia se mete mejor, se guarda más humedad y con los años sube la materia orgánica. Prueba barbechar menos y dejar el rastrojo encima.",
+    "fuente": {
+      "nombre": "CIMMYT, ¿Qué es la agricultura de conservación?",
+      "url": "https://www.cimmyt.org/es/noticias/que-es-la-agricultura-de-conservacion/"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Página: tres principios (mínima alteración mecánica, cobertura permanente, diversificación); sin remover aumenta infiltración y gradualmente materia orgánica; conserva humedad y evita erosión. No dice cada cuánto barbechar."
+  },
+  {
+    "id": "suelo-cansado",
+    "palabras": [
+      "cansado",
+      "cansada",
+      "fertilidad",
+      "desgastado",
+      "pobre",
+      "recuperar"
+    ],
+    "texto": "Para que una tierra cansada se recupere, el CIMMYT recomienda tres cosas juntas: mover poco el suelo, dejarlo cubierto con rastrojo o plantas y rotar o intercalar cultivos. Con el tiempo esto aumenta la materia orgánica y la salud del suelo. Empieza por no quemar ni sacar todo el rastrojo.",
+    "fuente": {
+      "nombre": "CIMMYT, ¿Qué es la agricultura de conservación?",
+      "url": "https://www.cimmyt.org/es/noticias/que-es-la-agricultura-de-conservacion/"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Principios y que aumenta gradualmente la materia orgánica y la salud del suelo están en la página; no quemar sale de la tarjeta quemar-rastrojo (SADER)."
+  },
+  {
+    "id": "erosion",
+    "palabras": [
+      "erosion",
+      "deslave",
+      "lava",
+      "arrastre",
+      "ladera",
+      "pendiente"
+    ],
+    "texto": "La erosión es cuando la lluvia o el viento se llevan la capa de arriba del suelo, que es la más fértil. Dejar el suelo cubierto con rastrojo y moverlo poco ayuda a que el agua se meta en vez de correr y evita que se lave la tierra. En terreno con pendiente, no lo dejes descubierto en lluvias.",
+    "fuente": {
+      "nombre": "CIMMYT, ¿Qué es la agricultura de conservación?",
+      "url": "https://www.cimmyt.org/es/noticias/que-es-la-agricultura-de-conservacion/"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "La página dice que la cobertura y la mínima labranza aumentan la infiltración y evitan la erosión de la capa superior. La definición (lluvia o viento) y lo de la pendiente es conocimiento general, no está en la página."
+  },
+  {
+    "id": "composta",
+    "palabras": [
+      "composta",
+      "compost",
+      "compostaje",
+      "abonera",
+      "descomponer"
+    ],
+    "texto": "La composta es un abono orgánico que se hace apilando capas de materia orgánica: paja, restos de plantas y hojas, y capas de estiércol desmenuzado. Cada capa se humedece sin encharcar y la pila se voltea a los 15 días y luego cada semana para que se airee y caliente. Ya lista, guárdala en costales en un lugar seco.",
+    "fuente": {
+      "nombre": "SEMARNAT, Composta casera",
+      "url": "https://www.gob.mx/semarnat/articulos/composta-casera-mejora-plantas-y-suelos-a-costos-economicos-con-materiales-accesibles"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Página: abono orgánico por degradación microbiana; capa inicial de paja, capas alternas con estiércol desmenuzado; humedecer sin exceso; voltear a los 15 días y luego cada semana; guardar en costales en lugar seco. Es guía casera, no de parcela grande; no dice cuánto tarda."
+  },
+  {
+    "id": "estiercol",
+    "palabras": [
+      "estiercol",
+      "excremento",
+      "gallinaza",
+      "boniga"
+    ],
+    "texto": "El estiércol sirve como abono orgánico; una forma de usarlo es como capa dentro de la composta, desmenuzado, entre capas de paja y restos de plantas. Así se descompone junto con lo demás y queda un abono para la tierra.",
+    "fuente": {
+      "nombre": "SEMARNAT, Composta casera",
+      "url": "https://www.gob.mx/semarnat/articulos/composta-casera-mejora-plantas-y-suelos-a-costos-economicos-con-materiales-accesibles"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "La página usa estiércol desmenuzado como capa de la composta. No dice si es mejor composteado que fresco ni da cantidades."
+  },
+  {
+    "id": "cosecha-agua",
+    "palabras": [
+      "captar",
+      "captacion",
+      "olla",
+      "ollas",
+      "bordo",
+      "bordos",
+      "aljibe",
+      "juntar",
+      "junto"
+    ],
+    "texto": "La cosecha de agua es captar, guardar y hacer que se infiltre el agua de lluvia para la siembra y los animales, con obras como ollas de agua, aljibes, presas chicas y surcos. La SADER y la CONAZA (Comisión Nacional de las Zonas Áridas) apoyan obras de conservación de suelo y agua. Pregunta en la oficina de la SADER de tu zona.",
+    "fuente": {
+      "nombre": "SADER, La cosecha de agua en zonas áridas",
+      "url": "https://www.gob.mx/agricultura/articulos/cosecha-agua-195001"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Página: captación, conducción, almacenamiento e infiltración; ollas, aljibes, presas, muros de piedra, surcos; SADER y CONAZA desarrollan acciones de conservación de suelo y agua. No menciona bordos ni curvas a nivel (no se encontró fuente legible: los PDF de FAO y CONAZA no se pudieron leer)."
+  },
+  {
+    "id": "salitre",
+    "palabras": [
+      "salitre",
+      "salitroso",
+      "salitrosa",
+      "ensalitrado",
+      "salino",
+      "sales"
+    ],
+    "texto": "El salitre son sales que suben con el agua del subsuelo y se quedan arriba cuando el agua se evapora; pasa más donde el agua de abajo está muy cerca de la superficie y el drenaje es malo. En una prueba del IMTA, bajar el nivel del agua con drenaje redujo la sal del suelo. Pide a un técnico que revise el drenaje de tu parcela.",
+    "fuente": {
+      "nombre": "IMTA (blog en iagua), Drenaje parcelario para mitigar el ensalitramiento",
+      "url": "https://www.iagua.es/blogs/imta/drenaje-parcelario-y-bombeo-energia-alternativa-mitigar-ensalitramiento-suelos"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "El caso es un distrito de riego en Sonora, no temporal del Bajío. La página respalda: sales suben por capilaridad con nivel freático somero y evaporación; bajar el nivel freático con drenaje redujo la salinidad."
+  },
+  {
+    "id": "canicula",
+    "palabras": [
+      "canicula",
+      "veranillo",
+      "sequia",
+      "intraestival"
+    ],
+    "texto": "La canícula, también llamada veranillo, es un tiempo a media temporada de lluvias en que llueve menos o deja de llover, y hace un poco más de calor. Suele llegar a finales de julio o principios de agosto, pero no tiene fecha fija: puede durar más o menos y la pueden cortar ondas o ciclones tropicales. Revise los avisos del Servicio Meteorológico Nacional en smn.conagua.gob.mx para saber si ya empezó en su zona.",
+    "fuente": {
+      "nombre": "SMN, CONAGUA (Comunicado de prensa 0533-23)",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/842799/Comunicado_de_Prensa_0533-23.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "El comunicado (21 jul 2023) define canícula = sequía intraestival o veranillo, disminución o ausencia de lluvia con ligero aumento de temperatura; 'habitualmente a finales de julio o principios de agosto, no hay fecha exacta'; puede ser interrumpida por ondas y ciclones tropicales. Ese año la menciona en Guanajuato y, con menor intensidad, en Querétaro. La página no habla de efectos en cultivos; eso no se incluyó."
+  },
+  {
+    "id": "monitor-sequia",
+    "palabras": [
+      "monitor",
+      "sequia",
+      "d0",
+      "d4",
+      "quincenal"
+    ],
+    "texto": "El Monitor de Sequía de México lo hace el Servicio Meteorológico Nacional y sale cada quince días. Usa cinco niveles: D0 anormalmente seco, D1 sequía moderada, D2 sequía severa, D3 sequía extrema y D4 sequía excepcional. Busque su municipio en el mapa para ver en qué nivel está antes de decidir qué y cuándo sembrar.",
+    "fuente": {
+      "nombre": "SMN, CONAGUA",
+      "url": "https://smn.conagua.gob.mx/es/climatologia/monitor-de-sequia/monitor-de-sequia-en-mexico"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "La página dice: categorías D0-D4 con esos nombres; 'A partir de febrero de 2014 la emisión del MSM es quincenal'; forma parte del Monitor de Sequía de América del Norte. La recomendación final (revisar antes de sembrar) es sugerencia de uso, no texto de la página."
+  },
+  {
+    "id": "heladas-tempranas",
+    "palabras": [
+      "helada",
+      "heladas",
+      "tempranas",
+      "precoz"
+    ],
+    "texto": "En Guanajuato las heladas tempranas son comunes y en el Bajío se presentan en octubre. Si siembra de temporal después de la fecha recomendada, el cultivo puede agarrar esas heladas antes de terminar su ciclo. Las variedades precoces (de ciclo corto) se acomodan mejor y escapan del frío. Siembre dentro de la fecha que recomienda el INIFAP para su cultivo y su zona.",
+    "fuente": {
+      "nombre": "INIFAP, Agenda Técnica Agrícola Guanajuato 2017",
+      "url": "https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4129_4826_Agenda_T%C3%A9cnica_Guanajuato_2017.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato"
+    ],
+    "nota": "Frijol: siembras de temporal posteriores a la fecha 'pueden ser afectadas por heladas tempranas, comunes en el estado'; variedades mejoradas 'al ser más precoces ... se escapan de las bajas temperaturas'. Cebada forrajera: 'heladas tempranas que se presentan en octubre'. Es de Guanajuato; no se revisó la agenda de Querétaro sobre heladas. No se verificaron avisos de heladas del SMN."
+  },
+  {
+    "id": "temporal-tardio",
+    "palabras": [
+      "tardias",
+      "tarde",
+      "retrasa",
+      "corto",
+      "precoz"
+    ],
+    "texto": "Siembre según la humedad que tenga la tierra y apóyese en los pronósticos de lluvia y de temperatura del Servicio Meteorológico. Si las lluvias llegan tarde, mejor siembre otro cultivo en lugar de maíz, uno de ciclo corto (de 97 días o menos). Prefiera variedades tolerantes a la sequía y de ciclo corto.",
+    "fuente": {
+      "nombre": "Mesa Técnica Agroclimática Estado de México (SMN, CIMMYT, INIFAP y otros), Boletín Agroclimático No. 2, 2022",
+      "url": "https://secampo.edomex.gob.mx/sites/secampo.edomex.gob.mx/files/files/Publicaciones/boletines/Boletin_Agroclimatico_No02.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Texto del boletín: 'Si el temporal se establece tardíamente utilizar otro cultivo en lugar del maíz, alguno cuyo ciclo de duración sea igual o menor 97 días'; 'Variedades tolerantes a sequía y de ciclos cortos'. OJO: es de la Mesa Técnica del Estado de México, no de Guanajuato ni de Querétaro; se aplica por parecido de clima, no lo dice la fuente."
+  },
+  {
+    "id": "frijol-siembra",
+    "palabras": [
+      "frijol"
+    ],
+    "texto": "Para frijol de temporal en Guanajuato, el INIFAP recomienda sembrar del 15 de junio al 31 de julio en el centro y sur del estado, y del 15 de mayo al 10 de julio en el norte. Si siembra más tarde, el frijol puede agarrar heladas tempranas. El INIFAP (Campo Experimental Bajío, en Celaya) tiene variedades mejoradas de tipo Flor de Mayo, Flor de Junio, pinto y negro; pregunte por ellas a su técnico.",
+    "fuente": {
+      "nombre": "INIFAP, Agenda Técnica Agrícola Guanajuato 2017",
+      "url": "https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4129_4826_Agenda_T%C3%A9cnica_Guanajuato_2017.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato"
+    ],
+    "nota": "Tabla 16 de la agenda: temporal norte 15 mayo-10 julio; centro y sur 15 junio-31 julio. La agenda lista variedades INIFAP (no se ponen nombres en el texto). Lo respalda también INIFAP Rev. Mex. Cienc. Agríc. 2014 (https://cienciasagricolas.inifap.gob.mx/index.php/agricolas/article/download/1125/980): en el Bajío el Flor de Junio de temporal se siembra 'a fines de junio a mediados de julio'. No se verificaron fechas para Querétaro."
+  },
+  {
+    "id": "frijol-flores",
+    "palabras": [
+      "frijol",
+      "floracion",
+      "flores",
+      "vainas"
+    ],
+    "texto": "La falta de agua hace más daño al frijol cuando está en floración y formando vainas: se forman menos flores, menos vainas y menos granos. El calor fuerte también tira flores y vainitas; en Celaya, con temperaturas de 34 °C, se cayeron flores y vainas pequeñas. Procure sembrar en la fecha recomendada para que la floración no caiga en los días más secos o más calientes.",
+    "fuente": {
+      "nombre": "INIFAP Campo Experimental Bajío, Rev. Mex. Cienc. Agríc. 2014 (variedad Junio León)",
+      "url": "https://cienciasagricolas.inifap.gob.mx/index.php/agricolas/article/download/1125/980"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "INIFAP: en siembras de riego en febrero en Celaya, 'alta temperatura de 34 oC que causan la caída de flores y pequeñas vainas'. La parte de sequía viene de COLPOS, Rev. Mex. Cienc. Agríc. 10(2) 2019 (https://cienciasagricolas.inifap.gob.mx/index.php/agricolas/article/download/1607/2045/6916): el estrés hídrico 'tiene su efecto más adverso durante la fase reproductiva' y reduce flores, vainas y semillas. La última frase (sembrar en fecha) es consejo, no texto de las fuentes."
+  },
+  {
+    "id": "semilla-pudre",
+    "palabras": [
+      "pudricion",
+      "encharcamiento",
+      "nivelacion",
+      "plantulas",
+      "nacencia",
+      "pudren",
+      "pudre",
+      "semillas"
+    ],
+    "texto": "Cuando el agua se encharca en la parcela, se favorecen las pudriciones de raíz y de plantitas recién nacidas. Para evitarlo, el INIFAP recomienda nivelar el terreno antes de sembrar para que el agua no se quede estancada.",
+    "fuente": {
+      "nombre": "INIFAP, Agenda Técnica Agrícola Guanajuato 2017",
+      "url": "https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4129_4826_Agenda_T%C3%A9cnica_Guanajuato_2017.pdf"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato"
+    ],
+    "nota": "La agenda dice en varios cultivos: 'Nivelación: se realiza para evitar encharcamientos que propicien posibles pudriciones de la raíz' y 'evitar encharcamientos que favorezcan la pudrición de plántulas'. NO encontré fuente mexicana leída que hable de semilla podrida por suelo frío ni por semilla de mala calidad; eso no va en el texto."
+  },
+  {
+    "id": "sorgo-cosecha",
+    "palabras": [
+      "sorgo",
+      "negra",
+      "madurez",
+      "fisiologica",
+      "cortar"
+    ],
+    "texto": "Para saber si el sorgo ya llegó a su madurez, revise la base del grano: cuando aparece la capa negra (una mancha oscura, café, donde el grano se pega a la panoja), el grano ya está maduro. Es la señal más confiable, más que apretar el grano con los dedos. En ese momento el grano todavía tiene mucha humedad, así que debe secarse antes de cosechar, pero no lo deje demasiado tiempo en la parcela porque se echa a perder.",
+    "fuente": {
+      "nombre": "UNAM FES Cuautitlán, tesis 'Evaluación de técnicas para determinar madurez fisiológica del sorgo para los Valles Altos de México' (1983)",
+      "url": "https://ru.dgb.unam.mx/bitstream/20.500.14330/TES01000037830/3/0037830.pdf"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "La tesis concluye: capa negra = 'color café en la región placental'; 'el método más confiable para determinar madurez fisiológica'; humedad del grano en ese punto 25%; retrasar la cosecha 'es lo mismo que almacenar las semillas en el campo' (citando a Delouche) y la semilla se deteriora. No da la humedad para cosechar ni es INIFAP; es una tesis antigua de Valles Altos, no del Bajío."
+  },
+  {
+    "id": "sorgo-forraje",
+    "palabras": [
+      "sorgo",
+      "forraje",
+      "ganado",
+      "rebrotes",
+      "acido",
+      "prusico",
+      "durrina"
+    ],
+    "texto": "El sorgo es buen forraje y aguanta la sequía, pero todos los sorgos pueden tener una sustancia que se vuelve veneno para el ganado (ácido prúsico). El peligro es mayor en los rebrotes tiernos, y hay que tener más cuidado cuando el sorgo está estresado por sequía. Revise bien el sorgo antes de meter animales a pastorear. Cuando ya está hecho heno, o en tallos secos, ese peligro ya no existe.",
+    "fuente": {
+      "nombre": "FAO, Cultivos para heno: cereales y gramíneas forrajeras (Cap. V)",
+      "url": "https://www.fao.org/4/x7660s/x7660s09.htm"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "FAO: 'Todos los sorgos pueden contener un glicósido cianogénico, la durrina, que puede ser tóxico'; 'El peligro es mayor en los rebrotes jóvenes de la base o de tallos viejos'; 'observar atentamente antes de poner los animales a pastorear ... sobre todo cuando este tiene estrés de sequía'; 'No existe este peligro una vez que el follaje se ha transformado en heno ni tampoco son tóxicos los tallos secos'. No se puso altura segura de pastoreo (la FAO menciona ~60 cm en otro documento que no abrí)."
+  },
+  {
+    "id": "milpa",
+    "palabras": [
+      "milpa",
+      "hermanas",
+      "calabaza",
+      "asociacion",
+      "policultivo",
+      "intercalar"
+    ],
+    "texto": "La milpa junta maíz, frijol y calabaza (las tres hermanas) y a veces otros cultivos en la misma parcela. Aprovecha mejor la luz, los nutrientes y el agua que sembrar solo maíz, y en estudios llegó a producir entre 60 y 90% más. Además da más variedad de alimentos para la familia. Si tiene espacio, pruebe sembrar frijol y calabaza junto con su maíz.",
+    "fuente": {
+      "nombre": "CIMMYT",
+      "url": "https://www.cimmyt.org/es/noticias/milpa-un-sistema-fundamental-para-la-seguridad-alimentaria/"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "CIMMYT: 'tiende a ser más productivo y eficiente en el uso de luz, nutrientes y agua'; 'puede ser entre 60 y 90% más productiva que un monocultivo de maíz' (estudio con condiciones específicas, Guatemala y otros); más nutrientes esenciales. La página NO menciona fijación de nitrógeno del frijol ni que la calabaza tape la maleza; eso no se incluyó."
+  },
+  {
+    "id": "semilla-criolla",
+    "palabras": [
+      "criollo",
+      "nativo",
+      "hibrido",
+      "mejorada"
+    ],
+    "texto": "Los maíces nativos o criollos son muy diversos, tienen nutrientes especiales y cada uno sirve para ciertos platillos, por eso pueden valer más en el mercado. Los híbridos y variedades mejoradas pueden dar más rendimiento y adaptarse mejor. En frijol, el INIFAP dice que las variedades mejoradas resisten más enfermedades que las criollas y, por ser más precoces, escapan mejor del frío y de las lluvias en la cosecha. Escoja según si busca vender caro, rendir más o guardar su propia semilla.",
+    "fuente": {
+      "nombre": "SADER (Secretaría de Agricultura), 'Maíces nativos: el legado milenario de México'",
+      "url": "https://www.gob.mx/agricultura/es/articulos/maices-nativos-el-legado-milenario-de-mexico?idiom=es"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "SADER/CIMMYT: nativos con 'diversidad tremenda de micronutrientes'; 'cada maíz nativo fue desarrollado ... para una comida en específico'; pueden valer 'tres o cuatro veces' más que un híbrido; híbridos pueden dar 'mayor adaptabilidad, mayor rendimiento'. La parte de frijol es de la Agenda Técnica INIFAP Guanajuato 2017 (https://vun.inifap.gob.mx/VUN_MEDIA/BibliotecaWeb/_media/_agendas/4129_4826_Agenda_T%C3%A9cnica_Guanajuato_2017.pdf). 'Guardar su propia semilla' no está en las fuentes leídas (es parcial por eso)."
+  },
+  {
+    "id": "cogollero",
+    "palabras": [
+      "cogollero",
+      "gusano",
+      "cogollo",
+      "maiz",
+      "aserrin"
+    ],
+    "texto": "El gusano cogollero se mete al cogollo de las plantas chicas de maíz, más o menos de 10 a 60 cm. Se nota porque las hojas quedan agujeradas y hay excremento húmedo, como aserrín, cerca del cogollo. SENASICA recomienda revisar desde que nace la planta, dos veces por semana y hasta unos 50 días: 10 plantas en cada uno de 5 puntos de la parcela (en cinco de oros), buscando masas de huevos y larvas. Si encuentra la plaga, avise al técnico de sanidad vegetal antes de aplicar cualquier cosa.",
+    "fuente": {
+      "nombre": "SENASICA, Ficha técnica Gusano cogollero (DGSV-CNRF, 2021)",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/635236/Gusano_cogollero_en_ma_z_y_arroz.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Sección DAÑOS: 'penetra el cogollo de plantas pequeñas preferentemente de 10 a 60 cm', 'hojas perforadas', 'excremento húmedo parecido al aserrín cerca del cogollo'. Sección MONITOREO: muestreo desde la emergencia, dos veces por semana, al menos hasta 50 días; 50 plantas en 5 sitios en 'cinco de oros', grupos de 10. Se omitieron umbrales y productos a propósito. 'Avise al técnico' es la acción sugerida, no una frase de la ficha."
+  },
+  {
+    "id": "plagas-frijol",
+    "palabras": [
+      "frijol",
+      "conchuela",
+      "plaga",
+      "plagas"
+    ],
+    "texto": "La conchuela del frijol es una catarina café cobriza; los adultos y las larvas se comen las hojas y dejan solo las venas, y lo que queda se pone café. El daño en la floración y el llenado de vainas es el que más baja la cosecha. Revise la parcela al menos cada 7 días: en por lo menos 10 puntos al azar, cuente adultos, masas de huevos y larvas en las plantas de un metro de surco. Si ve muchas, avise al técnico de sanidad vegetal.",
+    "fuente": {
+      "nombre": "SENASICA, Ficha técnica Conchuela del frijol (DGSV-CNRF)",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/600966/Conchuela_del_frijol.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Respaldado por las secciones DAÑOS, adulto ('amarillo... oscureciéndose... marrón grisáceo o cobrizo') y Monitoreo ('al menos cada siete días', 'un metro lineal de surco', 'al menos 10 puntos... al azar'). Solo cubre conchuela: picudo del ejote, mosquita blanca y chicharrita NO se verificaron con fuente oficial (solo resúmenes de búsqueda), por eso no se incluyen. No es fuente INIFAP."
+  },
+  {
+    "id": "gallina-ciega",
+    "palabras": [
+      "gallina",
+      "ciega",
+      "larva",
+      "raices",
+      "maiz",
+      "phyllophaga"
+    ],
+    "texto": "La gallina ciega son larvas que viven en el suelo y se comen las raíces. En el maíz es de las plagas más importantes de México y afecta al Bajío, incluidos Guanajuato y Querétaro. Existen hongos que la enferman de forma natural, pero su uso en el campo apenas empieza. Si sus plantas se ven mal sin razón clara, pida al técnico de sanidad vegetal que revise el suelo.",
+    "fuente": {
+      "nombre": "SENASICA, Ficha técnica CB-04 Hongos entomopatógenos para el combate de la gallina ciega (2023)",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/913439/2023_FT_04_HONGOS_ENTOMOPAT_GENOS_PARA_EL_COMBATE_DE_LA_GALLINA_CIEGA.pdf"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "La ficha dice: 'Las larvas del género Phyllophaga habitan en el suelo, y constituyen una plaga rizófaga', 'una de las plagas más importantes en México... Bajío (Guanajuato, Michoacán y Querétaro)', y que el control biológico en campo está 'en fases iniciales'. NO describe cómo detectarla (cavar, contar larvas); 'plantas se ven mal' y 'pida que revise el suelo' es la acción sugerida, no viene de la fuente. Hay boletines de Alerta Fitosanitaria de gallina ciega para Guanajuato 2025 que piden intensificar el monitoreo, pero tampoco explican cómo detectarla."
+  },
+  {
+    "id": "malezas",
+    "palabras": [
+      "maleza",
+      "malezas",
+      "escarda",
+      "deshierbe",
+      "competencia",
+      "periodo",
+      "critico",
+      "hierba",
+      "hierbas",
+      "yerba"
+    ],
+    "texto": "La maleza le roba al cultivo agua, nutrientes y luz, da refugio a otras plagas y estorba en la cosecha; las pérdidas pueden pasar del 20 al 30 %. Hay un tiempo crítico del cultivo en el que la maleza le baja mucho la cosecha, y conocerlo dice cuándo actuar. Ayudan: semilla limpia de maleza, la rotación de cultivos, cultivos de cobertura y hacer a tiempo la primera y segunda escarda. Planee sus escardas desde que siembra.",
+    "fuente": {
+      "nombre": "INIFAP (S. Alvarado Mendoza), 6° Seminario Puebla: Manejo integrado de maleza en el cultivo de maíz con un enfoque agroecológico",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/677460/Manejo_integrado_de_malezas_en_el_cultivo_de_ma_z_con_enfoque_agroecologico.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Presentación de un investigador del INIFAP en Puebla, no del Bajío. Dice: competencia 'por los nutrientes, el agua y la luz', 'hospederas' de plagas, 'pérdidas pueden ser superiores al 20-30%', definición de período crítico de competencia, rotaciones, cultivos de cobertura, 'semilla registrada o criollos libres de malas hierbas', 'Labores de cultivo oportunos (1ª y 2ª escarda)'. NO da cuántas semanas dura el período crítico en maíz, así que no se pone un número."
+  },
+  {
+    "id": "sanidad-vegetal-contacto",
+    "palabras": [
+      "sanidad",
+      "vegetal",
+      "senasica",
+      "cesaveg",
+      "alerta",
+      "fitosanitaria"
+    ],
+    "texto": "Si encuentra una plaga, puede reportarla a la Alerta Fitosanitaria del SENASICA: el teléfono gratuito es 800 987 987 9 y el correo es alerta.fitosanitaria@senasica.gob.mx. En Guanajuato estos avisos se hacen junto con el Comité Estatal de Sanidad Vegetal de Guanajuato (CESAVEG) y el INIFAP Campo Experimental Bajío. Los boletines avisan qué municipios tienen riesgo para que los productores reciban capacitación y acompañamiento técnico. Llame si ve una plaga que no conoce.",
+    "fuente": {
+      "nombre": "SENASICA, Boletín de Alerta Fitosanitaria Gallina ciega en Guanajuato, No. 17 (julio 2025)",
+      "url": "https://dj.senasica.gob.mx//Contenido/files/boletin/2025/gallcie/Guanajuato/julio/BoletinSAF_GallC_PV_Guanajuato2025_No17_4ae7e98c-2812-4699-a0c3-72dd4236af48.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato"
+    ],
+    "nota": "El boletín trae 'Contacto Correo: alerta.fitosanitaria@senasica.gob.mx Teléfono gratuito: 800 987 987 9' y colaboración de INIFAP Campo Experimental Bajío y Comité de Sanidad Vegetal del Estado de Guanajuato (logo CESAVEG). Propone 'notificar al productor... acciones preventivas (capacitación y acompañamiento técnico)'. No se encontró teléfono ni dirección propios de CESAVEG en página oficial."
+  },
+  {
+    "id": "sanidad-vegetal-contacto-qro",
+    "palabras": [
+      "sanidad",
+      "vegetal",
+      "senasica",
+      "cesaveq",
+      "alerta",
+      "fitosanitaria"
+    ],
+    "texto": "En Querétaro, los avisos de plagas del SENASICA se hacen junto con el Comité de Sanidad Vegetal del Estado de Querétaro y el INIFAP Campo Experimental Bajío. Hay boletines semanales de gusano cogollero que dicen qué municipios están en riesgo. Para reportar una plaga, el teléfono gratuito del SENASICA es 800 987 987 9 y el correo alerta.fitosanitaria@senasica.gob.mx. Llame si ve una plaga que no conoce.",
+    "fuente": {
+      "nombre": "SENASICA, Boletín de Alerta Fitosanitaria Gusano cogollero en Querétaro, No. 11 (2025)",
+      "url": "https://dj.senasica.gob.mx//Contenido/files/boletin/2025/guscog/Querétaro/julio/BoletinSAF_GC_PV_Querétaro2025_No11_eaad1ce8-3fc1-4d5b-9db0-a7d3cf83afef.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Querétaro"
+    ],
+    "nota": "Portada: 'Colaboración Técnico-Científica: ... INIFAP Campo Experimental Bajío, Comité de Sanidad Vegetal del Estado de Querétaro'. El texto extraído de este boletín no mostró la línea de contacto; el 800 987 987 9 y el correo se confirmaron en otros boletines AF-SENASICA del mismo formato (Guanajuato 2025, Edo. Méx. 2022). No se encontró teléfono propio de CESAVEQ."
+  },
+  {
+    "id": "monitoreo-plagas",
+    "palabras": [
+      "monitoreo",
+      "muestreo",
+      "oros",
+      "huevecillos",
+      "revisar"
+    ],
+    "texto": "Para saber si hay plagas, recorra la parcela y revise plantas en varios puntos, no solo en la orilla. El Comité de Sanidad Vegetal de Puebla revisa 100 plantas en 5 puntos (20 por punto, en cinco de oros), cada 15 días, buscando daños, masas de huevecillos y larvas. El control químico se deja como última opción. Anote lo que encuentra y avise al técnico de sanidad vegetal.",
+    "fuente": {
+      "nombre": "Comité Estatal de Sanidad Vegetal de Puebla, 2° Seminario: Monitoreo e incorporación de labores culturales para el control de gusano cogollero y chapulín en maíz",
+      "url": "https://www.gob.mx/cms/uploads/attachment/file/675821/2__Seminario_Monitoreo_e_incorporaci_n_de_labores_culturales_para_el_control_de_gusano_cogollero_y_chapul_n_en_el_cultivo_de_ma_z.pdf"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Dice: 'Se revisaran 100 plantas ubicadas en 5 puntos 20 plantas por punto, buscando daños, masas de huevecillos, larvas... Cada 15 días' y 'control químico como ultima opción'. Es de Puebla, para cogollero y chapulín. 'No solo en la orilla' y 'anote' son consejo añadido, no vienen de la fuente. Ojo: la ficha SENASICA de cogollero pide revisar más seguido (2 veces por semana)."
+  },
+  {
+    "id": "silo-hermetico",
+    "palabras": [
+      "silo",
+      "hermetico",
+      "poscosecha",
+      "bolsa",
+      "hermetica"
+    ],
+    "texto": "El silo metálico hermético protege el grano de las plagas sin necesidad de químicos. Antes de guardar, seque el grano al sol, déjelo enfriar en la noche, quite basura y granos picados, manchados, quebrados o germinados, y limpie el lugar. Llene el silo por lo menos tres cuartas partes para que no quede mucho aire, y ciérrelo bien con empaques y cinta teflón. Póngalo bajo techo, sobre una tarima, sin tocar la pared y protegido del sol y la lluvia.",
+    "fuente": {
+      "nombre": "CIMMYT, Tips para el almacenamiento de granos con silos metálicos herméticos (2025)",
+      "url": "https://www.cimmyt.org/es/noticias/tips-para-el-almacenamiento-de-granos-con-silos-metalicos-hermeticos/"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Citas: 'sin necesidad de químicos', 'Refresca el grano después de secarlo al Sol, déjalo reposar durante la noche', 'Elimina mazorcas y semillas picadas por insectos, manchas por hongos, quebradas y germinadas', 'mínimo tres cuartas partes de su capacidad para evitar mucho espacio con oxígeno', 'Empaques y cinta teflón', tarima, techo, sin contacto con la pared. La página también pide humedad menor al 14 %; se omitió aquí (va en secado-grano)."
+  },
+  {
+    "id": "gorgojo",
+    "palabras": [
+      "gorgojo",
+      "apolilla",
+      "palomilla",
+      "costal",
+      "garrafon",
+      "almacen"
+    ],
+    "texto": "En un estudio del CIMMYT, el maíz guardado en costales de polipropileno sufrió mucho daño por el gorgojo; en recipientes herméticos el daño fue mínimo. Como recipiente hermético sirven también botellas o garrafones de plástico reciclados. Las tecnologías herméticas limitan el daño de los insectos después de la cosecha. Guarde su grano y su semilla en recipientes bien cerrados en lugar de costal abierto.",
+    "fuente": {
+      "nombre": "CIMMYT, Tecnologías herméticas ayudan a preservar la diversidad del maíz nativo",
+      "url": "https://www.cimmyt.org/es/noticias/tecnologias-hermeticas-ayudan-a-preservar-la-diversidad-del-maiz-nativo/"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Citas: 'las muestras de los costales de polipropileno sufrieron daños significativos por el gorgojo del maíz', 'con los contenedores herméticos las pérdidas fueron mínimas', 'botellas o garrafones de plástico reciclados', 'las tecnologías herméticas pueden limitar los daños causados por las plagas de insectos después de la cosecha'. La página NO habla de palomilla, limpieza ni secado (ver silo-hermetico y secado-grano). No se pudo abrir la explicación de la FAO sobre falta de oxígeno (límite de uso)."
+  },
+  {
+    "id": "secado-grano",
+    "palabras": [
+      "secado",
+      "secar",
+      "grano",
+      "guardar"
+    ],
+    "texto": "Secar el grano es de los pasos más importantes después de la cosecha. El grano húmedo es más atacado por plagas como los barrenadores; para guardarlo hay que bajarle la humedad a menos del 13 % y así evitar insectos y hongos. Es mejor secarlo en la casa o donde se va a guardar que dejarlo en el campo. Un grano bien seco dura más guardado y la semilla nace mejor el siguiente ciclo.",
+    "fuente": {
+      "nombre": "CIMMYT, El papel del secado de grano en el almacenamiento hermético poscosecha",
+      "url": "https://www.cimmyt.org/es/noticias/el-papel-del-secado-de-grano-en-el-almacenamiento-hermetico-poscosecha/"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Citas: 'El secado es uno de los pasos más importantes en la poscosecha', 'los granos con alto contenido de humedad son más vulnerables a plagas como los barrenadores', 'por debajo del 13%... para evitar ataques de insectos y hongos', 'Secar los granos en la casa o en el lugar de almacenamiento, es una mejor opción que secarlos en el campo', germinación. La página NO explica cómo medir la humedad en casa."
+  },
+  {
+    "id": "mazorca-podrida",
+    "palabras": [
+      "mazorca",
+      "podrida",
+      "pudricion",
+      "hongo",
+      "aflatoxinas",
+      "micotoxinas"
+    ],
+    "texto": "Varios hongos pudren la mazorca; algunos producen aflatoxinas, que son tóxicas para animales y aves, así que no es recomendable comer granos infectados. El hongo crece más rápido con humedad cuando se está llenando el grano. Ayuda secar el grano al sol para que pierda humedad y limpiar el lugar donde se guarda el maíz. Aparte las mazorcas con hongo y no las use para comer.",
+    "fuente": {
+      "nombre": "CIMMYT, Productores identifican hongos que causan pudrición de mazorca",
+      "url": "https://www.cimmyt.org/es/noticias/productores-identifican-hongos-que-causan-pudricion-de-mazorca/"
+    },
+    "verificado": "parcial",
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Citas: hongos 'Diplodia, Gibberella, Fusarium y Aspergillus', 'aflatoxinas... tóxicas para mamíferos y aves', 'no es recomendable alimentarnos con los granos infectados', 'secado al sol', 'limpieza del espacio en donde se almacena'. La página NO dice literalmente 'separar mazorcas podridas'; eso lo respalda la tarjeta granos-danados-animales (otra página CIMMYT). No se abrió fuente FAO ni SENASICA."
+  },
+  {
+    "id": "granos-danados-animales",
+    "palabras": [
+      "danados",
+      "micotoxinas",
+      "ganado",
+      "hongos",
+      "podridos"
+    ],
+    "texto": "Las micotoxinas son sustancias tóxicas que producen algunos hongos en el grano. Es común dar a los animales los granos dañados para aprovecharlos, pero ya no sirven ni para la gente ni para los animales, y les hacen daño a su salud. Antes de guardar, limpie y seleccione el grano desde el campo para sacar los granos dañados por insectos y hongos. No le dé al ganado el grano dañado o con hongo.",
+    "fuente": {
+      "nombre": "CIMMYT, ¿Por qué no se le deben dar granos dañados a los animales?",
+      "url": "https://www.cimmyt.org/es/noticias/por-que-no-se-le-deben-dar-granos-danados-a-los-animales/"
+    },
+    "verificado": true,
+    "estados": [
+      "Guanajuato",
+      "Querétaro"
+    ],
+    "nota": "Citas: 'Las micotoxinas son unas sustancias tóxicas naturales que se desarrollan por la acción de algunos hongos', 'Una práctica común para aprovechar estos granos dañados es usarlos para alimentar a los animales', 'ya no son aptos para el consumo humano o la alimentación animal', 'limpieza y selección desde campo hasta antes de almacenar para eliminar los granos dañados'."
+  },
+  {
+    "id": "pulgon-amarillo",
+    "palabras": [
+      "sorgo",
+      "pulgon",
+      "amarillo",
+      "mielecilla",
+      "enves",
+      "colonias"
+    ],
+    "texto": "El pulgón amarillo chupa la savia del sorgo; las hojas se ponen rojizas y, si hay muchos, se cubren de mielecilla y luego de un hongo negro (fumagina). Empieza por el envés de las hojas de abajo y puede subir al tallo y a la panoja. En Querétaro se revisaba cada semana, desde que nace la planta hasta la cosecha, el envés de las hojas de abajo en 5 puntos (cinco de oros), contando colonias. Mantenga limpias de maleza las cabeceras, quite la soca del ciclo anterior y avise al técnico si ve colonias.",
+    "fuente": {
+      "nombre": "UAM Xochimilco, reporte de servicio sobre la campaña contra pulgón amarillo del sorgo en Querétaro",
+      "url": "https://repositorio.xoc.uam.mx/jspui/retrieve/9c8d5f41-c322-4afd-adc3-b49cfbd1af85/251479.pdf"
+    },
+    "verificado": true,
+    "estados": [
+      "Querétaro"
+    ],
+    "nota": "Citas: 'succión de la savia, las hojas se tornan rojizas', 'mielecilla... fumagina', 'La invasión comienza en el envés de las hojas inferiores... tallo y la panoja', monitoreo 'una vez por semana... método 5 de oros... envés de las hojas inferiores de cinco plantas... número de colonias... desde la emergencia... hasta el término de la cosecha', 'mantener las cabeceras limpias de malezas... eliminar las socas'. Es un trabajo universitario (UAM) que cita a SENASICA, CESAVEG y FIRA; no se abrió una ficha oficial de SENASICA. Se omitió que la planta puede morir en 15 días (cita de FIRA, no verificada)."
   }
 ]
