@@ -151,6 +151,7 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 - **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 30 cm. <https://soilgrids.org/>
   Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B. M., Kempen, B., Ribeiro, E., and Rossiter, D. (2021). SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty. *SOIL*, 7, 217–240. <https://doi.org/10.5194/soil-7-217-2021>
 - **INEGI, Censo Agropecuario 2022**: en Guanajuato el 63.9 % de la superficie agrícola es de temporal.
+- **INEGI, Marco Geoestadístico** (diciembre de 2025), límites de Guanajuato y Querétaro (`server/data/estados_bajio.json`, de <https://gaia.inegi.org.mx/wscatgeo/v2/geo/mgee/11> y `/22`): deciden si una parcela está en el Bajío, donde se recomiendan cultivos.
 - **NASA GIBS** (Global Imagery Browse Services). <https://www.earthdata.nasa.gov/gibs>
   - **Blue Marble** (capa `BlueMarble_ShadedRelief_Bathymetry`): textura del globo 3D.
   - Capas que el agricultor puede prender sobre el mapa (solo visuales, imagen del 12 de agosto de 2024): **MODIS Terra, color real** (`MODIS_Terra_CorrectedReflectance_TrueColor`), **MODIS Terra NDVI de 16 días** (`MODIS_Terra_L3_NDVI_16Day`) y **SMAP, humedad en la zona de raíces** (`SMAP_L4_Analyzed_Root_Zone_Soil_Moisture`).

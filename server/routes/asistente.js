@@ -18,6 +18,7 @@ import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
 import { inferEstado } from '../llm/recomendador.js';
+import { stateAt } from '../lib/state.js';
 import { parsePerfil } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
@@ -116,7 +117,10 @@ async function resolver(req) {
     return res.json({ respuesta: HELLO, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [] });
   }
 
-  const estado = perfil.estado ?? inferEstado(lon);
+  // Estado dicho por el agricultor o, si no, el de los límites del INEGI. null = fuera de Gto y Qro: el motor no recomienda.
+  const regionEstado = perfil.estado ?? stateAt(lat, lon);
+  // shortcut: fuera de Gto y Qro las plantillas (maíz, SIAP) siguen con el estado adivinado por longitud; que digan "fuera del Bajío" si hace falta.
+  const estado = regionEstado ?? inferEstado(lon);
   // "¿Qué siembro después del maíz?": el último cultivo es el maíz de la pregunta (lo contesta el recomendador de abajo).
   const idMaiz = pregunta && esMaiz(pregunta) ? intencionMaiz(pregunta) : null;
   if (idMaiz === 'despues') perfil.ultimo_cultivo = 'maiz';
@@ -146,12 +150,12 @@ async function resolver(req) {
 
   if (pregunta && wantsRecommendation(pregunta)) {
     // Los datos del SIAP son de Guanajuato y Querétaro: fuera de ahí (y sin estado dicho por el agricultor) no se recomienda.
-    if (!perfil.estado && (lat < 19.9 || lat > 21.9 || lon < -102.2 || lon > -99)) {
+    if (!regionEstado) {
       return res.json({ respuesta: 'Esta parcela está fuera de Guanajuato y Querétaro, y mis datos de cultivos (SIAP) son solo de esos dos estados, así que no te recomiendo cultivos aquí. Si de todos modos quieres verlos, dime de cuál de los dos estados quieres la referencia.', acciones: [], fuentes: [], verificado: true, origen: 'motor', base: 'ficha', enlaces: [] });
     }
   }
   // Es el mismo motor de POST /api/recomendar (clima NASA, suelo y cultivos.json): el chat y la pantalla dicen lo mismo.
-  const reco = agua && prioridad && needsReco ? await recommendPlot({ lat, lon, agua, prioridad, estado }) : null;
+  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado }) : null;
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
   if (pregunta && wantsRecommendation(pregunta)) {

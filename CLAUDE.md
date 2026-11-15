@@ -80,6 +80,7 @@ Debe ser simple, explicable y con pruebas unitarias.
 - `GET /api/ejemplos`: las parcelas de los botones de ejemplo. `GET /api/terreno?lat&lon`: relieve para la vista 3D.
 - `POST /api/recomendar` con `{ lat, lon, agua: "temporal"|"riego", prioridad: "ganar"|"suelo"|"agua"|"riesgo" }`
   responde `{ clima, suelo, cultivos: [{ id, puntaje, riesgo, razones }], rotacion: [{ anio, temporada, cultivo, porque }], fuentes }`.
+  Fuera de Guanajuato y Querétaro (límites del INEGI, `server/lib/state.js`) responde 422 con `fuera_de_region: true`: se recomienda solo en el Bajío; clima y suelo se ven en todo México.
 
 ## Pantallas (4 rutas: Parcela, Simulador 3D, Análisis IA y Probar cultivo)
 1. Mapa: el agricultor **dibuja el contorno de su parcela** (un polígono: cada clic agrega una esquina, mínimo 3). No es un solo punto.

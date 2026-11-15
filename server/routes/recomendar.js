@@ -6,11 +6,15 @@ import { POWER_CREDIT, getClimate, summarizeClimate } from '../sources/nasaPower
 import { SOILGRIDS_CREDIT, getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { PRIORIDADES, recommend } from '../engine/index.js';
 import { incomeByCrop } from '../llm/siap.js';
-import { ESTADOS, ETIQUETA, inferEstado } from '../llm/recomendador.js';
+import { ESTADOS, ETIQUETA } from '../llm/recomendador.js';
+import { stateAt } from '../lib/state.js';
 
 const router = Router();
 const CROPS = JSON.parse(readFileSync(new URL('../data/cultivos.json', import.meta.url), 'utf8'));
 const NO_SOIL = 'No hay dato de suelo para este punto; la recomendación no toma en cuenta el pH.';
+const OUTSIDE_REGION =
+  'Tu parcela está fuera de Guanajuato y Querétaro. El clima y el suelo de NASA y SoilGrids sí son de tu parcela, ' +
+  'pero los cultivos, las temporadas y los precios del SIAP están calibrados solo para esos dos estados, así que no te recomendamos rotación aquí.';
 const FUENTES = [
   POWER_CREDIT,
   SOILGRIDS_CREDIT,
@@ -32,10 +36,12 @@ async function soilSummary(lat, lon) {
 }
 
 // The recommendation of one plot, for POST /api/recomendar and for the assistant: both must say the same.
+// Outside Guanajuato and Querétaro it throws a 422 with `fuera_de_region: true` before calling any API:
+// the SIAP data, the crop list and the season calendar are only for those two states.
 export async function recommendPlot({ lat, lon, agua, prioridad, estado }) {
+  const state = ESTADOS.includes(estado) ? estado : stateAt(lat, lon);
+  if (!state) throw new HttpError(422, OUTSIDE_REGION, { fuera_de_region: true });
   const [{ rows, origen }, suelo] = await Promise.all([getClimate(lat, lon), soilSummary(lat, lon)]);
-  // shortcut: the state is guessed from the longitude (inferEstado) when the client does not send it.
-  const state = ESTADOS.includes(estado) ? estado : inferEstado(lon);
   const result = recommend({ rows, soil: suelo, crops: CROPS, agua, prioridad, ingresos: incomeByCrop(state, agua), estado: state });
   return {
     clima: { lat, lon, origen, ...summarizeClimate(rows), fuente: POWER_CREDIT },

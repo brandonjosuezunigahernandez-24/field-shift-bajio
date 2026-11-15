@@ -196,3 +196,21 @@ test('POST /api/asistente: recomendar fuera de Guanajuato y Querétaro no invent
   assert.match(body.respuesta, /fuera de Guanajuato y Querétaro/);
   assert.equal(body.recomendacion, undefined);
 });
+
+// Lagos de Moreno, Jal.: inside the old lat/lon rectangle, outside the INEGI boundary of Guanajuato.
+const LAGOS = { lat: 21.356, lon: -101.93 };
+
+test('POST /api/recomendar outside Guanajuato and Querétaro answers 422 before calling any API', async () => {
+  // Offline there is no fixture for this point: a 502 would mean it went to NASA POWER first.
+  const { status, body } = await post('/api/recomendar', { ...LAGOS, agua: 'temporal', prioridad: 'riesgo' });
+  assert.equal(status, 422);
+  assert.equal(body.fuera_de_region, true);
+  assert.match(body.error, /fuera de Guanajuato y Querétaro/);
+});
+
+test('the assistant uses the same INEGI boundary as /api/recomendar', async () => {
+  const { status, body } = await post('/api/asistente', { ...LAGOS, agua: 'temporal', prioridad: 'riesgo', pregunta: '¿Qué me conviene sembrar?' });
+  assert.equal(status, 200);
+  assert.match(body.respuesta, /fuera de Guanajuato y Querétaro/);
+  assert.equal(body.recomendacion, undefined);
+});

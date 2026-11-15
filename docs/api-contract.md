@@ -16,6 +16,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 |--------|--------|
 | 400 | Falta `lat`/`lon`, no son números o están fuera de rango. |
 | 404 | La ruta no existe. |
+| 422 | `POST /api/recomendar` con una parcela fuera de Guanajuato y Querétaro; el cuerpo trae además `"fuera_de_region": true`. |
 | 502 | No se pudo consultar la fuente externa y no hay caché ni fixture para ese punto. |
 | 500 | Error inesperado del servidor. |
 
@@ -179,7 +180,7 @@ Petición:
 
 - `agua`: `"temporal"` o `"riego"`.
 - `prioridad`: `"ganar"`, `"suelo"`, `"agua"` o `"riesgo"`.
-- `estado` (opcional): `"Guanajuato"` o `"Querétaro"`, para el ingreso del SIAP. Si no viene, se supone por la longitud.
+- `estado` (opcional): `"Guanajuato"` o `"Querétaro"`, para el ingreso del SIAP. Si no viene, sale de los límites oficiales del INEGI (`server/lib/state.js`).
 
 Respuesta (valores reales del punto demo, recortados):
 
@@ -219,7 +220,7 @@ Respuesta (valores reales del punto demo, recortados):
 - `cultivos` va ordenado de mayor a menor `puntaje`, una fila por cultivo. Solo salen los que se pueden sembrar con esa `agua`.
 - `rotacion` trae 3 años; con riego hay 6 filas (PV y OI de cada año).
 - **Sin suelo también responde:** si SoilGrids falla o no tiene dato, `suelo.sin_datos` es `true`, `suelo.aviso` lo explica y el pH no cambia el puntaje.
-- Errores: 400 si falta `agua` o `prioridad`; 502 si no se pudo consultar el clima.
+- Errores: 400 si falta `agua` o `prioridad`; 502 si no se pudo consultar el clima; 422 con `{ error, fuera_de_region: true }` si la parcela está fuera de Guanajuato y Querétaro (sin `estado`). El 422 sale antes de consultar NASA o SoilGrids. Las pantallas siguen mostrando clima y suelo con `/api/clima` y `/api/suelo`, que funcionan en cualquier punto.
 - El asistente (`POST /api/asistente`) contesta "¿qué siembro?" con esta misma recomendación.
 
 ## Motor de reglas (`server/engine/index.js`)
@@ -309,7 +310,7 @@ Próximos 7 días, de Open-Meteo (gratis, CC BY 4.0, solo uso no comercial). Es 
 - `fuentes` ahora puede incluir `"Base local"` y `"Wikipedia"`.
 
 ### Campos extra de `/api/asistente` (recomendador y conversación)
-Petición: `agua` ("temporal"|"riego"), `prioridad` ("ganar"|"suelo"|"agua"|"riesgo"), `estado` ("Guanajuato"|"Querétaro"; si falta se supone por la longitud) e `historial` (últimas 2 vueltas `{pregunta, respuesta}`).
+Petición: `agua` ("temporal"|"riego"), `prioridad` ("ganar"|"suelo"|"agua"|"riesgo"), `estado` ("Guanajuato"|"Querétaro"; si falta sale de los límites del INEGI) e `historial` (últimas 2 vueltas `{pregunta, respuesta}`).
 Respuesta nueva para "¿qué me conviene sembrar?": `origen: "motor"`. Si falta `agua` o `prioridad` trae `preguntar: { campo, opciones: [{valor, texto}] }` (mostrar botones y repetir la petición con ese campo). Con los dos trae `recomendacion`, que es **la misma respuesta de `/api/recomendar`** (el motor de reglas), y en temporal `corroboracion` (años secos de NASA contra años de pérdidas del SIAP).
 
 ### Perfil de la parcela (propuesta del rol LLM)
@@ -324,4 +325,4 @@ Con una pregunta sobre **maíz** y riesgo, lluvia o pérdidas, la respuesta trae
 Devuelve `{ frutales: [{ estado, cultivo, tipo, unidad, sembrada_ha_2024, cosechada_ha_2024, rendimiento_2024, siniestrada_pct_2018_2024, precio_rural_2024, precio_cambio_pct, valor_millones_2024, riego_pct_2024, municipios_2024[] }], no_es[], no_verificado, fuente }`. 404 con `{ error }` si el estado no es Guanajuato ni Querétaro. Solo datos del SIAP; tiempos de producción, costos y requisitos agronómicos **no están verificados**.
 
 ### Parcela fuera de Guanajuato y Querétaro
-`POST /api/asistente` sin `estado`, con una pregunta de recomendación y una ubicación fuera de ambos estados: responde 200 con un texto de aviso y **sin** `recomendacion`.
+`POST /api/asistente` sin `estado`, con una pregunta de recomendación y una ubicación fuera de ambos estados (límites del INEGI, igual que `/api/recomendar`): responde 200 con un texto de aviso y **sin** `recomendacion`.
