@@ -3,6 +3,7 @@ import { Link, useNavigate } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
 // MapLibre (~1 MB) se carga aparte, cuando la pantalla ya se ve.
 const ParcelMap = lazy(() => import('../map/ParcelMap.jsx'));
+import PerfilForm from '../components/PerfilForm.jsx';
 import Ubicacion from '../components/Ubicacion.jsx';
 import { useParcelaContext } from '../context/ParcelaContext.jsx';
 import { EXAMPLE_POINTS } from '../config/examplePoints.js';
@@ -20,7 +21,7 @@ const CAPAS = [
 // Map, climate and soil are real (Leaflet + /api/clima + /api/suelo). The chat and the microphone
 // are the design's simulation until /api/asistente exists.
 export default function Parcela() {
-  const { point, agua, prioridad, loading, clima, suelo, setAgua, setPrioridad, parcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year } = useParcelaContext();
+  const { point, loading, clima, suelo, parcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year } = useParcelaContext();
   const [capa, setCapa] = useState('sat');
   const navigate = useNavigate();
 
@@ -103,30 +104,9 @@ export default function Parcela() {
             <section className="fs-card fs-up fs-d2" aria-labelledby="t-perfil">
               <div>
                 <div className="fs-eyebrow">Paso 2 · Perfil del agricultor</div>
-                <h2 className="fs-card-title sm" id="t-perfil">Configura tu manejo y prioridad</h2>
+                <h2 className="fs-card-title sm" id="t-perfil">Cuéntame de tu parcela</h2>
               </div>
-              <div>
-                <p className="fs-q" id="q-agua">¿Tu parcela es de temporal o de riego?</p>
-                <div className="fs-opts" role="radiogroup" aria-labelledby="q-agua">
-                  {Object.entries(FS_DATOS.agua).map(([id, o]) => (
-                    <button key={id} type="button" className="fs-opt" aria-pressed={agua === id} onClick={() => setAgua(id)}>
-                      <b>{o.titulo}</b>
-                      <small>{o.sub}</small>
-                    </button>
-                  ))}
-                </div>
-              </div>
-              <div>
-                <p className="fs-q" id="q-prio">¿Qué es lo más importante para ti este ciclo?</p>
-                <div className="fs-opts" role="radiogroup" aria-labelledby="q-prio">
-                  {Object.entries(FS_DATOS.prioridades).map(([id, o]) => (
-                    <button key={id} type="button" className="fs-opt" aria-pressed={prioridad === id} onClick={() => setPrioridad(id)}>
-                      <b>{o.titulo}</b>
-                      <small>{o.sub}</small>
-                    </button>
-                  ))}
-                </div>
-              </div>
+              <PerfilForm />
               <Link className="fs-btn fs-btn-primary lg fs-btn-block" to="/rotacion">
                 <i className="bi bi-cpu" aria-hidden="true"></i>Simular rotación a 3 años y vista 3D
               </Link>

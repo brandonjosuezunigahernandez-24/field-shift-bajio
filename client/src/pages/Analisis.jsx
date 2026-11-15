@@ -1,12 +1,16 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
+import PerfilForm from '../components/PerfilForm.jsx';
+import Graficas from '../components/Graficas.jsx';
 import Header from '../components/layout/Header.jsx';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
 import { getPerfilPreguntas, getTemas } from '../api/client.js';
 import { useAsistente } from '../hooks/useAsistente.js';
 import { copyText, toast } from '../lib/fs.js';
 
-const ORIGEN = { motor: 'Calculado con datos del SIAP', plantilla: 'Respuesta de respaldo', llm: 'Respuesta del asistente', modelo: 'Calculado con el modelo de riesgo (SIAP + NASA POWER)' };
+const ORIGEN = { motor: 'Calculado con datos del SIAP', plantilla: 'Respuesta de respaldo', llm: 'Respuesta del asistente', modelo: 'Calculado con el modelo de riesgo (SIAP + NASA)' };
+// Con `tema` la plantilla es una respuesta calculada a propósito; sin `tema` es respaldo por falla.
+const etiquetaOrigen = (r) => (r.origen === 'plantilla' && r.tema ? 'Calculado con tus datos' : ORIGEN[r.origen] ?? ORIGEN.llm);
 const pesos = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
 const num = (v) => typeof v === 'number';
 
@@ -123,7 +127,7 @@ export default function Analisis() {
       ? finca.parcelas.map((p) => ({ k: p.id, cifra: `${p.hectareas} ha`, titulo: `Parcela ${p.id}`, textos: p.rotacion.map((x) => `Año ${x.anio}: ${x.cultivo} (${x.temporada})`), fuente: 'SIAP' }))
       : modelo?.escenarios?.length
         ? modelo.escenarios.map((e) => ({ k: e.nombre, cifra: `${e.siniestro_pct}%`, titulo: e.nombre, textos: [`Con ${e.lluvia_mm} mm de lluvia en verano, cerca de ${Math.round(e.siniestro_pct)} % de la superficie dañada. Nivel: ${e.nivel}.`], fuente: 'Modelo SIAP + NASA POWER' }))
-        : r ? [{ k: 'o', cifra: '', titulo: ORIGEN[r.origen] ?? ORIGEN.llm, textos: [`Fuentes: ${r.fuentes?.join(', ') || 'ninguna'}.`], fuente: r.base === 'internet' ? 'Internet' : r.base === 'conocimiento' ? 'Base local' : 'Ficha de tu parcela' }] : [];
+        : r ? [{ k: 'o', cifra: '', titulo: etiquetaOrigen(r), textos: [`Fuentes: ${r.fuentes?.join(', ') || 'ninguna'}.`], fuente: r.base === 'internet' ? 'Internet' : r.base === 'conocimiento' ? 'Base local' : 'Ficha de tu parcela' }] : [];
 
   const hayRiesgos = rec?.prediccion || finca || r?.corroboracion || modelo || rec?.notas?.length || finca?.notas?.length;
 
@@ -162,7 +166,6 @@ export default function Analisis() {
     }
   }
 
-  const dicho = preguntas.filter((q) => perfil[q.campo] != null);
 
   return (
     <div className="fs-p3">
@@ -244,7 +247,7 @@ export default function Analisis() {
                     <span className="fs-ico-box lg"><i className="bi bi-robot" aria-hidden="true"></i></span>
                     <div>
                       <div className="fs-chat-name">FieldShift AI</div>
-                      <div className="fs-chat-sub">{ORIGEN[r.origen] ?? ORIGEN.llm}</div>
+                      <div className="fs-chat-sub">{etiquetaOrigen(r)}</div>
                     </div>
                   </div>
 
@@ -262,6 +265,8 @@ export default function Analisis() {
                       ))}
                     </div>
                   )}
+
+                  <Graficas graficas={r.graficas} />
 
                   {razones.length > 0 && (
                     <section aria-labelledby="t-por">
@@ -386,21 +391,7 @@ export default function Analisis() {
             <section className="fs-card fs-side" aria-labelledby="t-dicho">
               <div className="fs-eyebrow" id="t-dicho">Lo que me has dicho</div>
               <p className="an-peq">Así no te lo vuelvo a preguntar. Se guarda solo en este navegador y en el archivo que guardes.</p>
-              {dicho.length === 0 && <p className="an-peq">Todavía no me has contestado nada.</p>}
-              {dicho.map((q) => (
-                <div key={q.campo} className="an-dato">
-                  <label htmlFor={`d-${q.campo}`}>{q.pregunta}</label>
-                  {q.tipo === 'numero' ? (
-                    <input id={`d-${q.campo}`} type="number" min={q.min} max={q.max} step="any" defaultValue={perfil[q.campo]}
-                      onBlur={(e) => { const v = Number(e.target.value); if (v >= q.min && v <= q.max) setPerfilCampo(q.campo, v); else e.target.value = perfil[q.campo]; }} />
-                  ) : (
-                    <select id={`d-${q.campo}`} value={perfil[q.campo]} onChange={(e) => setPerfilCampo(q.campo, e.target.value)}>
-                      {q.opciones.filter((o) => o.valor !== 'no_se').map((o) => <option key={o.valor} value={o.valor}>{o.texto}</option>)}
-                    </select>
-                  )}
-                  {q.campo !== 'agua' && q.campo !== 'prioridad' && <button type="button" onClick={() => setPerfilCampo(q.campo, '')}>Borrar este dato</button>}
-                </div>
-              ))}
+              <PerfilForm />
               <button type="button" className="an-btn" onClick={reiniciarPerfil}>Borrar todo lo que me dije</button>
               <p className="an-peq">No hay cuentas ni servidor de datos.</p>
             </section>
