@@ -156,3 +156,13 @@ test('sin plática: «¿y por qué no el maíz?» se entiende; costos sin cultiv
   assert.match(c.respuesta, /^No tengo costos/);
   assert.equal((await askEn('¿Y si cultivo aguacate?')).tema, 'aptitud');
 });
+
+test('set nuevo: sorgo por qué quedó así, mes más seco, tierra para frijol, frijol o sorgo, se me da la fresa, granizo', async () => {
+  const h = [{ pregunta: '¿Qué me conviene sembrar?', respuesta: 'x' }];
+  assert.match((await askEn('¿y el sorgo por qué quedó así?', { historial: h })).respuesta, /^Sorgo grano quedó en el lugar/);
+  assert.match((await askEn('¿cuál es el mes más seco del año?')).respuesta, /el que menos, diciembre/);
+  assert.equal((await askEn('¿mi tierra es buena para el frijol?')).tema, 'cultivo-puedo');
+  assert.match((await askEn('¿me conviene más el frijol o el sorgo?')).respuesta, /^Te conviene más .* que /);
+  assert.equal((await askEn('¿se me da la fresa?')).tema, 'aptitud');
+  assert.equal((await askEn('¿qué hago si cae granizo?')).tema, 'apoyos');
+});

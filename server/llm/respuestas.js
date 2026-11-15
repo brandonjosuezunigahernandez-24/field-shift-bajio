@@ -55,7 +55,8 @@ export function detectarTema(pregunta = '') {
   if (/(cuanto|que tanto) (me )?(cuesta|sale|gasto|invierto)\w* (en )?(sembrar|producir|la siembra|cultivar|meter)|costos? de (produccion|siembra|sembrar|cultivo)/.test(q) && !detectCrop(q)) return 'costos';
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
   if (has(CREDITO, q)) return 'credito';
-  if (has(APOYOS, q)) return 'apoyos';
+  // "¿Qué hago si cae granizo?": lo que hay es el seguro por clima (apoyos); no hay datos de granizo.
+  if (has(APOYOS, q) || /graniz/.test(q)) return 'apoyos';
   // Temas que tienen tarjeta verificada (data/conocimiento.json) y ninguna plantilla los contesta: van al modelo con su tarjeta.
   if (/canicula|cosecha de agua|captar (el )?agua|(guard|junt|capt|almacen|aprovech)\w* (el |la )?agua( de (la )?lluvia)?\b(?! (para|al|a la) (maiz|frijol|grano))|tierra (no )?se (me )?(canse|cansa)|tierra cansada|bordo|gorgojo|palomilla|grano guardado|maiz guardado|guardar (el )?(grano|maiz|frijol)|silo|monitor de sequia|milpa|crioll|curvas? de nivel|abono verde|gallina ciega/.test(q)) return 'tarjeta';
   if (detectarAptitud(q)) return 'aptitud'; // ¿se da aquí? (llm/aptitud.js)
@@ -71,6 +72,7 @@ export function detectarTema(pregunta = '') {
   // "¿Cuántos años secos ha habido desde 2010?" es una cuenta (secos), no un solo año.
   if (has(SECOS, q) && /cuant/.test(q) && /(desde|a partir de|despues de)( el)? (19|20)\d\d/.test(q)) return 'secos';
   if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal|\bagua\b|cayo|temporal)/, q)) return 'anio';
+  if (/mes (mas seco|que menos llueve|con menos lluvia|mas lluvioso|que mas llueve)/.test(q)) return 'lluvia'; // un mes, no los años secos
   if (has(SECOS, q)) return 'secos';
   if (has(FRIO, q)) return 'heladas';
   if (has(CALOR, q)) return 'calor';

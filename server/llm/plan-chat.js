@@ -35,7 +35,9 @@ export const pideIncertidumbre = (q) => {
 export const pidePuedoSembrar = (q) => {
   const s = strip(q);
   if (/\d/.test(s) || /(cuando|riego|regar|agua|lluvia|sembre|ano pasado|anos|seguir|despues|antes|tras|rotar|en vez|o mejor|\bo (el |la )?(maiz|frijol|sorgo|trigo|cebada|garbanzo)|este ano|ahorita|ahora|todavia|espero|ya puedo|ya es|tiempo|mes|mayo|junio|julio|agosto)/.test(s)) return false;
-  return /(puedo|podria|se puede|conviene|convendria|deberia|debo|es buena idea) (sembrar|plantar|poner|meter|echar|cultivar)|se (me )?da (el|la|bien el|bien la)\b/.test(s);
+  return /(puedo|podria|se puede|conviene|convendria|deberia|debo|es buena idea) (sembrar|plantar|poner|meter|echar|cultivar)|se (me )?da (el|la|bien el|bien la)\b/.test(s)
+    // "¿mi tierra es buena para el frijol?": su lugar en el plan (el motor ya mira el pH). El maíz tiene su respuesta de suelo (maiz.js).
+    || (!/maiz/.test(s) && /(tierra|suelo|parcela|terreno) .{0,20}(buena|buen|sirve|apta|apto) para/.test(s));
 };
 
 const nombre = (r, id) => (r.cultivos.find((c) => c.id === id)?.nombre ?? id).toLowerCase();
@@ -57,6 +59,15 @@ export function respuestaPlan(r) {
   const p = r.prediccion;
   const ingreso = p ? ` Ingreso sin restar gastos en 3 años: unos ${peso(p.ingreso_bruto_3_anios_esperado_por_ha)} por hectárea (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_por_ha)} en un caso malo a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha)} en uno bueno) [SIAP].` : '';
   return `Para sembrar de ${r.agua} y ${ETIQUETA[r.prioridad]}, en tu parcela salen mejor ${lista(top)}. Rotación de 3 años: ${plan[0]?.startsWith('año') ? plan.join('; ') : lista(plan)}.${compara} ${FUENTES}${ingreso} Es una estimación; no sustituye a un técnico. Pregúntame «¿por qué?» para ver las razones.`;
+}
+
+// "¿Me conviene más el frijol o el sorgo?": el lugar de cada uno en el mismo plan.
+export function respuestaComparar(r, ids) {
+  const cs = ids.map((id) => ({ id, i: r.cultivos.findIndex((c) => c.id === id) })).filter((x) => x.i >= 0).sort((a, b) => a.i - b.i);
+  if (cs.length < 2) return null;
+  const [a, b] = cs.map((x) => r.cultivos[x.i]);
+  const razon = (a.razones ?? []).filter((x) => !/^Puntaje/.test(x))[0] ?? '';
+  return `Te conviene más ${a.nombre.toLowerCase()} (lugar ${cs[0].i + 1}, puntaje ${a.puntaje} de 100) que ${b.nombre.toLowerCase()} (lugar ${cs[1].i + 1}, puntaje ${b.puntaje}) si quieres ${ETIQUETA[r.prioridad]}. ${razon} ${FUENTES}`.replace(/\s+/g, ' ').trim();
 }
 
 // "¿Por qué no el maíz?": su lugar y sus razones, del mismo cálculo.
