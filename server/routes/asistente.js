@@ -144,7 +144,7 @@ async function resolver(req) {
     if (necesitaSuelo(id)) { try { ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil); } catch { /* sin suelo, la respuesta lo dice */ } }
     const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || /(para que sirve|que es|que son|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
     if (m?.preguntar) return res.json(asking(m.preguntar));
-    if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }) });
+    if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos && { datos: m.datos }), ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }) });
   }
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
@@ -244,7 +244,7 @@ async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   const conAccion = ['secos', 'anio', 'suelo'].includes(tema);
   return {
     respuesta: r.respuesta, acciones: conAccion ? actionsFor(r.respuesta) : [], fuentes: r.fuentes,
-    verificado: true, origen: 'plantilla', tema, base: 'ficha', enlaces: [], ...(r.preguntar && { preguntar: r.preguntar }),
+    verificado: true, origen: 'plantilla', tema, base: 'ficha', enlaces: [], ...(r.datos && { datos: r.datos }), ...(r.preguntar && { preguntar: r.preguntar }),
   };
 }
 

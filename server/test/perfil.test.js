@@ -63,3 +63,14 @@ test('si la parcela se encharca, el garbanzo baja y se explica', () => {
   assert.ok(g(con).puntaje < g(sin).puntaje);
   assert.match(g(con).razones[0], /encharca/);
 });
+
+test('perfil: cultivo actual y datos de riego (solo se piden si tiene riego)', () => {
+  const p = parsePerfil({ agua: 'riego', cultivo_actual: 'maiz', riego_tipo: 'goteo', riego_frecuencia_dias: '7' });
+  assert.deepEqual(p, { agua: 'riego', cultivo_actual: 'maiz', riego_tipo: 'goteo', riego_frecuencia_dias: 7 });
+  assert.throws(() => parsePerfil({ riego_frecuencia_dias: 400 }), { status: 400 });
+  assert.throws(() => parsePerfil({ riego_tipo: 'inundar' }), { status: 400 });
+  const campos = (perfil) => pendientes(perfil).map((q) => q.campo);
+  assert.ok(!campos({ agua: 'temporal' }).includes('riego_tipo'), 'en temporal no se pregunta cómo riega');
+  assert.ok(campos({ agua: 'riego' }).includes('riego_frecuencia_dias'));
+  assert.ok(PREGUNTAS.some((q) => q.campo === 'cultivo_actual'));
+});
