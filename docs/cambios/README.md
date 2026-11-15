@@ -28,3 +28,14 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | 21 | Citas y plantillas por código, set de 15 preguntas, solo CPU, streaming del asistente | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.
+
+## Agregado el 14 nov (noche)
+| # | Cambio | Estado |
+|---|---|---|
+| [21](21-modelo-entrenado.md) | Modelo entrenado de riesgo (ridge, SIAP municipal + NASA); solo el maíz de Querétaro mejora claramente | Hecho; ver [docs/modelo-ml.md](../modelo-ml.md) |
+| [23](23-frutales.md) | Frutales de Guanajuato y Querétaro (solo datos del SIAP): resumen, ficha y `GET /api/frutales` | Hecho (datos agronómicos sin verificar) |
+| [24](24-pruebas-de-parcelas.md) | Pruebas con parcelas dibujadas: `probar-parcelas.js`, reintento en SoilGrids, sin recomendar fuera de Gto/Qro | Hecho |
+| [Fuentes](../fuentes-de-datos.md) | Investigación de fuentes de datos (14 verificadas) y las 3 por integrar primero | Hecho |
+| [22](22-asistente-mas-datos-nasa.md) | Asistente con más datos de NASA, plantillas con citas por código y set de evaluación | En curso (agente) |
+| [25](25-analisis-ia-conectada.md) | Pantalla Análisis IA conectada al asistente real y ficha guardada del agricultor | En curso (agente) |
+| [26](26-ml-segunda-ronda.md) | Segunda ronda de aprendizaje automático (clasificar año malo, más variables, incertidumbre, municipios parecidos, hortalizas y frutales) | Hecho; solo falta decidir qué integrar |

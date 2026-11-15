@@ -1,42 +1,177 @@
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
-import FS_DATOS from '../data/datosDemo.js';
+import { getPerfilPreguntas, getTemas } from '../api/client.js';
+import { useAsistente } from '../hooks/useAsistente.js';
 import { copyText, toast } from '../lib/fs.js';
 
-// Screen 3: how the assistant answered. Everything is drawn from the JSON contract of design
-// section 9.8 (FS_DATOS.respuestaIA). It stays demo data until POST /api/asistente exists.
+const ORIGEN = { motor: 'Calculado con datos del SIAP', plantilla: 'Respuesta de respaldo', llm: 'Respuesta del asistente', modelo: 'Calculado con el modelo de riesgo (SIAP + NASA POWER)' };
+const pesos = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
+const num = (v) => typeof v === 'number';
+
+// Cada dato viene tal cual del servidor; si falta un campo, no se muestra la fila.
+function filasPrediccion(p) {
+  return [
+    num(p.ingreso_bruto_3_anios_esperado_por_ha) && ['Ingreso bruto esperado en 3 años, por hectárea', pesos(p.ingreso_bruto_3_anios_esperado_por_ha)],
+    num(p.ingreso_bruto_3_anios_peor_10_pct_por_ha) && ['En un caso malo', pesos(p.ingreso_bruto_3_anios_peor_10_pct_por_ha)],
+    num(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha) && ['En un caso bueno', pesos(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha)],
+    num(p.probabilidad_al_menos_un_anio_con_perdida_pct) && ['Posibilidad de al menos un año con pérdidas', `${p.probabilidad_al_menos_un_anio_con_perdida_pct} de cada 100`],
+    num(p.hectareas) && ['Tus hectáreas', String(p.hectareas)],
+    num(p.ingreso_bruto_3_anios_esperado_total) && ['Total esperado en tu terreno', pesos(p.ingreso_bruto_3_anios_esperado_total)],
+    num(p.ingreso_bruto_3_anios_peor_10_pct_total) && ['Total en un caso malo', pesos(p.ingreso_bruto_3_anios_peor_10_pct_total)],
+    num(p.ingreso_bruto_3_anios_mejor_10_pct_total) && ['Total en un caso bueno', pesos(p.ingreso_bruto_3_anios_mejor_10_pct_total)],
+    num(p.probabilidad_al_menos_una_parcela_con_perdida_pct) && ['Posibilidad de pérdidas en al menos una parcela', `${p.probabilidad_al_menos_una_parcela_con_perdida_pct} de cada 100`],
+    num(p.probabilidad_perdida_en_la_mitad_o_mas_del_terreno_pct) && ['Posibilidad de pérdidas en la mitad o más del terreno', `${p.probabilidad_perdida_en_la_mitad_o_mas_del_terreno_pct} de cada 100`],
+  ].filter(Boolean);
+}
+
+const Filas = ({ filas }) => <dl className="fs-dl">{filas.map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}</dl>;
+
+function Notas({ lista }) {
+  return lista?.length > 0 ? (
+    <section aria-label="Ten en cuenta">
+      <h3 className="fs-sub">Ten en cuenta</h3>
+      <ul className="an-notas">{lista.map((n) => <li key={n}>{n}</li>)}</ul>
+    </section>
+  ) : null;
+}
+
+function Corroboracion({ c }) {
+  const anios = (l) => (l?.length ? l.join(', ') : 'ninguno');
+  return (
+    <section aria-label="Lluvia de NASA contra el SIAP">
+      <h3 className="fs-sub">¿La lluvia de NASA coincide con el SIAP? ({c.cultivo}, {c.estado})</h3>
+      {c.lectura && <p className="an-texto-s">{c.lectura}</p>}
+      <Filas filas={[
+        ['Años comparados', String(c.anios_comparados)],
+        ['Seco según NASA y con pérdidas altas en el SIAP', anios(c.coinciden)],
+        ['Seco según NASA, sin pérdidas altas', anios(c.solo_nasa)],
+        ['Pérdidas altas sin año seco en NASA', anios(c.solo_siap)],
+        ...(num(c.correlacion_lluvia_perdida) ? [['Relación entre lluvia y pérdidas (−1 a 1)', String(c.correlacion_lluvia_perdida)]] : []),
+      ]} />
+      {c.detalle?.length > 0 && (
+        <div className="an-tabla-wrap">
+          <table className="an-tabla">
+            <thead><tr><th>Año</th><th>Lluvia (mm)</th><th>¿Seco para NASA?</th><th>Pérdida (%)</th></tr></thead>
+            <tbody>
+              {c.detalle.map((d) => (
+                <tr key={d.anio}><td>{d.anio}</td><td>{d.lluvia_mm}</td><td>{d.seco_nasa ? 'Sí' : 'No'}</td><td>{d.perdida_pct}{d.perdida_alta ? ' (alta)' : ''}</td></tr>
+              ))}
+            </tbody>
+          </table>
+        </div>
+      )}
+    </section>
+  );
+}
+
+const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
+const LLUVIAS = [6, 7, 8, 9]; // meses_pv del servidor: jun a sep
+
+// Quita las citas [SIAP] (las fuentes se muestran aparte) y parte el texto en frases cortas.
+const frases = (t) => t.replace(/\s*\[[^\]]*\]/g, '').split(/(?<=[.!?])\s+(?=[A-ZÁÉÍÓÚ¿¡])/).map((x) => x.trim()).filter(Boolean);
+
+// Pantalla 3: el asistente de verdad (modelo local). Todo lo que se ve sale de la respuesta del servidor o de los datos reales de la parcela.
 export default function Analisis() {
   const ctx = useParcelaContext();
+  const { point, parcelas, perfil, setPerfilCampo, reiniciarPerfil, ensurePoint } = ctx;
+  const clima = ctx.clima?.data;
+  const suelo = ctx.suelo?.data;
   const labels = selectionLabels(ctx);
-  const R = FS_DATOS.respuestaIA;
-  const [stepsOpen, setStepsOpen] = useState(true);
-  const [useful, setUseful] = useState(false);
-  const [ask, setAsk] = useState('');
-  const total = R.pasos.reduce((s, p) => s + p.tiempo_s, 0);
-  const placeName = ctx.point?.nombre?.split(',')[0] ?? 'Celaya';
-  const answerText = `${R.respuesta_corta.titulo} ${R.respuesta_corta.apoyo}`;
+  const { pregunta, seg, texto, setTexto, estado, grabando, preguntar, contestar, microfono, r, pendiente } = useAsistente();
+  const [temas, setTemas] = useState(null);
+  const [tema, setTema] = useState(0);
+  const [preguntas, setPreguntas] = useState([]);
+  const [pasosAbiertos, setPasosAbiertos] = useState(true);
+  const [util, setUtil] = useState(false);
+  const archivo = useRef(null);
+  const auto = useRef(false);
 
-  function listen() {
-    if (!('speechSynthesis' in window)) {
-      toast('Tu navegador no puede leer en voz alta');
-      return;
-    }
+  useEffect(() => {
+    getTemas().then(setTemas).catch(() => setTemas({ temas: [], nota: '' }));
+    getPerfilPreguntas().then((d) => setPreguntas(d.preguntas ?? [])).catch(() => {});
+  }, []);
+
+  // ?pregunta=... hace la pregunta al cargar (sirve para revisar la ruta completa).
+  useEffect(() => {
+    const q = new URLSearchParams(window.location.search).get('pregunta');
+    if (!q || auto.current) return;
+    if (!point) return void ensurePoint();
+    auto.current = true;
+    preguntar(q);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [point]);
+
+  useEffect(() => setUtil(false), [r]);
+
+  const lista = r ? frases(r.respuesta) : [];
+  const rec = r?.recomendacion;
+  const finca = r?.recomendacion_finca;
+  const modelo = r?.riesgo_modelo;
+  const rotacion = rec?.rotacion ?? finca?.parcelas?.[0]?.rotacion ?? [];
+  const has = parcelas.reduce((s, p) => s + (p.hectareas || 0), 0);
+  const aniosSecos = clima?.anios_secos?.length;
+  const lluviaMensual = clima?.lluvia_media_mensual;
+  const lluviaAnual = lluviaMensual?.reduce((s, m) => s + m.lluvia_mm, 0);
+  const maxLluvia = lluviaMensual ? Math.max(...lluviaMensual.map((m) => m.lluvia_mm)) : 1;
+
+  // Razones: de los mejores cultivos, de la finca, del modelo de riesgo, o el origen de la respuesta.
+  const razones = rec?.cultivos?.length
+    ? rec.cultivos.slice(0, 3).map((c) => ({ k: c.id, cifra: `${c.puntaje} / 100`, titulo: `${c.nombre} · ${c.temporada}`, textos: c.razones ?? [], fuente: 'SIAP' }))
+    : finca?.parcelas?.length
+      ? finca.parcelas.map((p) => ({ k: p.id, cifra: `${p.hectareas} ha`, titulo: `Parcela ${p.id}`, textos: p.rotacion.map((x) => `Año ${x.anio}: ${x.cultivo} (${x.temporada})`), fuente: 'SIAP' }))
+      : modelo?.escenarios?.length
+        ? modelo.escenarios.map((e) => ({ k: e.nombre, cifra: `${e.siniestro_pct}%`, titulo: e.nombre, textos: [`Con ${e.lluvia_mm} mm de lluvia en verano, cerca de ${Math.round(e.siniestro_pct)} % de la superficie dañada. Nivel: ${e.nivel}.`], fuente: 'Modelo SIAP + NASA POWER' }))
+        : r ? [{ k: 'o', cifra: '', titulo: ORIGEN[r.origen] ?? ORIGEN.llm, textos: [`Fuentes: ${r.fuentes?.join(', ') || 'ninguna'}.`], fuente: r.base === 'internet' ? 'Internet' : r.base === 'conocimiento' ? 'Base local' : 'Ficha de tu parcela' }] : [];
+
+  const hayRiesgos = rec?.prediccion || finca || r?.corroboracion || modelo || rec?.notas?.length || finca?.notas?.length;
+
+  function escuchar() {
+    if (!('speechSynthesis' in window)) return toast('Tu navegador no puede leer en voz alta');
     speechSynthesis.cancel();
-    const u = new SpeechSynthesisUtterance(answerText);
+    const u = new SpeechSynthesisUtterance(lista.join(' '));
     u.lang = 'es-MX';
     speechSynthesis.speak(u);
   }
 
+  function guardarFicha() {
+    const url = URL.createObjectURL(new Blob([JSON.stringify({ ficha: 'field-shift-bajio', perfil }, null, 2)], { type: 'application/json' }));
+    Object.assign(document.createElement('a'), { href: url, download: 'mi-ficha.json' }).click();
+    URL.revokeObjectURL(url);
+  }
+
+  // Solo entran campos que el servidor conoce y con un valor que acepta; lo demás se ignora.
+  async function cargarFicha(e) {
+    const file = e.target.files?.[0];
+    e.target.value = '';
+    if (!file) return;
+    try {
+      const data = JSON.parse(await file.text());
+      const src = data?.perfil ?? data;
+      if (!src || typeof src !== 'object' || Array.isArray(src)) throw new Error('no es objeto');
+      let n = 0;
+      for (const q of preguntas) {
+        const v = src[q.campo];
+        const ok = q.tipo === 'numero' ? num(v) && v >= q.min && v <= q.max : q.opciones.some((o) => o.valor === v && v !== 'no_se');
+        if (ok) { setPerfilCampo(q.campo, v); n++; }
+      }
+      toast(n ? `Ficha cargada: ${n} datos` : 'El archivo no trae datos que yo conozca');
+    } catch {
+      toast('Ese archivo no es una ficha válida');
+    }
+  }
+
+  const dicho = preguntas.filter((q) => perfil[q.campo] != null);
+
   return (
     <div className="fs-p3">
       <Header
-        sub="ASISTENTE AGRÓNOMO · ANÁLISIS DE RESPUESTA"
+        sub="ASISTENTE AGRÓNOMO · ANÁLISIS IA"
         pills={
           <>
-            <span className="fs-pill">{labels.lugar}</span>
-            <span className="fs-pill is-white">Plan: {R.plan.map((p) => p.cultivo.split(' ')[0].toLowerCase()).join(' → ')}</span>
+            <span className="fs-pill">{labels.lugar}{has ? ` · ${Math.round(has * 10) / 10} ha` : ''}</span>
+            {rotacion.length > 0 && <span className="fs-pill is-white">Plan: {rotacion.map((p) => p.cultivo).join(' → ')}</span>}
           </>
         }
       />
@@ -44,242 +179,231 @@ export default function Analisis() {
       <main className="fs-container">
         <div className="fs-row align-items-start">
           <div className="fs-conv-col">
-            <div className="d-flex justify-content-between align-items-end flex-wrap gap-2 fs-up">
-              <div>
-                <div className="fs-eyebrow">Paso 3 · Conversación con tu asistente</div>
-                <h1 className="fs-h1">Así respondió la IA a tu pregunta</h1>
-              </div>
-              <span className="fs-mono fs-muted" style={{ fontSize: 12 }}>{R.hora}</span>
+            <div className="fs-up">
+              <div className="fs-eyebrow">Paso 3 · Conversación con tu asistente</div>
+              <h1 className="fs-h1">{r ? 'Así respondió la IA a tu pregunta' : 'Pregúntale a tu asistente'}</h1>
             </div>
 
-            <div className="fs-bubble-user fs-up fs-d1">{R.pregunta.texto}</div>
-            <div className="fs-voice-meta fs-up fs-d1">
-              <span className="fs-mini-wave" aria-hidden="true">
-                {[5, 11, 8, 14, 6, 10, 4].map((h, i) => (
-                  <i key={i} style={{ height: h }}></i>
-                ))}
-              </span>
-              <span>Dictado por voz · Whisper · {R.pregunta.duracion} · {R.pregunta.idioma}</span>
-            </div>
-
-            <section className="fs-steps-box fs-up fs-d2" aria-labelledby="t-pasos">
-              <div className="fs-steps-head">
-                <b id="t-pasos">Cómo llegó a la respuesta · {R.pasos.length} pasos en {total.toFixed(1)} s</b>
-                <button type="button" className="fs-btn fs-btn-mini" aria-expanded={stepsOpen} aria-controls="pasos" onClick={() => setStepsOpen((v) => !v)}>
-                  {stepsOpen ? 'Ocultar proceso' : 'Ver proceso'}
-                </button>
-              </div>
-              <div className={`collapse${stepsOpen ? ' show' : ''}`} id="pasos">
-                <ol className="fs-tl">
-                  {R.pasos.map((p, i) => (
-                    <li key={p.titulo}>
-                      <span className="fs-tl-dot" style={{ animationDelay: `${(0.5 + i * 0.15).toFixed(2)}s` }}>
-                        <i className="bi bi-check-lg" aria-hidden="true"></i>
-                      </span>
-                      <div className="fs-tl-body">
-                        <b>{p.titulo}</b>
-                        <span>{p.detalle}</span>
-                      </div>
-                      <span className="fs-tl-t">{p.tiempo_s.toFixed(1)} s</span>
-                    </li>
+            {temas?.temas?.length > 0 && (
+              <section className="an-bloque" aria-label="Guía de temas">
+                <div className="an-tabs" role="tablist">
+                  {temas.temas.map((t, i) => (
+                    <button key={t.id} type="button" role="tab" aria-selected={tema === i} className={tema === i ? 'on' : ''} onClick={() => setTema(i)}>
+                      <i className={`bi ${t.icono}`} aria-hidden="true"></i> {t.titulo}
+                    </button>
                   ))}
-                </ol>
-              </div>
-            </section>
-
-            <article className="fs-answer fs-up fs-d3" aria-labelledby="t-resp">
-              <div className="d-flex align-items-center gap-3">
-                <span className="fs-ico-box lg">
-                  <i className="bi bi-robot" aria-hidden="true"></i>
-                </span>
-                <div>
-                  <div className="fs-chat-name">FieldShift AI</div>
-                  <div className="fs-chat-sub">Respuesta basada en NASA POWER · SoilGrids · FAO Ecocrop</div>
                 </div>
-              </div>
+                <div className="an-qs">
+                  {temas.temas[tema].preguntas.map((p) => <button key={p} type="button" onClick={() => preguntar(p)}>{p}</button>)}
+                </div>
+              </section>
+            )}
 
-              <div className="fs-short">
-                <div className="fs-eyebrow">Respuesta corta</div>
-                <h2 id="t-resp">{R.respuesta_corta.titulo}</h2>
-                <p>{R.respuesta_corta.apoyo}</p>
-              </div>
+            <form className="an-ask" onSubmit={(e) => { e.preventDefault(); if (texto.trim()) preguntar(texto.trim()); }}>
+              <label htmlFor="an-pregunta" className="visually-hidden">Tu pregunta</label>
+              <input id="an-pregunta" value={texto} onChange={(e) => setTexto(e.target.value)} placeholder="Escribe tu pregunta" maxLength={300} autoComplete="off" />
+              <button type="button" className={`an-mic${grabando ? ' rec' : ''}`} onClick={microfono} aria-pressed={grabando}>
+                <i className={`bi ${grabando ? 'bi-stop-fill' : 'bi-mic-fill'}`} aria-hidden="true"></i>{grabando ? ' Escuchando… toca para terminar' : ' Hablar'}
+              </button>
+              <button type="submit" className="an-go">Preguntar</button>
+            </form>
 
-              <section aria-labelledby="t-cal">
-                <div className="fs-cal-head">
-                  <h3 className="fs-sub" id="t-cal">Tu calendario de temporal en {placeName}</h3>
-                  <div className="fs-legend">
-                    <span>
-                      <i className="fs-sq" style={{ background: '#A3DDB0' }}></i>Lluvia mensual (mm)
-                    </span>
-                    <span>
-                      <i className="fs-sq" style={{ background: '#1B6B3A' }}></i>Humedad raíz sobre 40%
-                    </span>
+            <div className="an-estado" aria-live="polite">
+              {estado.fase === 'inicio' && <p>{estado.mensaje ?? 'Elige un tema, toca una pregunta, escribe la tuya o toca «Hablar». Aquí abajo aparece la respuesta.'}</p>}
+              {estado.fase === 'pensando' && <p>{estado.mensaje ?? 'Pensando… La primera respuesta puede tardar medio minuto; las siguientes, unos segundos.'}</p>}
+              {estado.fase === 'error' && <p className="err">{estado.mensaje} {!point && <Link to="/">Ir al mapa</Link>}</p>}
+            </div>
+
+            {r && (
+              <>
+                <div className="fs-bubble-user">{pregunta}</div>
+
+                {r.proceso?.length > 0 && (
+                  <section className="fs-steps-box" aria-labelledby="t-pasos">
+                    <div className="fs-steps-head">
+                      <b id="t-pasos">Cómo llegó a la respuesta · {r.proceso.length} pasos en {seg.toFixed(1)} s</b>
+                      <button type="button" className="fs-btn fs-btn-mini" aria-expanded={pasosAbiertos} aria-controls="pasos" onClick={() => setPasosAbiertos((v) => !v)}>
+                        {pasosAbiertos ? 'Ocultar proceso' : 'Ver proceso'}
+                      </button>
+                    </div>
+                    <div className={`collapse${pasosAbiertos ? ' show' : ''}`} id="pasos">
+                      <ol className="fs-tl">
+                        {r.proceso.map((p) => (
+                          <li key={p.titulo}>
+                            <span className="fs-tl-dot"><i className="bi bi-check-lg" aria-hidden="true"></i></span>
+                            <div className="fs-tl-body"><b>{p.titulo}</b><span>{p.detalle}</span></div>
+                          </li>
+                        ))}
+                      </ol>
+                    </div>
+                  </section>
+                )}
+
+                <article className="fs-answer" aria-labelledby="t-resp">
+                  <div className="d-flex align-items-center gap-3">
+                    <span className="fs-ico-box lg"><i className="bi bi-robot" aria-hidden="true"></i></span>
+                    <div>
+                      <div className="fs-chat-name">FieldShift AI</div>
+                      <div className="fs-chat-sub">{ORIGEN[r.origen] ?? ORIGEN.llm}</div>
+                    </div>
                   </div>
-                </div>
-                <div className="fs-cal-scroll">
-                  <div className="fs-cal" role="img" aria-label="Lluvia mensual y humedad en la raíz de mayo a noviembre">
-                    {R.calendario.meses.map((m, i) => (
-                      <div key={m.mes} className="fs-cal-col">
-                        <span className="fs-cal-mm">{m.lluvia_mm}</span>
-                        <div className="fs-cal-box">
-                          <div className="fs-cal-bar" style={{ height: `${Math.min(150, Math.round((m.lluvia_mm / 160) * 150))}px`, animationDelay: `${(0.7 + i * 0.06).toFixed(2)}s` }}></div>
+
+                  <div className="fs-short">
+                    <div className="fs-eyebrow">Respuesta corta</div>
+                    <h2 id="t-resp">{lista[0]}</h2>
+                    {lista.slice(1).map((f) => <p key={f}>{f}</p>)}
+                  </div>
+
+                  {pendiente && (
+                    <div className="an-opts">
+                      <p><strong>{r.preguntar ? pendiente.pregunta ?? r.respuesta : `Para afinar tu resultado: ${pendiente.pregunta}`}</strong></p>
+                      {pendiente.opciones.map((o) => (
+                        <button key={o.valor} type="button" onClick={() => contestar(pendiente.campo, o.valor)}>{o.texto}</button>
+                      ))}
+                    </div>
+                  )}
+
+                  {razones.length > 0 && (
+                    <section aria-labelledby="t-por">
+                      <h3 className="fs-sub" id="t-por">Por qué esta respuesta</h3>
+                      <div className="fs-reasons">
+                        {razones.map((x) => (
+                          <div key={x.k} className="fs-reason">
+                            {x.cifra && <span className="num">{x.cifra}</span>}
+                            <b>{x.titulo}</b>
+                            {x.textos.map((t) => <p key={t}>{t}</p>)}
+                            <span className="fs-src">[{x.fuente}]</span>
+                          </div>
+                        ))}
+                      </div>
+                    </section>
+                  )}
+
+                  {hayRiesgos && (
+                    <section aria-labelledby="t-vig">
+                      <h3 className="fs-sub" id="t-vig">Riesgos y límites</h3>
+                      {rec?.prediccion && <Filas filas={filasPrediccion(rec.prediccion)} />}
+                      {finca && [['Repartiendo los cultivos', finca.repartido], ['Sembrando lo mismo en todas', finca.igual]].map(([t, x]) => x && (
+                        <div key={t}><b>{t}</b><Filas filas={filasPrediccion(x)} /></div>
+                      ))}
+                      {modelo && (
+                        <>
+                          {modelo.aviso && <p className="an-texto-s"><b>{modelo.aviso}</b></p>}
+                        </>
+                      )}
+                      {r.corroboracion && <Corroboracion c={r.corroboracion} />}
+                      <Notas lista={[...(rec?.notas ?? []), ...(finca?.notas ?? [])]} />
+                      <p className="an-texto-s"><b>Es una estimación con datos pasados, no un pronóstico. No sustituye a un técnico.</b></p>
+                    </section>
+                  )}
+
+                  {lluviaMensual && (
+                    <section aria-labelledby="t-cal">
+                      <div className="fs-cal-head">
+                        <h3 className="fs-sub" id="t-cal">Lluvia media de tu parcela por mes</h3>
+                        <div className="fs-legend">
+                          <span><i className="fs-sq" style={{ background: '#A3DDB0' }}></i>Lluvia media (mm)</span>
+                          <span><i className="fs-sq" style={{ background: '#1B6B3A' }}></i>Temporada de lluvias (jun a sep)</span>
                         </div>
-                        <span className={`fs-cal-hum${m.gwetroot_pct > 40 ? ' hi' : ''}`}>{m.gwetroot_pct}%</span>
-                        <span className="fs-cal-mes">{m.mes}</span>
                       </div>
-                    ))}
-                  </div>
-                  <div className="fs-phases">
-                    {R.calendario.fases.map((f, i) => (
-                      <div key={f.nombre} className={`fs-phase p${i + 1}`} style={{ gridRow: i + 1, gridColumn: `${f.desde_quincena} / ${f.hasta_quincena + 1}` }}>
-                        {f.nombre}
+                      <div className="fs-cal-scroll">
+                        <div className="fs-cal" role="img" aria-label="Lluvia media mensual de tu parcela">
+                          {lluviaMensual.map((m) => (
+                            <div key={m.mes} className="fs-cal-col">
+                              <span className="fs-cal-mm">{Math.round(m.lluvia_mm)}</span>
+                              <div className="fs-cal-box">
+                                <div className="fs-cal-bar" style={{ height: `${Math.round((m.lluvia_mm / maxLluvia) * 150)}px`, background: LLUVIAS.includes(m.mes) ? '#1B6B3A' : undefined }}></div>
+                              </div>
+                              <span className="fs-cal-mes">{MESES[m.mes - 1]}</span>
+                            </div>
+                          ))}
+                        </div>
                       </div>
-                    ))}
-                  </div>
-                </div>
-              </section>
+                      {rotacion.length > 0 && (
+                        <p className="an-texto-s">{rotacion.map((p) => `Año ${p.anio}: ${p.cultivo} en ${p.temporada === 'PV' ? 'primavera-verano (PV)' : p.temporada === 'OI' ? 'otoño-invierno (OI)' : p.temporada}`).join(' · ')}</p>
+                      )}
+                      <p className="an-texto-s"><b>Fechas de siembra: aún sin verificar.</b> Consulta a INIFAP o a un técnico.</p>
+                    </section>
+                  )}
 
-              <section aria-labelledby="t-por">
-                <h3 className="fs-sub" id="t-por">Por qué esa fecha</h3>
-                <div className="fs-reasons">
-                  {R.razones.map((r) => (
-                    <div key={r.titulo} className="fs-reason">
-                      <span className="num">{r.cifra}</span>
-                      <b>{r.titulo}</b>
-                      <p>{r.texto}</p>
-                      <span className="fs-src">[{r.fuente}] {r.etiqueta}</span>
+                  <footer className="fs-ans-foot">
+                    <div className="fs-sources">
+                      <span>Fuentes:</span>
+                      {r.fuentes?.length ? r.fuentes.map((f) => <span key={f} className="fs-chip-src">{f}</span>) : <span>no hay</span>}
+                      {r.enlaces?.map((u) => <a key={u} href={u} target="_blank" rel="noreferrer">Ver página consultada (la app no la verifica)</a>)}
                     </div>
-                  ))}
-                </div>
-              </section>
-
-              <section aria-labelledby="t-vig">
-                <h3 className="fs-sub" id="t-vig">Qué vigilar y qué hacer</h3>
-                <div className="fs-risks">
-                  {R.riesgos.map((r) => (
-                    <div key={r.si_pasa} className="fs-risk">
-                      <div>
-                        <small>SI PASA</small>
-                        <div className="if">{r.si_pasa}</div>
-                      </div>
-                      <div>
-                        <small className="do">HAZ ESTO</small>
-                        <div className="then">{r.haz_esto}</div>
-                      </div>
+                    <div className="fs-actions">
+                      <button type="button" className="fs-icon-btn" aria-pressed={util} aria-label="Me fue útil" onClick={() => setUtil((v) => !v)}>
+                        <i className={`bi ${util ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`} aria-hidden="true"></i>
+                      </button>
+                      <button type="button" className="fs-icon-btn" aria-label="Escuchar la respuesta" onClick={escuchar}><i className="bi bi-volume-up" aria-hidden="true"></i></button>
+                      <button type="button" className="fs-btn fs-btn-sec fs-copy" onClick={() => copyText(lista.join(' '), () => toast('Respuesta copiada'), () => toast('No se pudo copiar'))}>Copiar respuesta</button>
                     </div>
-                  ))}
-                </div>
-              </section>
-
-              <footer className="fs-ans-foot">
-                <div className="fs-sources">
-                  <span>Fuentes:</span>
-                  {R.fuentes.map((f) => (
-                    <span key={f.id} className="fs-chip-src">[{f.id}] {f.nombre}</span>
-                  ))}
-                </div>
-                <div className="fs-actions">
-                  <button type="button" className="fs-icon-btn" aria-pressed={useful} aria-label="Me fue útil" onClick={() => setUseful((v) => !v)}>
-                    <i className={`bi ${useful ? 'bi-hand-thumbs-up-fill' : 'bi-hand-thumbs-up'}`} aria-hidden="true"></i>
-                  </button>
-                  <button type="button" className="fs-icon-btn" aria-label="Escuchar la respuesta" onClick={listen}>
-                    <i className="bi bi-volume-up" aria-hidden="true"></i>
-                  </button>
-                  <button type="button" className="fs-btn fs-btn-sec fs-copy" onClick={() => copyText(answerText, () => toast('Respuesta copiada'), () => toast('No se pudo copiar'))}>
-                    Copiar respuesta
-                  </button>
-                </div>
-              </footer>
-            </article>
-
-            <div className="d-flex flex-column gap-3 fs-up fs-d4">
-              <div className="fs-typing">
-                <span className="dots" aria-hidden="true">
-                  <i></i><i></i><i></i>
-                </span>
-                Sigue preguntando, el asistente recuerda tu parcela
-              </div>
-              <div className="fs-chips">
-                {R.sugerencias.map((s) => (
-                  <button key={s} type="button" className="fs-btn fs-btn-pill" onClick={() => setAsk(s)}>
-                    {s}
-                  </button>
-                ))}
-              </div>
-              <form
-                className="fs-askbar"
-                onSubmit={(e) => {
-                  e.preventDefault();
-                  if (ask.trim()) {
-                    toast('Pregunta enviada al asistente');
-                    setAsk('');
-                  }
-                }}
-              >
-                <button type="button" className="fs-mic" aria-label="Hablar con el micrófono">
-                  <i className="bi bi-mic" aria-hidden="true"></i>
-                </button>
-                <label htmlFor="ask" className="visually-hidden">Pregunta otra cosa sobre tu rotación</label>
-                <input id="ask" type="text" placeholder="Pregunta otra cosa sobre tu rotación…" autoComplete="off" value={ask} onChange={(e) => setAsk(e.target.value)} />
-                <button type="submit" className="fs-btn fs-btn-primary" aria-label="Preguntar">
-                  <i className="bi bi-send" aria-hidden="true"></i>
-                  <span className="lbl">Preguntar</span>
-                </button>
-              </form>
-            </div>
+                  </footer>
+                </article>
+              </>
+            )}
+            {temas?.nota && <p className="fs-note">{temas.nota}</p>}
           </div>
 
           <aside className="fs-aside-col">
-            <section className="fs-card fs-side fs-up fs-d2" aria-labelledby="t-res">
+            <section className="fs-card fs-side" aria-labelledby="t-res">
               <div className="fs-eyebrow" id="t-res">Resumen del análisis</div>
-              <div className="fs-conf">
-                <div className="fs-ring" role="img" aria-label={`Confianza ${R.confianza_pct}%`}>
-                  <svg viewBox="0 0 100 100" aria-hidden="true">
-                    <circle cx="50" cy="50" r="42" fill="none" stroke="#E6F5E8" strokeWidth="10" />
-                    <circle className="arc" cx="50" cy="50" r="42" fill="none" stroke="#1B6B3A" strokeWidth="10" strokeLinecap="round" strokeDasharray="264" strokeDashoffset={Math.round(264 * (1 - R.confianza_pct / 100))} />
-                  </svg>
-                  <span>{R.confianza_pct}%</span>
+              {r && (
+                <div className="an-datos">
+                  <b>Datos usados</b>
+                  <div className="fs-sources">{r.fuentes?.length ? r.fuentes.map((f) => <span key={f} className="fs-chip-src">{f}</span>) : <span>ninguno</span>}</div>
+                  {modelo && <p className="an-peq">Confianza del modelo: <b>{modelo.confianza}</b></p>}
                 </div>
-                <div>
-                  <b>Confianza alta</b>
-                  <p>Se apoya en 25 años de datos diarios del punto exacto de tu parcela.</p>
-                </div>
-              </div>
+              )}
               <dl className="fs-dl">
-                {R.resumen.map((r) => (
-                  <div key={r.k}>
-                    <dt>{r.k}</dt>
-                    <dd>{r.v}</dd>
-                  </div>
-                ))}
+                {[
+                  ['Años analizados', clima?.periodo ? `${clima.periodo.inicio} a ${clima.periodo.fin}` : '—'],
+                  ['Lluvia media al año', lluviaAnual ? `${Math.round(lluviaAnual)} mm` : '—'],
+                  ['Años secos', aniosSecos != null ? `${aniosSecos} de ${clima.lluvia_pv_anual.length}` : '—'],
+                  ['pH del suelo', suelo && !suelo.sin_datos && num(suelo.ph) ? String(suelo.ph) : '—'],
+                  ['Arcilla del suelo', suelo && !suelo.sin_datos && num(suelo.arcilla_pct) ? `${suelo.arcilla_pct} %` : '—'],
+                ].map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
               </dl>
             </section>
 
-            <section className="fs-card fs-side fs-up fs-d3" aria-labelledby="t-plan">
+            <section className="fs-card fs-side" aria-labelledby="t-plan">
               <div className="fs-eyebrow" id="t-plan">Cómo queda tu plan</div>
-              <ul className="fs-planlist">
-                {R.plan.map((p) => {
-                  const active = p.anio === R.efecto_en_plan.anio;
-                  return (
-                    <li key={p.anio} className={active ? 'is-active' : ''}>
-                      <span className="yr">{p.anio}</span>
-                      {p.cultivo}
-                      {active && (
-                        <small>
-                          <i className="bi bi-calendar3" aria-hidden="true"></i>Fecha agregada: {R.efecto_en_plan.nota}
-                        </small>
-                      )}
-                    </li>
-                  );
-                })}
-              </ul>
-              <button type="button" className="fs-btn fs-btn-primary fs-btn-block" onClick={() => window.print()}>
-                <i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i>Guardar en mi ficha PDF
-              </button>
+              {rotacion.length ? (
+                <ul className="fs-planlist">
+                  {rotacion.map((p) => (
+                    <li key={p.anio}><span className="yr">Año {p.anio}</span>{p.cultivo} ({p.temporada}){p.porque && <small>{p.porque}</small>}</li>
+                  ))}
+                </ul>
+              ) : <p className="an-peq">Pregunta «¿Qué me conviene sembrar?» y aquí aparece tu rotación.</p>}
+              <button type="button" className="an-btn" onClick={() => window.print()}><i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i> Guardar la página en PDF</button>
+              <button type="button" className="an-btn" onClick={guardarFicha}><i className="bi bi-download" aria-hidden="true"></i> Guardar mi ficha en un archivo</button>
+              <button type="button" className="an-btn" onClick={() => archivo.current?.click()}><i className="bi bi-upload" aria-hidden="true"></i> Cargar mi ficha</button>
+              <input ref={archivo} type="file" accept="application/json,.json" hidden onChange={cargarFicha} />
               <Link className="fs-btn fs-btn-sec fs-btn-block" to="/rotacion">Volver al simulador 3D</Link>
             </section>
 
-            <p className="fs-note fs-up fs-d4">Las cifras de esta pantalla son ilustrativas para la maqueta; en la app las calcula el motor de reglas con la respuesta de las APIs.</p>
+            <section className="fs-card fs-side" aria-labelledby="t-dicho">
+              <div className="fs-eyebrow" id="t-dicho">Lo que me has dicho</div>
+              <p className="an-peq">Así no te lo vuelvo a preguntar. Se guarda solo en este navegador y en el archivo que guardes.</p>
+              {dicho.length === 0 && <p className="an-peq">Todavía no me has contestado nada.</p>}
+              {dicho.map((q) => (
+                <div key={q.campo} className="an-dato">
+                  <label htmlFor={`d-${q.campo}`}>{q.pregunta}</label>
+                  {q.tipo === 'numero' ? (
+                    <input id={`d-${q.campo}`} type="number" min={q.min} max={q.max} step="any" defaultValue={perfil[q.campo]}
+                      onBlur={(e) => { const v = Number(e.target.value); if (v >= q.min && v <= q.max) setPerfilCampo(q.campo, v); else e.target.value = perfil[q.campo]; }} />
+                  ) : (
+                    <select id={`d-${q.campo}`} value={perfil[q.campo]} onChange={(e) => setPerfilCampo(q.campo, e.target.value)}>
+                      {q.opciones.filter((o) => o.valor !== 'no_se').map((o) => <option key={o.valor} value={o.valor}>{o.texto}</option>)}
+                    </select>
+                  )}
+                  {q.campo !== 'agua' && q.campo !== 'prioridad' && <button type="button" onClick={() => setPerfilCampo(q.campo, '')}>Borrar este dato</button>}
+                </div>
+              ))}
+              <button type="button" className="an-btn" onClick={reiniciarPerfil}>Borrar todo lo que me dije</button>
+              <p className="an-peq">No hay cuentas ni servidor de datos.</p>
+            </section>
           </aside>
         </div>
       </main>

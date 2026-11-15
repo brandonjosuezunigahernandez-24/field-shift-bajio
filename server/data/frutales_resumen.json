@@ -1,0 +1,806 @@
+{
+ "fuente": "SIAP, Cierre de la producción agrícola por municipio (datos abiertos), ciclo Perennes",
+ "anios": [
+  2018,
+  2024
+ ],
+ "nota": "Precios en pesos por unidad (tonelada salvo que diga otra); valor en millones de pesos corrientes. Ordenado por valor de la producción 2018-2024.",
+ "estados": {
+  "Guanajuato": [
+   {
+    "cultivo": "Espárrago",
+    "tipo": "hortaliza perenne",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 4615.2,
+    "cosechada_ha_2024": 4607.2,
+    "rendimiento_2024": 9.92,
+    "rendimiento_prom_2018_2024": 9.62,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 38445,
+    "precio_rural_2018_2019": 32377,
+    "precio_rural_2023_2024": 40179,
+    "precio_cambio_pct": 24,
+    "valor_millones_2024": 1757.6,
+    "valor_millones_total_2018_2024": 11014.7,
+    "riego_pct_2024": 93,
+    "municipios_2024": [
+     {
+      "nombre": "San Luis de La Paz",
+      "pct_sembrada": 20
+     },
+     {
+      "nombre": "Irapuato",
+      "pct_sembrada": 19
+     },
+     {
+      "nombre": "San Miguel de Allende",
+      "pct_sembrada": 14
+     }
+    ]
+   },
+   {
+    "cultivo": "Fresa",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 1993.6,
+    "cosechada_ha_2024": 1915.5,
+    "rendimiento_2024": 56.34,
+    "rendimiento_prom_2018_2024": 56.48,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 13919,
+    "precio_rural_2018_2019": 10381,
+    "precio_rural_2023_2024": 13880,
+    "precio_cambio_pct": 34,
+    "valor_millones_2024": 1502.1,
+    "valor_millones_total_2018_2024": 8058.2,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Irapuato",
+      "pct_sembrada": 30
+     },
+     {
+      "nombre": "Tarandacuao",
+      "pct_sembrada": 24
+     },
+     {
+      "nombre": "Abasolo",
+      "pct_sembrada": 10
+     }
+    ]
+   },
+   {
+    "cultivo": "Frambuesa",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 6,
+    "sembrada_ha_2024": 239.6,
+    "cosechada_ha_2024": 235.6,
+    "rendimiento_2024": 18.3,
+    "rendimiento_prom_2018_2024": 18.72,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 52408,
+    "precio_rural_2018_2019": 39011,
+    "precio_rural_2023_2024": 50602,
+    "precio_cambio_pct": 30,
+    "valor_millones_2024": 225.9,
+    "valor_millones_total_2018_2024": 814.7,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Guanajuato",
+      "pct_sembrada": 29
+     },
+     {
+      "nombre": "Irapuato",
+      "pct_sembrada": 16
+     },
+     {
+      "nombre": "Abasolo",
+      "pct_sembrada": 13
+     }
+    ]
+   },
+   {
+    "cultivo": "Tuna",
+    "tipo": "nopal",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 1803,
+    "cosechada_ha_2024": 1803,
+    "rendimiento_2024": 11.51,
+    "rendimiento_prom_2018_2024": 11.99,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 3862,
+    "precio_rural_2018_2019": 3293,
+    "precio_rural_2023_2024": 3844,
+    "precio_cambio_pct": 17,
+    "valor_millones_2024": 80.2,
+    "valor_millones_total_2018_2024": 573.7,
+    "riego_pct_2024": 2,
+    "municipios_2024": [
+     {
+      "nombre": "Dolores Hidalgo Cuna de la Independencia Nacional",
+      "pct_sembrada": 64
+     },
+     {
+      "nombre": "San Diego de La Unión",
+      "pct_sembrada": 30
+     },
+     {
+      "nombre": "San Miguel de Allende",
+      "pct_sembrada": 5
+     }
+    ]
+   },
+   {
+    "cultivo": "Arándano",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 5,
+    "sembrada_ha_2024": 531,
+    "cosechada_ha_2024": 531,
+    "rendimiento_2024": 7.48,
+    "rendimiento_prom_2018_2024": 7.27,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 52075,
+    "precio_rural_2018_2019": 62546,
+    "precio_rural_2023_2024": 57424,
+    "precio_cambio_pct": -8,
+    "valor_millones_2024": 207,
+    "valor_millones_total_2018_2024": 507.4,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Abasolo",
+      "pct_sembrada": 38
+     },
+     {
+      "nombre": "San Francisco del Rincón",
+      "pct_sembrada": 30
+     },
+     {
+      "nombre": "León",
+      "pct_sembrada": 16
+     }
+    ]
+   },
+   {
+    "cultivo": "Nopalitos",
+    "tipo": "nopal",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 285.9,
+    "cosechada_ha_2024": 285.9,
+    "rendimiento_2024": 24.07,
+    "rendimiento_prom_2018_2024": 24.47,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 7454,
+    "precio_rural_2018_2019": 6017,
+    "precio_rural_2023_2024": 7362,
+    "precio_cambio_pct": 22,
+    "valor_millones_2024": 51.3,
+    "valor_millones_total_2018_2024": 312.7,
+    "riego_pct_2024": 85,
+    "municipios_2024": [
+     {
+      "nombre": "Salamanca",
+      "pct_sembrada": 56
+     },
+     {
+      "nombre": "Pénjamo",
+      "pct_sembrada": 10
+     },
+     {
+      "nombre": "Villagrán",
+      "pct_sembrada": 9
+     }
+    ]
+   },
+   {
+    "cultivo": "Uva",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 504.5,
+    "cosechada_ha_2024": 502.5,
+    "rendimiento_2024": 9.26,
+    "rendimiento_prom_2018_2024": 9.32,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 13308,
+    "precio_rural_2018_2019": 14398,
+    "precio_rural_2023_2024": 13137,
+    "precio_cambio_pct": -9,
+    "valor_millones_2024": 61.9,
+    "valor_millones_total_2018_2024": 301.7,
+    "riego_pct_2024": 69,
+    "municipios_2024": [
+     {
+      "nombre": "San Miguel de Allende",
+      "pct_sembrada": 62
+     },
+     {
+      "nombre": "Dolores Hidalgo Cuna de la Independencia Nacional",
+      "pct_sembrada": 14
+     },
+     {
+      "nombre": "Comonfort",
+      "pct_sembrada": 13
+     }
+    ]
+   },
+   {
+    "cultivo": "Aguacate",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 306.7,
+    "cosechada_ha_2024": 263.2,
+    "rendimiento_2024": 7.98,
+    "rendimiento_prom_2018_2024": 7.57,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 18844,
+    "precio_rural_2018_2019": 11612,
+    "precio_rural_2023_2024": 19770,
+    "precio_cambio_pct": 70,
+    "valor_millones_2024": 39.6,
+    "valor_millones_total_2018_2024": 206.9,
+    "riego_pct_2024": 96,
+    "municipios_2024": [
+     {
+      "nombre": "León",
+      "pct_sembrada": 20
+     },
+     {
+      "nombre": "Silao de La Victoria",
+      "pct_sembrada": 11
+     },
+     {
+      "nombre": "Comonfort",
+      "pct_sembrada": 10
+     }
+    ]
+   },
+   {
+    "cultivo": "Granada",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 80.2,
+    "cosechada_ha_2024": 80,
+    "rendimiento_2024": 15.41,
+    "rendimiento_prom_2018_2024": 15.59,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 11110,
+    "precio_rural_2018_2019": 11780,
+    "precio_rural_2023_2024": 10454,
+    "precio_cambio_pct": -11,
+    "valor_millones_2024": 13.7,
+    "valor_millones_total_2018_2024": 105.3,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Apaseo El Alto",
+      "pct_sembrada": 74
+     },
+     {
+      "nombre": "Apaseo El Grande",
+      "pct_sembrada": 19
+     },
+     {
+      "nombre": "Abasolo",
+      "pct_sembrada": 4
+     }
+    ]
+   },
+   {
+    "cultivo": "Zarzamora",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 19.2,
+    "cosechada_ha_2024": 19.2,
+    "rendimiento_2024": 11.39,
+    "rendimiento_prom_2018_2024": 13.63,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 39814,
+    "precio_rural_2018_2019": 33645,
+    "precio_rural_2023_2024": 36560,
+    "precio_cambio_pct": 9,
+    "valor_millones_2024": 8.7,
+    "valor_millones_total_2018_2024": 82.6,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Purísima del Rincón",
+      "pct_sembrada": 52
+     },
+     {
+      "nombre": "Valle de Santiago",
+      "pct_sembrada": 40
+     },
+     {
+      "nombre": "Cortazar",
+      "pct_sembrada": 8
+     }
+    ]
+   },
+   {
+    "cultivo": "Alcachofa",
+    "tipo": "hortaliza perenne",
+    "unidad": "Tonelada",
+    "anios_con_datos": 5,
+    "sembrada_ha_2024": 27,
+    "cosechada_ha_2024": 27,
+    "rendimiento_2024": 14.15,
+    "rendimiento_prom_2018_2024": 14,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 18510,
+    "precio_rural_2018_2019": 14449,
+    "precio_rural_2023_2024": 17864,
+    "precio_cambio_pct": 24,
+    "valor_millones_2024": 7.1,
+    "valor_millones_total_2018_2024": 61.5,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "San Miguel de Allende",
+      "pct_sembrada": 74
+     },
+     {
+      "nombre": "San Luis de La Paz",
+      "pct_sembrada": 26
+     }
+    ]
+   },
+   {
+    "cultivo": "Nuez",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 90,
+    "cosechada_ha_2024": 90,
+    "rendimiento_2024": 1.73,
+    "rendimiento_prom_2018_2024": 1.63,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 73025,
+    "precio_rural_2018_2019": 51820,
+    "precio_rural_2023_2024": 73185,
+    "precio_cambio_pct": 41,
+    "valor_millones_2024": 11.4,
+    "valor_millones_total_2018_2024": 61.5,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "San José Iturbide",
+      "pct_sembrada": 28
+     },
+     {
+      "nombre": "San Francisco del Rincón",
+      "pct_sembrada": 20
+     },
+     {
+      "nombre": "Purísima del Rincón",
+      "pct_sembrada": 18
+     }
+    ]
+   },
+   {
+    "cultivo": "Guayaba",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 120,
+    "cosechada_ha_2024": 119,
+    "rendimiento_2024": 8.08,
+    "rendimiento_prom_2018_2024": 8.12,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 8086,
+    "precio_rural_2018_2019": 6547,
+    "precio_rural_2023_2024": 8106,
+    "precio_cambio_pct": 24,
+    "valor_millones_2024": 7.8,
+    "valor_millones_total_2018_2024": 46.1,
+    "riego_pct_2024": 92,
+    "municipios_2024": [
+     {
+      "nombre": "Silao de La Victoria",
+      "pct_sembrada": 18
+     },
+     {
+      "nombre": "Jerécuaro",
+      "pct_sembrada": 18
+     },
+     {
+      "nombre": "Pénjamo",
+      "pct_sembrada": 13
+     }
+    ]
+   },
+   {
+    "cultivo": "Durazno",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 91.1,
+    "cosechada_ha_2024": 91.1,
+    "rendimiento_2024": 7.59,
+    "rendimiento_prom_2018_2024": 7.07,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 8487,
+    "precio_rural_2018_2019": 8020,
+    "precio_rural_2023_2024": 8528,
+    "precio_cambio_pct": 6,
+    "valor_millones_2024": 5.9,
+    "valor_millones_total_2018_2024": 38.2,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "San Luis de La Paz",
+      "pct_sembrada": 21
+     },
+     {
+      "nombre": "San Felipe",
+      "pct_sembrada": 20
+     },
+     {
+      "nombre": "Comonfort",
+      "pct_sembrada": 20
+     }
+    ]
+   },
+   {
+    "cultivo": "Limón",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 169.2,
+    "cosechada_ha_2024": 153.5,
+    "rendimiento_2024": 6.69,
+    "rendimiento_prom_2018_2024": 6.59,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 11417,
+    "precio_rural_2018_2019": 7052,
+    "precio_rural_2023_2024": 10679,
+    "precio_cambio_pct": 51,
+    "valor_millones_2024": 11.7,
+    "valor_millones_total_2018_2024": 24.1,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "San Francisco del Rincón",
+      "pct_sembrada": 27
+     },
+     {
+      "nombre": "Huanímaro",
+      "pct_sembrada": 25
+     },
+     {
+      "nombre": "Abasolo",
+      "pct_sembrada": 15
+     }
+    ]
+   }
+  ],
+  "Querétaro": [
+   {
+    "cultivo": "Espárrago",
+    "tipo": "hortaliza perenne",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 1240,
+    "cosechada_ha_2024": 1240,
+    "rendimiento_2024": 4.72,
+    "rendimiento_prom_2018_2024": 5.74,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 48976,
+    "precio_rural_2018_2019": 40363,
+    "precio_rural_2023_2024": 47761,
+    "precio_cambio_pct": 18,
+    "valor_millones_2024": 286.5,
+    "valor_millones_total_2018_2024": 1938.4,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Pedro Escobedo",
+      "pct_sembrada": 45
+     },
+     {
+      "nombre": "El Marqués",
+      "pct_sembrada": 24
+     },
+     {
+      "nombre": "Colón",
+      "pct_sembrada": 13
+     }
+    ]
+   },
+   {
+    "cultivo": "Uva",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 530,
+    "cosechada_ha_2024": 519.8,
+    "rendimiento_2024": 8.44,
+    "rendimiento_prom_2018_2024": 8.06,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 16150,
+    "precio_rural_2018_2019": 14064,
+    "precio_rural_2023_2024": 16376,
+    "precio_cambio_pct": 16,
+    "valor_millones_2024": 70.8,
+    "valor_millones_total_2018_2024": 342.3,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Ezequiel Montes",
+      "pct_sembrada": 38
+     },
+     {
+      "nombre": "Colón",
+      "pct_sembrada": 26
+     },
+     {
+      "nombre": "Tequisquiapan",
+      "pct_sembrada": 18
+     }
+    ]
+   },
+   {
+    "cultivo": "Nuez",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 99,
+    "cosechada_ha_2024": 99,
+    "rendimiento_2024": 3.11,
+    "rendimiento_prom_2018_2024": 2.97,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 81794,
+    "precio_rural_2018_2019": 51346,
+    "precio_rural_2023_2024": 86248,
+    "precio_cambio_pct": 68,
+    "valor_millones_2024": 25.2,
+    "valor_millones_total_2018_2024": 154.6,
+    "riego_pct_2024": 30,
+    "municipios_2024": [
+     {
+      "nombre": "Peñamiller",
+      "pct_sembrada": 70
+     },
+     {
+      "nombre": "Tequisquiapan",
+      "pct_sembrada": 30
+     }
+    ]
+   },
+   {
+    "cultivo": "Naranja",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 240,
+    "cosechada_ha_2024": 240,
+    "rendimiento_2024": 8.87,
+    "rendimiento_prom_2018_2024": 9.25,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 5037,
+    "precio_rural_2018_2019": 3984,
+    "precio_rural_2023_2024": 5049,
+    "precio_cambio_pct": 27,
+    "valor_millones_2024": 10.7,
+    "valor_millones_total_2018_2024": 71.6,
+    "riego_pct_2024": 98,
+    "municipios_2024": [
+     {
+      "nombre": "Arroyo Seco",
+      "pct_sembrada": 83
+     },
+     {
+      "nombre": "Jalpan de Serra",
+      "pct_sembrada": 13
+     },
+     {
+      "nombre": "Landa de Matamoros",
+      "pct_sembrada": 2
+     }
+    ]
+   },
+   {
+    "cultivo": "Nopalitos",
+    "tipo": "nopal",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 36.5,
+    "cosechada_ha_2024": 36.5,
+    "rendimiento_2024": 37.26,
+    "rendimiento_prom_2018_2024": 35.02,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 5284,
+    "precio_rural_2018_2019": 4832,
+    "precio_rural_2023_2024": 5088,
+    "precio_cambio_pct": 5,
+    "valor_millones_2024": 7.2,
+    "valor_millones_total_2018_2024": 55,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Cadereyta de Montes",
+      "pct_sembrada": 48
+     },
+     {
+      "nombre": "El Marqués",
+      "pct_sembrada": 27
+     },
+     {
+      "nombre": "Peñamiller",
+      "pct_sembrada": 19
+     }
+    ]
+   },
+   {
+    "cultivo": "Aguacate",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 173,
+    "cosechada_ha_2024": 154.5,
+    "rendimiento_2024": 3.77,
+    "rendimiento_prom_2018_2024": 3.21,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 19268,
+    "precio_rural_2018_2019": 14545,
+    "precio_rural_2023_2024": 19640,
+    "precio_cambio_pct": 35,
+    "valor_millones_2024": 11.2,
+    "valor_millones_total_2018_2024": 50.3,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Cadereyta de Montes",
+      "pct_sembrada": 25
+     },
+     {
+      "nombre": "San Joaquín",
+      "pct_sembrada": 22
+     },
+     {
+      "nombre": "Peñamiller",
+      "pct_sembrada": 21
+     }
+    ]
+   },
+   {
+    "cultivo": "Manzana",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 412,
+    "cosechada_ha_2024": 411,
+    "rendimiento_2024": 1.95,
+    "rendimiento_prom_2018_2024": 1.87,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 7346,
+    "precio_rural_2018_2019": 9250,
+    "precio_rural_2023_2024": 7518,
+    "precio_cambio_pct": -19,
+    "valor_millones_2024": 5.9,
+    "valor_millones_total_2018_2024": 46.8,
+    "riego_pct_2024": 7,
+    "municipios_2024": [
+     {
+      "nombre": "San Joaquín",
+      "pct_sembrada": 49
+     },
+     {
+      "nombre": "Cadereyta de Montes",
+      "pct_sembrada": 34
+     },
+     {
+      "nombre": "Pinal de Amoles",
+      "pct_sembrada": 10
+     }
+    ]
+   },
+   {
+    "cultivo": "Tuna",
+    "tipo": "nopal",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 222,
+    "cosechada_ha_2024": 222,
+    "rendimiento_2024": 1.84,
+    "rendimiento_prom_2018_2024": 1.76,
+    "siniestrada_pct_2018_2024": 0.8,
+    "precio_rural_2024": 8990,
+    "precio_rural_2018_2019": 4298,
+    "precio_rural_2023_2024": 8362,
+    "precio_cambio_pct": 95,
+    "valor_millones_2024": 3.7,
+    "valor_millones_total_2018_2024": 21.2,
+    "riego_pct_2024": 0,
+    "municipios_2024": [
+     {
+      "nombre": "Colón",
+      "pct_sembrada": 43
+     },
+     {
+      "nombre": "Cadereyta de Montes",
+      "pct_sembrada": 36
+     },
+     {
+      "nombre": "Tolimán",
+      "pct_sembrada": 11
+     }
+    ]
+   },
+   {
+    "cultivo": "Guayaba",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 75,
+    "cosechada_ha_2024": 73,
+    "rendimiento_2024": 3.66,
+    "rendimiento_prom_2018_2024": 3.69,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 8815,
+    "precio_rural_2018_2019": 6397,
+    "precio_rural_2023_2024": 8980,
+    "precio_cambio_pct": 40,
+    "valor_millones_2024": 2.4,
+    "valor_millones_total_2018_2024": 15.3,
+    "riego_pct_2024": 93,
+    "municipios_2024": [
+     {
+      "nombre": "Tolimán",
+      "pct_sembrada": 73
+     },
+     {
+      "nombre": "Peñamiller",
+      "pct_sembrada": 15
+     },
+     {
+      "nombre": "Jalpan de Serra",
+      "pct_sembrada": 12
+     }
+    ]
+   },
+   {
+    "cultivo": "Mango",
+    "tipo": "fruta",
+    "unidad": "Tonelada",
+    "anios_con_datos": 7,
+    "sembrada_ha_2024": 77,
+    "cosechada_ha_2024": 77,
+    "rendimiento_2024": 4.91,
+    "rendimiento_prom_2018_2024": 4.13,
+    "siniestrada_pct_2018_2024": 0,
+    "precio_rural_2024": 5352,
+    "precio_rural_2018_2019": 5307,
+    "precio_rural_2023_2024": 5317,
+    "precio_cambio_pct": 0,
+    "valor_millones_2024": 2,
+    "valor_millones_total_2018_2024": 11.2,
+    "riego_pct_2024": 100,
+    "municipios_2024": [
+     {
+      "nombre": "Arroyo Seco",
+      "pct_sembrada": 84
+     },
+     {
+      "nombre": "Pinal de Amoles",
+      "pct_sembrada": 13
+     },
+     {
+      "nombre": "Jalpan de Serra",
+      "pct_sembrada": 3
+     }
+    ]
+   }
+  ]
+ }
+}

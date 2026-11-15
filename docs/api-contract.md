@@ -316,3 +316,12 @@ Respuesta nueva para "¿qué me conviene sembrar?": `origen: "motor"`. Si falta 
 `GET /api/perfil/preguntas` → `{ preguntas: [{ campo, pregunta, porque, opciones: [{valor, texto}], obligatoria?, tipo?, min?, max? }] }`.
 En `POST /api/asistente` se manda `perfil: { agua, prioridad, estado, ultimo_cultivo, hectareas, textura, encharca }` (todos opcionales; "no_se" se ignora; valor inválido = 400). Desde que el chat usa el motor de reglas, la recomendación ya no cambia con `ultimo_cultivo`, `hectareas`, `textura` ni `encharca`, y la respuesta ya no trae `afinar`, `prediccion` ni `recomendacion_finca` (con varias parcelas hay una sola recomendación por terreno). El recomendador del SIAP (`server/llm/recomendador.js`) sigue en el repo con sus pruebas, pero ninguna ruta lo usa para recomendar.
 `GET /api/pronostico`: cada día trae `codigo_clima` (código WMO del día, o null) para la vista 3D.
+
+### Riesgo del maíz con el modelo entrenado (`/api/asistente`)
+Con una pregunta sobre **maíz** y riesgo, lluvia o pérdidas, la respuesta trae `origen: "modelo"` y `riesgo_modelo`: `{ cultivo, estado, confianza: "media"|"baja", escenarios: [{ nombre, lluvia_mm, siniestro_pct, nivel }], validacion, lectura, aviso }`. Tres escenarios (año seco, normal y lluvioso, sacados de los 25 años de la parcela). **Es riesgo estimado dado el clima, no un pronóstico.** Solo maíz; Querétaro con confianza media y Guanajuato con confianza baja.
+
+### Frutales (`GET /api/frutales?estado=Guanajuato|Querétaro`, estado opcional)
+Devuelve `{ frutales: [{ estado, cultivo, tipo, unidad, sembrada_ha_2024, cosechada_ha_2024, rendimiento_2024, siniestrada_pct_2018_2024, precio_rural_2024, precio_cambio_pct, valor_millones_2024, riego_pct_2024, municipios_2024[] }], no_es[], no_verificado, fuente }`. 404 con `{ error }` si el estado no es Guanajuato ni Querétaro. Solo datos del SIAP; tiempos de producción, costos y requisitos agronómicos **no están verificados**.
+
+### Parcela fuera de Guanajuato y Querétaro
+`POST /api/asistente` sin `estado`, con una pregunta de recomendación y una ubicación fuera de ambos estados: responde 200 con un texto de aviso y **sin** `recomendacion`.

@@ -1,0 +1,455 @@
+{
+ "fuente": "Nominatim (OpenStreetMap contributors), geocodificando \"Municipio, Estado, México\"; centro del municipio, redondeado a 2 decimales",
+ "fecha": "2026-11-15",
+ "municipios": [
+  {
+   "estado": "Guanajuato",
+   "id": 1,
+   "nombre": "Abasolo",
+   "lat": 20.54,
+   "lon": -101.55
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 2,
+   "nombre": "Acámbaro",
+   "lat": 20.07,
+   "lon": -100.74
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 3,
+   "nombre": "San Miguel de Allende",
+   "lat": 20.91,
+   "lon": -100.74
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 4,
+   "nombre": "Apaseo El Alto",
+   "lat": 20.43,
+   "lon": -100.59
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 5,
+   "nombre": "Apaseo El Grande",
+   "lat": 20.59,
+   "lon": -100.6
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 6,
+   "nombre": "Atarjea",
+   "lat": 21.28,
+   "lon": -99.78
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 7,
+   "nombre": "Celaya",
+   "lat": 20.52,
+   "lon": -100.83
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 8,
+   "nombre": "Manuel Doblado",
+   "lat": 20.69,
+   "lon": -101.88
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 9,
+   "nombre": "Comonfort",
+   "lat": 20.74,
+   "lon": -100.8
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 10,
+   "nombre": "Coroneo",
+   "lat": 20.22,
+   "lon": -100.39
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 11,
+   "nombre": "Cortazar",
+   "lat": 20.42,
+   "lon": -100.93
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 12,
+   "nombre": "Cuerámaro",
+   "lat": 20.62,
+   "lon": -101.67
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 13,
+   "nombre": "Doctor Mora",
+   "lat": 21.15,
+   "lon": -100.37
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 14,
+   "nombre": "Dolores Hidalgo Cuna de la Independencia Nacional",
+   "lat": 21.16,
+   "lon": -100.93
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 15,
+   "nombre": "Guanajuato",
+   "lat": 21.02,
+   "lon": -101.25
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 16,
+   "nombre": "Huanímaro",
+   "lat": 20.36,
+   "lon": -101.5
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 17,
+   "nombre": "Irapuato",
+   "lat": 20.68,
+   "lon": -101.35
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 18,
+   "nombre": "Jaral del Progreso",
+   "lat": 20.36,
+   "lon": -101.06
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 19,
+   "nombre": "Jerécuaro",
+   "lat": 20.18,
+   "lon": -100.54
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 20,
+   "nombre": "León",
+   "lat": 21.12,
+   "lon": -101.68
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 21,
+   "nombre": "Moroleón",
+   "lat": 20.08,
+   "lon": -101.26
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 22,
+   "nombre": "Ocampo",
+   "lat": 21.6,
+   "lon": -101.48
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 23,
+   "nombre": "Pénjamo",
+   "lat": 20.41,
+   "lon": -101.84
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 24,
+   "nombre": "Pueblo Nuevo",
+   "lat": 20.55,
+   "lon": -101.37
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 25,
+   "nombre": "Purísima del Rincón",
+   "lat": 20.94,
+   "lon": -101.91
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 26,
+   "nombre": "Romita",
+   "lat": 20.82,
+   "lon": -101.58
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 27,
+   "nombre": "Salamanca",
+   "lat": 20.65,
+   "lon": -101.17
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 28,
+   "nombre": "Salvatierra",
+   "lat": 20.19,
+   "lon": -100.87
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 29,
+   "nombre": "San Diego de La Unión",
+   "lat": 21.46,
+   "lon": -100.87
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 30,
+   "nombre": "San Felipe",
+   "lat": 21.48,
+   "lon": -101.22
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 31,
+   "nombre": "San Francisco del Rincón",
+   "lat": 20.92,
+   "lon": -101.8
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 32,
+   "nombre": "San José Iturbide",
+   "lat": 21,
+   "lon": -100.38
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 33,
+   "nombre": "San Luis de La Paz",
+   "lat": 21.38,
+   "lon": -100.48
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 34,
+   "nombre": "Santa Catarina",
+   "lat": 21.14,
+   "lon": -100.07
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 35,
+   "nombre": "Santa Cruz de Juventino Rosas",
+   "lat": 20.68,
+   "lon": -100.96
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 36,
+   "nombre": "Santiago Maravatío",
+   "lat": 20.16,
+   "lon": -100.98
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 37,
+   "nombre": "Silao de La Victoria",
+   "lat": 20.98,
+   "lon": -101.45
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 38,
+   "nombre": "Tarandacuao",
+   "lat": 20,
+   "lon": -100.53
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 39,
+   "nombre": "Tarimoro",
+   "lat": 20.29,
+   "lon": -100.75
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 40,
+   "nombre": "Tierra Blanca",
+   "lat": 21.04,
+   "lon": -100.14
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 41,
+   "nombre": "Uriangato",
+   "lat": 20.12,
+   "lon": -101.14
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 42,
+   "nombre": "Valle de Santiago",
+   "lat": 20.39,
+   "lon": -101.19
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 43,
+   "nombre": "Victoria",
+   "lat": 21.39,
+   "lon": -100.24
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 44,
+   "nombre": "Villagrán",
+   "lat": 20.51,
+   "lon": -101
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 45,
+   "nombre": "Xichú",
+   "lat": 21.36,
+   "lon": -99.98
+  },
+  {
+   "estado": "Guanajuato",
+   "id": 46,
+   "nombre": "Yuriria",
+   "lat": 20.17,
+   "lon": -101.32
+  },
+  {
+   "estado": "Querétaro",
+   "id": 1,
+   "nombre": "Amealco de Bonfil",
+   "lat": 20.19,
+   "lon": -100.07
+  },
+  {
+   "estado": "Querétaro",
+   "id": 2,
+   "nombre": "Pinal de Amoles",
+   "lat": 21.17,
+   "lon": -99.62
+  },
+  {
+   "estado": "Querétaro",
+   "id": 3,
+   "nombre": "Arroyo Seco",
+   "lat": 21.43,
+   "lon": -99.67
+  },
+  {
+   "estado": "Querétaro",
+   "id": 4,
+   "nombre": "Cadereyta de Montes",
+   "lat": 20.79,
+   "lon": -99.67
+  },
+  {
+   "estado": "Querétaro",
+   "id": 5,
+   "nombre": "Colón",
+   "lat": 20.75,
+   "lon": -100.08
+  },
+  {
+   "estado": "Querétaro",
+   "id": 6,
+   "nombre": "Corregidora",
+   "lat": 20.48,
+   "lon": -100.44
+  },
+  {
+   "estado": "Querétaro",
+   "id": 7,
+   "nombre": "Ezequiel Montes",
+   "lat": 20.65,
+   "lon": -99.91
+  },
+  {
+   "estado": "Querétaro",
+   "id": 8,
+   "nombre": "Huimilpan",
+   "lat": 20.42,
+   "lon": -100.33
+  },
+  {
+   "estado": "Querétaro",
+   "id": 9,
+   "nombre": "Jalpan de Serra",
+   "lat": 21.38,
+   "lon": -99.33
+  },
+  {
+   "estado": "Querétaro",
+   "id": 10,
+   "nombre": "Landa de Matamoros",
+   "lat": 21.28,
+   "lon": -99.17
+  },
+  {
+   "estado": "Querétaro",
+   "id": 11,
+   "nombre": "El Marqués",
+   "lat": 20.74,
+   "lon": -100.28
+  },
+  {
+   "estado": "Querétaro",
+   "id": 12,
+   "nombre": "Pedro Escobedo",
+   "lat": 20.47,
+   "lon": -100.17
+  },
+  {
+   "estado": "Querétaro",
+   "id": 13,
+   "nombre": "Peñamiller",
+   "lat": 21.09,
+   "lon": -99.86
+  },
+  {
+   "estado": "Querétaro",
+   "id": 14,
+   "nombre": "Querétaro",
+   "lat": 20.59,
+   "lon": -100.39
+  },
+  {
+   "estado": "Querétaro",
+   "id": 15,
+   "nombre": "San Joaquín",
+   "lat": 21,
+   "lon": -99.49
+  },
+  {
+   "estado": "Querétaro",
+   "id": 16,
+   "nombre": "San Juan del Río",
+   "lat": 20.39,
+   "lon": -100.01
+  },
+  {
+   "estado": "Querétaro",
+   "id": 17,
+   "nombre": "Tequisquiapan",
+   "lat": 20.54,
+   "lon": -99.95
+  },
+  {
+   "estado": "Querétaro",
+   "id": 18,
+   "nombre": "Tolimán",
+   "lat": 20.91,
+   "lon": -99.98
+  }
+ ],
+ "fallos": []
+}
