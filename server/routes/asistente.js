@@ -204,7 +204,7 @@ async function resolver(req) {
 async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   const ctx = {};
   if (tema === 'fuera' && (hayHistorial || findLocal(pregunta).length)) return null; // seguimiento o tema de la base de conocimiento: // la base de conocimiento sí sabe de esto
-  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo'].includes(tema)) {
+  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales'].includes(tema)) {
     const { rows } = await getClimate(lat, lon);
     ctx.resumen = summarizeClimate(rows);
     ctx.clim = climatologia(rows);
@@ -227,7 +227,8 @@ async function conModelo({ ficha, pregunta, historial, contexto }, ask) {
   const result = await answer({ ficha, pregunta, historial, ask });
   // `base` dice de dónde sacó el modelo lo que dijo. Con la plantilla o con un "No tengo ese dato" no usó nada extra.
   const usedExtra = result.origen === 'llm' && !REFUSAL.test(result.respuesta);
-  return { ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [] };
+  const out = { ...result, base: usedExtra ? contexto.base : 'ficha', enlaces: usedExtra ? contexto.enlaces : [] };
+  return { ...out, proceso: buildProceso(out) };
 }
 
 router.post('/', async (req, res) => {

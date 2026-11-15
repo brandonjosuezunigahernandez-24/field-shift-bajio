@@ -4,6 +4,7 @@ import { MESES } from './climatologia.js';
 import { detectCrop } from './siap.js';
 import { isFollowUp } from './intencion.js';
 import { summarizeForecast } from './ficha.js';
+import { NO_ES, NO_VERIFICADO, fichaFrutal, topFrutales } from './frutales.js';
 
 const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const has = (re, q) => re.test(q);
@@ -29,6 +30,8 @@ const SIAP_PRECIO = /(se paga|vende|vender|venden|precio|pagan|pago por|valor de
 const SIAP_RINDE = /(rinde|rendimiento|cuanto saca|saca mi|toneladas|produce)/;
 const SIAP_RIESGO = /(riesgo|le va|riesgoso|pierde|perdida|siniestr|que tan seguro)/;
 const DENTRO = /(llu|llov|clima|tiempo|temperatura|suelo|tierra|parcela|terreno|campo|cultiv|siembr|sembr|cosech|plant|semilla|riego|regar|agua|plaga|sequi|seco|helad|calor|frio|humed|\bsol\b|solar|precio|vende|rinde|rendimiento|riesgo|fertiliz|abono|rotacion|invernadero|finca|milpa|huerto|agricol|verdura|fruta|hortaliza|\bph\b|arcilla|arena|\bmes\b|\bano\b|verano|invierno|hectarea|ayuda|que sabes|que puedes)/;
+// Frutales y perennes (el SIAP los trae aparte). "Fresa" y "aguacate" también salen en el resumen de cultivos y se siguen contestando ahí.
+const FRUTAL = /(frutal|\bfrutas?\b|esparrag|arandan|frambues|zarzamor|\btunas?\b|\buvas?\b|\bnuez|nueces|naranj|manzan|durazn|guayab|limon|nopal tunero)/;
 const CONCEPTO = /(para que sirve|que es\b|que son\b|como funciona|ayuda a|guard|retener|conservar)/;
 
 export function detectarTema(pregunta = '') {
@@ -36,6 +39,7 @@ export function detectarTema(pregunta = '') {
   if (!q.trim()) return null;
   if (has(PELIGRO, q)) return 'peligro';
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
+  if (has(FRUTAL, q) && !has(CONCEPTO, q)) return 'frutales';
   if (detectCrop(q) && (has(SIAP_PRECIO, q) || has(SIAP_RINDE, q) || has(SIAP_RIESGO, q))) return 'siap';
   if (has(CONCEPTO, q)) return null;
   if (has(PRON, q)) return 'pronostico';
@@ -66,6 +70,27 @@ const out = (respuesta, fuentes, datos) => ({ respuesta, fuentes, datos });
 const NOTA_HORA = 'son extremos de una hora del mes, no promedios del día';
 
 const REDACTORES = {
+  frutales: (q) => {
+    const estados = ['Guanajuato', 'Querétaro'];
+    const todos = estados.flatMap((e) => topFrutales(e, 50) ?? []);
+    if (!todos.length) return null;
+    const nombre = [...new Set(todos.map((f) => f.cultivo))].find((n) => {
+      const k = strip(n);
+      return q.includes(k) || q.includes(k.replace(/s$/, ''));
+    });
+    const cierre = `${NO_ES[0].replace(/^No entra/, 'No entra')} Es una inversión alta y tarda años en producir. Los tiempos y costos no los tengo verificados: pregunta a INIFAP o a un técnico. [SIAP]`;
+    if (nombre) {
+      const f = fichaFrutal(nombre);
+      const frases = f.estados.map((x) => `${x.estado}: ${x.sembrada_ha_2024} ha en 2024, rinde ${x.rendimiento_2024} t/ha y ${x.riego_pct_2024} % es de riego`);
+      return out(`${cap(f.cultivo)}${f.tipo === 'hortaliza perenne' ? ' (hortaliza perenne)' : ''}. ${frases.join('. ')}. ${cierre}`, ['SIAP'], { f: f.estados, anio: 2024 });
+    }
+    const lista = estados.map((e) => {
+      const top = (topFrutales(e, 4) ?? []).map((x) => `${x.cultivo.toLowerCase()} (${Math.round(x.sembrada_ha_2024)} ha${x.tipo === 'hortaliza perenne' ? ', hortaliza perenne' : ''})`);
+      return `${e}: ${top.join(', ')}`;
+    });
+    return out(`Los frutales y perennes con más valor, según el SIAP: ${lista.join('. ')}. ${cierre}`, ['SIAP'], { todos });
+  },
+
   fuera: () => out('Solo contesto sobre tu parcela, el clima, el suelo y los cultivos. Pregúntame, por ejemplo, cuánto llueve, cuándo hay heladas o qué te conviene sembrar.', [], {}),
 
   peligro: () => out('No doy marcas, productos ni dosis de pesticidas o fertilizantes: una dosis equivocada daña el cultivo y la salud. Consulta a un técnico agrícola o a la oficina de sanidad vegetal de tu estado. Sí te ayudo con el clima, el suelo y qué sembrar.', [], {}),

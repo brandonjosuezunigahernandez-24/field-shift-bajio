@@ -29,7 +29,10 @@ export const TEMAS = [
     id: 'frutas', titulo: 'Frutas', icono: 'bi-apple',
     preguntas: ['¿A cuánto se vende el aguacate?', '¿Cuánto rinde la fresa?'],
   },
-  // shortcut: los frutales perennes (espárrago, arándano, tuna...) vienen en la rama agente/frutales; al unirla, ampliar esta lista.
+  {
+    id: 'frutales', titulo: 'Frutales y perennes', icono: 'bi-tree-fill',
+    preguntas: ['¿Qué frutales hay en mi estado?', '¿Cuánto rinde el espárrago?', '¿Qué se sabe de la uva?', '¿Qué hay de la tuna?'],
+  },
   {
     id: 'saber', titulo: 'Para entender mejor', icono: 'bi-lightbulb',
     preguntas: ['¿Para qué sirve la rotación de cultivos?', '¿Qué hace el frijol por el suelo?', '¿Qué ayuda a que el suelo guarde humedad?', '¿Para qué sirve un invernadero?'],
@@ -37,4 +40,4 @@ export const TEMAS = [
 ];
 
 export const NOTA_FUERA_DE_TEMA =
-  'Solo contesto sobre tu parcela, el clima, el suelo y los cultivos con datos del SIAP: granos (maíz, sorgo, frijol, trigo, cebada, garbanzo), verduras (brócoli, jitomate, papa, cebolla) y algunas frutas (fresa, aguacate), solo precios, rendimientos y pérdidas por estado. Cómo se cultivan no lo tengo verificado. No doy marcas ni dosis de productos.';
+  'Solo contesto sobre tu parcela, el clima, el suelo y los cultivos con datos del SIAP: granos (maíz, sorgo, frijol, trigo, cebada, garbanzo), verduras (brócoli, jitomate, papa, cebolla) y algunas frutas y perennes (fresa, aguacate, espárrago, uva, tuna…), solo superficie, precios, rendimientos y pérdidas por estado. Cómo se cultivan no lo tengo verificado. No doy marcas ni dosis de productos.';
