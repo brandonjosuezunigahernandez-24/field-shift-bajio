@@ -23,9 +23,35 @@ function Numero({ q, valor, onSet }) {
   );
 }
 
-// Formulario del perfil armado con GET /api/perfil/preguntas (el servidor decide qué hay y qué opciones tiene).
-export default function PerfilForm() {
-  const { perfil, setPerfilCampo, parcelas, clima } = useParcelaContext();
+// Una pregunta del perfil con sus opciones (o su número) y el porqué. La usan PerfilForm y las tarjetas de «3. Análisis IA».
+export function PreguntaPerfil({ q }) {
+  const { perfil, setPerfilCampo, clima } = useParcelaContext();
+  return (
+    <div className="pf-q">
+      <p className="fs-q" id={`pf-${q.campo}`}>{q.pregunta}</p>
+      {q.tipo === 'numero' ? (
+        <Numero q={q} valor={perfil[q.campo]} onSet={(v) => setPerfilCampo(q.campo, v)} />
+      ) : (
+        <div className="pf-opts" role="radiogroup" aria-labelledby={`pf-${q.campo}`}>
+          {q.opciones.map((o) => {
+            const on = o.valor === 'no_se' ? perfil[q.campo] == null : perfil[q.campo] === o.valor;
+            return <button key={o.valor} type="button" className="pf-opt" aria-pressed={on} onClick={() => setPerfilCampo(q.campo, o.valor)}>{o.texto}</button>;
+          })}
+        </div>
+      )}
+      {q.campo === 'estado' && perfil.estado && perfil.estado === clima?.data?.estado ? (
+        <small className="pf-porque">Lo elegimos solo, con la ubicación de tu parcela en el mapa (límites del INEGI).</small>
+      ) : (
+        q.porque && <small className="pf-porque">{q.porque}</small>
+      )}
+    </div>
+  );
+}
+
+// Las preguntas del perfil (GET /api/perfil/preguntas) que tocan según lo ya contestado, las básicas primero.
+// También copia al perfil las hectáreas dibujadas. -> { preguntas: [...] | null, basicas: cuántas son básicas, falla }
+export function usePreguntasPerfil() {
+  const { perfil, setPerfilCampo, parcelas } = useParcelaContext();
   const [preguntas, setPreguntas] = useState(null);
   const [falla, setFalla] = useState(false);
   const has = Math.round(parcelas.reduce((s, p) => s + (p.hectareas || 0), 0) * 100) / 100;
@@ -43,39 +69,29 @@ export default function PerfilForm() {
     ultimaSuma = has;
   }, [has, q0, setPerfilCampo]);
 
+  if (!preguntas) return { preguntas: null, falla };
+  const visibles = preguntas.filter((q) => !q.solo_si || Object.entries(q.solo_si).every(([k, v]) => perfil[k] === v));
+  const basicas = visibles.filter((q) => BASICAS.includes(q.campo));
+  return { preguntas: [...basicas, ...visibles.filter((q) => !BASICAS.includes(q.campo))], basicas: basicas.length, falla };
+}
+
+// Formulario del perfil completo, en una sola lista (lo usa «1. Parcela»).
+export default function PerfilForm() {
+  const { preguntas, basicas, falla } = usePreguntasPerfil();
+
   if (falla) return <p className="fs-note" role="alert">No pude cargar las preguntas. Revisa que el servidor esté encendido.</p>;
   if (!preguntas) return <p className="fs-note">Cargando preguntas…</p>;
 
-  const visibles = preguntas.filter((q) => !q.solo_si || Object.entries(q.solo_si).every(([k, v]) => perfil[k] === v));
   const grupo = (lista, titulo) => lista.length > 0 && (
     <div className="pf-grupo">
       <h3 className="pf-titulo">{titulo}</h3>
-      {lista.map((q) => (
-        <div key={q.campo} className="pf-q">
-          <p className="fs-q" id={`pf-${q.campo}`}>{q.pregunta}</p>
-          {q.tipo === 'numero' ? (
-            <Numero q={q} valor={perfil[q.campo]} onSet={(v) => setPerfilCampo(q.campo, v)} />
-          ) : (
-            <div className="pf-opts" role="radiogroup" aria-labelledby={`pf-${q.campo}`}>
-              {q.opciones.map((o) => {
-                const on = o.valor === 'no_se' ? perfil[q.campo] == null : perfil[q.campo] === o.valor;
-                return <button key={o.valor} type="button" className="pf-opt" aria-pressed={on} onClick={() => setPerfilCampo(q.campo, o.valor)}>{o.texto}</button>;
-              })}
-            </div>
-          )}
-          {q.campo === 'estado' && perfil.estado && perfil.estado === clima?.data?.estado ? (
-            <small className="pf-porque">Lo elegimos solo, con la ubicación de tu parcela en el mapa (límites del INEGI).</small>
-          ) : (
-            q.porque && <small className="pf-porque">{q.porque}</small>
-          )}
-        </div>
-      ))}
+      {lista.map((q) => <PreguntaPerfil key={q.campo} q={q} />)}
     </div>
   );
   return (
     <div className="pf">
-      {grupo(visibles.filter((q) => BASICAS.includes(q.campo)), 'Lo básico')}
-      {grupo(visibles.filter((q) => !BASICAS.includes(q.campo)), 'Cuéntame más')}
+      {grupo(preguntas.slice(0, basicas), 'Lo básico')}
+      {grupo(preguntas.slice(basicas), 'Cuéntame más')}
     </div>
   );
 }

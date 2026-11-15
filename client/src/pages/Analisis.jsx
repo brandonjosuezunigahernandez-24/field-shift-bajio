@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
-import PerfilForm from '../components/PerfilForm.jsx';
+import PanelPasos from '../components/PanelPasos.jsx';
+import { PreguntaPerfil, usePreguntasPerfil } from '../components/PerfilForm.jsx';
 import RespuestaCard, { EstadoAsistente, preguntasSiguientes } from '../components/Respuesta.jsx';
 import Header from '../components/layout/Header.jsx';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
@@ -69,6 +70,7 @@ function Corroboracion({ c }) {
 
 const MESES = ['Ene', 'Feb', 'Mar', 'Abr', 'May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic'];
 const LLUVIAS = [6, 7, 8, 9]; // meses_pv del servidor: jun a sep
+const PRIMER_PERFIL = 2; // the right panel: 0 summary, 1 plan, then the profile questions
 
 
 // Pantalla 3: el asistente de verdad (modelo local). Todo lo que se ve sale de la respuesta del servidor o de los datos reales de la parcela.
@@ -81,6 +83,8 @@ export default function Analisis() {
   const { pregunta, seg, texto, setTexto, estado, grabando, preguntar, contestar, reintentar, microfono, r, pendiente } = useAsistente();
   const [temas, setTemas] = useState(null);
   const [tema, setTema] = useState(0);
+  const [activa, setActiva] = useState(0); // la única tarjeta del panel derecho que se ve
+  const { preguntas: preguntasPerfil, basicas, falla } = usePreguntasPerfil();
   const auto = useRef(false);
 
   useEffect(() => {
@@ -120,6 +124,17 @@ export default function Analisis() {
   const vistos = new Set(); // glosario de «Por qué esta respuesta»: cada palabra una vez
   const hayRiesgos = rec?.prediccion || finca || r?.corroboracion || modelo || rec?.notas?.length || finca?.notas?.length;
   const ha = has ? `${Math.round(has * 10) / 10} ha` : null;
+
+  // Right panel: the summary, the plan and then one profile question per card (Anterior / Siguiente).
+  const tarjetas = [
+    { id: 'resumen', titulo: 'Lo que sé de tu parcela' },
+    { id: 'plan', titulo: 'Cómo queda tu rotación' },
+    ...(preguntasPerfil
+      ? preguntasPerfil.map((q, i) => ({ id: 'perfil', q, titulo: i < basicas ? 'Lo básico de tu parcela' : 'Cuéntame más' }))
+      : [{ id: 'perfil', titulo: 'Lo que me has dicho' }]),
+  ];
+  const paso = Math.min(activa, tarjetas.length - 1); // some questions appear or go away with the answers
+  const tarjeta = tarjetas[paso];
 
   return (
     <>
@@ -266,12 +281,40 @@ export default function Analisis() {
             )}
           </div>
 
-          <aside className="fs-aside-col">
-            <section className="fs-card fs-side fs-up fs-d1" aria-labelledby="t-res">
-              <div>
-                <div className="fs-eyebrow">Resumen del análisis</div>
-                <h2 className="fs-card-title xs" id="t-res">Lo que sé de tu parcela</h2>
-              </div>
+          <aside className="fs-aside-col fs-up fs-d1" aria-label="Tu parcela, tu plan y lo que me has dicho">
+            <PanelPasos
+              lugar={<><i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {labels.lugar}</>}
+              accion={
+                tarjeta.id === 'perfil' && (
+                  <button type="button" className="fs-panel-link" onClick={() => { reiniciarPerfil(); setActiva(PRIMER_PERFIL); }}>
+                    Borrar mis respuestas
+                  </button>
+                )
+              }
+              paso={paso}
+              total={tarjetas.length}
+              titulo={tarjeta.titulo}
+              onAnterior={() => setActiva(paso - 1)}
+              onSiguiente={() => setActiva(paso + 1)}
+              final={
+                <button type="button" className="fs-btn fs-btn-primary" onClick={() => preguntar('¿Qué me conviene sembrar?')}>
+                  <i className="bi bi-chat-dots" aria-hidden="true"></i>¿Qué siembro?
+                </button>
+              }
+            >
+              {tarjetaCuerpo()}
+            </PanelPasos>
+          </aside>
+        </div>
+      </main>
+    </>
+  );
+
+  // The body of the card in sight: one at a time, like the panels of «1. Parcela» and «2. Simulador 3D».
+  function tarjetaCuerpo() {
+    if (tarjeta.id === 'resumen') {
+      return (
+        <>
               {r && (
                 <div className="an-datos">
                   <b>Datos usados</b>
@@ -288,13 +331,12 @@ export default function Analisis() {
                   ['Arcilla del suelo', suelo && !suelo.sin_datos && num(suelo.arcilla_pct) ? `${suelo.arcilla_pct} %` : '—'],
                 ].map(([k, v]) => <div key={k}><dt>{k}</dt><dd>{v}</dd></div>)}
               </dl>
-            </section>
-
-            <section className="fs-card fs-side fs-up fs-d2" aria-labelledby="t-plan">
-              <div>
-                <div className="fs-eyebrow">Tu plan</div>
-                <h2 className="fs-card-title xs" id="t-plan">Cómo queda tu rotación</h2>
-              </div>
+        </>
+      );
+    }
+    if (tarjeta.id === 'plan') {
+      return (
+        <>
               {rotacion.length ? (
                 <ul className="fs-planlist">
                   {rotacion.map((p) => (
@@ -302,25 +344,21 @@ export default function Analisis() {
                   ))}
                 </ul>
               ) : <p className="an-peq">Pregunta «¿Qué me conviene sembrar?» y aquí aparece tu rotación.</p>}
-              <Link className="fs-btn fs-btn-primary fs-btn-block" to="/rotacion">
+              <Link className="fs-btn fs-btn-sec fs-btn-block" to="/rotacion">
                 <i className="bi bi-arrow-left" aria-hidden="true"></i>Volver al simulador 3D
               </Link>
-            </section>
-
-            <section className="fs-card fs-side fs-up fs-d3" aria-labelledby="t-dicho">
-              <div>
-                <div className="fs-eyebrow">Tu perfil</div>
-                <h2 className="fs-card-title xs" id="t-dicho">Lo que me has dicho</h2>
-              </div>
-              <p className="an-peq">Así no te lo vuelvo a preguntar. Se guarda solo en este navegador; no hay cuentas ni servidor de datos.</p>
-              <PerfilForm />
-              <button type="button" className="fs-btn fs-btn-sec fs-btn-block" onClick={reiniciarPerfil}>
-                <i className="bi bi-trash3" aria-hidden="true"></i>Borrar todo lo que me dijiste
-              </button>
-            </section>
-          </aside>
-        </div>
-      </main>
-    </>
-  );
+        </>
+      );
+    }
+    if (falla) return <p className="fs-note" role="alert">No pude cargar las preguntas. Revisa que el servidor esté encendido.</p>;
+    if (!tarjeta.q) return <p className="fs-note">Cargando preguntas…</p>;
+    return (
+      <>
+        {paso === PRIMER_PERFIL && (
+          <p className="an-peq">Así no te lo vuelvo a preguntar. Se guarda solo en este navegador; no hay cuentas ni servidor de datos.</p>
+        )}
+        <PreguntaPerfil q={tarjeta.q} />
+      </>
+    );
+  }
 }

@@ -6,6 +6,10 @@
 .fs-an .fs-btn:focus-visible { outline: 3px solid var(--fs-g400); outline-offset: 2px; }
 .an-mic.rec { background: #b3261e; border-color: #b3261e; color: #fff; } /* grabando: rojo y con texto, no solo color */
 .an-mic.rec:hover { color: #fff; }
+/* Panel derecho (PanelPasos): una tarjeta a la vez. En escritorio cabe en la pantalla y su contenido se desliza por dentro;
+   en celular va debajo de la conversación, así que sus botones no se fijan al pie como en «1. Parcela». */
+@media (min-width: 992px) { .fs-an .fs-panel { max-height: calc(100dvh - 120px); } }
+@media (max-width: 899.98px) { .fs-an .fs-panel-nav { position: static; box-shadow: none; padding: 12px 20px; } }
 .an-qs { display: flex; flex-direction: column; gap: 8px; }
 .an-qs .fs-btn { justify-content: flex-start; text-align: left; padding: 10px 16px; line-height: 1.35; }
 .an-texto { font-size: 18px; line-height: 1.55; margin: 6px 0 0; }
