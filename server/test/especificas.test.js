@@ -113,7 +113,7 @@ test('"me dieron 1.2 t" sin decir el cultivo usa el cultivo actual (maíz), no s
 });
 
 test('lectura fácil: precios con comas y sin "Primavera-Verano"; cosecha con el mes de siembra', async () => {
-  assert.equal(claro('$16463 pesos por tonelada (Primavera-Verano)'), '$16,463 por tonelada (temporada de lluvias)');
+  assert.equal(claro('$16463 pesos por tonelada (Primavera-Verano)'), '$16,463 por tonelada (Temporada de lluvias)');
   const { redactarMaiz } = await import('../llm/maiz.js');
   assert.match(redactarMaiz('ciclo', 'cuando levanto el maiz si lo sembre en junio', { estado: 'Guanajuato', perfil: {} }).respuesta, /entre octubre y diciembre/);
 });
