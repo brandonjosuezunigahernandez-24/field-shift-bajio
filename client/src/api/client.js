@@ -46,3 +46,21 @@ export const postVoz = (samples) =>
 
 // Preguntas del perfil (agua, prioridad, hectareas...): el servidor decide cuales hay y que opciones tienen.
 export const getPerfilPreguntas = () => request('/api/perfil/preguntas');
+
+// «¿Te sirvió?»: sin coordenadas ni perfil. Si no llega, se guarda en el navegador y se reintenta con el siguiente voto.
+const COLA = 'retro-pendientes';
+const leerCola = () => { try { return JSON.parse(localStorage.getItem(COLA)) ?? []; } catch { return []; } };
+const guardarCola = (c) => { try { localStorage.setItem(COLA, JSON.stringify(c.slice(-20))); } catch { /* sin almacenamiento: se pierde */ } };
+export async function postRetro(voto) {
+  const cola = [...leerCola(), voto];
+  const quedan = [];
+  for (const v of cola) {
+    try {
+      await request('/api/retroalimentacion', { method: 'POST', headers: { 'content-type': 'application/json' }, body: JSON.stringify(v) });
+    } catch {
+      quedan.push(v);
+    }
+  }
+  guardarCola(quedan);
+  return quedan.length === 0;
+}

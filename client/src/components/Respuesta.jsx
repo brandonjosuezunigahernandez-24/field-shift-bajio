@@ -1,6 +1,7 @@
 import { Children, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Graficas from './Graficas.jsx';
+import Retro from './Retro.jsx';
 import { copyText, toast } from '../lib/fs.js';
 
 // Tarjeta de respuesta compartida por Análisis IA y el botón flotante. Orden: respuesta corta → Qué hacer →
@@ -167,6 +168,8 @@ export default function RespuestaCard({ r, pregunta, seg, pendiente, contestar, 
           </div>
         </section>
       )}
+
+      {!ejemplo && !r.preguntar && <Retro key={r.respuesta} r={r} pregunta={pregunta} />}
 
       <button type="button" className="rc-copiar" onClick={() => copyText(texto, () => toast('Respuesta copiada'), () => toast('No se pudo copiar'))}>
         <i className="bi bi-clipboard" aria-hidden="true"></i> Copiar respuesta
