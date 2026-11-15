@@ -15,6 +15,7 @@ import { WEATHER_OPTIONS, weatherScene } from '../weather.js';
 import { YearControl } from '../year.jsx';
 import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
 import { createCropLayer } from './cropLayer.js';
+import { DEFAULT_TOLERANCE, detectParcelAt } from './detectTiles.js';
 import FarmSummary from './FarmSummary.jsx';
 import { ensurePattern } from './patterns.js';
 import {
@@ -57,6 +58,10 @@ export const IMAGERY = {
   claro: { label: 'Sin nubes', note: 'imagen más clara, carga un poco más lento' },
   rapido: { label: 'Más rápida', note: 'carga más rápido, puede tener nubes' },
 };
+const IMAGERY_TILES = {
+  claro: 'https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+  rapido: 'https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}',
+};
 const CLARITY_ERRORS_BEFORE_FALLBACK = 6;
 const ESRI_CREDIT = 'Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS';
 
@@ -97,7 +102,7 @@ const buildStyle = (imagery, view) => ({
   sources: {
     claro: {
       type: 'raster',
-      tiles: ['https://clarity.maptiles.arcgis.com/arcgis/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      tiles: [IMAGERY_TILES.claro],
       tileSize: 256,
       // Clarity has no tiles past z17 in the Bajío (404). Above it MapLibre enlarges the z17 tile.
       maxzoom: 17,
@@ -105,7 +110,7 @@ const buildStyle = (imagery, view) => ({
     },
     rapido: {
       type: 'raster',
-      tiles: ['https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}'],
+      tiles: [IMAGERY_TILES.rapido],
       tileSize: 256,
       // At z19 rural Bajío gets Esri's gray "Map data not yet available" tile: stop at z18.
       maxzoom: 18,
@@ -296,6 +301,13 @@ export default function ParcelMap({
   const [weatherChoice, setWeatherChoice] = useState(() => saved('fieldshift.clima', weatherIds, 'auto'));
   const [onScreen, setOnScreen] = useState(true);
   const [closeUp, setCloseUp] = useState(false); // zoomed in enough for the detailed crop models
+  // "Detectar con un toque": the next tap analyzes the photo instead of adding a corner.
+  const [detectMode, setDetectMode] = useState(false);
+  const [detecting, setDetecting] = useState(false);
+  const [detected, setDetected] = useState(null); // { lon, lat, tolerance } of the last detection
+  const detectModeRef = useRef(false);
+  detectModeRef.current = detectMode;
+  const runDetectionRef = useRef(null);
   const shown = editingId === null ? parcelas : parcelas.filter((p) => p.id !== editingId);
   const yearNow = yearState(clima, year?.anio ?? null);
   // Weather drawn over the map: from the real year ("auto") or picked by hand (marked as example).
@@ -398,6 +410,10 @@ export default function ParcelMap({
       if (map.getZoom() < MIN_DRAW_ZOOM) {
         setHint('Te acercamos para que marques las esquinas con precisión.');
         map.flyTo({ center: event.lngLat, zoom: 15.5, duration: reducedMotion() ? 0 : 1500 });
+        return;
+      }
+      if (detectModeRef.current) {
+        runDetectionRef.current?.(event.lngLat.lng, event.lngLat.lat, DEFAULT_TOLERANCE);
         return;
       }
       setHint(null);
@@ -577,6 +593,8 @@ export default function ParcelMap({
 
   // Saving tilts the map so the farmer sees the new parcel rise as a block of land.
   const finish = () => {
+    setDetectMode(false);
+    setDetected(null);
     if (editingId !== null) onUpdateParcela(editingId, corners);
     else onAddParcela(corners);
     setEditingId(null);
@@ -601,6 +619,31 @@ export default function ParcelMap({
     setDrawing(false);
     setHint(null);
   };
+
+  // Finds the parcel around a tap, with roads, tracks and ridges as its limits (detect.js).
+  // The result becomes ordinary numbered corners: the farmer checks it and can drag any of them.
+  const runDetection = async (lon, lat, tolerance) => {
+    setDetecting(true);
+    setHint('Analizando la imagen alrededor de tu toque…');
+    const result = await detectParcelAt({ lon, lat, imageryUrl: IMAGERY_TILES[imageryRef.current], tolerance });
+    setDetecting(false);
+    if (!result.ok) {
+      setHint(result.message);
+      return;
+    }
+    setDetectMode(false);
+    setDetected({ lon, lat, tolerance });
+    setCorners(result.corners);
+    // Close in on the outline so the numbered corners can be checked and dragged.
+    mapRef.current?.fitBounds(bounds(result.corners), { padding: 70, maxZoom: 17, duration: reducedMotion() ? 0 : 900 });
+    setHint(
+      result.leaked
+        ? 'La parcela llegó a la orilla de la zona que analizamos: quizá se pasó. Prueba «Más chica» o arrastra los números.'
+        : 'Listo: seguimos los caminos y bordos alrededor de tu toque. Revisa el contorno; puedes arrastrar los números o usar «Más chica» y «Más grande».'
+    );
+  };
+  runDetectionRef.current = runDetection;
+  const resize = (factor) => detected && runDetection(detected.lon, detected.lat, Math.min(120, Math.max(8, detected.tolerance * factor)));
 
   // "Corregir": the saved corners come back as draggable numbers, seen from above.
   const startEditing = (parcela) => {
@@ -800,6 +843,36 @@ export default function ParcelMap({
                 {overlapping.join(' y ')}. Si no es a propósito, usa «Deshacer esquina» y corrígela.
               </p>
             )}
+            <div className="detect-tools">
+              <div className="button-row">
+                <button
+                  type="button"
+                  className={detectMode ? undefined : 'secondary'}
+                  disabled={detecting}
+                  aria-pressed={detectMode}
+                  onClick={() => {
+                    setDetectMode(!detectMode);
+                    setHint(detectMode ? null : 'Toca dentro de tu parcela y la marcamos siguiendo los caminos y bordos que la rodean.');
+                  }}
+                >
+                  {detecting ? 'Analizando…' : detectMode ? 'Toca dentro de tu parcela' : 'Detectar con un toque'}
+                </button>
+                {detected && corners.length >= 3 && (
+                  <>
+                    <button type="button" className="secondary" disabled={detecting} onClick={() => resize(0.75)}>
+                      Más chica
+                    </button>
+                    <button type="button" className="secondary" disabled={detecting} onClick={() => resize(1.35)}>
+                      Más grande
+                    </button>
+                  </>
+                )}
+              </div>
+              <p className="hint">
+                La app mira la foto satelital y usa los caminos, brechas y bordos como orillas. Es una ayuda: revisa
+                siempre el contorno antes de guardarlo.
+              </p>
+            </div>
             {CAN_LOCATE ? (
               <div className="gps-tools">
                 <div className="button-row">

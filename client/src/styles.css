@@ -1023,3 +1023,16 @@ button:disabled {
     animation: none !important;
   }
 }
+
+/* "Detectar con un toque" */
+.detect-tools {
+  margin: 4px 0 10px;
+  padding: 10px 12px;
+  border-left: 4px solid var(--sun);
+  background: #fff8e4;
+  border-radius: 6px;
+}
+
+.detect-tools .hint {
+  margin: 6px 0 0;
+}
