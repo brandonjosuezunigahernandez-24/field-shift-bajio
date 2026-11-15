@@ -1,0 +1,362 @@
+{
+ "estado": "Querétaro",
+ "fecha": "2026-11-15",
+ "fuente": "SIAP municipal 2018-2024 (temporal, primavera-verano) + NASA POWER mensual",
+ "lambda": 10,
+ "minSembradaHa": 50,
+ "cultivos": {
+  "maiz": {
+   "filas": 126,
+   "municipios": 18,
+   "objetivos": {
+    "siniestro": {
+     "features": [
+      "ratio",
+      "t_pv",
+      "lluvia_pv"
+     ],
+     "conjunto": "ratio_t_mm/estado",
+     "modo": "estado",
+     "ridge": {
+      "mean": [
+       0.872,
+       19.943,
+       437.753
+      ],
+      "sd": [
+       0.282,
+       2.008,
+       152.796
+      ],
+      "coef": [
+       -9.493,
+       7.231,
+       -7.306
+      ]
+     },
+     "baseEstado": 24.913,
+     "baseMunicipio": {},
+     "terciles": [
+      0,
+      34.442
+     ],
+     "corr_ratio_objetivo": -0.628,
+     "validacion": {
+      "holdout_2023_2024": {
+       "linea_base": {
+        "mae": 31.822,
+        "r2": -0.159,
+        "n": 36
+       },
+       "modelo": {
+        "mae": 21.765,
+        "r2": 0.515,
+        "n": 36
+       },
+       "mejora_mae_pct": 31.604
+      },
+      "leave_one_year_out": {
+       "linea_base": {
+        "mae": 30.408,
+        "r2": -0.258,
+        "n": 126
+       },
+       "modelo": {
+        "mae": 21.582,
+        "r2": 0.34,
+        "n": 126
+       },
+       "mejora_mae_pct": 29.025
+      },
+      "mejora_mae_pct_loyo_por_conjunto": {
+       "ratio/municipio": 19.143,
+       "ratio/estado": 24.859,
+       "ratio_t/municipio": 19.742,
+       "ratio_t/estado": 28.552,
+       "ratio_t_mm/municipio": 20.735,
+       "ratio_t_mm/estado": 29.025,
+       "meses/municipio": 18.873,
+       "meses/estado": 26.046
+      }
+     },
+     "supera_linea_base": true
+    },
+    "rendimiento": {
+     "features": [
+      "ratio",
+      "t_pv"
+     ],
+     "conjunto": "ratio_t/municipio",
+     "modo": "municipio",
+     "ridge": {
+      "mean": [
+       0.874,
+       19.921
+      ],
+      "sd": [
+       0.283,
+       2
+      ],
+      "coef": [
+       0.028,
+       0.021
+      ]
+     },
+     "baseEstado": 0.846,
+     "baseMunicipio": {
+      "1": 1.561,
+      "2": 0.784,
+      "3": 0.72,
+      "4": 0.501,
+      "5": 0.887,
+      "6": 0.797,
+      "7": 0.66,
+      "8": 0.887,
+      "9": 0.697,
+      "10": 0.739,
+      "11": 0.729,
+      "12": 1.417,
+      "13": 0.476,
+      "14": 0.787,
+      "15": 0.884,
+      "16": 1.221,
+      "17": 0.976,
+      "18": 0.48
+     },
+     "terciles": [
+      0.63,
+      0.9
+     ],
+     "corr_ratio_objetivo": 0.117,
+     "validacion": {
+      "holdout_2023_2024": {
+       "linea_base": {
+        "mae": 0.196,
+        "r2": 0.666,
+        "n": 36
+       },
+       "modelo": {
+        "mae": 0.208,
+        "r2": 0.548,
+        "n": 36
+       },
+       "mejora_mae_pct": -6.122
+      },
+      "leave_one_year_out": {
+       "linea_base": {
+        "mae": 0.211,
+        "r2": 0.415,
+        "n": 125
+       },
+       "modelo": {
+        "mae": 0.221,
+        "r2": 0.367,
+        "n": 125
+       },
+       "mejora_mae_pct": -4.739
+      },
+      "mejora_mae_pct_loyo_por_conjunto": {
+       "ratio/municipio": -5.687,
+       "ratio/estado": -46.445,
+       "ratio_t/municipio": -4.739,
+       "ratio_t/estado": -49.289,
+       "ratio_t_mm/municipio": -5.213,
+       "ratio_t_mm/estado": -48.341,
+       "meses/municipio": -33.175,
+       "meses/estado": -65.877
+      }
+     },
+     "supera_linea_base": false
+    }
+   }
+  },
+  "frijol": {
+   "filas": 69,
+   "municipios": 12,
+   "objetivos": {
+    "siniestro": {
+     "features": [
+      "ratio",
+      "t_pv"
+     ],
+     "conjunto": "ratio_t/municipio",
+     "modo": "municipio",
+     "ridge": {
+      "mean": [
+       0.882,
+       19.361
+      ],
+      "sd": [
+       0.268,
+       1.124
+      ],
+      "coef": [
+       -6.449,
+       9.858
+      ]
+     },
+     "baseEstado": 26.996,
+     "baseMunicipio": {
+      "2": 0,
+      "4": 24.021,
+      "5": 24.563,
+      "6": 39.917,
+      "7": 25.742,
+      "8": 58.586,
+      "11": 35.308,
+      "13": 23.224,
+      "14": 33.595,
+      "16": 12.5,
+      "17": 3.611,
+      "18": 31.121
+     },
+     "terciles": [
+      0,
+      42.871
+     ],
+     "corr_ratio_objetivo": -0.38,
+     "validacion": {
+      "holdout_2023_2024": {
+       "linea_base": {
+        "mae": 46.92,
+        "r2": -6.002,
+        "n": 18
+       },
+       "modelo": {
+        "mae": 48.978,
+        "r2": -5.664,
+        "n": 18
+       },
+       "mejora_mae_pct": -4.386
+      },
+      "leave_one_year_out": {
+       "linea_base": {
+        "mae": 30.266,
+        "r2": -0.188,
+        "n": 69
+       },
+       "modelo": {
+        "mae": 31.086,
+        "r2": -0.26,
+        "n": 69
+       },
+       "mejora_mae_pct": -2.709
+      },
+      "mejora_mae_pct_loyo_por_conjunto": {
+       "ratio/municipio": -9.568,
+       "ratio/estado": -22.947,
+       "ratio_t/municipio": -2.709,
+       "ratio_t/estado": -10.219,
+       "ratio_t_mm/municipio": -3.317,
+       "ratio_t_mm/estado": -11.029,
+       "meses/municipio": -16.186,
+       "meses/estado": -29.006
+      }
+     },
+     "supera_linea_base": false
+    },
+    "rendimiento": {
+     "features": [
+      "ratio",
+      "t_pv",
+      "lluvia_jun",
+      "lluvia_jul",
+      "lluvia_ago",
+      "lluvia_sep",
+      "suelo_pv"
+     ],
+     "conjunto": "meses/municipio",
+     "modo": "municipio",
+     "ridge": {
+      "mean": [
+       0.882,
+       19.361,
+       114.9,
+       96.239,
+       100.728,
+       104.822,
+       0.518
+      ],
+      "sd": [
+       0.268,
+       1.124,
+       62.992,
+       47.91,
+       32.042,
+       49.687,
+       0.073
+      ],
+      "coef": [
+       0.035,
+       0,
+       0.01,
+       0.001,
+       0.024,
+       -0.012,
+       -0.003
+      ]
+     },
+     "baseEstado": 0.441,
+     "baseMunicipio": {
+      "2": 0.253,
+      "4": 0.35,
+      "5": 0.576,
+      "6": 0.548,
+      "7": 0.417,
+      "8": 0.513,
+      "11": 0.413,
+      "13": 0.289,
+      "14": 0.404,
+      "16": 0.825,
+      "17": 0.6,
+      "18": 0.289
+     },
+     "terciles": [
+      0.34,
+      0.48
+     ],
+     "corr_ratio_objetivo": 0.272,
+     "validacion": {
+      "holdout_2023_2024": {
+       "linea_base": {
+        "mae": 0.074,
+        "r2": -0.15,
+        "n": 18
+       },
+       "modelo": {
+        "mae": 0.148,
+        "r2": -1.11,
+        "n": 18
+       },
+       "mejora_mae_pct": -100
+      },
+      "leave_one_year_out": {
+       "linea_base": {
+        "mae": 0.125,
+        "r2": 0.216,
+        "n": 69
+       },
+       "modelo": {
+        "mae": 0.129,
+        "r2": 0.167,
+        "n": 69
+       },
+       "mejora_mae_pct": -3.2
+      },
+      "mejora_mae_pct_loyo_por_conjunto": {
+       "ratio/municipio": -4,
+       "ratio/estado": -16.8,
+       "ratio_t/municipio": -8,
+       "ratio_t/estado": -24.8,
+       "ratio_t_mm/municipio": -8,
+       "ratio_t_mm/estado": -25.6,
+       "meses/municipio": -3.2,
+       "meses/estado": -14.4
+      }
+     },
+     "supera_linea_base": false
+    }
+   }
+  }
+ }
+}
