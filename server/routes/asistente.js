@@ -142,7 +142,7 @@ async function resolver(req) {
     const h = await porPlantilla('heladas', pregunta, lat, lon, false, perfil); // las heladas son del clima (NASA), no del modelo de lluvia
     if (h) return res.json(h);
   }
-  if (pregunta && esMaiz(pregunta) && !['peligro', 'insumos', 'apoyos', 'credito'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
+  if (pregunta && esMaiz(pregunta) && !['peligro', 'insumos', 'apoyos', 'credito', 'tarjeta'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
     const id = idMaiz;
     const extra = extraPerfil(req.body.perfil);
     const ha = perfil.hectareas ?? (parcelas.length >= 2 && parcelas.every((p) => p.hectareas) ? parcelas.reduce((t, p) => t + p.hectareas, 0) : undefined);
@@ -204,7 +204,7 @@ async function resolver(req) {
     });
   }
   // Riesgo del maíz según la lluvia: lo calcula el modelo entrenado y lo redacta el código (el modelo de lenguaje no toca estos números).
-  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta)) && !['apoyos', 'credito'].includes(temaPrev)) {
+  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta)) && !['apoyos', 'credito', 'tarjeta'].includes(temaPrev)) {
     try {
       const { rows: filas } = await getClimate(lat, lon);
       const riesgo = riesgoPorEscenarios({ estado, cultivo: 'maiz', clima: summarizeClimate(filas) });
@@ -220,7 +220,7 @@ async function resolver(req) {
 
 
   // Preguntas frecuentes: las contesta el código con plantilla y cita puesta por él (sin modelo, sin Wikipedia).
-  const tema = ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
+  const tema = temaPrev === 'tarjeta' ? null : ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
   const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
   if (plantilla) return res.json(plantilla);
   // Confianza baja y nada que la respalde: decirlo y sugerir 3 preguntas que sí sabe (solo si la validación lo aprobó: modelo.negar).

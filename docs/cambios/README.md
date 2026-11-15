@@ -48,3 +48,7 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | [33](33-pruebas-conversacion-y-entrenamiento.md) | Pruebas con 2 parcelas delimitadas y perfil lleno: bien contestadas 76 % → 96 %; reentrenamiento | Hecho |
 | [34](34-modelo-offline-mejorado.md) | Modelo offline (Gemma) mejorado: útil 44 % → 82 %, 3.4 s → 1.9 s; modo en línea solo diseñado | Hecho |
 | 35 | Rediseño del chat: respuesta grande, «Escuchar», «Qué hacer», datos plegables. Doc en la rama `integracion/todo` | Hecho |
+| [36](36-preguntas-especificas.md) | 135 preguntas específicas y lenguaje sencillo: prueba 63 % → 80 %; «t/ha» sin explicar 121 → 0 | Hecho |
+| [37](37-retroalimentacion.md) | «¿Te sirvió?» 👍/👎, de los votos al entrenamiento (con confirmación humana) y juez automático | Hecho |
+| [38](38-tarjetas-y-modelo.md) | 32 tarjetas de conocimiento con fuente; el modelo ya no se niega (17 → 2); prueba 7 % → 50 % | Hecho |
+| 39 | Lectura fácil en pantalla: número grande, glosario al tocar, gráficas con pregunta. Doc en la rama `integracion/todo` | Hecho |

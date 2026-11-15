@@ -52,3 +52,9 @@ test('el precio de la nuez no sugiere vender maíz en acopio', async () => {
   const b = await ask('¿Cómo ha cambiado el precio de la nuez?');
   assert.ok(!b.que_hacer.some((a) => /maíz|frijol/.test(a.accion)));
 });
+
+test('temas con tarjeta (gorgojo, cosecha de agua, canícula, Monitor de Sequía) van al modelo con su tarjeta, no a otra plantilla', async () => {
+  const { detectarTema } = await import('../llm/respuestas.js');
+  for (const q of ['¿Cómo evito el gorgojo en el maíz guardado?', '¿Cómo hago una cosecha de agua?', '¿Qué hago en la canícula?', '¿Cómo leo el Monitor de Sequía?']) assert.equal(detectarTema(q), 'tarjeta', q);
+  assert.notEqual(detectarTema('¿Cuáles fueron los años secos?'), 'tarjeta');
+});

@@ -48,6 +48,8 @@ export function detectarTema(pregunta = '') {
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
   if (has(CREDITO, q)) return 'credito';
   if (has(APOYOS, q)) return 'apoyos';
+  // Temas que tienen tarjeta verificada (data/conocimiento.json) y ninguna plantilla los contesta: van al modelo con su tarjeta.
+  if (/canicula|cosecha de agua|captar (el )?agua|bordo|gorgojo|palomilla|grano guardado|maiz guardado|guardar (el )?(grano|maiz|frijol)|silo|monitor de sequia|milpa|crioll|curvas? de nivel|abono verde|gallina ciega/.test(q)) return 'tarjeta';
   if (detectarAptitud(q)) return 'aptitud'; // ¿se da aquí? (llm/aptitud.js)
   if (detectarDesglose(q)) return 'desglose'; // superficie, riego, municipios, pérdidas... de una fruta o verdura (llm/desglose.js)
   if (has(FRUTAL, q) && !has(CONCEPTO, q)) return 'frutales';
