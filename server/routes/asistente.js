@@ -7,6 +7,7 @@ import { getForecast } from '../sources/openMeteo.js';
 import { findContext } from '../llm/contexto.js';
 import { cropFacts, detectCrop, loadSiap } from '../llm/siap.js';
 import { riesgoPorEscenarios } from '../llm/riesgo-clima.js';
+import { buildProceso } from '../llm/proceso.js';
 import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
@@ -74,6 +75,10 @@ router.get('/temas', (req, res) => res.json({ temas: TEMAS, nota: NOTA_FUERA_DE_
 router.post('/', async (req, res) => {
   const { lat, lon } = parseCoords(req.body);
   const { pregunta, costos } = req.body;
+  // Cada respuesta lleva `proceso`: los pasos reales que se siguieron (para la pantalla "Cómo llegó a la respuesta").
+  const info = {};
+  const sendJson = res.json.bind(res);
+  res.json = (body) => sendJson(body && typeof body === 'object' && !Array.isArray(body) ? { ...body, proceso: buildProceso(body, info) } : body);
   if (pregunta != null && (typeof pregunta !== 'string' || pregunta.length > MAX_QUESTION)) {
     throw new HttpError(400, `La pregunta debe ser texto de máximo ${MAX_QUESTION} letras.`);
   }
