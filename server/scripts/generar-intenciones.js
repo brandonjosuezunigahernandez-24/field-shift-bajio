@@ -49,7 +49,7 @@ export function generar(texto) {
     const nPrueba = Math.max(1, Math.round(todos.filter((x) => !x.g.retro).length * 0.3));
     orden.forEach(({ g, i }, k) => {
       const set = k < nPrueba && !g.retro ? 'prueba' : 'entrena';
-      for (const pregunta of g.frases) preguntas.push({ id: ++id, grupo: `${intencion}-${i + 1}`, set, intencion, pregunta });
+      for (const pregunta of g.frases) preguntas.push({ id: ++id, grupo: `${intencion}-${i + 1}`, set, intencion, pregunta, ...(g.retro && { retro: true }) });
     });
   }
   return preguntas;

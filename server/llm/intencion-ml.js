@@ -5,7 +5,7 @@
 import { readFileSync } from 'node:fs';
 import { detectarTema } from './respuestas.js';
 import { esMaiz, intencionMaiz } from './maiz.js';
-import { isFollowUp, wantsRecommendation } from './intencion.js';
+import { esConcepto, isFollowUp, wantsRecommendation } from './intencion.js';
 import { detectCrop } from './siap.js';
 import { findLocal } from './contexto.js';
 
@@ -121,9 +121,11 @@ const cargar = () => (MODELO ??= JSON.parse(readFileSync(new URL('../data/modelo
 //   { intencion, confianza } -> el clasificador está seguro: contestar esa intención;
 //   { intencion: null, confianza, sugerencias } -> iba al modelo de lenguaje sin nada que lo respalde: decir "No tengo ese dato" y sugerir 3 preguntas.
 export function respaldo(pregunta, ruta = rutaPalabras(pregunta), modelo = cargar()) {
-  if (!noSabe(ruta) || isFollowUp(pregunta)) return null; // un seguimiento ("¿por qué sorgo?") lo contesta el modelo con la plática
+  // Un seguimiento ("¿por qué sorgo?") o una pregunta para entender ("¿qué es la rotación?") los contesta el modelo de lenguaje.
+  if (!noSabe(ruta) || isFollowUp(pregunta) || esConcepto(pregunta)) return null;
   const p = predecir(modelo, pregunta);
-  const ok = p.confianza >= modelo.umbral && !(ID_MAIZ[p.intencion] && !esMaiz(pregunta)); // las respuestas del maíz solo si la pregunta habla del maíz
+  // Sin ninguna palabra del campo (ruta "fuera"), cambiarla a un tema del campo pide más confianza ("como bajo de peso" -> precios).
+  const ok = p.confianza >= (ruta === 'fuera' ? Math.max(modelo.umbral, 0.7) : modelo.umbral) && !(ID_MAIZ[p.intencion] && !esMaiz(pregunta)); // las respuestas del maíz solo si la pregunta habla del maíz
   if (ok) {
     // "sin dato" no tiene respuesta propia, y "fuera de tema" no se dice si la base de conocimiento sí sabe del tema.
     if (destino(p.intencion) === ruta || p.intencion === 'sin_dato' || (p.intencion === 'fuera' && findLocal(pregunta).length)) return null;
