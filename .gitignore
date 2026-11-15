@@ -157,3 +157,6 @@ server/models/
 
 # CSV crudos del SIAP (varios MB cada uno)
 server/data/siap_raw/
+
+# Salida de scripts/probar-parcelas.js
+server/scripts/probar-parcelas.salida.json

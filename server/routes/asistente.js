@@ -97,6 +97,10 @@ router.post('/', async (req, res) => {
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
   if (pregunta && wantsRecommendation(pregunta)) {
+    // Los datos del SIAP son de Guanajuato y Querétaro: fuera de ahí (y sin estado dicho por el agricultor) no se recomienda.
+    if (!perfil.estado && (lat < 19.9 || lat > 21.9 || lon < -102.2 || lon > -99)) {
+      return res.json({ respuesta: 'Esta parcela está fuera de Guanajuato y Querétaro, y mis datos de cultivos (SIAP) son solo de esos dos estados, así que no te recomiendo cultivos aquí. Si de todos modos quieres verlos, dime de cuál de los dos estados quieres la referencia.', acciones: [], fuentes: [], verificado: true, origen: 'motor', base: 'ficha', enlaces: [] });
+    }
     if (!agua) return res.json(asking('agua'));
     if (!prioridad) return res.json(asking('prioridad'));
     // Dos o más parcelas dibujadas: se analizan juntas (el servidor reparte los cultivos del primer año).
