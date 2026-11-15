@@ -15,7 +15,8 @@ const ParcelMap = lazy(() => import('../map/ParcelMap.jsx'));
 const VER = { vista: 'relieve', nasa: null, lejos: false };
 // Cada tarjeta pone el mapa como le toca, igual que en «1. Parcela».
 const TARJETAS = [
-  { id: 'plan', titulo: 'Compara 3 rotaciones', escena: { ...VER, clima: 'apagado' } },
+  { id: 'plan', titulo: 'Tus 3 rotaciones', escena: { ...VER, clima: 'apagado' } },
+  { id: 'comparar', titulo: 'Compáralas lado a lado', escena: { ...VER, clima: 'apagado' } },
   { id: 'alcanzo', titulo: '¿Le hubiera alcanzado la lluvia?', escena: { ...VER, clima: 'anio' } },
   { id: 'lluvia', titulo: 'La lluvia de 25 años', escena: { ...VER, clima: 'anio' } },
   { id: 'cultivos', titulo: 'Qué tan bien le va a cada cultivo', escena: { ...VER, clima: 'apagado' } },
@@ -103,6 +104,7 @@ export default function Rotacion() {
   const plan = estrategia?.rotacion ?? [];
   const pasoPlan = plan[Math.min(paso, plan.length - 1)];
   const nombre = (id) => (id ? rec?.cultivos.find((c) => c.id === id)?.nombre ?? CROP_NAMES[id] ?? id : 'Sin sembrar');
+  const corto = (id) => (id ? nombre(id).split(' ')[0] : 'Sin sembrar'); // "Maíz grano" -> "Maíz"
   const elegir = (id) => {
     setEstrategiaId(id);
     setPaso(0);
@@ -151,29 +153,26 @@ export default function Rotacion() {
         return (
           <>
             {estrategias.length > 1 && (
-              <div className="fs-estrategias" role="group" aria-label="Rotación que se ve en el mapa">
-                {estrategias.map((e) => (
-                  <button key={e.id} type="button" className="fs-estrategia" aria-pressed={e.id === estrategia.id} onClick={() => elegir(e.id)}>
-                    <span className="fs-estrategia-nombre">
-                      {e.nombre}
-                      {e.supuesto ? ' (supuesto)' : ''}
-                    </span>
-                    <span className="fs-estrategia-seq">{e.rotacion.map((s) => nombre(s.cultivo)).join(' → ')}</span>
-                    {e.resumen?.riesgo != null && (
-                      <span className="fs-estrategia-riesgo">
-                        Le falta lluvia en {pct(e.resumen.riesgo)} % de las temporadas
-                      </span>
-                    )}
-                  </button>
-                ))}
-              </div>
+              <>
+                <p className="fs-paso-guia">Toca una para verla en el mapa.</p>
+                <div className="fs-estrategias" role="radiogroup" aria-label="Rotación que se ve en el mapa">
+                  {estrategias.map((e) => {
+                    const on = e.id === estrategia.id;
+                    return (
+                      <button key={e.id} type="button" role="radio" aria-checked={on} className="fs-estrategia" onClick={() => elegir(e.id)}>
+                        <span className="fs-estrategia-nombre">
+                          <i className={`bi ${on ? 'bi-check-circle-fill' : 'bi-circle'}`} aria-hidden="true"></i>
+                          {e.nombre}
+                        </span>
+                        <span className="fs-estrategia-seq">{e.rotacion.map((s) => corto(s.cultivo)).join(' → ')}</span>
+                        {e.supuesto && <span className="fs-estrategia-nota">Supuesto: lo más sembrado aquí</span>}
+                      </button>
+                    );
+                  })}
+                </div>
+              </>
             )}
-            <ComparaRotaciones estrategias={estrategias} activa={estrategia.id} agua={agua} />
-            {estrategia.porque && (
-              <p>
-                <b>{estrategia.nombre}:</b> {estrategia.porque}
-              </p>
-            )}
+            {estrategia.porque && <p className="fs-estrategia-porque">{estrategia.porque}</p>}
             <div className="fs-years" role="group" aria-label="Año del plan">
               {plan.map((s, i) => (
                 <button key={`${s.anio}-${s.temporada}-${i}`} type="button" className="fs-year" aria-pressed={i === paso} onClick={() => setPaso(i)}>
@@ -195,14 +194,24 @@ export default function Rotacion() {
                 )}
               </>
             )}
-            <Lista titulo="Lo bueno de esta rotación" items={estrategia.beneficios} abierta />
-            <Lista titulo="Con qué datos lo sabemos" items={estrategia.evidencia} />
-            <Lista titulo="Qué no sabemos" items={estrategia.huecos} />
-            <Lista titulo="Revísalo con tu técnico" items={estrategia.revisar} />
+            <div className="fs-listas">
+              <Lista titulo="Lo bueno de esta rotación" items={estrategia.beneficios} />
+              <Lista titulo="Con qué datos lo sabemos" items={estrategia.evidencia} />
+              <Lista titulo="Qué no sabemos" items={estrategia.huecos} />
+              <Lista titulo="Revísalo con tu técnico" items={estrategia.revisar} />
+            </div>
             {!parcelas.length && <p className="fs-note">Dibuja tu parcela en «1. Parcela» para verla en el mapa con su cultivo.</p>}
           </>
         );
       }
+      case 'comparar':
+        if (!rec) return sinPlan();
+        return (
+          <>
+            <ComparaRotaciones estrategias={estrategias} activa={estrategia.id} agua={agua} />
+            <p className="fs-note">Para ver otra en verde y en el mapa, elígela en «Tus 3 rotaciones».</p>
+          </>
+        );
       case 'alcanzo': {
         if (!climaData) return <p className="fs-note">{clima?.error ?? 'Cargando 25 años de lluvia…'}</p>;
         const cultivos = [...new Set((parcelas.length ? parcelas.map((p) => p.cultivo) : [planCrop]).filter(Boolean))];
