@@ -4,7 +4,7 @@
     {
       "id": "maiz-siembra-humedad",
       "cultivos": ["maiz"],
-      "temas": ["siembra", "maiz-ciclo", "maiz-decision"],
+      "temas": ["siembra", "maiz-siembra", "maiz-ciclo", "maiz-decision"],
       "palabras": ["cuando siembr", "cuando sembrar", "fecha de siembra", "cuando planto", "cuando se siembra"],
       "accion": "Siembra el maíz cuando la tierra ya tenga humedad de las primeras lluvias, no en seco.",
       "porque": "La Mesa Técnica Agroclimática (con el SMN, INIFAP y CIMMYT) recomienda sembrar según la humedad y con el pronóstico de lluvia y de temperaturas mínimas.",
@@ -26,7 +26,7 @@
     {
       "id": "lluvia-tardia-ciclo-corto",
       "cultivos": ["maiz"],
-      "temas": ["siembra", "lluvia", "secos", "maiz-decision", "maiz-riesgo", "recomendar"],
+      "temas": ["siembra", "maiz-siembra", "lluvia", "secos", "maiz-decision", "maiz-riesgo", "recomendar"],
       "palabras": ["no llueve", "no ha llovido", "no han llegado", "se retras", "llueve tarde", "lluvias tarde", "canicula", "atrasad"],
       "condicion": "seco",
       "accion": "Si las lluvias se establecen tarde, cambia el maíz por un cultivo de ciclo corto (97 días o menos).",
