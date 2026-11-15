@@ -39,5 +39,5 @@ export function riesgoPorEscenarios({ estado, cultivo, clima }) {
     `Para el maíz de temporal en ${estado}, el modelo estima: ${lista}. ` +
     `Es un riesgo estimado según la lluvia, no un pronóstico de lo que va a pasar este año. ${nota} [Modelo entrenado con SIAP y NASA POWER]`;
 
-  return { cultivo, estado, confianza, escenarios, validacion, lectura, aviso: 'Riesgo estimado dado el clima, no un pronóstico.' };
+  return { cultivo, estado, confianza, mediana, tempPV, escenarios, validacion, lectura, aviso: 'Riesgo estimado dado el clima, no un pronóstico.' };
 }

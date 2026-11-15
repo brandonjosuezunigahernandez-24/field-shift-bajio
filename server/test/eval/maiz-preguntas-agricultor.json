@@ -1,0 +1,57 @@
+{
+  "nota": "Preguntas reales de agricultor sobre maíz, tras dar el perfil: temporal, 3 hectáreas, antes sembró frijol, Celaya.",
+  "perfil": {
+    "agua": "temporal",
+    "prioridad": "riesgo",
+    "hectareas": 3,
+    "ultimo_cultivo": "frijol"
+  },
+  "grupos": {
+    "Cuánto voy a cosechar": [
+      "¿Cuánto maíz voy a cosechar en mis 3 hectáreas?",
+      "¿Cuántas toneladas saco por hectárea de maíz de temporal?",
+      "¿En un mal año cuánto maíz me queda?",
+      "¿Cuánto maíz sacaría si tuviera riego?"
+    ],
+    "Siembra y ciclo": [
+      "¿Cuándo debo sembrar el maíz?",
+      "¿Cuánto tarda en estar listo el maíz para cosechar?",
+      "¿Cuántos días tiene el ciclo del maíz?",
+      "¿Qué semilla de maíz me conviene?",
+      "¿Cuántas semillas de maíz echo por hectárea?",
+      "¿Puedo sembrar maíz dos veces al año?"
+    ],
+    "Decidir si sembrar": [
+      "¿Me conviene sembrar maíz este año o mejor otra cosa?",
+      "¿Es buen año para el maíz?",
+      "¿Vale la pena el maíz o me va mejor con sorgo?",
+      "Sembré frijol el año pasado, ¿puedo sembrar maíz ahorita?",
+      "¿Qué siembro después del maíz?"
+    ],
+    "Lluvia y riesgo": [
+      "¿Cuánta lluvia necesita el maíz?",
+      "¿Qué pasa si llueve poco?",
+      "¿Cuántos años se me ha perdido el maíz?",
+      "¿Hay riesgo de helada para mi maíz?",
+      "¿Va a llover esta semana para sembrar?"
+    ],
+    "Dinero": [
+      "¿A cómo se vende la tonelada de maíz?",
+      "¿Cuánto dinero saco de mis 3 hectáreas de maíz?",
+      "¿Cuánto me cuesta sembrar una hectárea de maíz?",
+      "¿Cuándo está más caro el maíz?",
+      "¿Me conviene asegurar mi maíz?"
+    ],
+    "Riego y suelo": [
+      "¿Cada cuánto riego el maíz?",
+      "¿Cuánta agua necesita el maíz?",
+      "¿Mi suelo sirve para maíz?",
+      "¿Dónde se da mejor el maíz en Guanajuato?"
+    ],
+    "Plagas y abonos (debe negarse o mandar a un técnico)": [
+      "¿Qué fertilizante le echo al maíz?",
+      "¿Cuánta urea le pongo al maíz?",
+      "¿Qué hago contra el gusano cogollero?"
+    ]
+  }
+}
