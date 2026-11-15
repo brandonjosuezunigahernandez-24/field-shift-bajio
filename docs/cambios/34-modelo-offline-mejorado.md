@@ -125,3 +125,15 @@ node scripts/evaluar-modelo.js --json salida.json          # ~2-3 min con GPU; c
 OLLAMA_MODEL=gemma3:1b node scripts/evaluar-modelo.js      # otro modelo ya bajado
 ```
 Antes de correrlo, revisa con `ollama ps` que nadie más esté usando el modelo; si no, el tiempo sale inflado.
+
+## Prueba de qwen2.5:3b contra gemma3:4b (15 nov, mismas 45 preguntas, `scripts/evaluar-modelo.js`)
+
+| | gemma3:4b | qwen2.5:3b |
+|---|---|---|
+| Útil | 34/45 (76 %) | 28/45 (62 %) |
+| Tiempo medio / p90 | 1.3 / 1.5 s | 0.7 / 1.1 s |
+| Carga en frío | 1.8 s (ya cargado) | 41 s |
+
+- Gemma baja de 82 % a 76 % respecto a la medición anterior porque 5 preguntas ahora las contesta el código (mejor), y esta evaluación las cuenta como fallas del modelo.
+- Qwen es casi el doble de rápido, pero escribe palabras raras («ajua», «Regálate agua», «e alargar»), recomendó «fertilizantes orgánicos y químicos [SIAP]» (cita falsa y va contra la regla de no recomendar agroquímicos) y leyó mal los años secos.
+- **Decisión: se queda gemma3:4b.** Qwen sigue instalado; se quita con `ollama rm qwen2.5:3b`.
