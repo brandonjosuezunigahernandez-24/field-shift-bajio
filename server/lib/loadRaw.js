@@ -14,7 +14,13 @@ import { DEMO_POINT } from './seasons.js';
 // `isStale(raw)` (optional) returns a reason when a usable cache is out of date (e.g. a new year
 // was published): it is downloaded again, and kept as the answer if the network fails.
 // Set OFFLINE=1 to skip the network (demo rehearsal without internet).
-export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl, fetcher, timeoutMs, validate, isStale }) {
+// `pauseOnTimeoutMs` (optional, for data the app can do without, like the soil): when the source times out it is
+// not tried a second time, and it is not asked again for that long. A slow SoilGrids then costs one wait, not
+// two waits on every new plot; meanwhile the answer is the old cache, the fixture or the 502.
+const pausedUntil = new Map(); // source -> time (ms) until which the network is skipped
+export const resetPauses = () => pausedUntil.clear();
+
+export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl, fetcher, timeoutMs, validate, isStale, pauseOnTimeoutMs = 0 }) {
   lat = roundTo(lat, decimals);
   lon = roundTo(lon, decimals);
   const key = cacheKey(source, lat, lon, decimals);
@@ -34,7 +40,7 @@ export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl,
     }
   }
 
-  if (process.env.OFFLINE !== '1') {
+  if (process.env.OFFLINE !== '1' && !(pausedUntil.get(source) > Date.now())) {
     // Two tries: SoilGrids drops about 1 call in 5 and only the demo point has a fixture.
     for (let attempt = 1; attempt <= 2; attempt++) {
       try {
@@ -44,6 +50,11 @@ export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl,
         return { raw, origen: 'api' };
       } catch (err) {
         console.warn(`[${source}] intento ${attempt} de 2, no se pudo consultar ${lat}, ${lon}: ${err.message}`);
+        if (pauseOnTimeoutMs && err.name === 'TimeoutError') {
+          pausedUntil.set(source, Date.now() + pauseOnTimeoutMs);
+          console.warn(`[${source}] tardó demasiado: no se vuelve a consultar durante ${Math.round(pauseOnTimeoutMs / 1000)} s`);
+          break;
+        }
       }
     }
   }

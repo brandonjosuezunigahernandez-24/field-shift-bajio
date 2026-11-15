@@ -139,6 +139,7 @@ export async function getSoil(lat, lon) {
     decimals: SOILGRIDS_DECIMALS,
     buildUrl: buildSoilGridsUrl,
     timeoutMs: 15000,
+    pauseOnTimeoutMs: 3 * 60 * 1000, // the plan and the screens work without soil: do not make every plot wait
     validate: validateSoilGrids,
     isStale: soilGridsStaleReason,
   });
