@@ -23,6 +23,19 @@ Un archivo por cambio, en orden. Cada uno responde: **qué se hizo, para qué, c
 | [16](../propuesta-producto.md) | Propuesta de producto por fases (flujo lineal, línea de tiempo, administración, tienda, simulador) | Hecho |
 | [17](../integracion-completa.md) | Integración completa (prueba local): diseño + mapa de dibujo + 3D con info al tocar y clima de 7 días + asistente flotante | Hecho (sin ver en navegador) |
 | [19](19-ubicacion-mapa-grande-y-arreglos-del-asistente.md) | Ubicación primero, mapa grande, y arreglos del asistente | Hecho (sin ver en navegador) |
-| 20 | Citas y plantillas por código, set de 15 preguntas, solo CPU, streaming del asistente | Siguiente |
+| [20](20-varias-parcelas-y-corroboracion-nasa.md) | Varias parcelas a la vez y corroboración con NASA | Hecho |
+| [Estado](../estado-del-proyecto.md) | Dónde estamos y qué falta (incluye aprendizaje automático) | Actualizado |
+| 21 | Citas y plantillas por código, set de 15 preguntas, solo CPU, streaming del asistente | Siguiente |
 
 Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y precios). Guía de pruebas: `docs/probar-asistente.md`. Bitácora larga: `docs/llm-bitacora.md`.
+
+## Agregado el 14 nov (noche)
+| # | Cambio | Estado |
+|---|---|---|
+| [21](21-modelo-entrenado.md) | Modelo entrenado de riesgo (ridge, SIAP municipal + NASA); solo el maíz de Querétaro mejora claramente | Hecho; ver [docs/modelo-ml.md](../modelo-ml.md) |
+| [23](23-frutales.md) | Frutales de Guanajuato y Querétaro (solo datos del SIAP): resumen, ficha y `GET /api/frutales` | Hecho (datos agronómicos sin verificar) |
+| [24](24-pruebas-de-parcelas.md) | Pruebas con parcelas dibujadas: `probar-parcelas.js`, reintento en SoilGrids, sin recomendar fuera de Gto/Qro | Hecho |
+| [Fuentes](../fuentes-de-datos.md) | Investigación de fuentes de datos (14 verificadas) y las 3 por integrar primero | Hecho |
+| [22](22-asistente-mas-datos-nasa.md) | Asistente con más datos de NASA, plantillas con citas por código y set de evaluación | En curso (agente) |
+| [25](25-analisis-ia-conectada.md) | Pantalla Análisis IA conectada al asistente real y ficha guardada del agricultor | En curso (agente) |
+| [26](26-ml-segunda-ronda.md) | Segunda ronda de aprendizaje automático (clasificar año malo, más variables, incertidumbre, hortalizas y frutales) | En curso (agente) |
