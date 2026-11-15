@@ -11,17 +11,23 @@ import { DEMO_POINT } from './seasons.js';
 // `decimals` is the source's resolution: the point is rounded once, so the URL and the cache key always match.
 // Pass `buildUrl(lat, lon)` for a plain JSON API, or `fetcher(lat, lon)` (async, returns the data to cache)
 // when the source needs several requests or binary files (e.g. elevation tiles for /api/terreno).
+// `isStale(raw)` (optional) returns a reason when a usable cache is out of date (e.g. a new year
+// was published): it is downloaded again, and kept as the answer if the network fails.
 // Set OFFLINE=1 to skip the network (demo rehearsal without internet).
-export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl, fetcher, timeoutMs, validate }) {
+export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl, fetcher, timeoutMs, validate, isStale }) {
   lat = roundTo(lat, decimals);
   lon = roundTo(lon, decimals);
   const key = cacheKey(source, lat, lon, decimals);
 
   const cached = await readCache(key);
+  let stale = null;
   if (cached) {
     try {
       validate?.(cached);
-      return { raw: cached, origen: 'cache' };
+      const reason = isStale?.(cached);
+      if (!reason) return { raw: cached, origen: 'cache' };
+      stale = cached;
+      console.warn(`[${source}] caché desactualizada en ${key} (${reason}), se intenta actualizar`);
     } catch (err) {
       // Saved by an older version of the query (e.g. fewer parameters): download it again.
       console.warn(`[${source}] caché vieja en ${key}, se vuelve a descargar: ${err.message}`);
@@ -41,6 +47,9 @@ export async function loadRaw({ source, label, lat, lon, decimals = 2, buildUrl,
       }
     }
   }
+
+  // Out of date beats nothing: without internet the old cache still answers.
+  if (stale) return { raw: stale, origen: 'cache' };
 
   const fixture = await readFixture(key);
   if (fixture) return { raw: fixture, origen: 'fixture' };

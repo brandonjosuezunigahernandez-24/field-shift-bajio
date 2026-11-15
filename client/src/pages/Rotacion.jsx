@@ -6,7 +6,7 @@ import Header from '../components/layout/Header.jsx';
 import RainChart from '../components/charts/RainChart.jsx';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
 import FS_DATOS from '../data/datosDemo.js';
-import { kpisFrom, rainSeriesFrom, soilLegendFrom } from '../lib/parcelaClima.js';
+import { climatePeriod, kpisFrom, rainSeriesFrom, soilLegendFrom } from '../lib/parcelaClima.js';
 
 // Stalk look per crop for the CSS 3D stage. Sorgo, frijol and maíz come from the design; the
 // rest are approximations in the same palette.
@@ -22,6 +22,8 @@ const VISUALES = {
 const VISUAL_DEFAULT = { insignia: 'Cultivo de la rotación', tallo: { alto: 40, ancho: 9, de: '#1B6B3A', a: '#9CC24A', glow: 'rgba(156,194,74,.5)' }, descripcion: '' };
 
 const SEASON = { PV: 'temporal', OI: 'otoño-invierno' };
+// Crops of the design's example plan, in order (used only when the engine cannot answer).
+const DEMO_CROPS = ['sorgo', 'frijol', 'maiz'];
 
 // Screen 2: 3D stage, 3-year plan, yearly rain chart, crop ranking and the voice dock.
 // Rotation and ranking come from POST /api/recomendar; if the call fails the design's demo plan is
@@ -55,12 +57,16 @@ export default function Rotacion() {
   // Years of the plan: [{ anio, etiqueta, pts, cultivo, texto, titulo3d, insignia, tallo, descripcion }]
   const rotacion = useMemo(() => {
     if (outside) return [];
-    if (!rec) return FS_DATOS.rotacion;
+    // Example plan: same years as a real one (next year on), never fixed dates.
+    if (!rec) {
+      return FS_DATOS.rotacion.map((y, i) => ({ ...y, id: DEMO_CROPS[i], etiqueta: `AÑO ${y.anio} · ${nextYear + y.anio - 1}` }));
+    }
     return rec.rotacion.map((step, i) => {
       const crop = rec.cultivos.find((c) => c.id === step.cultivo);
       const vis = VISUALES[step.cultivo] || VISUAL_DEFAULT;
       const nombre = crop?.nombre ?? step.cultivo;
       return {
+        id: step.cultivo,
         anio: step.anio,
         etiqueta: `AÑO ${step.anio} · ${nextYear + step.anio - 1}${step.temporada === 'OI' ? ' · OI' : ''}`,
         pts: crop ? Math.round(crop.puntaje) : '—',
@@ -92,12 +98,14 @@ export default function Rotacion() {
   const soilLegend = useMemo(() => soilLegendFrom(sueloData), [sueloData]);
   const placeName = point?.nombre ?? 'Celaya';
   const current = rotacion[Math.min(year, rotacion.length - 1)] ?? { titulo3d: placeName, insignia: 'Fuera de Gto. y Qro.', descripcion: '' };
+  // The 3D model shows the crop of the year chosen in the plan.
+  const crop3d = current.id && CROP_IDS.includes(current.id) ? current.id : null;
 
   const why = useMemo(() => {
     const dry = climaData ? climaData.anios_secos.length : 6;
     const total = climaData ? climaData.lluvia_pv_anual.length : 25;
     const umbral = climaData ? Math.round(climaData.umbral_seco_mm) : 520;
-    const periodo = climaData ? `${climaData.periodo.inicio}–${climaData.periodo.fin}` : '2000–2024';
+    const periodo = climatePeriod(climaData);
     const [c1, c2, c3] = rotacion;
     return (
       <>
@@ -137,7 +145,7 @@ export default function Rotacion() {
               <span className="fs-badge-soft">{current.insignia}</span>
             </div>
 
-            <Vista3DPanel />
+            <Vista3DPanel cultivo={crop3d} />
             <p className="fs-3d-desc" aria-live="polite">{current.descripcion}</p>
           </section>
 

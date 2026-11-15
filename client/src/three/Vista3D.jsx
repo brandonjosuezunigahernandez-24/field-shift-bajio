@@ -46,7 +46,8 @@ const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 //   point          { nombre, lat, lon } or null
 //   clima, suelo   { data } | { error } | null, as App keeps them
 //   onSelectPoint  ({ nombre, lat, lon }) => void
-export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint, year, pronostico = null, recomendacion = null }) {
+//   cultivoPlan    crop of the year chosen in the rotation plan, or null
+export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPoint, year, pronostico = null, recomendacion = null, cultivoPlan = null }) {
   const reducedMotion = usePrefersReducedMotion();
   const [view, setView] = useState('globe');
   const [terreno, setTerreno] = useState(null);
@@ -83,6 +84,11 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
   useEffect(() => {
     preloadModels([DEFAULT_CROP]);
   }, []);
+
+  // When the plan moves to another year, the model shows that year's crop (it can still be changed by hand).
+  useEffect(() => {
+    if (cultivoPlan && CROP_IDS.includes(cultivoPlan)) setCultivo(cultivoPlan);
+  }, [cultivoPlan]);
 
 
   const climaData = clima?.data ?? null;
@@ -331,7 +337,11 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
                   ))}
                 </select>
               </label>
-              <p className="hint">Solo es para ver cómo se vería. Todavía no es la recomendación.</p>
+              <p className="hint">
+                {cultivoPlan
+                  ? 'Es el cultivo del año que elegiste en tu plan. Puedes cambiarlo para comparar.'
+                  : 'Solo es para ver cómo se vería. Todavía no es la recomendación.'}
+              </p>
             </>
           )}
 

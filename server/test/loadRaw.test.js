@@ -63,6 +63,25 @@ test('loadRaw downloads again a cache file that no longer passes validate', asyn
   assert.deepEqual(raw, { ok: true });
 });
 
+test('loadRaw refreshes an out-of-date cache', async () => {
+  await writeCache(KEY, { ok: true, year: 2024 });
+  const calls = fakeFetch({ body: { ok: true, year: 2025 } });
+  const isStale = (raw) => (raw.year < 2025 ? 'old' : null);
+  const { raw, origen } = await loadRaw({ ...options, isStale });
+  assert.equal(calls.count, 1);
+  assert.equal(origen, 'api');
+  assert.equal(raw.year, 2025);
+});
+
+test('loadRaw keeps an out-of-date cache when the network fails', async () => {
+  await writeCache(KEY, { ok: true, year: 2024 });
+  await writeFixture(KEY, { ok: true, fixture: true });
+  fakeFetch({ failures: 2 });
+  const { raw, origen } = await loadRaw({ ...options, isStale: (r) => (r.year < 2025 ? 'old' : null) });
+  assert.equal(origen, 'cache');
+  assert.equal(raw.year, 2024);
+});
+
 test('loadRaw uses the fixture when the network fails twice', async () => {
   await writeFixture(KEY, { ok: true, fixture: true });
   const calls = fakeFetch({ failures: 2 });

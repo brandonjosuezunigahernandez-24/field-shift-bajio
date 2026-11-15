@@ -2,7 +2,10 @@ import assert from 'node:assert/strict';
 import { readFile } from 'node:fs/promises';
 import { test } from 'node:test';
 import {
+  POWER_END_YEAR,
   buildPowerUrl,
+  powerEndYear,
+  powerStaleReason,
   daysInMonth,
   median,
   parsePower,
@@ -119,27 +122,40 @@ test('summarizeClimate marks as dry the years below 80% of the median', () => {
   assert.equal(summary.temp_media_mensual[0].t_media_c, 20);
 });
 
-test('buildPowerUrl asks for the monthly AG series 2000-2024', () => {
+test('powerEndYear: the last complete year, one more each April', () => {
+  assert.equal(powerEndYear(new Date(Date.UTC(2026, 10, 15))), 2025);
+  assert.equal(powerEndYear(new Date(Date.UTC(2027, 1, 10))), 2025); // February: December may be missing
+  assert.equal(powerEndYear(new Date(Date.UTC(2027, 3, 1))), 2026);
+});
+
+test('powerStaleReason flags a cache without the last complete year', () => {
+  const raw = (keys) => ({ properties: { parameter: { PRECTOTCORR: Object.fromEntries(keys.map((k) => [k, 1])) } } });
+  assert.equal(powerStaleReason(raw(['202412', '202512']), 2025), null);
+  assert.match(powerStaleReason(raw(['202412']), 2025), /2025/);
+});
+
+test('buildPowerUrl asks for the monthly AG series from 2000 to the last complete year', () => {
   const url = new URL(buildPowerUrl(20.47, -100.81));
   assert.equal(url.pathname, '/api/temporal/monthly/point');
   assert.equal(url.searchParams.get('latitude'), '20.47');
   assert.equal(url.searchParams.get('longitude'), '-100.81');
   assert.equal(url.searchParams.get('community'), 'AG');
   assert.equal(url.searchParams.get('start'), '2000');
-  assert.equal(url.searchParams.get('end'), '2024');
+  assert.equal(url.searchParams.get('end'), String(POWER_END_YEAR));
   assert.match(url.searchParams.get('parameters'), /PRECTOTCORR/);
 });
 
-test('real Celaya fixture: 25 full years with plausible Bajío values', async () => {
+test('real Celaya fixture: full years from 2000 with plausible Bajío values', async () => {
   const raw = JSON.parse(
     await readFile(new URL('../fixtures/power_20.47_-100.81.json', import.meta.url), 'utf8')
   );
   const rows = parsePower(raw);
-  assert.equal(rows.length, 25 * 12);
+  const years = rows.length / 12;
+  assert.ok(Number.isInteger(years) && years >= 25, `${rows.length} months`);
 
   const summary = summarizeClimate(rows);
-  assert.equal(summary.lluvia_pv_anual.length, 25);
-  assert.deepEqual(summary.periodo, { inicio: 2000, fin: 2024 });
+  assert.equal(summary.lluvia_pv_anual.length, years);
+  assert.deepEqual(summary.periodo, { inicio: 2000, fin: 2000 + years - 1 });
   for (const year of summary.lluvia_pv_anual) {
     assert.ok(year.lluvia_mm > 100 && year.lluvia_mm < 1500, `PV rain out of range in ${year.anio}`);
   }

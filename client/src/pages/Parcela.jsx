@@ -6,6 +6,7 @@ const ParcelMap = lazy(() => import('../map/ParcelMap.jsx'));
 import PerfilForm from '../components/PerfilForm.jsx';
 import Ubicacion from '../components/Ubicacion.jsx';
 import { useParcelaContext } from '../context/ParcelaContext.jsx';
+import { climatePeriod } from '../lib/parcelaClima.js';
 
 // Screen 1: where the plot is, the map to draw it (MapLibre, with NASA GIBS layers) and the farmer profile.
 // Climate and soil are real (/api/clima + /api/suelo). The assistant is the floating dock (AsistenteDock).
@@ -24,7 +25,7 @@ export default function Parcela() {
         pills={
           <>
             <span className="fs-pill">
-              <span className="fs-dot" aria-hidden="true"></span>NASA POWER 2000–2024
+              <span className="fs-dot" aria-hidden="true"></span>NASA POWER {climatePeriod(climaData)}
             </span>
             <span className="fs-pill">
               <span className="fs-dot d2" aria-hidden="true"></span>SoilGrids ISRIC

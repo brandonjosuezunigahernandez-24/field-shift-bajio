@@ -3,7 +3,12 @@ import { DRY_YEAR_RATIO, PV_MONTHS } from '../lib/seasons.js';
 
 export const POWER_SOURCE = 'power';
 export const POWER_START_YEAR = 2000;
-export const POWER_END_YEAR = 2024;
+// Last year with its 12 months published. POWER posts each month about 2 to 3 months later, so
+// until April the year before may still be incomplete. Moves forward by itself every year.
+export function powerEndYear(now = new Date()) {
+  return now.getUTCFullYear() - (now.getUTCMonth() >= 3 ? 1 : 2);
+}
+export const POWER_END_YEAR = powerEndYear();
 export const POWER_CREDIT =
   'NASA POWER (Prediction Of Worldwide Energy Resources), NASA Langley Research Center, comunidad AG';
 
@@ -148,6 +153,12 @@ export function summarizeClimate(rows, { pvMonths = PV_MONTHS, dryRatio = DRY_YE
   };
 }
 
+// A cache saved before the last complete year was published: download it again.
+export function powerStaleReason(raw, endYear = POWER_END_YEAR) {
+  const rain = raw?.properties?.parameter?.PRECTOTCORR ?? {};
+  return `${endYear}12` in rain ? null : `le falta ${endYear}`;
+}
+
 // Monthly climate rows for one point, from cache, API or fixture.
 export async function getClimate(lat, lon) {
   const { raw, origen } = await loadRaw({
@@ -158,6 +169,7 @@ export async function getClimate(lat, lon) {
     buildUrl: buildPowerUrl,
     timeoutMs: 20000,
     validate: validatePower,
+    isStale: (raw) => powerStaleReason(raw),
   });
   return { rows: parsePower(raw), origen };
 }
