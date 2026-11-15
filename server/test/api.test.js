@@ -74,6 +74,11 @@ test('GET /api/terreno works offline for the demo point and answers the rounded 
   assert.equal(body.alturas.length, body.tam * body.tam);
   assert.equal(body.lado_m, 1000);
   assert.match(body.fuente, /SRTM/);
+  // Every example button shows its 3D relief without internet.
+  for (const point of FIXTURE_POINTS) {
+    const other = await get(`/api/terreno?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(other.status, 200, point.nombre);
+  }
 });
 
 test('bad coordinates answer 400 with a message in Spanish', async () => {
