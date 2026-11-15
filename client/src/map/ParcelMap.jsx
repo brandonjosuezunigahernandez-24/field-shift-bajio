@@ -272,6 +272,8 @@ const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 1
 //   clima, year      /api/clima data and the page-wide year (useYearPlayer): the parcels follow it
 //   onUpdateParcela  (id, contorno) => void, when a saved parcel is corrected
 //   escena           how the map looks right now (see DEFAULT_SCENE), set by the page's cards
+//   soloVer          only show (screen 2): never draws, no parcel list nor drawing tools
+//   plantasPorParcela optional { [id]: { growth, tint } }: each parcel's own crop look (else the year's look for all)
 //   actual           the weather right now ({ temp_c, codigo_clima, ... } from /api/pronostico) or null
 export default function ParcelMap({
   point,
@@ -285,13 +287,15 @@ export default function ParcelMap({
   onSetCultivo,
   escena = DEFAULT_SCENE,
   actual = null,
+  soloVer = false,
+  plantasPorParcela = null,
 }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [corners, setCorners] = useState([]);
-  const [drawing, setDrawing] = useState(parcelas.length === 0);
+  const [drawing, setDrawing] = useState(!soloVer && parcelas.length === 0);
   const [hint, setHint] = useState(null);
   // Cloud free is best to draw on; if it keeps failing it switches to the fast one by itself (below).
   const [imagery, setImagery] = useState('claro');
@@ -326,6 +330,7 @@ export default function ParcelMap({
     ? { ...weather.plant, tint: [1, 0.8 + 0.2 * weather.plant.wet, 0.45 + 0.55 * weather.plant.wet] }
     : yearNow;
   const animateWeather = weather.id !== 'apagado' && onScreen && !reducedMotion();
+  const plantasKey = plantasPorParcela ? JSON.stringify(plantasPorParcela) : '';
 
   // Latest values for the map handlers and effects that must not re-run on every change.
   const drawingRef = useRef(drawing);
@@ -501,6 +506,7 @@ export default function ParcelMap({
           id: p.id,
           cultivo: p.cultivo,
           contorno: p.contorno,
+          plants: plantasPorParcela?.[p.id] ?? null,
           base: (ground?.get(p.id) ?? 0) + raised.features[i].properties.tope_m,
         })),
         plants: plantLook,
@@ -530,7 +536,7 @@ export default function ParcelMap({
       cancelAnimationFrame(frame);
       fresh.forEach((id) => rise.set(id, 1)); // never leave a parcel half way up
     };
-  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, weather.id, weather.example, animateWeather, closeUp]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, weather.id, weather.example, animateWeather, closeUp, plantasKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pause the weather animation while the map is scrolled out of view (no wasted battery).
   useEffect(() => {
@@ -556,8 +562,32 @@ export default function ParcelMap({
 
   // With every parcel deleted, go back to drawing.
   useEffect(() => {
-    if (parcelas.length === 0) setDrawing(true);
-  }, [parcelas.length]);
+    if (!soloVer && parcelas.length === 0) setDrawing(true);
+  }, [parcelas.length, soloVer]);
+
+  // Only show: when the page around the map changes size (a card finishes loading) the resize cuts the camera's
+  // flight to the parcel. Until the farmer moves the map, frame the parcel again after each resize.
+  useEffect(() => {
+    if (!ready || !soloVer) return undefined;
+    const map = mapRef.current;
+    let moved = false;
+    const byHand = (e) => {
+      if (e.originalEvent) moved = true;
+    };
+    const frame = () => {
+      if (moved) return;
+      const farm = parcelasRef.current;
+      const pitch = VIEW_PITCH[viewRef.current];
+      if (farm.length) map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration: 0 });
+      else if (point) map.jumpTo({ center: [point.lon, point.lat], zoom: 16, pitch });
+    };
+    map.on('movestart', byHand);
+    map.on('resize', frame);
+    return () => {
+      map.off('movestart', byHand);
+      map.off('resize', frame);
+    };
+  }, [ready, soloVer, point]);
 
   // Show only the chosen imagery (a hidden layer downloads nothing).
   useEffect(() => {
@@ -603,8 +633,10 @@ export default function ParcelMap({
     if (farm.length) {
       map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration });
     } else {
-      setCorners([]);
-      setDrawing(true);
+      if (!soloVer) {
+        setCorners([]);
+        setDrawing(true);
+      }
       map.flyTo({ center: [point.lon, point.lat], zoom: 16, pitch, duration }); // a esta distancia ya se puede dibujar la parcela
     }
   }, [ready, point]);
@@ -729,7 +761,7 @@ export default function ParcelMap({
         </p>
       )}
 
-      {parcelas.length > 0 && (
+      {!soloVer && parcelas.length > 0 && (
         <div className="parcel-list">
           <h3>Tus parcelas</h3>
           <ul>
@@ -771,6 +803,7 @@ export default function ParcelMap({
         </div>
       )}
 
+      {!soloVer && (
       <div className="parcel-map-tools">
         {drawing ? (
           <>
@@ -896,6 +929,7 @@ export default function ParcelMap({
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

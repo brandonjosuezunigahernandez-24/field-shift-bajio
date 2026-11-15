@@ -144,6 +144,7 @@ export function useParcela() {
       if (data.clima) setClima({ data: data.clima });
       if (data.suelo) setSuelo({ data: data.suelo });
     } catch (err) {
+      recKey.current = null; // "Intentar de nuevo" can ask again
       setRecomendacion({ error: err.message, outsideRegion: err.outsideRegion === true });
     }
   }, [point, agua, prioridad, previo]);
