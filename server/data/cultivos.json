@@ -1,0 +1,58 @@
+[
+  {
+    "id": "maiz", "nombre": "Maíz grano", "familia": "gramínea", "leguminosa": false,
+    "temporadas": ["PV"], "agua": ["temporal", "riego"],
+    "temp_opt_min_c": 18, "temp_opt_max_c": 30,
+    "lluvia_ciclo_min_mm": 520, "lluvia_ciclo_max_mm": 800,
+    "ph_min": 5.8, "ph_max": 7.5, "ciclo_meses": 4,
+    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+  },
+  {
+    "id": "sorgo", "nombre": "Sorgo grano", "familia": "gramínea", "leguminosa": false,
+    "temporadas": ["PV"], "agua": ["temporal", "riego"],
+    "temp_opt_min_c": 20, "temp_opt_max_c": 32,
+    "lluvia_ciclo_min_mm": 400, "lluvia_ciclo_max_mm": 650,
+    "ph_min": 5.5, "ph_max": 7.5, "ciclo_meses": 4,
+    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+  },
+  {
+    "id": "frijol", "nombre": "Frijol", "familia": "leguminosa", "leguminosa": true,
+    "temporadas": ["PV"], "agua": ["temporal", "riego"],
+    "temp_opt_min_c": 18, "temp_opt_max_c": 26,
+    "lluvia_ciclo_min_mm": 300, "lluvia_ciclo_max_mm": 500,
+    "ph_min": 6.0, "ph_max": 7.5, "ciclo_meses": 3,
+    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+  },
+  {
+    "id": "trigo", "nombre": "Trigo grano", "familia": "gramínea", "leguminosa": false,
+    "temporadas": ["OI"], "agua": ["riego"],
+    "temp_opt_min_c": 12, "temp_opt_max_c": 24,
+    "lluvia_ciclo_min_mm": 450, "lluvia_ciclo_max_mm": 650,
+    "ph_min": 6.0, "ph_max": 7.5, "ciclo_meses": 4,
+    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+  },
+  {
+    "id": "cebada", "nombre": "Cebada grano", "familia": "gramínea", "leguminosa": false,
+    "temporadas": ["OI"], "agua": ["riego"],
+    "temp_opt_min_c": 12, "temp_opt_max_c": 22,
+    "lluvia_ciclo_min_mm": 350, "lluvia_ciclo_max_mm": 600,
+    "ph_min": 6.0, "ph_max": 8.0, "ciclo_meses": 3,
+    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+  },
+  {
+    "id": "garbanzo", "nombre": "Garbanzo", "familia": "leguminosa", "leguminosa": true,
+    "temporadas": ["OI"], "agua": ["riego"],
+    "temp_opt_min_c": 15, "temp_opt_max_c": 25,
+    "lluvia_ciclo_min_mm": 250, "lluvia_ciclo_max_mm": 450,
+    "ph_min": 6.0, "ph_max": 8.0, "ciclo_meses": 3,
+    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+  },
+  {
+    "id": "brocoli", "nombre": "Brócoli", "familia": "crucífera", "leguminosa": false,
+    "temporadas": ["PV", "OI"], "agua": ["riego"],
+    "temp_opt_min_c": 15, "temp_opt_max_c": 22,
+    "lluvia_ciclo_min_mm": 600, "lluvia_ciclo_max_mm": 900,
+    "ph_min": 6.0, "ph_max": 7.0, "ciclo_meses": 3,
+    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+  }
+]
