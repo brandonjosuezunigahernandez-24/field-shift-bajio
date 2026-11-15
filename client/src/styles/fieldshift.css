@@ -616,3 +616,16 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 /* FarmSummary y YearControl traen sus estilos de .v3d: dentro de la tarjeta, sin su fondo ni su letra */
 .fs-tarjeta .v3d{background:none;font:inherit;color:inherit;min-height:0}
 .fs-tarjeta .v3d .farm-summary{grid-template-columns:1fr;margin:0}
+/* Simulador 3D: las 3 rotaciones que se comparan (la de hoy, la recomendada y otra meta) */
+.fs-estrategias{display:grid;gap:8px}
+.fs-estrategia{all:unset;box-sizing:border-box;cursor:pointer;display:flex;flex-direction:column;gap:2px;padding:10px 12px;
+  border:1px solid var(--fs-border);border-radius:var(--fs-r-sm);background:#fff}
+.fs-estrategia[aria-pressed="true"]{border-color:var(--fs-g500);background:var(--fs-g50);box-shadow:var(--fs-shadow-active)}
+.fs-estrategia:focus-visible{outline:3px solid var(--fs-g400);outline-offset:2px}
+.fs-estrategia-nombre{font-weight:700;color:var(--fs-g800)}
+.fs-estrategia-seq{font-size:14px;color:var(--fs-ink)}
+.fs-estrategia-riesgo{font-size:12px;color:var(--fs-muted)}
+.fs-resumen{list-style:none;margin:0;padding:0;display:grid;gap:4px;font-size:14px}
+.fs-resumen b{color:var(--fs-g800)}
+.fs-lista summary{cursor:pointer;font-weight:700;color:var(--fs-g800)}
+.fs-lista ul{margin:6px 0 0;padding-left:18px;display:grid;gap:4px;font-size:14px}
