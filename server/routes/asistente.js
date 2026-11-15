@@ -193,8 +193,17 @@ async function resolver(req) {
     }
   }
 
+  // "¿Por qué ese cultivo?" tras una recomendación: las razones las da el recomendador, no el modelo de lenguaje (inventaba puntajes).
+  if (reco && !pideReco && /por ?que/.test(norm(pregunta))) {
+    const primero = reco.rotacion[0];
+    const top = reco.cultivos.find((c) => c.id === primero.cultivo) ?? reco.cultivos[0];
+    return res.json({
+      respuesta: `Puse ${top.nombre ?? top.id} primero (puntaje ${top.puntaje} de 100). ${(top.razones ?? []).slice(0, 3).join(' ')}${primero.porque ? ` ${primero.porque}` : ''} [SIAP]`.replace(/\s+/g, ' ').trim(),
+      acciones: [], fuentes: ['SIAP'], verificado: true, origen: 'motor', tema: 'recomendar-porque', base: 'ficha', enlaces: [], recomendacion: reco, ...conGraficas(graficasReco(reco)),
+    });
+  }
   // Riesgo del maíz según la lluvia: lo calcula el modelo entrenado y lo redacta el código (el modelo de lenguaje no toca estos números).
-  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta))) {
+  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta)) && !['apoyos', 'credito'].includes(temaPrev)) {
     try {
       const { rows: filas } = await getClimate(lat, lon);
       const riesgo = riesgoPorEscenarios({ estado, cultivo: 'maiz', clima: summarizeClimate(filas) });
@@ -295,7 +304,12 @@ async function conQueHacer(body, req) {
     perfil.estado ??= inferEstado(lon);
     let datos = null;
     if (!SIN_CLIMA.includes(tema)) { try { datos = summarizeClimate((await getClimate(lat, lon)).rows); } catch { /* sin clima: acciones sin el dato */ } }
-    return { ...body, que_hacer: accionesPara({ tema, cultivo: detectCrop(pregunta), perfil, datos, pregunta }) };
+    const que_hacer = accionesPara({ tema, cultivo: detectCrop(pregunta), perfil, datos, pregunta });
+    // "¿Qué hago si…?" pide acciones: la respuesta empieza por la primera, y los datos quedan como respaldo.
+    const pideAccion = /que (hago|hacer|puedo hacer|debo hacer|le hago)|como (cuido|mejoro|protejo|evito)/.test(norm(pregunta));
+    const respuesta = pideAccion && que_hacer.length && body.respuesta && !body.respuesta.includes('Qué hacer')
+      ? `${que_hacer[0].accion} [${que_hacer[0].fuente}] Más ideas abajo, en «Qué hacer». ${body.respuesta}` : body.respuesta;
+    return { ...body, respuesta, que_hacer };
   } catch {
     return { ...body, que_hacer: [] }; // las acciones nunca tumban la respuesta
   }

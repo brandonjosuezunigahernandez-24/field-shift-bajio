@@ -45,7 +45,7 @@ export function intencionMaiz(pregunta = '') {
   if (/(cuanta|cuanto|que cantidad de) (lluvia|agua)|necesita (de )?(agua|lluvia)|requiere|cada cuanto (riego|rego|se riega)|cuantas veces (riego|se riega)|frecuencia de riego/.test(q)) return 'agua';
   if (/(mi )?(suelo|tierra)|\bph\b/.test(q) && /(sirve|sirva|bueno|buena|apto|adecuad|sembrar|para maiz)/.test(q)) return 'suelo';
   if (/(sembre|siembre|sembraba|tenia|antes tuve|ano pasado)/.test(q) && (otro || /ahorita|ahora|este ano|puedo|se puede/.test(q))) return 'rotacion';
-  if (/riego/.test(q) && /temporal/.test(q) && !/saco|sacar|cosech|queda/.test(q)) return 'riego';
+  if (/riego|regar/.test(q) && (/temporal/.test(q) || /conviene|vale la pena|meter|poner|instalar/.test(q)) && !/saco|sacar|cosech|queda/.test(q)) return 'riego';
   if (!otro && /dinero|ganancia|ingreso|pesos|cuanto (gano|voy a ganar)|cuanto (me )?(deja|dejaria)/.test(q)) return 'precio';
   if (/cuant[oa]s? (maiz |cosecha |toneladas )?(\w+ ){0,3}(saco|sacar|saca|cosech|levant|produc|rinde|rendira|queda|dara)|cuanto puedo (sacar|producir|cosechar)|mal ano.*(queda|saco|cosech)/.test(q) || alguna(ws, ['produc']) || (alguna(ws, ['rend', 'rind']) && !otro)) return 'produccion';
   if (otro && (alguna(ws, ['compar', 'mejor', 'contra', 'conviene', 'recomiend', 'vs']) || /(o|que|en vez de|en lugar de) (el )?(sorgo|frijol|trigo|cebada|garbanzo|avena)/.test(q))) return 'comparar';
@@ -289,7 +289,8 @@ const REDACTORES = {
   plaga: () => salida('No doy productos ni dosis para plagas ni abonos: una dosis mala daña el cultivo y la salud.', [
     `${CARTAS.plagas} [Base local]`, 'También puedes preguntar al Comité Estatal de Sanidad Vegetal de tu estado.'], ['Base local'], {}),
 
-  semilla: () => salida('No tengo datos de qué semilla o variedad de maíz te conviene.', [
+  semilla: (q) => /cuant|por hectarea|densidad/.test(q) ? salida('La Mesa Técnica Agroclimática (SMN, INIFAP, CIMMYT) recomienda en temporal de 60 a 70 mil semillas de maíz por hectárea.', [
+    'El detalle y la fuente van abajo, en «Qué hacer». Qué variedad te conviene no lo tengo verificado: pregunta a INIFAP o al técnico de tu zona.'], ['Mesa Técnica Agroclimática'], {}) : salida('No tengo datos de qué semilla o variedad de maíz te conviene.', [
     'Eso depende de tu altura, tu lluvia y tu suelo, y yo no tengo variedades verificadas.', 'Pregunta a INIFAP o al técnico de tu zona.'], [], {}),
 
   seguro: (q, { estado, perfil = {} }) => {

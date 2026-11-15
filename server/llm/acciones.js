@@ -47,6 +47,7 @@ export function accionesPara({ tema = null, cultivo = null, perfil = {}, datos =
     .map((a) => {
       if (a.estados && !a.estados.includes(perfil.estado)) return null;
       if (a.cultivos && cultivo && !a.cultivos.includes(cultivo)) return null;
+      if (a.cultivos && !cultivo && ['desglose', 'aptitud', 'frutales'].includes(tema)) return null; // la nuez no lleva el acopio del maíz
       const porTema = Boolean(tema) && a.temas.includes(tema);
       const porPalabra = a.palabras.some((p) => q.includes(p));
       if (!porTema && !porPalabra) return null;
