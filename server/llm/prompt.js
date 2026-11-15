@@ -31,10 +31,11 @@ export const EJEMPLOS = [
 // --- Tarjetas de conocimiento por parecido (tf-idf + coseno; findLocal de contexto.js solo cuenta palabras clave) ---
 const KNOWLEDGE = JSON.parse(readFileSync(new URL('./conocimiento.json', import.meta.url), 'utf8'));
 // Términos: palabras de 4+ letras sin relleno, cortadas a 5 letras ("orgánico" y "orgánica" -> "organ").
-const STOP = new Set(['para','sirve','como','cual','cuando','donde','porque','pasa','hago','hace','tiene','tenga','debo','puedo','quiero','sobre','este','esta','esto','estos','estas','mucho','poco','mejor','bueno','buena','vale','pena','conviene','meter','necesita','darse','bien','entre','otro','otra','otros','sola','solo','todo','cada','menos','tambien','pero','sino','unos','unas','seguido','parcela','sembrar','siembro','siembra','sembrado','cultivo','cultivos','cultivar']);
+const STOP = new Set(['para','sirve','como','cual','cuando','donde','porque','pasa','hago','hace','tiene','tenga','debo','puedo','quiero','sobre','este','esta','esto','estos','estas','mucho','poco','mejor','bueno','buena','vale','pena','conviene','meter','necesita','darse','bien','entre','otro','otra','otros','sola','solo','todo','tierra','dura','cada','menos','tambien','pero','sino','unos','unas','seguido','parcela','sembrar','siembro','siembra','sembrado','cultivo','cultivos','cultivar']);
 const plain = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const terms = (t) => (plain(t).match(/[a-z0-9ñ]+/g) ?? []).filter((w) => (w.length >= 4 || w === 'ph') && !STOP.has(w)).map((w) => w.slice(0, 5));
-const docs = KNOWLEDGE.map((k) => terms(`${k.palabras.join(' ')} ${k.texto}`));
+// Las palabras clave cuentan doble: con tarjetas largas, el texto diluía el tema ("plagas del frijol" no encontraba la conchuela).
+const docs = KNOWLEDGE.map((k) => terms(`${k.palabras.join(' ')} ${k.palabras.join(' ')} ${k.texto}`));
 const df = new Map();
 docs.flat().forEach((r) => df.set(r, (df.get(r) ?? 0) + 1));
 const idf = (r) => Math.log((1 + docs.length) / (1 + (df.get(r) ?? 0)));
@@ -48,12 +49,22 @@ const vec = (rs) => {
 const index = docs.map(vec);
 const cos = (a, b) => [...a].reduce((s, [k, x]) => s + x * (b.get(k) ?? 0), 0);
 
-// shortcut: el umbral 0.1 salió de probar con test/eval/modelo-abierto.json; con más tarjetas habrá que recalibrarlo.
+// Cultivo de cada tarjeta (por su id y palabras clave): la del maíz no contesta una pregunta del frijol.
+const CROPS = ['maiz', 'frijol', 'sorgo', 'garbanzo', 'trigo', 'cebada', 'brocoli', 'jitomate', 'amaranto', 'avena', 'haba'];
+const cropsIn = (t) => { const w = t.match(/[a-z]+/g) ?? []; return new Set(CROPS.filter((c) => w.some((x) => x.startsWith(c)))); };
+const cardCrops = KNOWLEDGE.map((k) => cropsIn(plain(`${k.id.replace(/-/g, ' ')} ${k.palabras.join(' ')}`)));
+
+// shortcut: el umbral 0.1 salió de probar con test/eval/modelo-abierto.json (desarrollo); con más tarjetas habrá que recalibrarlo.
 export function tarjetas(pregunta, k = 2, umbral = 0.1) {
-  const q = vec(terms(pregunta));
-  return index.map((d, i) => ({ i, s: cos(q, d) }))
-    .filter((x) => x.s >= umbral)
-    .sort((a, b) => b.s - a.s)
+  // Palabras que ninguna tarjeta usa ("caen") no ayudan a elegir y solo bajaban el parecido de las que sí.
+  const q = vec(terms(pregunta).filter((r) => df.has(r)));
+  const asked = cropsIn(plain(pregunta));
+  const otroCultivo = (i) => asked.size && cardCrops[i].size && ![...cardCrops[i]].some((c) => asked.has(c));
+  const top = index.map((d, i) => ({ i, s: cos(q, d) }))
+    .filter((x) => x.s >= umbral && !otroCultivo(x.i))
+    .sort((a, b) => b.s - a.s);
+  // La segunda tarjeta solo si se parece casi tanto como la primera (si no, el modelo mezcla temas).
+  return top.filter((x, j) => j === 0 || x.s >= top[0].s * 0.6)
     .slice(0, k)
     .map(({ i }) => ({ texto: KNOWLEDGE[i].texto, fuente: 'Base local' }));
 }
