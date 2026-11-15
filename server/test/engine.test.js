@@ -201,6 +201,13 @@ test('the rotation the farmer gave is compared as given; without it or SIAP only
   const dicho = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'suelo', actual: ['frijol', 'maiz'], previo: 'maiz' });
   assert.equal(seq(dicho.estrategias[0]), 'frijol-maiz-frijol');
   assert.equal(dicho.estrategias[0].supuesto, false);
+  // After maíz, rain-fed, only frijol may come first: the third option has to break that rule, and says so.
+  const otra = dicho.estrategias[2];
+  assert.equal(new Set(dicho.estrategias.map(seq)).size, 3);
+  assert.equal(seq(otra), 'sorgo-frijol-maiz');
+  assert.match(otra.revisar[0], /justo después de tu maíz, de la misma familia \(gramíneas\)/);
+  // The uncertainty uses the riskiest crop the farmer sows (maíz, 12 of 25), not the first one.
+  assert.match(dicho.incertidumbre.find((u) => u.tema === 'años').texto, /al maíz le faltó lluvia en 12 de 25/);
   const sin = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'riesgo' });
   assert.deepEqual(sin.estrategias.map((e) => e.id), ['recomendada', 'alternativa']);
 });

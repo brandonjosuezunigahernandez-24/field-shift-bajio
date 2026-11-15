@@ -543,23 +543,36 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
     const altPlan = buildRotation(candidates, { agua, familiaPrevia: sin.familia });
     const rot = toRotation(altPlan, candidates, agua, null, `si no empiezas con ${corto(sin)}`);
     if (rot.length && !taken.has(seqKey(rot))) {
+      const primero = altPlan[0].cand.crop;
       alternativa = estrategia({
         id: 'alternativa',
-        nombre: `Otra opción: empezar con ${corto(altPlan[0].cand.crop)}`,
+        nombre: `Otra opción: empezar con ${corto(primero)}`,
         prioridad,
         supuesto: false,
         porque: `Es la mejor que no empieza con ${corto(sin)}, por si ese año no puedes sembrarlo o no consigues semilla.`,
         slots: slotsOf(altPlan),
         rotacion: rot,
+        // With few crops there may be no other plan that follows every rule: say which one it breaks.
+        avisos:
+          previoCrop?.familia === primero.familia
+            ? [`Empieza con ${corto(primero)} justo después de tu ${corto(previoCrop)}, de la misma familia (${primero.familia}s): eso junta plagas y enfermedades.`]
+            : [],
       });
     }
   }
 
   const estrategias = [hoy, recomendada, alternativa].filter(Boolean).map((e) => {
-    const { slots, notas, ...visible } = e;
-    return { ...visible, ...strategyTexts(e, hoy, ctx) };
+    const { slots, notas, avisos = [], ...visible } = e;
+    const textos = strategyTexts(e, hoy, ctx);
+    return { ...visible, ...textos, revisar: [...avisos, ...textos.revisar] };
   });
-  const ejemplo = agua === 'temporal' ? hoy?.slots.find((s) => s.cand && s.temporada === 'PV')?.cand ?? candidates.find((c) => c.temporada === 'PV') : null;
+  // The uncertainty is told with the riskiest rain-fed crop the farmer sows today (else the best ranked one).
+  const pvHoy = (hoy?.slots ?? []).filter((s) => s.cand && s.temporada === 'PV').map((s) => s.cand);
+  const ejemplo =
+    agua === 'temporal'
+      ? pvHoy.reduce((w, c) => (!w || c.risk.anios_bajo_minimo.length > w.risk.anios_bajo_minimo.length ? c : w), null) ??
+        candidates.find((c) => c.temporada === 'PV')
+      : null;
 
   return {
     cultivos: best.map((c) => ({
