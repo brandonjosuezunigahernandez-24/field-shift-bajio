@@ -17,7 +17,7 @@ import { buildProceso } from '../llm/proceso.js';
 import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
-import { compactReco, explainFarm, explainRecommendation, inferEstado, recommend, recommendFarm } from '../llm/recomendador.js';
+import { ETIQUETA, ordenParaTi, compactReco, explainFarm, explainRecommendation, inferEstado, recommend, recommendFarm } from '../llm/recomendador.js';
 import { parsePerfil, pendientes } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
@@ -221,6 +221,21 @@ async function resolver(req) {
 
   // Preguntas frecuentes: las contesta el código con plantilla y cita puesta por él (sin modelo, sin Wikipedia).
   const tema = temaPrev === 'tarjeta' ? null : ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
+  // "¿Puedo sembrar frijol?": el lugar de ese cultivo en la recomendación para su parcela (mismo cálculo que "¿qué me conviene?").
+  if (tema === 'cultivo' && agua && prioridad) {
+    const cultivo = detectCrop(pregunta);
+    const r = recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, cultivoActual: extraPerfil(req.body.perfil).cultivo_actual, hectareas: perfil.hectareas, encharca: perfil.encharca });
+    const orden = ordenParaTi(r);
+    const lugar = orden.findIndex((c) => c.id === cultivo);
+    if (lugar >= 0) {
+      const c = orden[lugar];
+      const razones = (c.razones ?? []).filter((x) => !/^Puntaje/.test(x)).slice(0, 2).join(' ');
+      return res.json({
+        respuesta: `${lugar < 3 ? 'Sí, te conviene' : 'Sí se puede, pero hay mejores opciones'}: ${c.nombre.toLowerCase()} sale en el lugar ${lugar + 1} de ${orden.length} para sembrar de ${agua} en ${estado} si quieres ${ETIQUETA[prioridad]} (puntaje ${c.puntaje} de 100). ${razones} [SIAP]`.replace(/\s+/g, ' ').trim(),
+        acciones: [], fuentes: ['SIAP'], verificado: true, origen: 'motor', tema: 'cultivo-puedo', base: 'ficha', enlaces: [], recomendacion: r, ...conGraficas(graficasReco(r)),
+      });
+    }
+  }
   const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
   if (plantilla) return res.json(plantilla);
   // Confianza baja y nada que la respalde: decirlo y sugerir 3 preguntas que sí sabe (solo si la validación lo aprobó: modelo.negar).

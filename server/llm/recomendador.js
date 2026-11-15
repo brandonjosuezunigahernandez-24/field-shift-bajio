@@ -335,21 +335,32 @@ export function explainFarm(r, estadoInferido = false) {
 const peso = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
 
 // Texto para el agricultor armado por el código (el modelo no lo redacta, así no se equivoca).
-export function explainRecommendation(r, estadoInferido = false) {
-  // Después de un cultivo no se ponen arriba los de su misma familia (tras el maíz, el sorgo no va primero).
-  const prev = r.perfil_usado?.cultivo_actual ?? r.perfil_usado?.ultimo_cultivo;
+// Orden que ve el agricultor: después de un cultivo no van arriba los de su misma familia (tras el maíz, el sorgo no va primero).
+const prevDe = (r) => r.perfil_usado?.cultivo_actual ?? r.perfil_usado?.ultimo_cultivo;
+export function ordenParaTi(r) {
+  const prev = prevDe(r);
   const unicos = r.cultivos.filter((c, i, all) => all.findIndex((x) => x.id === c.id && x.temporada === c.temporada) === i);
   const otraFamilia = unicos.filter((c) => !FAMILIA[prev] || FAMILIA[c.id] !== FAMILIA[prev]);
-  const top = (otraFamilia.length ? otraFamilia : unicos).slice(0, 3);
-  const lista = top.map((c, i) => `${i + 1}) ${c.nombre} (${c.temporada}, puntaje ${c.puntaje})`).join('; ');
-  const rot = r.rotacion.map((x) => `año ${x.anio} ${x.temporada}: ${NOMBRE[x.cultivo]}`).join('; ');
+  return otraFamilia.length ? [...otraFamilia, ...unicos.filter((c) => !otraFamilia.includes(c))] : unicos;
+}
+
+export function explainRecommendation(r, estadoInferido = false) {
+  const top = ordenParaTi(r).slice(0, 3);
+  // La temporada solo se dice si es otoño-invierno (la de lluvias es la normal del temporal).
+  const cuando = (t) => (t === 'OI' ? ' en otoño-invierno' : '');
+  const [primero, ...siguen] = top;
+  const lista = `Te conviene más ${primero.nombre.toLowerCase()}${cuando(primero.temporada)}: es el que mejor sale para sembrar de ${r.agua} en ${r.estado} si quieres ${ETIQUETA[r.prioridad]} (puntaje ${primero.puntaje} de 100)`
+    + (siguen.length ? `. Le siguen ${siguen.map((c) => `${c.nombre.toLowerCase()}${cuando(c.temporada)} (${c.puntaje})`).join(' y ')}` : '')
+    // Si los que siguen tienen más puntaje es porque son de la familia de lo que ya tiene: hay que decir por qué van después.
+    + (siguen.some((c) => c.puntaje > primero.puntaje && FAMILIA[c.id] === FAMILIA[prevDe(r)]) ? `; tienen más puntaje, pero son del mismo tipo que tu ${NOMBRE[prevDe(r)]} y conviene rotar` : '');
+  const rot = r.rotacion.map((x) => `año ${x.anio}, ${NOMBRE[x.cultivo]}${cuando(x.temporada)}`).join('; ');
   const p = r.prediccion;
   const u = r.perfil_usado ?? {};
   const tomado = u.cultivo_actual ? ` (tomé en cuenta que ahorita tienes ${NOMBRE[u.cultivo_actual]}, para no repetir el mismo tipo)`
     : u.ultimo_cultivo ? ` (tomé en cuenta que lo último que sembraste fue ${NOMBRE[u.ultimo_cultivo] ?? u.ultimo_cultivo}, para no repetir el mismo tipo)` : '';
   const partes = [
-    `Para sembrar de ${r.agua} y con la meta de ${ETIQUETA[r.prioridad]}, en ${r.estado}${estadoInferido ? ' (lo supuse por tu ubicación; confírmalo)' : ''} te salen mejor: ${lista}. [SIAP]`,
-    `Rotación de 3 años${tomado}: ${rot}.`,
+    `${lista}.${estadoInferido ? ` Supuse ${r.estado} por tu ubicación; confírmalo.` : ''} [SIAP]`,
+    `Plan de 3 años${tomado}: ${rot}.`,
   ];
   if (p) {
     partes.push(

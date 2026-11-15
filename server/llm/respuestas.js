@@ -66,7 +66,7 @@ export function detectarTema(pregunta = '') {
   if (has(/(radiacion|solar|\bsol\b|insolacion)/, q)) return 'radiacion';
   if (has(/(hum[ea]d|mojad)/, q) && has(/(tierra|suelo|raiz|parcela)/, q)) return 'humedad';
   if (has(LLUVIA, q)) return 'lluvia';
-  if (has(/(cuando|que fecha|en que mes) (siembro|sembrar|planto|plantar|se siembra|echo)/, q)) return 'siembra';
+  if (has(/(cuando|que fecha|en que mes) ((puedo|debo|conviene|se puede|es bueno) )?(siembro|sembrar|planto|plantar|se siembra|echo)/, q)) return 'siembra';
   if (has(/(mi suelo|\bph\b|arcilla|textura de mi|como esta (la )?tierra)/, q)) return 'suelo';
   // "¿Puedo sembrar fresas?": no hay agronomía verificada del cultivo; se dice y se da lo que sí hay (SIAP). Antes el modelo usaba la tarjeta del maíz.
   if (detectCrop(q) && has(/(puedo|se puede|conviene|vale la pena)/, q)) return 'cultivo';
@@ -232,7 +232,7 @@ const REDACTORES = {
       !perfil.ultimo_cultivo && { campo: 'ultimo_cultivo', pregunta: '¿Qué sembraste la última vez?' },
     ].filter(Boolean);
     const conocido = [
-      perfil.cultivo_actual && `Ahora tienes ${{ maiz: 'maíz', brocoli: 'brócoli' }[perfil.cultivo_actual] ?? perfil.cultivo_actual}.`,
+      perfil.cultivo_actual && !['ninguno', 'otro'].includes(perfil.cultivo_actual) && `Ahora tienes ${{ maiz: 'maíz', brocoli: 'brócoli' }[perfil.cultivo_actual] ?? perfil.cultivo_actual}.`,
       perfil.riego_frecuencia_dias && `Riegas cada ${perfil.riego_frecuencia_dias} días.`,
     ].filter(Boolean).join(' ');
     const fecha = fechaDeSiembra({ cultivo: detectCrop(q), perfil, pregunta: q });

@@ -58,3 +58,12 @@ test('temas con tarjeta (gorgojo, cosecha de agua, canícula, Monitor de Sequía
   for (const q of ['¿Cómo evito el gorgojo en el maíz guardado?', '¿Cómo hago una cosecha de agua?', '¿Qué hago en la canícula?', '¿Cómo leo el Monitor de Sequía?']) assert.equal(detectarTema(q), 'tarjeta', q);
   assert.notEqual(detectarTema('¿Cuáles fueron los años secos?'), 'tarjeta');
 });
+
+test('"¿Qué puedo sembrar?" es una recomendación, y "¿Puedo sembrar frijol?" da el mismo lugar que la recomendación', async () => {
+  const reco = await ask('Que puedo sembrar?');
+  assert.equal(reco.origen, 'motor');
+  const primero = reco.respuesta.match(/Te conviene más (\w+)/)[1];
+  const b = await ask(`¿Puedo sembrar ${primero}?`);
+  assert.equal(b.tema, 'cultivo-puedo');
+  assert.match(b.respuesta, /lugar 1 de/);
+});

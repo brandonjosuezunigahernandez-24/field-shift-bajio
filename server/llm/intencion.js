@@ -3,7 +3,7 @@ const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 
 // "¿Qué me conviene sembrar?", "recomiéndame", "qué rotación me toca"... Lo contesta el recomendador, sin modelo.
 // Ojo: "¿Para qué sirve la rotación de cultivos?" NO es esto: es una pregunta para entender, la contesta el modelo con la base de textos.
-const ASKS_FOR_RECOMMENDATION = /(que (me )?(siembro|sembrar|conviene|cultivo|cultivar|planto|plantar)|recomiend|que rotacion|mi rotacion|rotacion (me|para mi))/;
+const ASKS_FOR_RECOMMENDATION = /(que (me )?((puedo|podria|debo|deberia|le) )?(siembro|sembrar|conviene|cultivo|cultivar|planto|plantar|pongo|meto)|recomiend|que rotacion|mi rotacion|rotacion (me|para mi))/;
 const CONCEPTUAL = /(para que sirve|que es\b|que son\b|como funciona|que significa)/;
 
 export function wantsRecommendation(question = '') {
