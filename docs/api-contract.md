@@ -43,7 +43,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - Al tocar "Usar esta parcela", el mapa se ajusta al contorno (`fitBounds`, inclinado para ver el relieve).
 - **Varias parcelas.** El agricultor puede dibujar más de una ("Dibujar otra parcela") y elegir el cultivo de cada una. La app guarda `parcelas: [{ id, contorno: [[lon, lat], ...], hectareas, cultivo }]` (`client/src/map/parcels.js`). A la API se manda **un solo punto**: el promedio de todas las esquinas. Cambiar el cultivo de una parcela no vuelve a pedir clima ni suelo.
 - Si una parcela nueva se encima con otra, se avisa (no se bloquea). En la vista 3D, donde se enciman, se siembra la más reciente.
-- **Secciones en 3D:** con 2 o más parcelas, la vista 3D deja elegir "Parcela 1", "Parcela 2"… o "Todas juntas". Cada sección es su propia maqueta de 1 km **centrada en sus parcelas** y con su propio `/api/terreno`; solo se dibuja la sección elegida. Al guardar una parcela nueva se muestra esa. Si las parcelas están a más de 1 km entre sí, se avisa que juntas no caben y conviene verlas una por una.
+- **Secciones en 3D:** con 2 o más parcelas, la vista 3D deja elegir "Parcela 1", "Parcela 2"… o "Todas juntas". Cada sección es su propia maqueta **centrada en sus parcelas y del tamaño que necesitan** (250 m a 4 km) y con su propio `/api/terreno`; solo se dibuja la sección elegida. Al guardar una parcela nueva se muestra esa. Si juntas no caben en 4 km, se avisa que juntas no caben y conviene verlas una por una.
 - **Parcelas levantadas en el mapa:** cada parcela guardada se ve como un bloque de tierra sobre el satélite (capas `fill-extrusion` de MapLibre): lados del color del suelo de SoilGrids y encima el color del cultivo. Al guardarla, el mapa pasa a "Relieve 3D" y el bloque sube (sin animación con "reducir movimiento"). La altura crece con la parcela (6 a 40 m, `raiseHeight`); cada parcela nueva queda 1.5 m más alta, y con el relieve se compensa la altura del terreno en el centro de cada una para que una sección dibujada adentro de otra siempre se vea encima.
 - **Corregir esquinas:** los números de las esquinas se pueden arrastrar mientras se dibuja. Una parcela ya guardada se corrige con "Corregir" en "Tus parcelas": sus esquinas vuelven como números arrastrables y "Guardar cambios" recalcula hectáreas y centro (y vuelve a pedir clima y suelo).
 - **El mapa sigue los años:** hay un solo año para toda la página (`useYearPlayer` en `client/src/year.jsx`); el control junto al mapa y el de la vista 3D mueven el mismo. En años secos la capa del cultivo de cada parcela levantada se pone color paja y más delgada; arriba del mapa se ve "2011 · año seco · 398 mm". Todo sale de `/api/clima`, no hay datos inventados.
@@ -78,7 +78,7 @@ Las parcelas de los botones de ejemplo, con los mismos `id` y `boton` del diseñ
 
 ## GET /api/clima?lat=20.47&lon=-100.81
 
-Fuente: NASA POWER, serie mensual 2000–2024.
+Fuente: NASA POWER, serie mensual desde 2000 hasta el **último año completo** (`powerEndYear` en `server/sources/nasaPower.js`: hasta marzo es el antepenúltimo, desde abril el año pasado; en noviembre de 2026 es 2025). Avanza solo cada año: una caché a la que le falta ese año se vuelve a bajar, y sin internet se sigue usando. Los fixtures se quedan en 2000–2024 porque las pruebas del motor y del asistente tienen fijos esos números; para moverlos hay que correr `npm run fixtures -- --only=power` y actualizar esas pruebas.
 
 ```jsonc
 {
@@ -103,6 +103,11 @@ Fuente: NASA POWER, serie mensual 2000–2024.
     { "mes": 1, "lluvia_mm": 8.6 }
     // ... 12 meses
   ],
+  "humedad_suelo_pv": { "superficie_pct": 59, "raiz_pct": 57, "perfil_pct": 56 },
+  "humedad_suelo_pv_anual": [
+    { "anio": 2025, "superficie_pct": 68, "raiz_pct": 64, "perfil_pct": 62 }
+    // ... un elemento por año
+  ],
   "fuente": "NASA POWER (Prediction Of Worldwide Energy Resources), NASA Langley Research Center, comunidad AG"
 }
 ```
@@ -116,6 +121,7 @@ Fuente: NASA POWER, serie mensual 2000–2024.
 | `temp_media_mensual[].t_media_c` | Promedio (de todos los años) de la temperatura media del mes. |
 | `t_max_c`, `t_min_c` | Promedio (de todos los años) de **la hora más caliente y la más fría del mes**. |
 | `lluvia_media_mensual[].lluvia_mm` | Promedio (de todos los años) de la lluvia del mes. |
+| `humedad_suelo_pv*` | Humedad del suelo de junio a septiembre según NASA POWER: `GWETTOP` (superficie, 0–5 cm), `GWETROOT` (zona de raíces, 0–100 cm) y `GWETPROF` (todo el perfil), de 0 % (seco) a 100 % (saturado). Promedio de todos los años y de cada año. `null` donde la caché es de antes de pedirlos. |
 
 **Ojo con dos cosas:**
 
@@ -124,7 +130,7 @@ Fuente: NASA POWER, serie mensual 2000–2024.
 
 ## GET /api/suelo?lat=20.47&lon=-100.81
 
-Fuente: SoilGrids 2.0 (ISRIC). Promedio de 0 a 30 cm, ponderado por el espesor de cada capa (0–5, 5–15, 15–30 cm).
+Fuente: SoilGrids 2.0 (ISRIC). Los valores de arriba son el promedio de 0 a 30 cm, ponderado por el espesor de cada capa (0–5, 5–15, 15–30 cm): son los que usa el motor. `capas` trae cada capa hasta 1 m y `tipo` el tipo de suelo (WRB), para la tarjeta "Tu suelo" y los lados de la maqueta 3D.
 
 ```json
 {
@@ -138,17 +144,35 @@ Fuente: SoilGrids 2.0 (ISRIC). Promedio de 0 a 30 cm, ponderado por el espesor d
   "limo_pct": 20.4,
   "carbono_organico_g_kg": 12.1,
   "nitrogeno_g_kg": 1.48,
+  "densidad_aparente_g_cm3": 1.43,
+  "cic_cmol_kg": 31.9,
+  "piedras_pct": 11.5,
+  "capas": [
+    { "profundidad_cm": "0-5", "desde_cm": 0, "hasta_cm": 5, "ph": 7.3, "arcilla_pct": 36.5, "arena_pct": 42.3, "limo_pct": 21.2,
+      "carbono_organico_g_kg": 18.4, "nitrogeno_g_kg": 1.68, "densidad_aparente_g_cm3": 1.42, "cic_cmol_kg": 32.2, "piedras_pct": 11.9 }
+    // ... 5-15, 15-30, 30-60 y 60-100 cm
+  ],
   "sin_datos": false,
   "aviso": null,
-  "fuente": "SoilGrids 2.0, ISRIC World Soil Information (CC BY 4.0)"
+  "tipo": {
+    "wrb": "Vertisols", "nombre": "Vertisol", "probabilidad_pct": 30,
+    "descripcion": "Suelo con mucha arcilla que se hincha con el agua y se agrieta en secas. ...",
+    "alternativas": [{ "wrb": "Phaeozems", "nombre": "Feozem", "probabilidad_pct": 13 }]
+  },
+  "fuente": "SoilGrids 2.0, ISRIC World Soil Information (CC BY 4.0)",
+  "fuente_tipo": "SoilGrids 2.0 (ISRIC), clasificación WRB; ..."
 }
 ```
 
 - **`sin_datos: true`**: SoilGrids respondió pero no tiene suelo en ese punto (ciudades y cuerpos de agua están enmascarados). En ese caso los valores vienen en `null` y `aviso` trae un texto para mostrar. Pasa, por ejemplo, en el centro de Celaya (20.52, -100.81). El front y el motor deben aguantar `null`.
+- **`densidad_aparente_g_cm3`** es qué tan apretado está el suelo (SoilGrids `bdod`), **`cic_cmol_kg`** cuántos nutrientes puede retener (`cec`) y **`piedras_pct`** el volumen de piedras (`cfvo`).
+- **`tipo`** sale de otra consulta, `/soilgrids/v2.0/classification/query` (`server/sources/soilClass.js`): el grupo de la Base Referencial Mundial (WRB) más probable según el modelo de SoilGrids, con su probabilidad y los dos siguientes. Es una predicción de mapas de 250 m, no un muestreo de la parcela. Los nombres en español y las descripciones son las generales de cada grupo WRB. Si esa consulta falla, `tipo` es `null` y el resto responde igual.
+- `POST /api/recomendar` devuelve en `suelo` exactamente lo mismo (con `capas` y `tipo`), porque la pantalla reemplaza su suelo con ese.
+- Una caché de antes de pedir las capas profundas se vuelve a bajar (y se usa la vieja si no hay internet). SoilGrids permite unas 5 consultas por minuto y a veces tarda más de 15 s; con dos consultas por punto nuevo, la primera vez puede faltar el tipo.
 
-## GET /api/terreno?lat=20.47&lon=-100.81
+## GET /api/terreno?lat=20.47&lon=-100.81&lado=1000
 
-Relieve del cuadro de 1 km alrededor de la parcela, para la vista 3D. Fuente: AWS Terrain Tiles (Mapzen, codificación *terrarium*, zoom 14); en México las alturas vienen de NASA SRTM (~30 m), así que la malla es una interpolación suave: sirve para una maqueta, no para topografía.
+Relieve del cuadro alrededor de la parcela, para la vista 3D. `lado` (opcional, en metros) se redondea hacia arriba a 250, 500, 1000, 2000 o 4000; sin él es 1000. Fuente: AWS Terrain Tiles (Mapzen, codificación *terrarium*, zoom 14, o 13 para 4 km); en México las alturas vienen de NASA SRTM (~30 m), así que la malla es una interpolación suave: sirve para una maqueta, no para topografía.
 
 ```jsonc
 {
@@ -168,7 +192,8 @@ Relieve del cuadro de 1 km alrededor de la parcela, para la vista 3D. Fuente: AW
 
 - `alturas[fila * tam + col]`: la fila 0 es el borde **norte** y la columna 0 el borde **oeste**.
 - **Se centra a 3 decimales (unos 110 m), no a 2 como clima y suelo.** El bloque mide 1 km: con 2 decimales una parcela podía quedar hasta ~550 m fuera del centro y salirse de su propia maqueta.
-- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat3>_<lon3>.json` (el fixture de Celaya es `terrain_20.470_-100.810.json`).
+- **La maqueta toma el tamaño de la parcela:** el cliente pide el lado más chico que contiene las parcelas de la sección, con 10 % de margen por lado (`blockSide` en `client/src/map/parcels.js`). Una parcela de 0.3 ha se ve en un cuadro de 250 m; un punto sin parcela dibujada, en el de 1 km. Las plantas y la casa se achican con el cuadro para no verse gigantes.
+- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat3>_<lon3>.json` para 1 km y `terrain<lado>_<lat3>_<lon3>.json` para los otros tamaños (el fixture de Celaya es `terrain_20.470_-100.810.json`, de 1 km).
 
 ## POST /api/recomendar
 
@@ -180,7 +205,7 @@ Petición:
 { "lat": 20.47, "lon": -100.81, "agua": "temporal", "prioridad": "riesgo" }
 ```
 
-Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en temporal: el mes con mejor puntaje).
+Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en primavera-verano: el mes con mejor puntaje; desde el cambio 44 también con riego, porque el calor de junio cuenta).
 
 Opcional: `"rotacion_actual": ["frijol", "maiz"]`, lo que siembra hoy, del más viejo al más nuevo (el front manda `[ultimo_cultivo, cultivo_actual]` del perfil).
 - Es la primera de las 3 rotaciones que se comparan (`estrategias`): un cultivo se repite y dos distintos se alternan.
@@ -240,10 +265,10 @@ Respuesta (valores reales del punto demo, recortados):
       },
       "evidencia": ["Con la lluvia real de 2000 a 2024, a este plan le hubiera faltado lluvia en 5 de cada 10 temporadas (48 %; con solo 25 años puede ser de 33 a 64 %).", "..."],
       "beneficios": ["No cambias nada: ya conoces el cultivo, la semilla y a quién venderle."], // en las otras: contra la de hoy, con números
-      "huecos": ["No nos dijiste qué siembras, así que comparamos contra lo más sembrado de temporal en Guanajuato: maíz en primavera-verano (58 % de la superficie), según el SIAP 2018 a 2024.", "Si el maíz necesitara 10 % menos o más lluvia, le hubiera faltado en 9 a 17 de 25 años, no en 12.", "..."],
+      "huecos": ["No nos dijiste qué siembras, así que comparamos contra lo más sembrado de temporal en Guanajuato: maíz en primavera-verano (58 % de la superficie), según el SIAP 2018 a 2024.", "Si el maíz necesitara 10 % menos o más lluvia, le hubiera faltado en 8 a 15 de 25 años, no en 12.", "..."],
       "revisar": ["Repite gramíneas en temporadas seguidas: eso junta plagas y enfermedades en la tierra.", "Confirma fechas de siembra y variedades con un técnico de tu zona (por ejemplo, del INIFAP)."]
     }
-    // ... "recomendada" (frijol-sorgo-frijol, riesgo 0.12) y "alternativa" ("La mejor para ganar más": sorgo-frijol-maíz, 0.24)
+    // ... "recomendada" (frijol-sorgo-frijol, riesgo 0.16) y "alternativa" (en Celaya todas las metas dan la misma, así que es "Otra opción: empezar con sorgo": sorgo-frijol-maíz, 0.29)
   ],
   // Lo que los datos no saben (temas: clima, años, cultivos, suelo, ingreso, riego si aplica, técnico).
   "incertidumbre": [
@@ -251,13 +276,16 @@ Respuesta (valores reales del punto demo, recortados):
     { "tema": "años", "texto": "Son 25 años (2000 a 2024). Con tan pocos años el riesgo es una estimación: al maíz le faltó lluvia en 12 de 25 años, pero su riesgo real puede estar entre 33 % y 64 %." }
     // ...
   ],
-  "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "SIAP ...", "Requerimientos de los cultivos: valores aproximados (estilo FAO Ecocrop), sin verificar"]
+  "fuentes": ["NASA POWER ...", "SoilGrids 2.0 ...", "SIAP ...", "Requerimientos de los cultivos: FAO Ecocrop (temperatura y pH óptimos) y FAO ... tabla 14 (agua por ciclo); ..."]
 }
 ```
 
 - `cultivos` va ordenado de mayor a menor `puntaje`, una fila por cultivo. Solo salen los que se pueden sembrar con esa `agua`.
   En temporal cada uno trae `riesgo_rango` (intervalo de Wilson al 90 %) y `sensibilidad: { menos10, mas10, anios_total }`
   (años sin lluvia suficiente si necesitara 10 % menos o más lluvia; los requerimientos no están verificados). Con riego son `null`.
+  Con temporal y con riego cada uno trae `helada` y `calor`: `{ riesgo, anios, anios_total, umbral_c }` (años reales en que la hora más fría
+  o la más caliente de algún mes del ciclo llegó al umbral del cultivo) y `riesgo_total` (parte de los años con algún problema: lluvia, helada o calor).
+  `riesgo` no cambió: sigue siendo solo lluvia. El `resumen` de cada estrategia trae `riesgo_helada` y `riesgo_calor` (temporadas con el problema entre temporadas sembradas).
 - `estrategias`:
   - Trae 3 rotaciones distintas.
   - La alternativa es la de la primera meta, en el orden suelo, riesgo, ganar, agua, que dé un plan distinto.
@@ -331,13 +359,22 @@ recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cult
 - **Lluvia** (solo en temporal): la lluvia de un año normal (mediana) en los meses del ciclo, contra el rango del cultivo.
 - **Suelo:** el pH contra el rango; un punto de pH fuera lo lleva a cero. La textura va solo como nota.
 - **Riesgo:** años en que la lluvia del ciclo quedó bajo el mínimo del cultivo. Con riego no se calcula.
+- **Heladas y calor** (temporal y riego): años en que, en algún mes del ciclo, `t_min_c` (la hora más fría del mes) bajó a `helada_dano_c` o menos, o `t_max_c` (la hora más caliente) llegó a `calor_dano_c` o más. La temporada de otoño-invierno cruza diciembre: enero y febrero cuentan para la siembra del noviembre anterior.
+- **Seguridad** (la parte del puntaje que pesa 50 % con la prioridad `riesgo` y 20 % con las demás): 1 menos la parte de los años con algún problema, sea falta de lluvia (solo temporal), helada o calor. Un año con dos problemas cuenta una vez.
 - **Puntaje:** 30 % es qué tan bien se da el cultivo ahí (los tres ajustes) y de 40 a 50 % es la prioridad del agricultor: `riesgo` (menos años malos), `suelo` (leguminosas), `agua` (menor mínimo de lluvia) o `ganar` (ingreso bruto por hectárea del SIAP, sin descontar costos).
 - **Rotación:** en cada temporada entra el mejor cultivo que no repita la familia de la temporada anterior, primero los que aún no se usan. Si no quedó ninguna leguminosa, se mete la mejor donde menos puntos cueste.
 
-**Pendientes de `cultivos.json`** (todo está con `"verificado": false`)
+**Verificación de `cultivos.json`** (15 de noviembre de 2026)
 
-1. Confirmar contra FAO Ecocrop los rangos de temperatura, lluvia y pH y la duración del ciclo. Hoy son los valores ilustrativos de la maqueta del diseño. Ojo: con el rango actual el sorgo sale bajo en temperatura (1 de 4 meses en rango en Celaya).
+- `temp_opt_*` y `ph_*` son los rangos **óptimos** de la ficha oficial de FAO Ecocrop de cada especie (`ecocrop.url` en cada cultivo). En `ecocrop` se guardan además los rangos absolutos, la lluvia anual y los días de ciclo, tal como vienen en la ficha.
+- `lluvia_ciclo_*` sale de FAO, *Irrigation Water Management Training Manual No. 3*, tabla 14 (mm en todo el ciclo): maíz 500–800, sorgo 450–650, frijol 300–500, trigo y cebada 450–650. **No** sale de Ecocrop, porque Ecocrop da lluvia anual.
+- `verificacion.antes` guarda los valores anteriores. Cambios que mueven el motor: el sorgo pide 450 mm (antes 400; en Celaya quedan 8 de 25 años por debajo, antes 3) y su temperatura óptima es 22–35 °C, más alta que la de junio a septiembre en el Bajío; el maíz prefiere pH 5–7, así que en suelos de pH 7.4 pierde algo de puntaje de suelo.
+
+**Pendientes de `cultivos.json`**
+
+1. El agua por ciclo del garbanzo y del brócoli: no están en la tabla 14 (`"verificado": false` y `todo` en cada uno).
 2. `temporadas` y `agua` salen de lo que el SIAP reporta sembrado en Guanajuato. Trigo, cebada y garbanzo quedaron como OI con riego; hay trigo y cebada de temporal (unas 13 mil ha cada uno) que el esquema actual no puede expresar.
+4. `helada_dano_c` y `calor_dano_c` son aproximados (cambio 44): confirmar con FAO Ecocrop o INIFAP. Cuentan igual en todo el ciclo, no solo en floración. Con 32 °C el frijol sembrado en junio sale con calor en 18 de 25 años en Celaya, y por eso el motor lo pasa a julio.
 3. El brócoli gana en `ganar` con riego porque su ingreso bruto es muy alto; no hay costos para compararlo con los granos.
 
 ## Puntos que estaban abiertos (ya resueltos)

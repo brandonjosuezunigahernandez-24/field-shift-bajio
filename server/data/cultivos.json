@@ -1,58 +1,558 @@
 [
   {
-    "id": "maiz", "nombre": "Maíz grano", "familia": "gramínea", "leguminosa": false,
-    "temporadas": ["PV"], "agua": ["temporal", "riego"],
-    "temp_opt_min_c": 18, "temp_opt_max_c": 30,
-    "lluvia_ciclo_min_mm": 520, "lluvia_ciclo_max_mm": 800,
-    "ph_min": 5.8, "ph_max": 7.5, "ciclo_meses": 4,
-    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+    "id": "maiz",
+    "nombre": "Maíz grano",
+    "familia": "gramínea",
+    "leguminosa": false,
+    "temporadas": [
+      "PV"
+    ],
+    "agua": [
+      "temporal",
+      "riego"
+    ],
+    "temp_opt_min_c": 18,
+    "temp_opt_max_c": 33,
+    "lluvia_ciclo_min_mm": 500,
+    "lluvia_ciclo_max_mm": 800,
+    "ph_min": 5,
+    "ph_max": 7,
+    "ciclo_meses": 4,
+    "helada_dano_c": 2,
+    "calor_dano_c": 35,
+    "fuente": "FAO Ecocrop (temperatura y pH óptimos) y FAO, Irrigation Water Management Training Manual No. 3, tabla 14 (agua por ciclo)",
+    "verificado": true,
+    "verificacion": {
+      "fecha": "2026-11-15",
+      "temperatura": "FAO Ecocrop, temperatura óptima de Zea mays",
+      "ph": "FAO Ecocrop, pH óptimo de Zea mays",
+      "lluvia": "FAO Manual No. 3 (Brouwer y Heibloem, 1986), tabla 14, \"Maize\": 500-800 mm por ciclo",
+      "ciclo": "4 meses es el ciclo típico en el Bajío (dato local); FAO Ecocrop da 65 a 365 días según la variedad",
+      "antes": {
+        "temp": [
+          18,
+          30
+        ],
+        "ph": [
+          5.8,
+          7.5
+        ],
+        "lluvia": [
+          520,
+          800
+        ]
+      }
+    },
+    "ecocrop": {
+      "id": 2175,
+      "especie": "Zea mays",
+      "url": "https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=2175",
+      "temp_optima_c": [
+        18,
+        33
+      ],
+      "temp_absoluta_c": [
+        10,
+        47
+      ],
+      "lluvia_anual_optima_mm": [
+        600,
+        1200
+      ],
+      "lluvia_anual_absoluta_mm": [
+        400,
+        1800
+      ],
+      "ph_optimo": [
+        5,
+        7
+      ],
+      "ph_absoluto": [
+        4.5,
+        8.5
+      ],
+      "ciclo_dias": [
+        65,
+        365
+      ]
+    },
+    "agua_por_ciclo_fuente": "https://www.fao.org/4/s2022e/s2022e07.htm"
   },
   {
-    "id": "sorgo", "nombre": "Sorgo grano", "familia": "gramínea", "leguminosa": false,
-    "temporadas": ["PV"], "agua": ["temporal", "riego"],
-    "temp_opt_min_c": 20, "temp_opt_max_c": 32,
-    "lluvia_ciclo_min_mm": 400, "lluvia_ciclo_max_mm": 650,
-    "ph_min": 5.5, "ph_max": 7.5, "ciclo_meses": 4,
-    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+    "id": "sorgo",
+    "nombre": "Sorgo grano",
+    "familia": "gramínea",
+    "leguminosa": false,
+    "temporadas": [
+      "PV"
+    ],
+    "agua": [
+      "temporal",
+      "riego"
+    ],
+    "temp_opt_min_c": 22,
+    "temp_opt_max_c": 35,
+    "lluvia_ciclo_min_mm": 450,
+    "lluvia_ciclo_max_mm": 650,
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "ciclo_meses": 4,
+    "helada_dano_c": 2,
+    "calor_dano_c": 38,
+    "fuente": "FAO Ecocrop (temperatura y pH óptimos) y FAO, Irrigation Water Management Training Manual No. 3, tabla 14 (agua por ciclo)",
+    "verificado": true,
+    "verificacion": {
+      "fecha": "2026-11-15",
+      "temperatura": "FAO Ecocrop, temperatura óptima de Sorghum bicolor",
+      "ph": "FAO Ecocrop, pH óptimo de Sorghum bicolor",
+      "lluvia": "FAO Manual No. 3 (Brouwer y Heibloem, 1986), tabla 14, \"Sorghum/Millet\": 450-650 mm por ciclo",
+      "ciclo": "4 meses es el ciclo típico en el Bajío (dato local); FAO Ecocrop da 90 a 300 días según la variedad",
+      "antes": {
+        "temp": [
+          20,
+          32
+        ],
+        "ph": [
+          5.5,
+          7.5
+        ],
+        "lluvia": [
+          400,
+          650
+        ]
+      }
+    },
+    "ecocrop": {
+      "id": 48747,
+      "especie": "Sorghum bicolor",
+      "url": "https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=48747",
+      "temp_optima_c": [
+        22,
+        35
+      ],
+      "temp_absoluta_c": [
+        8,
+        40
+      ],
+      "lluvia_anual_optima_mm": [
+        400,
+        600
+      ],
+      "lluvia_anual_absoluta_mm": [
+        300,
+        700
+      ],
+      "ph_optimo": [
+        5.5,
+        7.5
+      ],
+      "ph_absoluto": [
+        5,
+        8
+      ],
+      "ciclo_dias": [
+        90,
+        300
+      ]
+    },
+    "agua_por_ciclo_fuente": "https://www.fao.org/4/s2022e/s2022e07.htm"
   },
   {
-    "id": "frijol", "nombre": "Frijol", "familia": "leguminosa", "leguminosa": true,
-    "temporadas": ["PV"], "agua": ["temporal", "riego"],
-    "temp_opt_min_c": 18, "temp_opt_max_c": 26,
-    "lluvia_ciclo_min_mm": 300, "lluvia_ciclo_max_mm": 500,
-    "ph_min": 6.0, "ph_max": 7.5, "ciclo_meses": 3,
-    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+    "id": "frijol",
+    "nombre": "Frijol",
+    "familia": "leguminosa",
+    "leguminosa": true,
+    "temporadas": [
+      "PV"
+    ],
+    "agua": [
+      "temporal",
+      "riego"
+    ],
+    "temp_opt_min_c": 16,
+    "temp_opt_max_c": 25,
+    "lluvia_ciclo_min_mm": 300,
+    "lluvia_ciclo_max_mm": 500,
+    "ph_min": 5.5,
+    "ph_max": 7.5,
+    "ciclo_meses": 3,
+    "helada_dano_c": 2,
+    "calor_dano_c": 32,
+    "fuente": "FAO Ecocrop (temperatura y pH óptimos) y FAO, Irrigation Water Management Training Manual No. 3, tabla 14 (agua por ciclo)",
+    "verificado": true,
+    "verificacion": {
+      "fecha": "2026-11-15",
+      "temperatura": "FAO Ecocrop, temperatura óptima de Phaseolus vulgaris",
+      "ph": "FAO Ecocrop, pH óptimo de Phaseolus vulgaris",
+      "lluvia": "FAO Manual No. 3 (Brouwer y Heibloem, 1986), tabla 14, \"Bean\": 300-500 mm por ciclo",
+      "ciclo": "3 meses es el ciclo típico en el Bajío (dato local); FAO Ecocrop da 50 a 270 días según la variedad",
+      "antes": {
+        "temp": [
+          18,
+          26
+        ],
+        "ph": [
+          6,
+          7.5
+        ],
+        "lluvia": [
+          300,
+          500
+        ]
+      }
+    },
+    "ecocrop": {
+      "id": 1668,
+      "especie": "Phaseolus vulgaris",
+      "url": "https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=1668",
+      "temp_optima_c": [
+        16,
+        25
+      ],
+      "temp_absoluta_c": [
+        7,
+        32
+      ],
+      "lluvia_anual_optima_mm": [
+        500,
+        2000
+      ],
+      "lluvia_anual_absoluta_mm": [
+        300,
+        4300
+      ],
+      "ph_optimo": [
+        5.5,
+        7.5
+      ],
+      "ph_absoluto": [
+        4,
+        9
+      ],
+      "ciclo_dias": [
+        50,
+        270
+      ]
+    },
+    "agua_por_ciclo_fuente": "https://www.fao.org/4/s2022e/s2022e07.htm"
   },
   {
-    "id": "trigo", "nombre": "Trigo grano", "familia": "gramínea", "leguminosa": false,
-    "temporadas": ["OI"], "agua": ["riego"],
-    "temp_opt_min_c": 12, "temp_opt_max_c": 24,
-    "lluvia_ciclo_min_mm": 450, "lluvia_ciclo_max_mm": 650,
-    "ph_min": 6.0, "ph_max": 7.5, "ciclo_meses": 4,
-    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+    "id": "trigo",
+    "nombre": "Trigo grano",
+    "familia": "gramínea",
+    "leguminosa": false,
+    "temporadas": [
+      "OI"
+    ],
+    "agua": [
+      "riego"
+    ],
+    "temp_opt_min_c": 15,
+    "temp_opt_max_c": 23,
+    "lluvia_ciclo_min_mm": 450,
+    "lluvia_ciclo_max_mm": 650,
+    "ph_min": 6,
+    "ph_max": 7,
+    "ciclo_meses": 4,
+    "helada_dano_c": -2,
+    "calor_dano_c": 32,
+    "fuente": "FAO Ecocrop (temperatura y pH óptimos) y FAO, Irrigation Water Management Training Manual No. 3, tabla 14 (agua por ciclo)",
+    "verificado": true,
+    "verificacion": {
+      "fecha": "2026-11-15",
+      "temperatura": "FAO Ecocrop, temperatura óptima de Triticum aestivum",
+      "ph": "FAO Ecocrop, pH óptimo de Triticum aestivum",
+      "lluvia": "FAO Manual No. 3 (Brouwer y Heibloem, 1986), tabla 14, \"Barley/Oats/Wheat\": 450-650 mm por ciclo",
+      "ciclo": "4 meses es el ciclo típico en el Bajío (dato local); FAO Ecocrop da 90 a 250 días según la variedad",
+      "antes": {
+        "temp": [
+          12,
+          24
+        ],
+        "ph": [
+          6,
+          7.5
+        ],
+        "lluvia": [
+          450,
+          650
+        ]
+      }
+    },
+    "ecocrop": {
+      "id": 2114,
+      "especie": "Triticum aestivum",
+      "url": "https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=2114",
+      "temp_optima_c": [
+        15,
+        23
+      ],
+      "temp_absoluta_c": [
+        5,
+        27
+      ],
+      "lluvia_anual_optima_mm": [
+        750,
+        900
+      ],
+      "lluvia_anual_absoluta_mm": [
+        300,
+        1600
+      ],
+      "ph_optimo": [
+        6,
+        7
+      ],
+      "ph_absoluto": [
+        5.5,
+        8.5
+      ],
+      "ciclo_dias": [
+        90,
+        250
+      ]
+    },
+    "agua_por_ciclo_fuente": "https://www.fao.org/4/s2022e/s2022e07.htm"
   },
   {
-    "id": "cebada", "nombre": "Cebada grano", "familia": "gramínea", "leguminosa": false,
-    "temporadas": ["OI"], "agua": ["riego"],
-    "temp_opt_min_c": 12, "temp_opt_max_c": 22,
-    "lluvia_ciclo_min_mm": 350, "lluvia_ciclo_max_mm": 600,
-    "ph_min": 6.0, "ph_max": 8.0, "ciclo_meses": 3,
-    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+    "id": "cebada",
+    "nombre": "Cebada grano",
+    "familia": "gramínea",
+    "leguminosa": false,
+    "temporadas": [
+      "OI"
+    ],
+    "agua": [
+      "riego"
+    ],
+    "temp_opt_min_c": 15,
+    "temp_opt_max_c": 20,
+    "lluvia_ciclo_min_mm": 450,
+    "lluvia_ciclo_max_mm": 650,
+    "ph_min": 6.5,
+    "ph_max": 7.5,
+    "ciclo_meses": 3,
+    "helada_dano_c": -2,
+    "calor_dano_c": 32,
+    "fuente": "FAO Ecocrop (temperatura y pH óptimos) y FAO, Irrigation Water Management Training Manual No. 3, tabla 14 (agua por ciclo)",
+    "verificado": true,
+    "verificacion": {
+      "fecha": "2026-11-15",
+      "temperatura": "FAO Ecocrop, temperatura óptima de Hordeum vulgare",
+      "ph": "FAO Ecocrop, pH óptimo de Hordeum vulgare",
+      "lluvia": "FAO Manual No. 3 (Brouwer y Heibloem, 1986), tabla 14, \"Barley/Oats/Wheat\": 450-650 mm por ciclo",
+      "ciclo": "3 meses es el ciclo típico en el Bajío (dato local); FAO Ecocrop da 90 a 240 días según la variedad",
+      "antes": {
+        "temp": [
+          12,
+          22
+        ],
+        "ph": [
+          6,
+          8
+        ],
+        "lluvia": [
+          350,
+          600
+        ]
+      }
+    },
+    "ecocrop": {
+      "id": 1232,
+      "especie": "Hordeum vulgare",
+      "url": "https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=1232",
+      "temp_optima_c": [
+        15,
+        20
+      ],
+      "temp_absoluta_c": [
+        2,
+        40
+      ],
+      "lluvia_anual_optima_mm": [
+        500,
+        1000
+      ],
+      "lluvia_anual_absoluta_mm": [
+        200,
+        2000
+      ],
+      "ph_optimo": [
+        6.5,
+        7.5
+      ],
+      "ph_absoluto": [
+        6,
+        8
+      ],
+      "ciclo_dias": [
+        90,
+        240
+      ]
+    },
+    "agua_por_ciclo_fuente": "https://www.fao.org/4/s2022e/s2022e07.htm"
   },
   {
-    "id": "garbanzo", "nombre": "Garbanzo", "familia": "leguminosa", "leguminosa": true,
-    "temporadas": ["OI"], "agua": ["riego"],
-    "temp_opt_min_c": 15, "temp_opt_max_c": 25,
-    "lluvia_ciclo_min_mm": 250, "lluvia_ciclo_max_mm": 450,
-    "ph_min": 6.0, "ph_max": 8.0, "ciclo_meses": 3,
-    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+    "id": "garbanzo",
+    "nombre": "Garbanzo",
+    "familia": "leguminosa",
+    "leguminosa": true,
+    "temporadas": [
+      "OI"
+    ],
+    "agua": [
+      "riego"
+    ],
+    "temp_opt_min_c": 15,
+    "temp_opt_max_c": 29,
+    "lluvia_ciclo_min_mm": 250,
+    "lluvia_ciclo_max_mm": 450,
+    "ph_min": 6,
+    "ph_max": 8.5,
+    "ciclo_meses": 3,
+    "helada_dano_c": -2,
+    "calor_dano_c": 35,
+    "fuente": "FAO Ecocrop (temperatura y pH óptimos); el agua por ciclo sigue aproximada",
+    "verificado": false,
+    "verificacion": {
+      "fecha": "2026-11-15",
+      "temperatura": "FAO Ecocrop, temperatura óptima de Cicer arietinum",
+      "ph": "FAO Ecocrop, pH óptimo de Cicer arietinum",
+      "lluvia": null,
+      "ciclo": "3 meses es el ciclo típico en el Bajío (dato local); FAO Ecocrop da 90 a 180 días según la variedad",
+      "antes": {
+        "temp": [
+          15,
+          25
+        ],
+        "ph": [
+          6,
+          8
+        ],
+        "lluvia": [
+          250,
+          450
+        ]
+      }
+    },
+    "ecocrop": {
+      "id": 2479,
+      "especie": "Cicer arietinum",
+      "url": "https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=2479",
+      "temp_optima_c": [
+        15,
+        29
+      ],
+      "temp_absoluta_c": [
+        7,
+        35
+      ],
+      "lluvia_anual_optima_mm": [
+        600,
+        1000
+      ],
+      "lluvia_anual_absoluta_mm": [
+        300,
+        1800
+      ],
+      "ph_optimo": [
+        6,
+        8.5
+      ],
+      "ph_absoluto": [
+        4.7,
+        9.5
+      ],
+      "ciclo_dias": [
+        90,
+        180
+      ]
+    },
+    "agua_por_ciclo_fuente": null,
+    "todo": [
+      "Confirmar el agua por ciclo de garbanzo: no está en la tabla 14 del Manual No. 3 de FAO y Ecocrop solo da lluvia anual (600-1000 mm al año)."
+    ]
   },
   {
-    "id": "brocoli", "nombre": "Brócoli", "familia": "crucífera", "leguminosa": false,
-    "temporadas": ["PV", "OI"], "agua": ["riego"],
-    "temp_opt_min_c": 15, "temp_opt_max_c": 22,
-    "lluvia_ciclo_min_mm": 600, "lluvia_ciclo_max_mm": 900,
-    "ph_min": 6.0, "ph_max": 7.0, "ciclo_meses": 3,
-    "fuente": "Aproximado (estilo FAO Ecocrop), sin verificar", "verificado": false
+    "id": "brocoli",
+    "nombre": "Brócoli",
+    "familia": "crucífera",
+    "leguminosa": false,
+    "temporadas": [
+      "PV",
+      "OI"
+    ],
+    "agua": [
+      "riego"
+    ],
+    "temp_opt_min_c": 15,
+    "temp_opt_max_c": 24,
+    "lluvia_ciclo_min_mm": 600,
+    "lluvia_ciclo_max_mm": 900,
+    "ph_min": 6,
+    "ph_max": 6.8,
+    "ciclo_meses": 3,
+    "helada_dano_c": -2,
+    "calor_dano_c": 30,
+    "fuente": "FAO Ecocrop (temperatura y pH óptimos); el agua por ciclo sigue aproximada",
+    "verificado": false,
+    "verificacion": {
+      "fecha": "2026-11-15",
+      "temperatura": "FAO Ecocrop, temperatura óptima de Brassica oleracea var. italica",
+      "ph": "FAO Ecocrop, pH óptimo de Brassica oleracea var. italica",
+      "lluvia": null,
+      "ciclo": "3 meses es el ciclo típico en el Bajío (dato local); FAO Ecocrop da 80 a 120 días según la variedad",
+      "antes": {
+        "temp": [
+          15,
+          22
+        ],
+        "ph": [
+          6,
+          7
+        ],
+        "lluvia": [
+          600,
+          900
+        ]
+      }
+    },
+    "ecocrop": {
+      "id": 556,
+      "especie": "Brassica oleracea var. italica",
+      "url": "https://ecocrop.apps.fao.org/ecocrop/srv/en/dataSheet?id=556",
+      "temp_optima_c": [
+        15,
+        24
+      ],
+      "temp_absoluta_c": [
+        3,
+        35
+      ],
+      "lluvia_anual_optima_mm": [
+        900,
+        1500
+      ],
+      "lluvia_anual_absoluta_mm": [
+        350,
+        2000
+      ],
+      "ph_optimo": [
+        6,
+        6.8
+      ],
+      "ph_absoluto": [
+        5.5,
+        8.5
+      ],
+      "ciclo_dias": [
+        80,
+        120
+      ]
+    },
+    "agua_por_ciclo_fuente": null,
+    "todo": [
+      "Confirmar el agua por ciclo de brócoli: no está en la tabla 14 del Manual No. 3 de FAO y Ecocrop solo da lluvia anual (900-1500 mm al año)."
+    ]
   }
 ]

@@ -1,12 +1,15 @@
-import { Suspense, lazy, useEffect, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
 // MapLibre (~1 MB) se carga aparte, cuando la pantalla ya se ve.
 const ParcelMap = lazy(() => import('../map/ParcelMap.jsx'));
 import FarmSummary from '../map/FarmSummary.jsx';
+import PanelPasos from '../components/PanelPasos.jsx';
 import PerfilForm from '../components/PerfilForm.jsx';
 import Ubicacion from '../components/Ubicacion.jsx';
 import { useParcelaContext } from '../context/ParcelaContext.jsx';
+import SoilCard from '../components/SoilCard.jsx';
+import { climatePeriod, withYears } from '../lib/parcelaClima.js';
 import { weatherFromCode } from '../weather.js';
 import { YearControl } from '../year.jsx';
 
@@ -21,17 +24,16 @@ const ESCENA_DIBUJO = { vista: 'aerea', nasa: null, clima: 'apagado', lejos: fal
 const TARJETAS = [
   { id: 'terreno', titulo: 'Tu terreno', escena: { vista: 'relieve', nasa: null, clima: 'apagado', lejos: false } },
   { id: 'hoy', titulo: 'El clima ahorita', escena: { vista: 'relieve', nasa: null, clima: 'hoy', lejos: false } },
-  { id: 'lluvia', titulo: 'La lluvia de 25 años', escena: { vista: 'relieve', nasa: null, clima: 'anio', lejos: false } },
+  { id: 'lluvia', titulo: 'La lluvia de {n} años', escena: { vista: 'relieve', nasa: null, clima: 'anio', lejos: false } },
   { id: 'suelo', titulo: 'Tu suelo', escena: { vista: 'relieve', nasa: null, clima: 'apagado', lejos: false } },
   { id: 'verdor', titulo: 'El verdor visto desde el satélite', escena: { vista: 'aerea', nasa: 'ndvi', clima: 'apagado', lejos: true } },
   { id: 'humedad', titulo: 'La humedad de la tierra', escena: { vista: 'aerea', nasa: 'smap', clima: 'apagado', lejos: true } },
   { id: 'perfil', titulo: 'Cuéntame de tu parcela', escena: { vista: 'relieve', nasa: null, clima: 'hoy', lejos: false } },
 ];
 
-const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
-
-// Screen 1: first the farmer finds and draws the plot; then one card at a time (Anterior/Siguiente),
-// next to the map that stays in sight, and each card sets the map (view, NASA picture, weather). The last card is the profile (old step 2).
+// Screen 1: the map on one side, always in sight, and one panel on the other (PanelPasos). First the panel guides
+// the farmer to find and draw the plot (the map's own tools are drawn inside the panel); then it shows one step at a
+// time, and each step sets the map (view, NASA picture, weather). The last step is the profile (old step 2).
 // Climate and soil are real (/api/clima + /api/suelo), the weather right now is Open-Meteo.
 export default function Parcela() {
   const { point, loading, clima, suelo, parcelas, addParcela, updateParcela, removeParcela, setCultivo, choosePoint, year, pronostico } =
@@ -39,37 +41,30 @@ export default function Parcela() {
   const listo = parcelas.length > 0 || (point != null && !SIN_PARCELA.has(point.id));
   const [cambiar, setCambiar] = useState(false);
   const [activa, setActiva] = useState(0); // la única tarjeta que se ve; manda en el mapa
-  const tarjetaRef = useRef(null);
-  const navegado = useRef(false);
+  const [slot, setSlot] = useState(null); // where ParcelMap draws its tools (parcel list, drawing, GPS)
+  const [dibujando, setDibujando] = useState(false); // corners are being placed on the map
 
-  // Otro lugar (o volver a dibujar desde cero): las tarjetas empiezan otra vez.
+  // Otro lugar (o volver a dibujar desde cero): los pasos empiezan otra vez.
   useEffect(() => {
     setActiva(0);
   }, [listo, point?.id]);
 
-  // El encabezado es fijo y su alto cambia (en celular ocupa dos renglones): el mapa fijo va justo debajo.
+  // Al empezar a marcar esquinas, que se vean las herramientas (el botón de guardar) dentro del panel.
   useEffect(() => {
-    const header = document.querySelector('.fs-header');
-    if (!header || typeof ResizeObserver === 'undefined') return undefined;
-    const medir = () => document.documentElement.style.setProperty('--fs-head', `${header.offsetHeight}px`);
-    medir();
-    const observer = new ResizeObserver(medir);
-    observer.observe(header);
-    return () => observer.disconnect();
-  }, []);
+    if (dibujando) slot?.scrollIntoView({ block: 'nearest' });
+  }, [dibujando, slot]);
 
-  // Al cambiar de tarjeta con los botones, que se vea su inicio (el mapa queda fijo arriba o al lado).
-  useEffect(() => {
-    if (!navegado.current) return;
-    navegado.current = false;
-    tarjetaRef.current?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
-  }, [activa]);
-
-  const ir = (i) => {
-    navegado.current = true;
-    setActiva(i);
-  };
   const tarjeta = TARJETAS[activa];
+  const lugar = (point?.nombre ?? 'Tu parcela').replace(/\.$/, '');
+  // Borrar una parcela o cambiar de lugar no se puede deshacer: se pregunta antes.
+  const borrarParcela = (id) => {
+    if (window.confirm('¿Borrar esta parcela? No se puede deshacer.')) removeParcela(id);
+  };
+  const elegirLugar = (nuevo) => {
+    if (parcelas.length && !window.confirm('Si cambias de lugar se borran las parcelas que dibujaste. ¿Quieres seguir?')) return;
+    setCambiar(false);
+    choosePoint(nuevo);
+  };
 
   const climaData = clima?.data;
   const soil = suelo?.data;
@@ -84,7 +79,7 @@ export default function Parcela() {
           </div>
         ) : (
           <p>
-            Parcela de ejemplo en <strong>{point.nombre}</strong>. Si quieres usar la tuya, toca sus esquinas en el mapa.
+            Parcela de ejemplo en <strong>{lugar}</strong>. Si quieres usar la tuya, toca sus esquinas en el mapa.
           </p>
         );
       case 'hoy': {
@@ -104,7 +99,7 @@ export default function Parcela() {
       }
       case 'lluvia':
         if (clima?.error) return <p className="fs-note" role="alert">{clima.error}</p>;
-        if (!climaData) return <p className="fs-note">{loading ? 'Cargando 25 años de lluvia…' : 'Sin datos de lluvia.'}</p>;
+        if (!climaData) return <p className="fs-note">{loading ? 'Cargando la lluvia de cada año…' : 'Sin datos de lluvia.'}</p>;
         return (
           <>
             <p className="fs-dato">
@@ -135,7 +130,11 @@ export default function Parcela() {
               Arcilla {soil.arcilla_pct ?? '—'} % · arena {soil.arena_pct ?? '—'} % · limo {soil.limo_pct ?? '—'} %
               {soil.carbono_organico_g_kg != null && <> · materia orgánica (carbono) {soil.carbono_organico_g_kg} g/kg</>}
             </p>
-            <p className="fs-note">De 0 a 30 cm de hondo. Fuente: SoilGrids (ISRIC), cuadros de 250 m.</p>
+            <p className="fs-note">Promedio de 0 a 30 cm de hondo. Fuente: SoilGrids (ISRIC), cuadros de 250 m.</p>
+            {/* Soil type, layers down to 1 m and NASA soil wetness (official data, see SoilCard). */}
+            <div className="v3d">
+              <SoilCard suelo={soil} clima={climaData} anio={year?.anio} />
+            </div>
           </>
         );
       case 'verdor':
@@ -156,9 +155,7 @@ export default function Parcela() {
         return (
           <>
             <PerfilForm />
-            <Link className="fs-btn fs-btn-primary lg fs-btn-block" to="/rotacion">
-              <i className="bi bi-cpu" aria-hidden="true"></i>Simular rotación a 3 años y vista 3D
-            </Link>
+            <p className="fs-note">Cuando termines, toca «Ver mis rotaciones».</p>
           </>
         );
       default:
@@ -173,7 +170,7 @@ export default function Parcela() {
         pills={
           <>
             <span className="fs-pill">
-              <span className="fs-dot" aria-hidden="true"></span>NASA POWER 2000–2024
+              <span className="fs-dot" aria-hidden="true"></span>NASA POWER {climatePeriod(climaData)}
             </span>
             <span className="fs-pill">
               <span className="fs-dot d2" aria-hidden="true"></span>SoilGrids ISRIC
@@ -185,101 +182,82 @@ export default function Parcela() {
         }
       />
 
-      <main className="fs-container">
-        {!listo && (
-          <section className="fs-banner fs-up" aria-label="Contexto">
-            <div className="fs-banner-l">
-              <span className="fs-banner-num">63.9%</span>
-              <div>
-                <p className="fs-banner-t1">de la superficie agrícola de Guanajuato es de temporal</p>
-                <p className="fs-banner-t2">622,938 ha · Censo Agropecuario 2022, INEGI. En Querétaro la sequía redujo la siembra de temporal hasta 40%.</p>
-              </div>
-            </div>
-          </section>
-        )}
+      <main className="fs-container fs-app">
+        <div className="fs-flujo">
+          <div className="fs-flujo-mapa v3d v3d-embed v3d-hero" role="application" aria-label="Mapa de satélite de tu parcela">
+            <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
+              <ParcelMap
+                point={point}
+                parcelas={parcelas}
+                suelo={soil ?? null}
+                clima={climaData ?? null}
+                year={year}
+                escena={listo ? tarjeta.escena : ESCENA_DIBUJO}
+                actual={actual}
+                herramientasEn={slot}
+                onDibujando={setDibujando}
+                onAddParcela={addParcela}
+                onUpdateParcela={updateParcela}
+                onRemoveParcela={borrarParcela}
+                onSetCultivo={setCultivo}
+              />
+            </Suspense>
+          </div>
 
-        <section className="fs-card fs-up fs-d1 fs-hero-map" aria-labelledby="t-mapa">
-          <div className="fs-card-head">
-            <div>
-              <div className="fs-eyebrow">{listo ? 'Tu parcela' : 'Paso 1 · Tu parcela'}</div>
-              <h1 className="fs-card-title" id="t-mapa">
-                {listo ? point?.nombre ?? 'Tu parcela' : '¿Dónde está tu parcela?'}
-              </h1>
-              {!listo && (
-                <p className="fs-hero-sub">
-                  Escribe tu pueblo o dirección, usa tu ubicación o las coordenadas. Después toca las esquinas de tu parcela
-                  sobre la imagen de satélite y te vamos mostrando lo que sabemos de ella.
-                </p>
+          {listo ? (
+            <PanelPasos
+              lugar={
+                <>
+                  <i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {lugar}
+                </>
+              }
+              accion={
+                <button type="button" className="fs-panel-link" aria-expanded={cambiar} onClick={() => setCambiar(!cambiar)}>
+                  {cambiar ? 'Cerrar' : 'Cambiar de lugar'}
+                </button>
+              }
+              paso={activa}
+              total={TARJETAS.length}
+              titulo={dibujando ? 'Marca tu parcela en el mapa' : withYears(tarjeta.titulo, climaData)}
+              onAnterior={() => setActiva(activa - 1)}
+              onSiguiente={() => setActiva(activa + 1)}
+              bloqueado={dibujando}
+              final={
+                <Link className="fs-btn fs-btn-primary" to="/rotacion">
+                  Ver mis rotaciones<i className="bi bi-arrow-right" aria-hidden="true"></i>
+                </Link>
+              }
+            >
+              {cambiar && <Ubicacion onPick={elegirLugar} selectedId={point?.id} />}
+              {dibujando ? (
+                <p>Toca cada esquina de tu parcela en el mapa. Cuando termines, toca el botón verde de «Guardar»; si no, «Cancelar».</p>
+              ) : (
+                cuerpo(tarjeta.id)
               )}
-            </div>
-            {listo && (
-              <button type="button" className="fs-btn fs-btn-sec" aria-expanded={cambiar} onClick={() => setCambiar(!cambiar)}>
-                <i className="bi bi-geo-alt" aria-hidden="true"></i>Cambiar de lugar
-              </button>
-            )}
-          </div>
-
-          {(!listo || cambiar) && (
-            <Ubicacion
-              onPick={(lugar) => {
-                setCambiar(false);
-                choosePoint(lugar);
-              }}
-              selectedId={point?.id}
-            />
+              {/* The map's own tools: in «Tu terreno» (parcel list, draw another) and while drawing. */}
+              <div ref={setSlot} className="fs-herramientas v3d v3d-embed" hidden={!dibujando && tarjeta.id !== 'terreno'} />
+            </PanelPasos>
+          ) : (
+            <PanelPasos titulo="¿Dónde está tu parcela?">
+              <ol className="fs-guia">
+                <li>
+                  <b>Busca tu pueblo</b> o toca una parcela de ejemplo.
+                  <Ubicacion onPick={elegirLugar} selectedId={point?.id} />
+                </li>
+                <li>
+                  <b>Marca tu parcela en el mapa.</b>
+                  <div ref={setSlot} className="fs-herramientas v3d v3d-embed" />
+                </li>
+                <li>
+                  <b>Toca «Usar esta parcela»</b> y te vamos mostrando lo que sabemos de ella.
+                </li>
+              </ol>
+              <p className="fs-note">
+                En Guanajuato, 63.9 % de la superficie agrícola es de temporal (622,938 ha; Censo Agropecuario 2022, INEGI).
+              </p>
+            </PanelPasos>
           )}
-
-          <div className={listo ? 'fs-flujo' : 'fs-flujo is-solo'}>
-            <div className="fs-flujo-mapa v3d v3d-embed v3d-hero" role="application" aria-label="Mapa de satélite de tu parcela">
-              <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
-                <ParcelMap
-                  point={point}
-                  parcelas={parcelas}
-                  suelo={soil ?? null}
-                  clima={climaData ?? null}
-                  year={year}
-                  escena={listo ? tarjeta.escena : ESCENA_DIBUJO}
-                  actual={actual}
-                  onAddParcela={addParcela}
-                  onUpdateParcela={updateParcela}
-                  onRemoveParcela={removeParcela}
-                  onSetCultivo={setCultivo}
-                />
-              </Suspense>
-            </div>
-
-            {listo && (
-              <section key={tarjeta.id} ref={tarjetaRef} className="fs-card fs-tarjeta fs-up" aria-labelledby="t-tarjeta">
-                <div className="fs-tarjeta-head">
-                  <span className="fs-eyebrow">
-                    {activa + 1} de {TARJETAS.length}
-                  </span>
-                  <h2 className="fs-card-title xs" id="t-tarjeta">
-                    {tarjeta.titulo}
-                  </h2>
-                  <span className="fs-tarjeta-pasos" aria-hidden="true">
-                    {TARJETAS.map((t, i) => (
-                      <span key={t.id} className={i <= activa ? 'is-on' : undefined} />
-                    ))}
-                  </span>
-                </div>
-                {cuerpo(tarjeta.id)}
-                <div className="fs-tarjeta-nav">
-                  {activa > 0 && (
-                    <button type="button" className="fs-btn fs-btn-sec" onClick={() => ir(activa - 1)}>
-                      <i className="bi bi-arrow-left" aria-hidden="true"></i>Anterior
-                    </button>
-                  )}
-                  {activa < TARJETAS.length - 1 && (
-                    <button type="button" className="fs-btn fs-btn-primary" onClick={() => ir(activa + 1)}>
-                      Siguiente<i className="bi bi-arrow-right" aria-hidden="true"></i>
-                    </button>
-                  )}
-                </div>
-              </section>
-            )}
-          </div>
-        </section>
+        </div>
       </main>
     </>
   );

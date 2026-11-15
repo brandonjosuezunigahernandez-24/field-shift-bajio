@@ -24,7 +24,7 @@ plot instead of an average. A farmer draws the plot on a satellite map and says 
 for the soil, using less water or risking less. The tool then compares three rotations side by side: what they sow today
 (usually maize every year), the best one for their goal, and the best one for another goal.
 
-Each comparison uses 25 years of NASA POWER rain at the plot, SoilGrids soil, official Mexican yields and prices (SIAP)
+Each comparison uses 26 years of NASA POWER rain at the plot, SoilGrids soil, official Mexican yields and prices (SIAP)
 and crop requirements. Each rotation says why it was suggested, what evidence supports it, what it improves, what we do
 not know and what a local agronomist should review. In the Bajío, 63.9 % of Guanajuato's farmland depends on rain alone,
 and one failed summer can cost a family its harvest. The tool supports, never replaces, the farmer's judgment.
@@ -45,26 +45,27 @@ https://github.com/brandonjosuezunigahernandez-24/field-shift-bajio
    - The farmer finds their village, then draws the plot on Esri satellite imagery. They can tap the corners, walk them
      with the phone's GPS, or tap once inside the field and let the app propose the outline.
    - The plot rises in 3D relief from NASA SRTM elevation.
-   - Cards open one at a time, and each one moves the map: the weather right now; 25 years of rain from NASA POWER with
+   - Cards open one at a time, and each one moves the map: the weather right now; 26 years of rain from NASA POWER with
      the dry years marked; the soil from SoilGrids; and the region's vegetation (MODIS NDVI) and root-zone soil
      moisture (SMAP) from NASA GIBS.
    - A few plain questions follow: rain-fed or irrigated, the main goal, the last crop and the one in the ground now.
 2. *3D simulator.*
    - **Three rotations compared side by side**, including today's:
      - seasons without enough rain, with an uncertainty range;
+     - seasons with damaging frost or heat;
      - legume seasons;
      - repeated crop families;
      - water the crops need;
      - gross income.
    - Choosing a rotation and a year shows that crop growing on the farmer's plot.
-   - A year slider replays 2000–2024 and shows whether each year's real rain would have been enough.
+   - A year slider replays 2000–2025 and shows whether each year's real rain would have been enough.
    - A card called "What we don't know" lists the limits of the data.
 3. *AI assistant*, by text or voice. It answers "what should I sow?" with the same engine and the same numbers as
    the screen.
-4. *Try a crop*: any crop against the plot's 25 real years, sown in June or July.
+4. *Try a crop*: any crop against the plot's 26 real years, sown in June or July.
 
 **How it works.** The plot's center is sent to a Node/Express server. The server gets monthly NASA POWER data
-(2000–2024) for that point, SoilGrids soil (0–30 cm) and the SIAP state data.
+(2000–2025) for that point, SoilGrids soil (down to 1 m, with the soil type) and the SIAP state data.
 
 A rule engine scores each crop with three checks:
 - the temperature of its cycle months against its range;
@@ -81,7 +82,7 @@ The rotation rules:
 - no repeat of the family the farmer just grew.
 
 Uncertainty is part of the answer:
-- Each risk is shown with its 90 % Wilson interval for 25 years ("12 of 25 years, it could be 33 % to 64 %").
+- Each risk is shown with its 90 % Wilson interval for 26 years ("12 of 26 years, it could be 31 % to 62 %").
 - Each rotation shows how much the result changes if a crop needed 10 % less or more rain.
 - The notes also cover the resolution of NASA POWER and SoilGrids, and that SIAP prices are state averages.
 
@@ -97,11 +98,11 @@ We tested it by leaving whole years out and compared it against each municipalit
 - **Guanajuato maize:** barely better, so it is labeled low confidence.
 - **Beans and sorghum:** no model beat the average, so none is used.
 
-The code has 314 server tests and 53 client tests that run offline on stored real responses.
+The code has 333 server tests and 60 client tests that run offline on stored real responses.
 
 **Benefits.**
 - A farmer sees, in their own words and numbers, what switching from maize every year to a rotation with beans and
-  sorghum would have meant in their real dry years. In Celaya that is 48 % of seasons short of rain versus 12 %, with
+  sorghum would have meant in their real dry years. In Celaya that is 46 % of seasons short of rain versus 15 %, with
   two legume seasons that leave nitrogen in the soil.
 - The comparison with today's rotation makes the trade-offs visible, including income from official data.
 - The tool works offline with stored data for the demo plots.
@@ -118,9 +119,10 @@ edge, and that can be extended to other rain-fed regions with their own crops an
 - **Development:** GitHub, and Claude Code as a coding assistant.
 
 **Limitations we state openly.**
-- The crop requirements are approximate (FAO Ecocrop style) and not yet verified.
+- The crop requirements come from FAO (Ecocrop and Training Manual No. 3) but are general ranges for each species, not
+  local varieties; the water need of chickpea and broccoli is still approximate.
 - NASA POWER is a grid cell of about 50 km, not a field measurement.
-- Frost and heat are not in the risk yet.
+- Frost and heat are coarse: they come from the coldest and hottest hour of each month in the NASA POWER cell.
 - Recommendations are calibrated only for Guanajuato and Querétaro.
 
 ## Use of Super Intelligence (SI)
@@ -139,11 +141,11 @@ edge, and that can be extended to other rain-fed regions with their own crops an
 
 ## NASA Data
 
-- **NASA POWER**, monthly point API 2000–2024, community AG: T2M, T2M_MAX, T2M_MIN, PRECTOTCORR, ALLSKY_SFC_SW_DWN and
+- **NASA POWER**, monthly point API 2000–2025, community AG: T2M, T2M_MAX, T2M_MIN, PRECTOTCORR, ALLSKY_SFC_SW_DWN and
   GWETROOT. It is the core of the tool. From it come:
   - the rain of each crop's cycle in each real year;
   - the dry years and the year-by-year test;
-  - the temperature fit;
+  - the temperature fit, and the years with damaging frost or heat (T2M_MIN, T2M_MAX);
   - the uncertainty ranges;
   - the training data of the loss model.
 - **NASA GIBS** layers on the map: MODIS Terra NDVI (16-day), MODIS Terra corrected reflectance (true color) and SMAP L4
@@ -163,7 +165,8 @@ Other data and resources:
 - Open-Meteo (CC BY 4.0), current weather and forecast.
 - OpenStreetMap / Nominatim (ODbL), address search.
 - Wikipedia in Spanish (CC BY-SA), linked support texts.
-- FAO Ecocrop, as the style reference for crop requirements (values not yet verified).
+- FAO Ecocrop (optimal temperature and pH of each crop) and FAO Irrigation Water Management Training Manual No. 3,
+  Table 14 (water per growing cycle).
 
 Open-source software: React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber,
 @react-three/drei, Chart.js, Bootstrap, Bootstrap Icons, transformers.js, Ollama and Gemma 3. Fonts: Plus Jakarta Sans

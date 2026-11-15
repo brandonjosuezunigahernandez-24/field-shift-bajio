@@ -69,8 +69,66 @@ export function thresholdSensitivity(crop, rows, inicio = SEASON_START.PV) {
   return { menos10: below(0.9), mas10: below(1.1) };
 }
 
-// Rain-fed sowing months tried by the engine (INIFAP Bajío sows beans from late June to mid July).
-// Each one is scored whole (rain fit, temperature and failed years); the crop keeps the month with the higher score.
+const round1 = (v) => Math.round(v * 10) / 10;
+const round2 = (v) => Math.round(v * 100) / 100;
+
+// The rows of each season of a cycle, as [{ anio, filas }]; `anio` is the sowing year. Months before the sowing
+// month belong to the season sown the year before (OI: November to February). Incomplete seasons are left out.
+function seasonRows(rows, meses) {
+  const bySeason = new Map();
+  for (const row of rows) {
+    if (!meses.includes(row.month)) continue;
+    const anio = row.month >= meses[0] ? row.year : row.year - 1;
+    if (!bySeason.has(anio)) bySeason.set(anio, []);
+    bySeason.get(anio).push(row);
+  }
+  return [...bySeason]
+    .filter(([, filas]) => filas.length === meses.length)
+    .map(([anio, filas]) => ({ anio, filas }))
+    .sort((a, b) => a.anio - b.anio);
+}
+
+// Frost and heat against every real season. In the monthly POWER data t_min_c and t_max_c are the coldest and the
+// hottest HOUR of the month, so "did it get to X °C that month" has a yes or no answer for each year.
+// A season counts when any month of the cycle reached the crop's damage threshold (helada_dano_c, calor_dano_c).
+// Irrigation does not protect from either, so this runs for rain-fed and irrigated plots alike.
+// Compared rounded to one decimal: the same number the farmer reads. A crop without a threshold has no risk.
+export function extremeTempRisk(crop, rows, temporada, inicio = SEASON_START[temporada]) {
+  const meses = cycleMonths(crop, temporada, inicio);
+  const seasons = seasonRows(rows, meses).filter((s) => s.filas.every((r) => r.t_min_c !== null && r.t_max_c !== null));
+  const side = (field, umbral, reached, worse) => {
+    const anios = umbral == null ? [] : seasons.filter((s) => s.filas.some((r) => reached(round1(r[field]), umbral))).map((s) => s.anio);
+    let record = null;
+    for (const s of seasons) {
+      for (const r of s.filas) {
+        if (!record || worse(r[field], record.c)) record = { c: r[field], mes: r.month, anio: r.year };
+      }
+    }
+    return {
+      umbral_c: umbral ?? null,
+      anios,
+      anios_total: seasons.length,
+      riesgo: seasons.length ? anios.length / seasons.length : 0,
+      record: record && { ...record, c: round1(record.c) },
+    };
+  };
+  return {
+    meses,
+    helada: side('t_min_c', crop.helada_dano_c, (v, u) => v <= u, (a, b) => a < b),
+    calor: side('t_max_c', crop.calor_dano_c, (v, u) => v >= u, (a, b) => a > b),
+  };
+}
+
+// Seasons in which something went wrong: short of rain (rain-fed only), frost or heat. A year with two problems
+// counts once. This is what the `seguridad` component of the score uses.
+export function badYears(risk, extremos) {
+  const anios = [...new Set([...risk.anios_bajo_minimo, ...extremos.helada.anios, ...extremos.calor.anios])].sort((a, b) => a - b);
+  const total = Math.max(risk.anios_total, extremos.helada.anios_total);
+  return { anios, total, riesgo: total ? anios.length / total : 0 };
+}
+
+// PV sowing months tried by the engine (INIFAP Bajío sows beans from late June to mid July).
+// Each one is scored whole (rain fit, temperature and years with a problem); the crop keeps the month with the higher score.
 export const SOWING_MONTHS = [6, 7];
 
 // Each fit goes from 0 (bad) to 1 (ideal). `lluvia` is null with irrigation: rain does not limit the crop.
@@ -141,8 +199,36 @@ const riskSentence = (risk, crop, meses) =>
   `En ${risk.anios_bajo_minimo.length} de ${risk.anios_total} años llovió menos de lo que este cultivo necesita aquí ` +
   `(${crop.lluvia_ciclo_min_mm} mm ${monthRange(meses)}).`;
 
+const FRIO = { hubo: (u) => `la temperatura bajó a ${u} °C o menos`, record: 'Lo más frío' };
+const CALOR = { hubo: (u) => `el calor llegó a ${u} °C o más`, record: 'Lo más caliente' };
+const recordSentence = (side, words) => `${words.record} fue ${side.record.c} °C en ${MONTHS[side.record.mes - 1]} de ${side.record.anio}.`;
+
+// One sentence for frost and one for heat, with the real years and the record of the cycle.
+function extremeSentences(extremos) {
+  const out = [];
+  for (const [side, words] of [[extremos.helada, FRIO], [extremos.calor, CALOR]]) {
+    if (side.umbral_c === null || !side.anios_total) continue;
+    const cuando = `en su ciclo (${monthRange(extremos.meses)})`;
+    out.push(
+      side.anios.length
+        ? `En ${side.anios.length} de ${side.anios_total} años ${words.hubo(side.umbral_c)} ${cuando}: eso lo puede dañar. ${recordSentence(side, words)}`
+        : `En ninguno de ${side.anios_total} años ${words.hubo(side.umbral_c)} ${cuando}. ${recordSentence(side, words)}`
+    );
+  }
+  return out;
+}
+
+// Short version for the rotation cards: only the problems that did happen.
+function extremeShort(extremos) {
+  const out = [];
+  for (const [side, words] of [[extremos.helada, FRIO], [extremos.calor, CALOR]]) {
+    if (side.anios.length) out.push(`En ${side.anios.length} de ${side.anios_total} años ${words.hubo(side.umbral_c)} en su ciclo.`);
+  }
+  return out;
+}
+
 // Reasons in plain Spanish, with the real numbers of the plot.
-export function buildReasons({ crop, parts, risk, ingreso_mxn_ha }, { agua, soil, estado }) {
+export function buildReasons({ crop, parts, risk, ingreso_mxn_ha, extremos, malos }, { agua, soil, estado }) {
   const reasons = [];
   if (agua === 'temporal') {
     reasons.push(riskSentence(risk, crop, parts.meses));
@@ -157,6 +243,14 @@ export function buildReasons({ crop, parts, risk, ingreso_mxn_ha }, { agua, soil
     `La temperatura media está en su rango (${crop.temp_opt_min_c} a ${crop.temp_opt_max_c} °C) en ` +
       `${parts.meses_en_rango} de ${parts.meses.length} meses de su ciclo (${monthRange(parts.meses)}).`
   );
+  if (extremos) {
+    reasons.push(...extremeSentences(extremos));
+    if (malos?.total && (extremos.helada.anios.length || extremos.calor.anios.length)) {
+      reasons.push(
+        `Juntando ${agua === 'temporal' ? 'falta de lluvia, ' : ''}helada y calor, tuvo algún problema en ${malos.anios.length} de ${malos.total} años: eso baja su puntaje.`
+      );
+    }
+  }
   if (parts.ph === null) {
     reasons.push('No hay dato de pH para este punto, así que el suelo no cambió el puntaje.');
   } else {
@@ -180,13 +274,14 @@ export function buildReasons({ crop, parts, risk, ingreso_mxn_ha }, { agua, soil
 
 // meta: what the plan was made for ("para lo que pediste", or another goal in the third rotation).
 function why(slot, previous, agua, previo, esMejor, meta = 'para lo que pediste') {
-  const { crop, puntaje, risk, parts } = slot.cand;
+  const { crop, puntaje, risk, parts, extremos } = slot.cand;
   const bits = [];
   if (!previous && previo && !esMejor) bits.push(`Va después de tu ${previo.nombre.toLowerCase()}: cambiar de familia ayuda a cortar plagas y enfermedades (${Math.round(puntaje)} de 100).`);
   else if (!previous) bits.push(`Es el que mejor queda en tu parcela ${meta} (${Math.round(puntaje)} de 100).`);
   else bits.push(`Va después de ${previous.cand.crop.nombre.toLowerCase()}: cambiar de familia ayuda a cortar plagas y enfermedades.`);
   if (crop.leguminosa) bits.push('Es leguminosa: deja algo de nitrógeno para el siguiente cultivo.');
   if (agua === 'temporal') bits.push(riskSentence(risk, crop, parts.meses));
+  if (extremos) bits.push(...extremeShort(extremos));
   return bits.join(' ');
 }
 
@@ -201,6 +296,8 @@ const pesos = (n) => Math.round(n).toLocaleString('es-MX');
 const lista = (words) => (words.length < 2 ? words.join('') : `${words.slice(0, -1).join(', ')} y ${words.at(-1)}`);
 const vez = (n, singular, plural) => `${n} ${n === 1 ? singular : plural}`;
 const seqKey = (rotacion) => rotacion.map((s) => `${s.temporada}:${s.cultivo}`).join('>');
+
+const extremeSummary = (side) => ({ riesgo: round2(side.riesgo), anios: side.anios, anios_total: side.anios_total, umbral_c: side.umbral_c });
 
 // Scores every candidate for one goal, best first, and keeps one sowing month per crop and season (June wins a tie).
 // The components do not depend on the goal, so the same candidates serve the three rotations.
@@ -279,7 +376,15 @@ function summarize(slots, agua, anios) {
   const riesgo = pv.length && anios ? fallas / (pv.length * anios) : null;
   const ingresos = planted.map((s) => s.cand.ingreso_mxn_ha);
   const conIngreso = ingresos.filter((v) => v != null);
+  // Frost and heat pool every sown season (PV and OI, rain-fed or irrigated): seasons hit over seasons measured.
+  const extremo = (lado) => {
+    const sides = planted.filter((s) => s.cand.extremos).map((s) => s.cand.extremos[lado]);
+    const total = sides.reduce((sum, x) => sum + x.anios_total, 0);
+    return total ? round2(sides.reduce((sum, x) => sum + x.anios.length, 0) / total) : null;
+  };
   return {
+    riesgo_helada: extremo('helada'),
+    riesgo_calor: extremo('calor'),
     temporadas_sembradas: planted.length,
     leguminosas: crops.filter((c) => c.leguminosa).length,
     familias: new Set(crops.map((c) => c.familia)).size,
@@ -313,6 +418,18 @@ function strategyTexts(e, base, { agua, rows, estado, anios, desde, hasta }) {
   } else if (agua === 'riego') {
     evidencia.push('Con riego, la lluvia no limita estos cultivos: no se calculó riesgo por años secos.');
   }
+  if (r.riesgo_helada !== null && r.riesgo_calor !== null) {
+    evidencia.push(
+      `Con la temperatura real de ${desde} a ${hasta}, a este plan le hubiera tocado una helada que daña en ${pct(r.riesgo_helada)} % de las temporadas ` +
+        `y un calor que daña en ${pct(r.riesgo_calor)} %.`
+    );
+    for (const crop of crops) {
+      const s = planted.find((x) => x.cand.crop.id === crop.id);
+      for (const frase of s.cand.extremos ? extremeShort(s.cand.extremos) : []) {
+        evidencia.push(`${capital(corto(crop))}: ${frase.charAt(0).toLowerCase()}${frase.slice(1)}`);
+      }
+    }
+  }
   if (r.ingreso_bruto_mxn_ha != null) {
     evidencia.push(
       `En 3 años dejaría unos ${pesos(r.ingreso_bruto_mxn_ha)} pesos por hectárea de ingreso bruto (promedio del SIAP 2018 a 2024` +
@@ -336,6 +453,12 @@ function strategyTexts(e, base, { agua, rows, estado, anios, desde, hasta }) {
     if (r.riesgo !== null && b.riesgo !== null && r.riesgo < b.riesgo) {
       beneficios.push(`Le falta lluvia en menos temporadas: ${pct(r.riesgo)} % contra ${pct(b.riesgo)} % de seguir igual.`);
     }
+    if (r.riesgo_helada !== null && b.riesgo_helada !== null && r.riesgo_helada < b.riesgo_helada) {
+      beneficios.push(`Le toca helada que daña en menos temporadas: ${pct(r.riesgo_helada)} % contra ${pct(b.riesgo_helada)} % de seguir igual.`);
+    }
+    if (r.riesgo_calor !== null && b.riesgo_calor !== null && r.riesgo_calor < b.riesgo_calor) {
+      beneficios.push(`Le toca calor que daña en menos temporadas: ${pct(r.riesgo_calor)} % contra ${pct(b.riesgo_calor)} % de seguir igual.`);
+    }
     if (r.lluvia_necesaria_mm < b.lluvia_necesaria_mm) {
       beneficios.push(`Sus cultivos necesitan ${b.lluvia_necesaria_mm - r.lluvia_necesaria_mm} mm menos de agua en 3 años que seguir igual.`);
     }
@@ -351,7 +474,7 @@ function strategyTexts(e, base, { agua, rows, estado, anios, desde, hasta }) {
   const huecos = [...e.notas];
   const sinVerificar = crops.filter((c) => !c.verificado).map(corto);
   if (sinVerificar.length) {
-    huecos.push(`Lo que necesita${sinVerificar.length > 1 ? 'n' : ''} ${lista(sinVerificar)} (lluvia, temperatura y pH) es aproximado: falta verificarlo contra FAO Ecocrop.`);
+    huecos.push(`El agua que necesita${sinVerificar.length > 1 ? 'n' : ''} ${lista(sinVerificar)} es aproximada: no viene en la tabla de la FAO (la temperatura y el pH sí salen de FAO Ecocrop).`);
   }
   if (agua === 'temporal') {
     const pv = planted.filter((s) => s.temporada === 'PV');
@@ -391,6 +514,12 @@ function uncertainty({ agua, soil, estado, anios, desde, hasta, rows, ejemplo })
       tema: 'clima',
       texto: 'La lluvia y la temperatura vienen de NASA POWER: son el promedio de un cuadro de unos 50 km alrededor de tu parcela, no una medición en tu parcela.',
     },
+    {
+      tema: 'extremos',
+      texto:
+        'La helada y el calor salen de la hora más fría y la más caliente de cada mes en ese mismo cuadro de 50 km: una parcela en un bajo ' +
+        'hiela más que eso. Los grados que dañan a cada cultivo son aproximados y cuentan igual en todo el ciclo, no solo en la floración.',
+    },
   ];
   if (agua === 'temporal' && ejemplo) {
     const k = ejemplo.risk.anios_bajo_minimo.length;
@@ -405,11 +534,11 @@ function uncertainty({ agua, soil, estado, anios, desde, hasta, rows, ejemplo })
     out.push({
       tema: 'cultivos',
       texto:
-        'Lo que necesita cada cultivo es aproximado y falta verificarlo contra FAO Ecocrop. Por ejemplo, si ' +
+        'Lo que necesita cada cultivo sale de rangos generales de la FAO, no de las variedades de tu zona. Por ejemplo, si ' +
         `${conArticulo(ejemplo.crop)} necesitara 10 % menos o más lluvia, le hubiera faltado en ${sens.menos10} a ${sens.mas10} de ${anios} años, no en ${k}.`,
     });
   } else {
-    out.push({ tema: 'cultivos', texto: 'Lo que necesita cada cultivo es aproximado y falta verificarlo contra FAO Ecocrop.' });
+    out.push({ tema: 'cultivos', texto: 'Lo que necesita cada cultivo sale de rangos generales de la FAO, no de las variedades de tu zona.' });
   }
   out.push({
     tema: 'suelo',
@@ -434,13 +563,18 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
     if (!crop.agua.includes(agua)) continue;
     for (const temporada of crop.temporadas) {
       if (temporada === 'OI' && agua !== 'riego') continue; // OI only with irrigation
-      for (const inicio of agua === 'temporal' && temporada === 'PV' ? SOWING_MONTHS : [SEASON_START[temporada]]) {
+      // Irrigated PV crops try both months too: rain does not matter to them, but June heat does.
+      for (const inicio of temporada === 'PV' ? SOWING_MONTHS : [SEASON_START[temporada]]) {
+        const risk = agua === 'temporal' ? dryYearRisk(crop, rows, inicio) : { riesgo: 0, anios_bajo_minimo: [], anios_total: 0 };
+        const extremos = extremeTempRisk(crop, rows, temporada, inicio);
         all.push({
           crop,
           temporada,
           inicio,
           parts: scoreCrop(crop, temporada, { rows, soil, agua, inicio }),
-          risk: agua === 'temporal' ? dryYearRisk(crop, rows, inicio) : { riesgo: 0, anios_bajo_minimo: [], anios_total: 0 },
+          risk,
+          extremos,
+          malos: badYears(risk, extremos),
           ingreso_mxn_ha: ingresos[`${crop.id}|${temporada}`] ?? null,
         });
       }
@@ -454,7 +588,7 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
     const fits = [c.parts.temp, c.parts.suelo, ...(c.parts.lluvia === null ? [] : [c.parts.lluvia])];
     c.componentes = {
       ajuste: mean(fits),
-      seguridad: 1 - c.risk.riesgo,
+      seguridad: 1 - c.malos.riesgo, // years without a problem: short of rain (rain-fed), frost or heat
       suelo: c.crop.leguminosa ? 1 : 0.3,
       agua: high > low ? 1 - (c.crop.lluvia_ciclo_min_mm - low) / (high - low) : 0.5,
       ingreso: c.ingreso_mxn_ha !== null && maxIncome > 0 ? c.ingreso_mxn_ha / maxIncome : 0.5,
@@ -490,6 +624,7 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
       const bits = [existing.supuesto ? 'Es lo más sembrado aquí (SIAP).' : 'Es lo que nos dijiste que siembras.'];
       if (anterior?.cand.crop.familia === s.cand.crop.familia) bits.push('Repite la familia de la temporada anterior: así se juntan plagas y enfermedades.');
       if (agua === 'temporal') bits.push(riskSentence(s.cand.risk, s.cand.crop, s.cand.parts.meses));
+      bits.push(...extremeShort(s.cand.extremos));
       return { anio: s.anio, temporada: s.temporada, cultivo: s.cand.crop.id, porque: bits.join(' ') };
     });
     hoy = estrategia({
@@ -584,6 +719,10 @@ export function recommend({ rows, soil, crops, agua, prioridad, ingresos = {}, e
       riesgo: Math.round(c.risk.riesgo * 100) / 100,
       riesgo_rango: agua === 'temporal' ? riskInterval(c.risk.anios_bajo_minimo.length, c.risk.anios_total) : null,
       sensibilidad: agua === 'temporal' ? { ...thresholdSensitivity(c.crop, rows, c.inicio), anios_total: c.risk.anios_total } : null,
+      helada: extremeSummary(c.extremos.helada),
+      calor: extremeSummary(c.extremos.calor),
+      // Share of years with any problem (rain, frost or heat): what the score's safety part uses.
+      riesgo_total: round2(c.malos.riesgo),
       razones: buildReasons(c, { agua, soil, estado }),
     })),
     rotacion,

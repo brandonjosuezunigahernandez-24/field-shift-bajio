@@ -7,6 +7,24 @@ import FS_DATOS from '../data/datosDemo.js';
 const mean = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
 const round1 = (v) => Math.round(v * 10) / 10;
 
+// Last year NASA POWER has complete (same rule as the server): until April, the year before last.
+export function lastCompleteYear(now = new Date()) {
+  return now.getFullYear() - (now.getMonth() >= 3 ? 1 : 2);
+}
+
+// "2000–2025": the years really analyzed, or the expected ones while the climate loads.
+export function climatePeriod(clima, now = new Date()) {
+  return clima?.periodo ? `${clima.periodo.inicio}–${clima.periodo.fin}` : `2000–${lastCompleteYear(now)}`;
+}
+
+// How many years of rain are analyzed: those of the answer, or the expected ones while loading.
+export function yearsAnalyzed(clima, now = new Date()) {
+  return clima?.lluvia_pv_anual?.length || lastCompleteYear(now) - 1999;
+}
+
+// Card titles may say "{n}": the number of years analyzed.
+export const withYears = (text, clima) => text.replace('{n}', yearsAnalyzed(clima));
+
 // Cards of the rotation screen. Returns [{ etiqueta, valor }] like FS_DATOS.kpis.
 export function kpisFrom(clima, suelo) {
   if (!clima?.lluvia_pv_anual?.length) return FS_DATOS.kpis;

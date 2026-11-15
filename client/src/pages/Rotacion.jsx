@@ -1,12 +1,13 @@
-import { Suspense, lazy, useEffect, useMemo, useRef, useState } from 'react';
+import { Suspense, lazy, useEffect, useMemo, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
 import RainChart from '../components/charts/RainChart.jsx';
 import ComparaRotaciones from '../components/ComparaRotaciones.jsx';
+import PanelPasos from '../components/PanelPasos.jsx';
 import { getPrueba } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES } from '../crops.js';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
-import { rainSeriesFrom } from '../lib/parcelaClima.js';
+import { rainSeriesFrom, withYears } from '../lib/parcelaClima.js';
 import { cropYearState, yearState } from '../three/parcelState.js';
 import { YearControl } from '../year.jsx';
 // MapLibre (~1 MB) se carga aparte, cuando la pantalla ya se ve. Es el mismo mapa de «1. Parcela», solo para ver.
@@ -18,7 +19,7 @@ const TARJETAS = [
   { id: 'plan', titulo: 'Tus 3 rotaciones', escena: { ...VER, clima: 'apagado' } },
   { id: 'comparar', titulo: 'Compáralas lado a lado', escena: { ...VER, clima: 'apagado' } },
   { id: 'alcanzo', titulo: '¿Le hubiera alcanzado la lluvia?', escena: { ...VER, clima: 'anio' } },
-  { id: 'lluvia', titulo: 'La lluvia de 25 años', escena: { ...VER, clima: 'anio' } },
+  { id: 'lluvia', titulo: 'La lluvia de {n} años', escena: { ...VER, clima: 'anio' } },
   { id: 'cultivos', titulo: 'Qué tan bien le va a cada cultivo', escena: { ...VER, clima: 'apagado' } },
   { id: 'dudas', titulo: 'Lo que no sabemos', escena: { ...VER, clima: 'apagado' } },
   { id: 'llevar', titulo: 'Llévate tu plan', escena: { ...VER, clima: 'apagado' } },
@@ -26,6 +27,15 @@ const TARJETAS = [
 const MES = { 6: 'junio', 7: 'julio', 11: 'noviembre' };
 const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 const pct = (p) => Math.round(p * 100);
+// Frost and heat of a crop's cycle in the real years (c.helada, c.calor): only the ones that did happen.
+const extremosTexto = (c) =>
+  [
+    c.helada?.anios.length > 0 && `helada que daña en ${c.helada.anios.length} de ${c.helada.anios_total} años`,
+    c.calor?.anios.length > 0 && `calor que daña en ${c.calor.anios.length} de ${c.calor.anios_total} años`,
+  ]
+    .filter(Boolean)
+    .map((t) => ` · ${t}`)
+    .join('');
 
 // A titled list that opens on tap: keeps the card short (evidence, gaps and what to check locally).
 function Lista({ titulo, items, abierta = false }) {
@@ -43,10 +53,9 @@ function Lista({ titulo, items, abierta = false }) {
     </details>
   );
 }
-const reducedMotion = () => window.matchMedia?.('(prefers-reduced-motion: reduce)').matches ?? false;
 
 // Screen 2: the same satellite map as screen 1 (read only) with the plan's crops on the drawn parcels,
-// next to one card at a time (Anterior/Siguiente). Plan and ranking: POST /api/recomendar (server/engine).
+// next to one step at a time (PanelPasos: Anterior and Siguiente never move). Plan and ranking: POST /api/recomendar (server/engine).
 // How each crop would have done in each real year: GET /api/recomendar/prueba (the engine's backtest).
 export default function Rotacion() {
   const ctx = useParcelaContext();
@@ -55,8 +64,6 @@ export default function Rotacion() {
   const [estrategiaId, setEstrategiaId] = useState('recomendada'); // cuál de las 3 rotaciones se ve (y manda en el mapa)
   const [activa, setActiva] = useState(0); // la única tarjeta que se ve
   const [prueba, setPrueba] = useState(null);
-  const tarjetaRef = useRef(null);
-  const navegado = useRef(false);
   const labels = selectionLabels(ctx);
 
   useEffect(() => {
@@ -73,27 +80,6 @@ export default function Rotacion() {
       vivo = false;
     };
   }, [point?.lat, point?.lon]); // eslint-disable-line react-hooks/exhaustive-deps
-
-  // El encabezado es fijo y su alto cambia: el mapa fijo va justo debajo (igual que en «1. Parcela»).
-  useEffect(() => {
-    const header = document.querySelector('.fs-header');
-    if (!header || typeof ResizeObserver === 'undefined') return undefined;
-    const medir = () => document.documentElement.style.setProperty('--fs-head', `${header.offsetHeight}px`);
-    medir();
-    const observer = new ResizeObserver(medir);
-    observer.observe(header);
-    return () => observer.disconnect();
-  }, []);
-
-  useEffect(() => {
-    if (!navegado.current) return;
-    navegado.current = false;
-    tarjetaRef.current?.scrollIntoView({ behavior: reducedMotion() ? 'auto' : 'smooth', block: 'nearest' });
-  }, [activa]);
-  const ir = (i) => {
-    navegado.current = true;
-    setActiva(i);
-  };
 
   const rec = recomendacion?.data;
   const outside = recomendacion?.outsideRegion === true;
@@ -213,7 +199,7 @@ export default function Rotacion() {
           </>
         );
       case 'alcanzo': {
-        if (!climaData) return <p className="fs-note">{clima?.error ?? 'Cargando 25 años de lluvia…'}</p>;
+        if (!climaData) return <p className="fs-note">{clima?.error ?? 'Cargando la lluvia de cada año…'}</p>;
         const cultivos = [...new Set((parcelas.length ? parcelas.map((p) => p.cultivo) : [planCrop]).filter(Boolean))];
         return (
           <>
@@ -235,12 +221,12 @@ export default function Rotacion() {
                 );
               })}
             </ul>
-            <p className="fs-note">Fuente: NASA POWER, lluvia real de cada año. Lo que necesita cada cultivo es aproximado, falta confirmarlo.</p>
+            <p className="fs-note">Fuente: NASA POWER, lluvia real de cada año. Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); el agua del garbanzo y del brócoli sigue aproximada.</p>
           </>
         );
       }
       case 'lluvia':
-        if (!rain.real) return <p className="fs-note">{clima?.error ?? 'Cargando 25 años de lluvia…'}</p>;
+        if (!rain.real) return <p className="fs-note">{clima?.error ?? 'Cargando la lluvia de cada año…'}</p>;
         return (
           <>
             <p className="fs-dato">
@@ -268,6 +254,7 @@ export default function Rotacion() {
                         {agua === 'riego'
                           ? 'con riego'
                           : `${pct(c.riesgo)} % de años sin lluvia suficiente${c.riesgo_rango ? ` (puede ser de ${pct(c.riesgo_rango[0])} a ${pct(c.riesgo_rango[1])} %)` : ''}`}
+                        {extremosTexto(c)}
                       </span>
                     </b>
                     <em>{c.puntaje}/100</em>
@@ -294,21 +281,16 @@ export default function Rotacion() {
                 <li key={u.tema}>{u.tema === 'técnico' ? <strong>{u.texto}</strong> : u.texto}</li>
               ))}
             </ul>
-            <p className="fs-note">Fuentes: NASA POWER, SoilGrids, SIAP y requerimientos de cultivo aproximados (estilo FAO Ecocrop, por verificar).</p>
+            <p className="fs-note">Fuentes: NASA POWER, SoilGrids, SIAP y requerimientos de cultivo de la FAO (Ecocrop y Manual No. 3; el agua del garbanzo y del brócoli sigue aproximada).</p>
           </>
         );
       case 'llevar':
         return (
           <>
             <p>Guarda tu plan para enseñarlo o imprimirlo, o pregúntale al asistente lo que quieras de él.</p>
-            <div className="fs-tarjeta-nav">
-              <button type="button" className="fs-btn fs-btn-sec" onClick={() => window.print()}>
-                <i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i>Guardar en PDF
-              </button>
-              <Link className="fs-btn fs-btn-primary" to="/analisis">
-                <i className="bi bi-chat-dots" aria-hidden="true"></i>Preguntarle al asistente
-              </Link>
-            </div>
+            <button type="button" className="fs-btn fs-btn-sec fs-btn-block" onClick={() => window.print()}>
+              <i className="bi bi-file-earmark-arrow-down" aria-hidden="true"></i>Guardar en PDF
+            </button>
           </>
         );
       default:
@@ -328,63 +310,44 @@ export default function Rotacion() {
         }
       />
 
-      <main className="fs-container">
-        <section className="fs-card fs-up fs-hero-map" aria-labelledby="t-sim">
-          <div className="fs-card-head">
-            <div>
-              <div className="fs-eyebrow">Tu parcela en 3D</div>
-              <h1 className="fs-card-title" id="t-sim">
-                {pasoPlan ? `Año ${pasoPlan.anio}: ${nombre(pasoPlan.cultivo)}` : point?.nombre ?? 'Tu parcela'}
-              </h1>
-            </div>
+      <main className="fs-container fs-app">
+        <div className="fs-flujo">
+          <div className="fs-flujo-mapa v3d v3d-embed v3d-hero" role="application" aria-label="Mapa de satélite de tu parcela con su cultivo">
+            <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
+              <ParcelMap
+                soloVer
+                point={point}
+                parcelas={parcelas}
+                suelo={suelo?.data ?? null}
+                clima={climaData ?? null}
+                year={year}
+                escena={tarjeta.escena}
+                plantasPorParcela={plantasPorParcela}
+              />
+            </Suspense>
           </div>
 
-          <div className="fs-flujo">
-            <div className="fs-flujo-mapa v3d v3d-embed v3d-hero" role="application" aria-label="Mapa de satélite de tu parcela con su cultivo">
-              <Suspense fallback={<p className="status">Cargando el mapa…</p>}>
-                <ParcelMap
-                  soloVer
-                  point={point}
-                  parcelas={parcelas}
-                  suelo={suelo?.data ?? null}
-                  clima={climaData ?? null}
-                  year={year}
-                  escena={tarjeta.escena}
-                  plantasPorParcela={plantasPorParcela}
-                />
-              </Suspense>
-            </div>
-
-            <section key={tarjeta.id} ref={tarjetaRef} className="fs-card fs-tarjeta fs-up" aria-labelledby="t-tarjeta">
-              <div className="fs-tarjeta-head">
-                <span className="fs-eyebrow">
-                  {activa + 1} de {TARJETAS.length}
-                </span>
-                <h2 className="fs-card-title xs" id="t-tarjeta">
-                  {tarjeta.titulo}
-                </h2>
-                <span className="fs-tarjeta-pasos" aria-hidden="true">
-                  {TARJETAS.map((t, i) => (
-                    <span key={t.id} className={i <= activa ? 'is-on' : undefined} />
-                  ))}
-                </span>
-              </div>
-              {cuerpo(tarjeta.id)}
-              <div className="fs-tarjeta-nav">
-                {activa > 0 && (
-                  <button type="button" className="fs-btn fs-btn-sec" onClick={() => ir(activa - 1)}>
-                    <i className="bi bi-arrow-left" aria-hidden="true"></i>Anterior
-                  </button>
-                )}
-                {activa < TARJETAS.length - 1 && (
-                  <button type="button" className="fs-btn fs-btn-primary" onClick={() => ir(activa + 1)}>
-                    Siguiente<i className="bi bi-arrow-right" aria-hidden="true"></i>
-                  </button>
-                )}
-              </div>
-            </section>
-          </div>
-        </section>
+          <PanelPasos
+            lugar={
+              <>
+                <i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {(point?.nombre ?? 'Tu parcela').replace(/\.$/, '')}
+                {pasoPlan?.cultivo ? ` · en el mapa: año ${pasoPlan.anio}, ${corto(pasoPlan.cultivo).toLowerCase()}` : ''}
+              </>
+            }
+            paso={activa}
+            total={TARJETAS.length}
+            titulo={withYears(tarjeta.titulo, climaData)}
+            onAnterior={() => setActiva(activa - 1)}
+            onSiguiente={() => setActiva(activa + 1)}
+            final={
+              <Link className="fs-btn fs-btn-primary" to="/analisis">
+                <i className="bi bi-chat-dots" aria-hidden="true"></i>Ir al asistente
+              </Link>
+            }
+          >
+            {cuerpo(tarjeta.id)}
+          </PanelPasos>
+        </div>
       </main>
     </>
   );

@@ -294,6 +294,8 @@ function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, 
           <p className="fs-verdict-sum">
             Queda en el lugar {lugar} de {cultivos.length} cultivos para tu parcela, con {crop.puntaje} de 100
             {agua === 'temporal' ? ` y riesgo de año seco de ${Math.round(crop.riesgo * 100)} %.` : '.'}
+            {crop.helada?.anios.length > 0 && ` Le tocó helada que daña en ${crop.helada.anios.length} de ${crop.helada.anios_total} años.`}
+            {crop.calor?.anios.length > 0 && ` Le tocó calor que daña en ${crop.calor.anios.length} de ${crop.calor.anios_total} años.`}
           </p>
           <div className="fs-verdict-cmp">
             <span className="fs-eyebrow">Comparado con tu plan</span>
@@ -371,7 +373,7 @@ function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, 
         </div>
       </section>
       <p className="fs-note mt-3">
-        Mismo motor de reglas que el Simulador 3D. Lo que necesita cada cultivo son valores aproximados de FAO Ecocrop que falta confirmar.
+        Mismo motor de reglas que el Simulador 3D. Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); el agua del garbanzo y del brócoli sigue aproximada.
       </p>
     </>
   );
@@ -419,7 +421,7 @@ function Historia({ crop, prueba }) {
     <section className="fs-card mt-4 fs-up fs-d2" aria-labelledby="t-hist">
       <div className="fs-card-head">
         <div>
-          <div className="fs-eyebrow">25 años reales · NASA POWER</div>
+          <div className="fs-eyebrow">{s.anios.length} años reales · NASA POWER</div>
           <h2 className="fs-card-title xs" id="t-hist">Si lo hubieras sembrado cada año desde {s.anios[0].anio}</h2>
         </div>
         <div className="fs-seg" role="group" aria-label="Mes de siembra">
@@ -460,7 +462,7 @@ function Historia({ crop, prueba }) {
       )}
       <p className="fs-note mt-3">
         Cada barra es la lluvia real del ciclo del cultivo en ese año; la línea es lo que necesita. Cambiar el mes de siembra solo recalcula la lluvia, no la
-        temperatura. Lo que necesita cada cultivo son valores aproximados que falta confirmar.
+        temperatura. Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); el agua del garbanzo y del brócoli sigue aproximada.
       </p>
     </section>
   );

@@ -5,8 +5,10 @@ export const SOILGRIDS_CREDIT = 'SoilGrids 2.0, ISRIC World Soil Information (CC
 // 3 decimals (~110 m): SoilGrids cells are 250 m, so 2 decimals (~1 km) could read a neighbor's soil.
 export const SOILGRIDS_DECIMALS = 3;
 
-const PROPERTIES = ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen'];
-const DEPTHS = ['0-5cm', '5-15cm', '15-30cm'];
+// The first 6 feed the rule engine (0-30 cm). bdod (bulk density), cec (cation exchange capacity)
+// and cfvo (coarse fragments, i.e. stones) are shown to the farmer with the layers down to 1 m.
+const PROPERTIES = ['clay', 'sand', 'silt', 'phh2o', 'soc', 'nitrogen', 'bdod', 'cec', 'cfvo'];
+const DEPTHS = ['0-5cm', '5-15cm', '15-30cm', '30-60cm', '60-100cm'];
 const MAX_DEPTH_CM = 30;
 
 export function buildSoilGridsUrl(lat, lon) {
@@ -26,7 +28,17 @@ export function validateSoilGrids(raw) {
   }
 }
 
-// Raw SoilGrids response -> { clay, sand, silt, phh2o, soc, nitrogen }, each one
+// A cache saved before the extra properties and depths were asked for: download it again
+// (loadRaw keeps it if there is no internet).
+export function soilGridsStaleReason(raw) {
+  const layers = raw?.properties?.layers ?? [];
+  const missing = PROPERTIES.filter((name) => !layers.some((l) => l.name === name));
+  if (missing.length) return `le falta ${missing.join(', ')}`;
+  const deepest = Math.max(...layers.flatMap((l) => (l.depths ?? []).map((d) => d.range?.bottom_depth ?? 0)));
+  return deepest >= 100 ? null : 'le faltan las capas de 30 a 100 cm';
+}
+
+// Raw SoilGrids response -> { clay, sand, silt, phh2o, soc, nitrogen, ... }, each one
 // { value, units } averaged over 0-30 cm (weighted by layer thickness), or null when
 // SoilGrids has no data for the point (cities, water).
 // Values are divided by unit_measure.d_factor to get conventional units (e.g. pH comes x10).
@@ -56,9 +68,47 @@ export function parseSoilGrids(raw) {
 
 const round1 = (entry) => (entry ? Math.round(entry.value * 10) / 10 : null);
 const round2 = (entry) => (entry ? Math.round(entry.value * 100) / 100 : null);
+const r1 = (v) => (typeof v === 'number' ? Math.round(v * 10) / 10 : null);
+const r2 = (v) => (typeof v === 'number' ? Math.round(v * 100) / 100 : null);
+
+// Raw SoilGrids response -> one entry per depth layer (0-5 ... 60-100 cm), in conventional units.
+// Layers SoilGrids leaves empty (cities, water) are skipped.
+export function parseSoilLayers(raw) {
+  validateSoilGrids(raw);
+  const byDepth = new Map();
+  for (const layer of raw.properties.layers) {
+    const factor = layer.unit_measure?.d_factor || 1;
+    for (const depth of layer.depths ?? []) {
+      const value = depth.values?.mean;
+      const top = depth.range?.top_depth;
+      const bottom = depth.range?.bottom_depth;
+      if (typeof value !== 'number' || !(bottom > top)) continue;
+      const key = `${top}-${bottom}`;
+      if (!byDepth.has(key)) byDepth.set(key, { desde_cm: top, hasta_cm: bottom });
+      byDepth.get(key)[layer.name] = value / factor;
+    }
+  }
+  return [...byDepth.values()]
+    .sort((a, b) => a.desde_cm - b.desde_cm)
+    .map((d) => ({
+      profundidad_cm: `${d.desde_cm}-${d.hasta_cm}`,
+      desde_cm: d.desde_cm,
+      hasta_cm: d.hasta_cm,
+      ph: r1(d.phh2o),
+      arcilla_pct: r1(d.clay),
+      arena_pct: r1(d.sand),
+      limo_pct: r1(d.silt),
+      carbono_organico_g_kg: r1(d.soc),
+      nitrogeno_g_kg: r2(d.nitrogen),
+      densidad_aparente_g_cm3: r2(d.bdod), // kg/dm3 is the same as g/cm3
+      cic_cmol_kg: r1(d.cec),
+      piedras_pct: r1(d.cfvo), // cm3 of stones per 100 cm3 of soil
+    }));
+}
 
 // Parsed soil -> the summary served by GET /api/suelo (Spanish keys, see docs/api-contract.md).
-export function summarizeSoil(soil) {
+// layers (optional, parseSoilLayers): the profile down to 1 m, for the 3D block and the soil card.
+export function summarizeSoil(soil, layers = null) {
   const summary = {
     profundidad_cm: '0-30',
     ph: round1(soil.phh2o),
@@ -67,7 +117,11 @@ export function summarizeSoil(soil) {
     limo_pct: round1(soil.silt),
     carbono_organico_g_kg: round1(soil.soc),
     nitrogeno_g_kg: round2(soil.nitrogen),
+    densidad_aparente_g_cm3: round2(soil.bdod),
+    cic_cmol_kg: round1(soil.cec),
+    piedras_pct: round1(soil.cfvo),
   };
+  if (layers) summary.capas = layers;
   // True when SoilGrids answered but has no values for this point (cities, water).
   summary.sin_datos = [summary.ph, summary.arcilla_pct, summary.arena_pct, summary.limo_pct].every(
     (v) => v === null
@@ -85,7 +139,9 @@ export async function getSoil(lat, lon) {
     decimals: SOILGRIDS_DECIMALS,
     buildUrl: buildSoilGridsUrl,
     timeoutMs: 15000,
+    pauseOnTimeoutMs: 3 * 60 * 1000, // the plan and the screens work without soil: do not make every plot wait
     validate: validateSoilGrids,
+    isStale: soilGridsStaleReason,
   });
-  return { soil: parseSoilGrids(raw), origen };
+  return { soil: parseSoilGrids(raw), layers: parseSoilLayers(raw), origen };
 }

@@ -1,4 +1,4 @@
-# 44 · El chat estable: plan corto, 3 rotaciones en la plática y 13 fallas arregladas
+# 46 · El chat estable: plan corto, 3 rotaciones en la plática y 13 fallas arregladas
 
 Fecha: 15 nov 2026. Se midió en dos servidores: uno con internet y otro sin internet (`OFFLINE=1`).
 

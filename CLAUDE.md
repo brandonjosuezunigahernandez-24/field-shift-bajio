@@ -30,13 +30,16 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
 
 ## Datos (APIs gratis, sin API key)
 1. **NASA POWER**, clima mensual por punto:
-   `https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,ALLSKY_SFC_SW_DWN,GWETROOT&community=AG&latitude={lat}&longitude={lon}&start=2000&end=2024&format=JSON`
+   `https://power.larc.nasa.gov/api/temporal/monthly/point?parameters=T2M,T2M_MAX,T2M_MIN,PRECTOTCORR,ALLSKY_SFC_SW_DWN,GWETROOT,GWETTOP,GWETPROF&community=AG&latitude={lat}&longitude={lon}&start=2000&end={ultimo_anio_completo}&format=JSON`
+   - `end` es el último año con sus 12 meses publicados (cambia cada abril, `powerEndYear`). Una caché sin ese año se vuelve a bajar.
    - Los valores vienen en `properties.parameter.<PARAM>["YYYYMM"]`. El mes `13` es el resumen anual: ignóralo para series mensuales.
    - `-999` es valor faltante: descártalo.
    - Revisa las unidades en `parameters.<PARAM>.units`. Si la lluvia viene en mm/day, multiplica por los días del mes para tener mm.
    - Máximo 20 parámetros por llamada. Cachea siempre.
 2. **SoilGrids (ISRIC)**, suelo por punto:
-   `https://rest.isric.org/soilgrids/v2.0/properties/query?lat={lat}&lon={lon}&property=clay&property=sand&property=silt&property=phh2o&property=soc&property=nitrogen&depth=0-5cm&depth=5-15cm&depth=15-30cm&value=mean`
+   `https://rest.isric.org/soilgrids/v2.0/properties/query?lat={lat}&lon={lon}&property=clay&property=sand&property=silt&property=phh2o&property=soc&property=nitrogen&property=bdod&property=cec&property=cfvo&depth=0-5cm&depth=5-15cm&depth=15-30cm&depth=30-60cm&depth=60-100cm&value=mean`
+   - El motor usa el promedio de 0 a 30 cm; las capas hasta 1 m y `bdod`/`cec`/`cfvo` son para mostrar el suelo.
+   - Tipo de suelo (WRB): `https://rest.isric.org/soilgrids/v2.0/classification/query?lat={lat}&lon={lon}&number_classes=3`.
    - Divide cada valor entre `unit_measure.d_factor` para tener unidades normales (por ejemplo, el pH viene ×10).
    - A veces es lento o falla: timeout de 15 s y respaldo con el fixture.
 3. **Opcional, MODIS NDVI (ORNL DAAC)**: `https://modis.ornl.gov/rst/api/v1/MOD13Q1/subset?latitude={lat}&longitude={lon}&startDate=A2024001&endDate=A2024160&kmAboveBelow=0&kmLeftRight=0`.
@@ -65,6 +68,8 @@ Debe ser simple, explicable y con pruebas unitarias.
    - ajuste de suelo (pH; la textura solo como nota).
 2. **Riesgo** = porcentaje de años, del 2000 en adelante, en que la lluvia de PV quedó por debajo del mínimo del cultivo.
    Se mide en los meses del ciclo de cada cultivo, empezando en junio.
+   **Heladas y calor** (`extremeTempRisk`): años en que la hora más fría del mes (`T2M_MIN`) bajó a `helada_dano_c` o menos, o la más caliente (`T2M_MAX`) llegó a `calor_dano_c` o más, en algún mes del ciclo. Aplica en temporal y en riego.
+   La parte de seguridad del puntaje usa los años con algún problema (faltó lluvia, helada o calor; un año con dos cuenta una vez). El campo `riesgo` sigue siendo solo lluvia.
 3. La prioridad del agricultor cambia los pesos: `ganar` (ingreso bruto por hectárea del SIAP, por estado), `suelo` (leguminosas y diversidad), `agua` (menos lluvia o riego requerido), `riesgo` (menor riesgo).
 4. Rotación de 3 años. Reglas:
    - no repetir la misma familia en temporadas seguidas,
@@ -80,7 +85,7 @@ Debe ser simple, explicable y con pruebas unitarias.
    Cada una trae `porque`, `evidencia`, `beneficios` (contra la de hoy), `huecos` y `revisar` (lo que debe ver un técnico local).
 8. **Incertidumbre** (`incertidumbre[]`, y `riesgo_rango`/`sensibilidad` por cultivo):
    - el riesgo con su intervalo (Wilson al 90 % con 25 años);
-   - cuánto cambia si el umbral del cultivo (sin verificar) fuera ±10 %;
+   - cuánto cambia si el umbral del cultivo (rango general de la FAO) fuera ±10 %;
    - la resolución de NASA POWER y SoilGrids, el SIAP por estado;
    - que no sustituye al técnico.
 
@@ -90,10 +95,16 @@ Debe ser simple, explicable y con pruebas unitarias.
 - En las tres rutas, `lat` y `lon` son el centro de la parcela que dibujó el agricultor (con varias parcelas, el de la más grande). El front no los redondea.
 - `GET /api/ejemplos`: las parcelas de los botones de ejemplo. `GET /api/terreno?lat&lon`: relieve para la vista 3D.
 - `POST /api/recomendar` con `{ lat, lon, agua: "temporal"|"riego", prioridad: "ganar"|"suelo"|"agua"|"riesgo", rotacion_actual?: ["frijol", "maiz"] }`
-  responde `{ clima, suelo, cultivos: [{ id, puntaje, riesgo, riesgo_rango, sensibilidad, razones }], rotacion: [{ anio, temporada, cultivo, porque }], estrategias: [{ id, nombre, rotacion, resumen, porque, evidencia, beneficios, huecos, revisar }], incertidumbre: [{ tema, texto }], fuentes }`.
+  responde `{ clima, suelo, cultivos: [{ id, puntaje, riesgo, riesgo_rango, sensibilidad, helada, calor, riesgo_total, razones }], rotacion: [{ anio, temporada, cultivo, porque }], estrategias: [{ id, nombre, rotacion, resumen, porque, evidencia, beneficios, huecos, revisar }], incertidumbre: [{ tema, texto }], fuentes }`.
   Fuera de Guanajuato y Querétaro (límites del INEGI, `server/lib/state.js`) responde 422 con `fuera_de_region: true`: se recomienda solo en el Bajío; clima y suelo se ven en todo México.
 
 ## Pantallas (4 rutas: Parcela, Simulador 3D, Análisis IA y Probar cultivo)
+**Acomodo de «1. Parcela» y «2. Simulador 3D» (cambio 45):** el mapa de un lado y un panel de pasos del otro (`client/src/components/PanelPasos.jsx`).
+- En escritorio los dos miden lo que la ventana: no se baja la página; el contenido largo se desliza dentro del panel.
+- Anterior y Siguiente no cambian de lugar entre pasos (en celular van en una barra fija al pie). No agregar botones de avance fuera de `PanelPasos`.
+- Las herramientas del mapa (dibujar, GPS, lista de parcelas) se dibujan dentro del panel con la prop `herramientasEn` de `ParcelMap`.
+- El botón del asistente va en el encabezado, arriba a la derecha. Botones y opciones: al menos 44 px de alto.
+
 1. Mapa: el agricultor **dibuja el contorno de su parcela** (un polígono: cada clic agrega una esquina, mínimo 3). No es un solo punto.
    - El front calcula el **centro del polígono** y eso es lo que manda como `lat` y `lon`. La API no cambia: NASA POWER y SoilGrids se consultan por punto.
    - Se hace con MapLibre GL (`client/src/map/`). Al terminar, el mapa se ajusta a la parcela y la vista 3D

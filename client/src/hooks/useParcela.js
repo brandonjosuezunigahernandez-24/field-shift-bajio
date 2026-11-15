@@ -25,7 +25,6 @@ const guardarPerfil = (o) => {
   }
 };
 
-const settle = (result) => (result.status === 'fulfilled' ? { data: result.value } : { error: result.reason.message });
 
 // Single owner of the app state, shared by the four screens through context/ParcelaContext.jsx:
 // the chosen plot, the form answers and the three server results. Each result is null (not asked
@@ -49,27 +48,30 @@ export function useParcela() {
   const recKey = useRef(null); // "lat,lon,agua,prioridad" of the last /api/recomendar call
   const requestId = useRef(0);
 
-  const loadPointData = useCallback(async (selected) => {
+  const loadPointData = useCallback((selected) => {
     const id = ++requestId.current;
+    const vigente = () => id === requestId.current; // false once a newer selection won
+    const resultado = (promise) => promise.then((data) => ({ data }), (err) => ({ error: err.message }));
     setLoading(true);
     setPronostico(null);
     // El pronóstico es un extra: si falla, la app sigue igual.
-    getPronostico(selected.lat, selected.lon).then((p) => id === requestId.current && setPronostico(p)).catch(() => {});
-    const [climaResult, sueloResult] = await Promise.allSettled([getClima(selected.lat, selected.lon), getSuelo(selected.lat, selected.lon)]);
-    if (id !== requestId.current) return; // a newer selection won
-    const climaFinal = settle(climaResult);
-    setClima(climaFinal);
-    setSuelo(settle(sueloResult));
-    // El estado sale del mapa (límites del INEGI): el agricultor ya no lo tiene que elegir. Fuera de Gto y Qro no se toca.
-    const estado = climaFinal.data?.estado;
-    if (estado) {
-      setPerfilGuardado((antes) => {
-        const nuevo = { ...antes, estado };
-        guardarPerfil(nuevo);
-        return nuevo;
-      });
-    }
-    setLoading(false);
+    getPronostico(selected.lat, selected.lon).then((p) => vigente() && setPronostico(p)).catch(() => {});
+    // Clima y suelo se muestran en cuanto llega cada uno: si SoilGrids tarda, la lluvia no espera.
+    const clima = resultado(getClima(selected.lat, selected.lon)).then((r) => {
+      if (!vigente()) return;
+      setClima(r);
+      // El estado sale del mapa (límites del INEGI): el agricultor ya no lo tiene que elegir. Fuera de Gto y Qro no se toca.
+      const estado = r.data?.estado;
+      if (estado) {
+        setPerfilGuardado((antes) => {
+          const nuevo = { ...antes, estado };
+          guardarPerfil(nuevo);
+          return nuevo;
+        });
+      }
+    });
+    const suelo = resultado(getSuelo(selected.lat, selected.lon)).then((r) => vigente() && setSuelo(r));
+    Promise.all([clima, suelo]).then(() => vigente() && setLoading(false));
   }, []);
 
   // Called by the map click and by the example buttons. Loads climate and soil right away.

@@ -67,6 +67,14 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 .fs-brand-name span{color:var(--fs-g700)}
 .fs-brand-sub{font-family:var(--fs-mono);font-size:11px;color:var(--fs-muted);line-height:1.3;margin-top:2px}
 .fs-pills{display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+/* El botón «Pregúntale al asistente» vive arriba a la derecha (asistente.css): se le deja su lugar. */
+@media (min-width:576px){ .fs-header-in{padding-right:256px} }
+/* En pantallas anchas todo va en un renglón: las etiquetas que no caben completas no se muestran. */
+@media (min-width:1200px){
+  .fs-header-in{flex-wrap:nowrap}
+  .fs-pills{flex:1 1 0;min-width:0;max-height:32px;overflow:hidden}
+  .fs-steps{flex:none}
+}
 .fs-pill{font-family:var(--fs-mono);font-size:12px;padding:6px 12px;border-radius:999px;background:var(--fs-g100);
   border:1px solid var(--fs-g200);color:var(--fs-g800);display:inline-flex;align-items:center;gap:7px;white-space:nowrap}
 .fs-pill.is-white{background:#fff}
@@ -76,6 +84,8 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 .fs-steps a{font-size:13px;padding:8px 16px;border-radius:999px;text-decoration:none;color:var(--fs-g800);font-weight:600;
   white-space:nowrap;transition:background .2s}
 .fs-steps a:hover{background:rgba(255,255,255,.7);color:var(--fs-g800)}
+.fs-steps a{min-height:44px;display:inline-flex;align-items:center;justify-content:center} /* fácil de tocar */
+.fs-steps a:focus-visible{outline:3px solid var(--fs-g400);outline-offset:2px}
 .fs-steps a[aria-current="page"]{background:var(--fs-g700);color:#fff;font-weight:700}
 @media (max-width:575.98px){
   .fs-header-in{padding:12px 16px;gap:12px}
@@ -119,6 +129,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 .fs-seg button{border:0;background:transparent;border-radius:9px;padding:8px 14px;font-size:13px;font-weight:600;
   color:var(--fs-g800);transition:background .2s,color .2s,box-shadow .2s;min-height:36px}
 .fs-seg button[aria-pressed="true"]{background:var(--fs-g700);color:#fff;box-shadow:0 4px 12px rgba(27,107,58,.25)}
+.fs-seg button{min-height:44px} /* fácil de tocar */
 
 .fs-icon-btn{width:42px;height:42px;border-radius:12px;border:1px solid var(--fs-border);background:#fff;color:var(--fs-g800);
   display:inline-grid;place-items:center;font-size:16px;cursor:pointer;transition:transform .2s ease,background .2s,color .2s}
@@ -569,7 +580,10 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 
 /* Pasos del header con 4 entradas en móvil */
 @media (max-width:575.98px){
-  .fs-steps{display:grid;grid-template-columns:1fr 1fr;border-radius:18px}
+  /* Las 4 pantallas en un solo renglón (el nombre se parte en dos líneas): deja más alto para el mapa. */
+  .fs-steps{display:grid;grid-template-columns:repeat(4,1fr);border-radius:18px;gap:4px}
+  .fs-steps a{font-size:12px;line-height:1.2;padding:4px 6px;white-space:normal}
+  .fs-brand-sub{display:none!important} /* gana a d-block; deja lugar al botón del asistente */
   .fs-steps a{border-radius:14px}
 }
 
@@ -589,29 +603,72 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 /* Páginas: el enlace activo de .fs-steps lo marca react-router con aria-current="page" */
 .fs-steps a.active{background:var(--fs-g700);color:#fff;font-weight:700}
 
-/* Parcela: mapa siempre a la vista y una sola tarjeta a la vez (al lado; en celular, debajo del mapa fijo) */
-.fs-flujo{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(300px,1fr);gap:20px;align-items:start}
-.fs-flujo.is-solo{grid-template-columns:minmax(0,1fr)}
-.fs-flujo:not(.is-solo) .fs-flujo-mapa{position:sticky;top:calc(var(--fs-head,132px) + 12px);margin-top:0}
-.fs-flujo:not(.is-solo) .v3d-hero .parcel-map-canvas{height:min(64vh,620px);min-height:360px}
-.fs-tarjeta{gap:12px;padding:20px;border-color:var(--fs-g500);box-shadow:var(--fs-shadow-active);
-  scroll-margin-top:calc(var(--fs-head,132px) + 12px)}
+/* «1. Parcela» y «2. Simulador 3D»: el mapa de un lado, siempre a la vista, y un panel de pasos del otro
+   (PanelPasos). En escritorio los dos miden lo que la ventana, así nada se mueve ni hay que bajar la página:
+   el contenido largo se desliza dentro del panel y Anterior / Siguiente quedan siempre en el mismo lugar. */
+.fs-app{max-width:1680px;padding:16px 24px}
+.fs-flujo{display:grid;grid-template-columns:minmax(0,1.55fr) minmax(360px,1fr);gap:16px;align-items:stretch}
+.fs-flujo .v3d.v3d-hero{margin-top:0}
+.fs-flujo .fs-flujo-mapa{min-height:0} /* .v3d trae min-height:100vh */
 .fs-tarjeta p{margin:0}
-.fs-tarjeta-head{display:flex;flex-direction:column;gap:4px}
-.fs-hero-map .fs-tarjeta .fs-card-title{font-size:20px;margin:0}
 .fs-tarjeta-pasos{display:flex;gap:4px;margin-top:4px}
-.fs-tarjeta-pasos span{flex:1;height:4px;border-radius:2px;background:var(--fs-g100)}
+.fs-tarjeta-pasos span{flex:1;height:5px;border-radius:3px;background:var(--fs-g100)}
 .fs-tarjeta-pasos .is-on{background:var(--fs-g500)}
 .fs-dato{font-size:20px;color:var(--fs-g800)}
-.fs-tarjeta-nav{display:flex;gap:10px;justify-content:flex-end;flex-wrap:wrap}
+.fs-panel{gap:0;padding:0;min-width:0;overflow:hidden;border-color:var(--fs-g500);box-shadow:var(--fs-shadow-active)}
+.fs-panel-head{display:flex;flex-direction:column;gap:4px;padding:14px 20px 12px;border-bottom:1px solid var(--fs-border)}
+.fs-panel-lugar{display:flex;justify-content:space-between;align-items:center;gap:8px;font-size:14px;color:var(--fs-muted)}
+.fs-panel-link{all:unset;cursor:pointer;color:var(--fs-g700);font-weight:700;text-decoration:underline;min-height:44px;
+  display:inline-flex;align-items:center;padding:0 6px;border-radius:8px;white-space:nowrap}
+.fs-panel .fs-eyebrow{font-size:12px}
+.fs-panel .fs-card-title{font-size:22px;margin:0;outline:none}
+.fs-panel-cuerpo{display:flex;flex-direction:column;gap:12px;padding:16px 20px;font-size:16px;line-height:1.5}
+.fs-panel-nav{display:grid;grid-template-columns:1fr 1fr;gap:12px;padding:12px 20px;border-top:1px solid var(--fs-border);background:#fff}
+.fs-panel-nav .fs-btn{min-height:56px;font-size:17px;font-weight:700;border-radius:14px;padding:0 12px;text-align:center}
+.fs-panel-nav .fs-btn:hover{transform:none} /* estos botones no se mueven, ni al pasar el cursor */
+.fs-panel-nav .fs-btn:disabled{opacity:.45;cursor:not-allowed;box-shadow:none}
+.fs-panel-nav .fs-btn:focus-visible,.fs-panel-link:focus-visible{outline:3px solid var(--fs-g400);outline-offset:2px}
+/* Guía de la etapa 1: tres pasos numerados, en orden */
+.fs-guia{margin:0;padding:0;list-style:none;counter-reset:guia;display:grid;gap:18px}
+.fs-guia>li{counter-increment:guia;position:relative;padding-left:42px}
+.fs-guia>li::before{content:counter(guia);position:absolute;left:0;top:-2px;width:30px;height:30px;border-radius:50%;
+  background:var(--fs-g700);color:#fff;font-weight:800;font-size:16px;display:grid;place-items:center}
+.fs-guia .fs-ubic{margin:10px 0 0}
+.fs-guia .fs-ubic-input{flex-basis:100%;font-size:17px}
+.fs-guia .fs-ubic-btn{flex:1 1 auto;font-size:16px;text-align:center}
+/* Las herramientas del mapa (lista de parcelas, dibujar, GPS) que ParcelMap dibuja dentro del panel */
+.fs-herramientas .parcel-map-tools,.fs-herramientas .parcel-list{margin-top:8px}
+.fs-herramientas .button-row{display:flex;flex-wrap:wrap;gap:8px}
+/* Al dibujar, primero el aviso y los botones de guardar; las ayudas (detectar, GPS) van después. */
+.fs-herramientas .parcel-map-tools{display:flex;flex-direction:column;gap:10px}
+.fs-herramientas .parcel-map-tools>.button-row:last-child{order:1}
+.fs-herramientas .parcel-map-tools>.detect-tools{order:2}
+.fs-herramientas .parcel-map-tools>.gps-tools,.fs-herramientas .parcel-map-tools>p.hint:not([aria-live]){order:3}
+.fs-herramientas button{min-height:48px}
+@media (min-width:900px){
+  .fs-flujo{height:max(460px,calc(100dvh - var(--fs-head,72px) - 32px))}
+  .fs-flujo-mapa,.fs-flujo .parcel-map{height:100%}
+  .fs-flujo .parcel-map{display:flex;flex-direction:column}
+  .fs-flujo .parcel-map-frame{flex:1;min-height:0}
+  .fs-flujo .v3d.v3d-hero .parcel-map-canvas{height:100%;min-height:0}
+  .fs-panel{height:100%;min-height:0}
+  /* El contenido se desliza por dentro; una sombra arriba o abajo avisa que hay más. */
+  .fs-panel-cuerpo{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;
+    background:
+      linear-gradient(#fff 30%,rgba(255,255,255,0)) top/100% 28px no-repeat local,
+      linear-gradient(rgba(255,255,255,0),#fff 70%) bottom/100% 28px no-repeat local,
+      radial-gradient(farthest-side at 50% 0,rgba(16,36,26,.22),transparent) top/100% 10px no-repeat scroll,
+      radial-gradient(farthest-side at 50% 100%,rgba(16,36,26,.22),transparent) bottom/100% 10px no-repeat scroll}
+}
 @media (max-width:899.98px){
-  .fs-flujo{grid-template-columns:minmax(0,1fr);gap:14px}
-  /* El cuadro del mapa queda fijo bajo el encabezado; la tarjeta va justo debajo y las herramientas al final */
-  .fs-flujo:not(.is-solo) .fs-flujo-mapa,.fs-flujo:not(.is-solo) .parcel-map{display:contents}
-  .fs-flujo:not(.is-solo) .parcel-map-frame{order:0;position:sticky;top:var(--fs-head,132px);z-index:5}
-  .fs-flujo:not(.is-solo) .fs-tarjeta{order:1;scroll-margin-top:calc(var(--fs-head,132px) + 38vh + 12px)}
-  .fs-flujo:not(.is-solo) .parcel-map > :not(.parcel-map-frame){order:2}
-  .fs-flujo:not(.is-solo) .v3d-hero .parcel-map-canvas{height:38vh;min-height:220px}
+  /* Celular: el mapa fijo arriba, el contenido debajo y los botones en una barra fija al pie de la pantalla. */
+  .fs-app{padding:12px 12px calc(96px + env(safe-area-inset-bottom))}
+  .fs-flujo{display:block}
+  .fs-flujo-mapa{position:sticky;top:var(--fs-head,132px);z-index:5;margin-bottom:12px}
+  .fs-flujo .v3d.v3d-hero .parcel-map-canvas{height:34vh;min-height:200px}
+  .fs-panel{overflow:visible}
+  .fs-panel-nav{position:fixed;left:0;right:0;bottom:0;z-index:15;padding:10px 12px calc(10px + env(safe-area-inset-bottom));
+    box-shadow:0 -6px 18px rgba(16,36,26,.14)}
 }
 /* FarmSummary y YearControl traen sus estilos de .v3d: dentro de la tarjeta, sin su fondo ni su letra */
 .fs-tarjeta .v3d{background:none;font:inherit;color:inherit;min-height:0}

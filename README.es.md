@@ -13,14 +13,14 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 | Fase | Qué incluye | Estado |
 |------|-------------|--------|
 | F1 | Esqueleto, `/api/clima`, `/api/suelo`, caché y respaldo sin internet | Lista |
-| F2 | `cultivos.json`, motor de reglas con pruebas, `/api/recomendar`, mapa y formulario | Lista (los rangos de los cultivos están sin verificar) |
+| F2 | `cultivos.json`, motor de reglas con pruebas, `/api/recomendar`, mapa y formulario | Lista (rangos de los cultivos verificados contra FAO; falta el agua del garbanzo y del brócoli) |
 | F3 | Integración de punta a punta con una parcela real | Lista en la rama de integración; falta ensayarla en la laptop de la demo |
 | F4 | Explicaciones, gráfica, errores y estados de carga | Parcial |
 | F5 | README en inglés con capturas y créditos completos | Pendiente |
 
 **Pendientes conocidos**
 
-- Confirmar contra FAO Ecocrop los rangos de `server/data/cultivos.json` (todos tienen `"verificado": false`).
+- Confirmar el agua por ciclo del garbanzo y del brócoli en `server/data/cultivos.json` (no están en la tabla 14 de FAO; quedan con `"verificado": false`).
 - Las pantallas "Análisis IA" y "Probar cultivo" todavía usan datos de ejemplo del diseño.
 - La voz (micrófono) no se ha probado con un micrófono real.
 
@@ -106,7 +106,7 @@ server/
   lib/                 coordenadas, caché en disco, fetch con timeout, temporadas y parcelas de ejemplo
   engine/              motor de reglas: puntaje, riesgo por años secos y rotación (funciones puras)
   llm/                 asistente: ficha de la parcela, modelo local (Ollama), verificador, datos del SIAP
-  data/                cultivos.json (7 cultivos, sin verificar) y siap_resumen.json
+  data/                cultivos.json (7 cultivos, verificados contra FAO salvo el agua de garbanzo y brócoli) y siap_resumen.json
   fixtures/            respuestas reales de 6 parcelas (respaldo sin internet)
   cache/               caché en disco, no se versiona
   scripts/             fetch-fixtures.js, siap-descargar.js
@@ -127,11 +127,12 @@ docs/
 
 ### Vista 3D
 
-Arriba de los datos hay un globo de la Tierra. Lo giras, tocas tu región y la parcela se levanta del globo como una maqueta de 1 km por lado, con:
+Arriba de los datos hay un globo de la Tierra. Lo giras, tocas tu región y la parcela se levanta del globo como una maqueta **del tamaño de tu parcela** (250 m a 4 km por lado; 1 km si solo eliges un punto), con:
 
 - el **relieve real** del terreno (exagerado para que se note; la página dice cuántas veces),
-- los lados del bloque con el **color del suelo** según SoilGrids (más arcilla, más oscuro),
-- un control de **años 2000–2024**: en años secos la tierra se ve café, las plantas chaparras y amarillas y casi no llueve.
+- los lados del bloque con las **capas reales del suelo hasta 1 m** según SoilGrids (más arcilla o más materia orgánica, más oscuro), y abajo una tarjeta "Tu suelo" con el tipo de suelo, cada capa y la humedad de NASA POWER,
+- en "Simulador 3D", el **cultivo del año elegido en el plan** de rotación,
+- un control de **años desde 2000 hasta el último año completo** (se recorre solo cada año): en años secos la tierra se ve café, las plantas chaparras y amarillas y casi no llueve.
 
 Cuidados de rendimiento: three.js se descarga solo si el navegador tiene WebGL y en un archivo aparte; la escena se dibuja solo cuando algo cambia (`frameloop="demand"`); cada cultivo es un único `InstancedMesh`; la resolución se limita a 1.5×; si el 3D falla, el resto de la página sigue funcionando. Con "reducir movimiento" activado en el sistema, no hay animaciones.
 
@@ -153,9 +154,10 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 
 **Datos**
 
-- **NASA POWER** (Prediction Of Worldwide Energy Resources), NASA Langley Research Center. Serie mensual 2000–2024, comunidad AG: temperatura, precipitación, radiación y humedad del suelo en la zona de raíces. <https://power.larc.nasa.gov/>
+- **NASA POWER** (Prediction Of Worldwide Energy Resources), NASA Langley Research Center. Serie mensual desde 2000 hasta el último año completo, comunidad AG: temperatura, precipitación, radiación y humedad del suelo en superficie, zona de raíces y perfil (GWETTOP, GWETROOT, GWETPROF). <https://power.larc.nasa.gov/>
   *These data were obtained from the NASA Langley Research Center (LaRC) POWER Project funded through the NASA Earth Science/Applied Science Program.*
-- **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 30 cm. <https://soilgrids.org/>
+- **SoilGrids 2.0**, ISRIC World Soil Information, licencia CC BY 4.0. Propiedades del suelo de 0 a 100 cm (textura, pH, carbono orgánico, nitrógeno, densidad aparente, CIC y piedras) y tipo de suelo (clasificación WRB). <https://soilgrids.org/>
+  IUSS Working Group WRB (2015). *World Reference Base for Soil Resources 2014, update 2015*. World Soil Resources Reports No. 106. FAO, Roma. (Nombres y descripciones generales de los tipos de suelo.)
   Poggio, L., de Sousa, L. M., Batjes, N. H., Heuvelink, G. B. M., Kempen, B., Ribeiro, E., and Rossiter, D. (2021). SoilGrids 2.0: producing soil information for the globe with quantified spatial uncertainty. *SOIL*, 7, 217–240. <https://doi.org/10.5194/soil-7-217-2021>
 - **INEGI, Censo Agropecuario 2022**: en Guanajuato el 63.9 % de la superficie agrícola es de temporal.
 - **INEGI, Marco Geoestadístico** (diciembre de 2025), límites de Guanajuato y Querétaro (`server/data/estados_bajio.json`, de <https://gaia.inegi.org.mx/wscatgeo/v2/geo/mgee/11> y `/22`): deciden si una parcela está en el Bajío, donde se recomiendan cultivos.
@@ -172,13 +174,17 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 - **Open-Meteo**, pronóstico de 7 días (CC BY 4.0). <https://open-meteo.com/>
 - **OpenStreetMap / Nominatim**, búsqueda de pueblos y direcciones. © colaboradores de OpenStreetMap (ODbL).
 - **Wikipedia en español** (CC BY-SA), textos de apoyo del asistente para preguntas generales; cada respuesta enlaza su página.
-- **Requerimientos de los cultivos** (`server/data/cultivos.json`): valores aproximados al estilo de FAO Ecocrop. **No están verificados**; falta confirmarlos contra FAO Ecocrop.
+- **Requerimientos de los cultivos** (`server/data/cultivos.json`), verificados el 15 de noviembre de 2026:
+  - **FAO Ecocrop**, fichas oficiales de cada especie (temperatura y pH óptimos; también se guardan los rangos absolutos, la lluvia anual y el ciclo). <https://ecocrop.apps.fao.org/>
+  - **FAO**, Brouwer, C. y Heibloem, M. (1986). *Irrigation Water Management: Training Manual No. 3, Irrigation Water Needs*, tabla 14 (agua que necesita el cultivo en todo su ciclo). <https://www.fao.org/4/s2022e/s2022e07.htm>
+  - Ecocrop da la lluvia **anual**, no la del ciclo; por eso el agua por ciclo sale de la tabla 14. Garbanzo y brócoli no están en esa tabla: su agua sigue aproximada (`"verificado": false`).
+  - Son rangos generales de cada especie, no de las variedades que se siembran en el Bajío. El ciclo en meses es el típico del Bajío.
 
 **Software**
 
 React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber, @react-three/drei, Chart.js, Bootstrap y Bootstrap Icons, todos de código abierto. Tipografías Plus Jakarta Sans y JetBrains Mono vía Google Fonts. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
 
-El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. "Probar cultivo" usa el mismo motor de reglas que el Simulador 3D (`/api/recomendar`); los rangos de sus 7 cultivos están en `server/data/cultivos.json` y aún no están verificados.
+El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. "Probar cultivo" usa el mismo motor de reglas que el Simulador 3D (`/api/recomendar`); los rangos de sus 7 cultivos están en `server/data/cultivos.json` y salen de la FAO (falta el agua del garbanzo y del brócoli).
 
 **Uso de inteligencia artificial**
 

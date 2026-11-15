@@ -36,8 +36,8 @@ export const postRecomendar = (payload) =>
 // Each rain-fed crop against every real year, sown in June and July ("Probar cultivo" screen).
 export const getPrueba = (lat, lon) => request(`/api/recomendar/prueba?${pointQuery(lat, lon)}`);
 
-// Relief of the 1 km square around the plot, for the 3D view.
-export const getTerreno = (lat, lon) => request(`/api/terreno?${pointQuery(lat, lon)}`);
+// Relief of the square around the plot, for the 3D view. lado: side in meters (250 to 4000).
+export const getTerreno = (lat, lon, lado = 1000) => request(`/api/terreno?${pointQuery(lat, lon)}&lado=${lado}`);
 
 // Próximos 7 días (Open-Meteo). Si no hay internet ni copia guardada responde { disponible: false }.
 export const getPronostico = (lat, lon) => request(`/api/pronostico?${pointQuery(lat, lon)}`);

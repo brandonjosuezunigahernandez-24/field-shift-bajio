@@ -3,6 +3,7 @@ import { readFileSync } from 'node:fs';
 import { HttpError } from '../lib/errors.js';
 import { parseCoords } from '../lib/coords.js';
 import { POWER_CREDIT, getClimate, summarizeClimate } from '../sources/nasaPower.js';
+import { SOILCLASS_CREDIT, getSoilClass } from '../sources/soilClass.js';
 import { SOILGRIDS_CREDIT, getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { ETIQUETAS, PRIORIDADES, backtest, recommend } from '../engine/index.js';
 import { incomeByCrop, topCropBySeason } from '../llm/siap.js';
@@ -23,20 +24,36 @@ const FUENTES = [
   POWER_CREDIT,
   SOILGRIDS_CREDIT,
   'SIAP, Cierre de la producción agrícola 2018-2024 (ingreso bruto promedio por estado)',
-  'Requerimientos de los cultivos: valores aproximados (estilo FAO Ecocrop), sin verificar',
+  'Requerimientos de los cultivos: FAO Ecocrop (temperatura y pH óptimos) y FAO, Irrigation Water Management Training Manual No. 3, tabla 14 (agua por ciclo); el agua del garbanzo y del brócoli sigue aproximada',
 ];
 
 // SoilGrids fails or has no data for some points: the plot still gets a recommendation, without pH.
+// Same soil as GET /api/suelo (layers to 1 m and soil type included): the screens replace their soil
+// with this one, so it must not lose anything. The soil type is extra and never blocks the answer.
 async function soilSummary(lat, lon) {
   let soil = {};
+  let layers = null;
   let origen = null;
-  try {
-    ({ soil, origen } = await getSoil(lat, lon));
-  } catch (err) {
-    if (!(err instanceof HttpError)) throw err;
-  }
-  const summary = summarizeSoil(soil);
-  return { lat, lon, origen, ...summary, aviso: summary.sin_datos ? NO_SOIL : null, fuente: SOILGRIDS_CREDIT };
+  const [, tipo] = await Promise.all([
+    getSoil(lat, lon).then(
+      (r) => ({ soil, layers, origen } = r),
+      (err) => {
+        if (!(err instanceof HttpError)) throw err;
+      }
+    ),
+    getSoilClass(lat, lon).then((r) => r.tipo, () => null),
+  ]);
+  const summary = summarizeSoil(soil, layers);
+  return {
+    lat,
+    lon,
+    origen,
+    ...summary,
+    aviso: summary.sin_datos ? NO_SOIL : null,
+    tipo,
+    fuente: SOILGRIDS_CREDIT,
+    fuente_tipo: tipo ? SOILCLASS_CREDIT : null,
+  };
 }
 
 // The recommendation of one plot, for POST /api/recomendar and for the assistant: both must say the same.
@@ -100,7 +117,7 @@ export function explainPlot(r) {
     `Para sembrar de ${r.agua} y con la meta de ${ETIQUETAS[r.prioridad]}, en tu parcela te salen mejor: ${top}. ` +
     `Rotación de 3 años: ${rotation}. ${compareSentence(r, name)}Sobre ${first.nombre.toLowerCase()}: ${first.razones[0]} ` +
     predictionSentences(r.prediccion).map((s) => `${s} `).join('') +
-    'Los requerimientos de cada cultivo son aproximados y falta confirmarlos; esto no sustituye a un técnico.'
+    'Lo que necesita cada cultivo sale de la FAO (rangos generales de la especie, no de una variedad del Bajío); esto no sustituye a un técnico.'
   );
 }
 

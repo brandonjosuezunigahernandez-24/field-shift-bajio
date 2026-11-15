@@ -3,11 +3,19 @@ import { DRY_YEAR_RATIO, PV_MONTHS } from '../lib/seasons.js';
 
 export const POWER_SOURCE = 'power';
 export const POWER_START_YEAR = 2000;
-export const POWER_END_YEAR = 2024;
+// Last year with its 12 months published. POWER posts each month about 2 to 3 months later, so
+// until April the year before may still be incomplete. Moves forward by itself every year.
+export function powerEndYear(now = new Date()) {
+  return now.getUTCFullYear() - (now.getUTCMonth() >= 3 ? 1 : 2);
+}
+export const POWER_END_YEAR = powerEndYear();
 export const POWER_CREDIT =
   'NASA POWER (Prediction Of Worldwide Energy Resources), NASA Langley Research Center, comunidad AG';
 
-const PARAMETERS = ['T2M', 'T2M_MAX', 'T2M_MIN', 'PRECTOTCORR', 'ALLSKY_SFC_SW_DWN', 'GWETROOT'];
+// GWETTOP / GWETROOT / GWETPROF: soil wetness of the surface (0-5 cm), the root zone (0-100 cm)
+// and the whole profile, from 0 (dry) to 1 (saturated).
+const REQUIRED = ['T2M', 'T2M_MAX', 'T2M_MIN', 'PRECTOTCORR', 'ALLSKY_SFC_SW_DWN', 'GWETROOT'];
+const PARAMETERS = [...REQUIRED, 'GWETTOP', 'GWETPROF'];
 const DEFAULT_FILL_VALUE = -999;
 
 export function buildPowerUrl(lat, lon) {
@@ -29,8 +37,10 @@ export function daysInMonth(year, month) {
 
 // Throws when the payload is not a usable POWER monthly response.
 // Requires every requested parameter, so a cache saved before one was added gets downloaded again.
+// Only the original parameters are required: older caches and the fixtures parse fine, with
+// null soil wetness at the surface and profile (powerStaleReason gets them refreshed).
 export function validatePower(raw) {
-  const missing = PARAMETERS.filter((name) => !raw?.properties?.parameter?.[name]);
+  const missing = REQUIRED.filter((name) => !raw?.properties?.parameter?.[name]);
   if (missing.length > 0) {
     throw new Error(`Unexpected NASA POWER response (missing ${missing.join(', ')})`);
   }
@@ -76,6 +86,8 @@ export function parsePower(raw) {
       rain_mm: rainToMonthlyMm(clean('PRECTOTCORR', key), rainUnits, year, month),
       solar: clean('ALLSKY_SFC_SW_DWN', key),
       root_wetness: clean('GWETROOT', key),
+      top_wetness: clean('GWETTOP', key),
+      profile_wetness: clean('GWETPROF', key),
     });
   }
   return rows.sort((a, b) => a.year - b.year || a.month - b.month);
@@ -127,6 +139,17 @@ export function summarizeClimate(rows, { pvMonths = PV_MONTHS, dryRatio = DRY_YE
   const monthsOfYear = Array.from({ length: 12 }, (_, i) => i + 1);
   const ofMonth = (month, field) => rows.filter((r) => r.month === month).map((r) => r[field]);
 
+  // Soil wetness in the rainy season (NASA POWER GWET*), in % of saturation: mean of the PV
+  // months for each year and over all years. null where POWER gave nothing (old caches).
+  const pct = (v) => (v === null ? null : Math.round(v * 100));
+  const pvRows = rows.filter((r) => pvMonths.includes(r.month));
+  const wetness = (list) => ({
+    superficie_pct: pct(mean(list.map((r) => r.top_wetness ?? null))),
+    raiz_pct: pct(mean(list.map((r) => r.root_wetness ?? null))),
+    perfil_pct: pct(mean(list.map((r) => r.profile_wetness ?? null))),
+  });
+  const pvYears = [...new Set(pvRows.map((r) => r.year))].sort((a, b) => a - b);
+
   const years = rows.map((r) => r.year);
   return {
     periodo: years.length ? { inicio: Math.min(...years), fin: Math.max(...years) } : null,
@@ -145,7 +168,17 @@ export function summarizeClimate(rows, { pvMonths = PV_MONTHS, dryRatio = DRY_YE
       mes,
       lluvia_mm: round1(mean(ofMonth(mes, 'rain_mm'))),
     })),
+    humedad_suelo_pv: wetness(pvRows),
+    humedad_suelo_pv_anual: pvYears.map((anio) => ({ anio, ...wetness(pvRows.filter((r) => r.year === anio)) })),
   };
+}
+
+// A cache saved before the last complete year was published: download it again.
+export function powerStaleReason(raw, endYear = POWER_END_YEAR) {
+  const parameter = raw?.properties?.parameter ?? {};
+  const missing = PARAMETERS.filter((name) => !parameter[name]);
+  if (missing.length) return `le falta ${missing.join(', ')}`;
+  return `${endYear}12` in parameter.PRECTOTCORR ? null : `le falta ${endYear}`;
 }
 
 // Monthly climate rows for one point, from cache, API or fixture.
@@ -158,6 +191,7 @@ export async function getClimate(lat, lon) {
     buildUrl: buildPowerUrl,
     timeoutMs: 20000,
     validate: validatePower,
+    isStale: (raw) => powerStaleReason(raw),
   });
   return { rows: parsePower(raw), origen };
 }
