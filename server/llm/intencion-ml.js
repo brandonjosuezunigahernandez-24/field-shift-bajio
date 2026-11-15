@@ -83,7 +83,7 @@ const AL_MODELO = ['concepto', 'general'];
 export const destino = (intencion) => (AL_MODELO.includes(intencion) ? 'modelo' : intencion);
 
 // Ids de maiz.js -> intención del conjunto etiquetado.
-const MAIZ = {
+export const MAIZ = {
   produccion: 'maiz_produccion', decision: 'maiz_decision', ciclo: 'maiz_ciclo', dosciclos: 'maiz_ciclo', precio: 'maiz_precio', precio_mes: 'maiz_precio',
   riesgo: 'maiz_riesgo', riego: 'maiz_riego', agua: 'maiz_riego', suelo: 'maiz_suelo', comparar: 'maiz_comparar', donde: 'maiz_donde',
   rotacion: 'maiz_rotacion', despues: 'recomendar', helada: 'heladas', plaga: 'peligro', siembra: 'siembra', semilla: 'sin_dato', seguro: 'sin_dato', costo: 'sin_dato',
@@ -152,7 +152,7 @@ export function sugerencias(probables = []) {
 }
 
 // Intenciones que se contestan con una plantilla de respuestas.js (el nombre es el mismo tema).
-export const TEMAS_PLANTILLA = ['siembra', 'lluvia', 'secos', 'anio', 'pronostico', 'tendencia', 'heladas', 'calor', 'radiacion', 'humedad', 'suelo', 'siap', 'cultivo', 'frutales', 'peligro', 'insumos', 'fuera'];
+export const TEMAS_PLANTILLA = ['siembra', 'lluvia', 'secos', 'anio', 'pronostico', 'tendencia', 'heladas', 'calor', 'radiacion', 'humedad', 'suelo', 'siap', 'cultivo', 'frutales', 'peligro', 'insumos', 'fuera', 'apoyos', 'credito'];
 
 // Para la ruta: como respaldo(), pero si falta el modelo o algo falla, no cambia nada.
 export function respaldoSeguro(pregunta) {

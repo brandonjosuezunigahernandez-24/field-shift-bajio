@@ -215,8 +215,10 @@ function planFor({ estado, agua, prioridad, incluirHortalizas, ultimoCultivo, en
   return { ranked, plan: buildPlan(ranked, agua, ultimoCultivo, evitar) };
 }
 
-export function recommend({ estado, agua, prioridad, costos = null, incluirHortalizas = false, ultimoCultivo = null, hectareas = null, encharca = null, filas = loadSiap()?.filas }) {
-  const base = planFor({ estado, agua, prioridad, incluirHortalizas, ultimoCultivo, encharca, evitar: null, filas });
+// cultivoActual: lo que tiene sembrado ahorita; si es uno de los cultivos, la rotación sigue después de él (no de ultimoCultivo).
+export function recommend({ estado, agua, prioridad, costos = null, incluirHortalizas = false, ultimoCultivo = null, cultivoActual = null, hectareas = null, encharca = null, filas = loadSiap()?.filas }) {
+  const actual = FAMILIA[cultivoActual] ? cultivoActual : null;
+  const base = planFor({ estado, agua, prioridad, incluirHortalizas, ultimoCultivo: actual ?? ultimoCultivo, encharca, evitar: null, filas });
   if (!base) return null;
   const { ranked, plan } = base;
   return {
@@ -229,7 +231,7 @@ export function recommend({ estado, agua, prioridad, costos = null, incluirHorta
       porque: `Puntaje ${p.cand.puntaje}.${FAMILIA[p.cand.cultivo] === 'leguminosa' ? ' Es leguminosa: deja algo de nitrógeno para el siguiente cultivo.' : ''}`,
     })),
     prediccion: withHectares(simulate(plan, { costos }), hectareas),
-    perfil_usado: { ultimo_cultivo: ultimoCultivo, hectareas, encharca },
+    perfil_usado: { ultimo_cultivo: ultimoCultivo, cultivo_actual: actual, hectareas, encharca },
     fuentes: ['SIAP, Cierre de la producción agrícola (datos abiertos), 2018-2024'],
     notas: [
       ...(incluirHortalizas ? ['Las hortalizas (jitomate, brócoli) necesitan mucha más inversión: sus ingresos brutos no son comparables con los de los granos sin conocer los costos.'] : ['No se incluyeron hortalizas (jitomate, brócoli): necesitan mucha más inversión y no tenemos sus costos.']),
@@ -334,27 +336,31 @@ const peso = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
 
 // Texto para el agricultor armado por el código (el modelo no lo redacta, así no se equivoca).
 export function explainRecommendation(r, estadoInferido = false) {
-  const top = r.cultivos.filter((c, i, all) => all.findIndex((x) => x.id === c.id && x.temporada === c.temporada) === i).slice(0, 3);
+  // Después de un cultivo no se ponen arriba los de su misma familia (tras el maíz, el sorgo no va primero).
+  const prev = r.perfil_usado?.cultivo_actual ?? r.perfil_usado?.ultimo_cultivo;
+  const unicos = r.cultivos.filter((c, i, all) => all.findIndex((x) => x.id === c.id && x.temporada === c.temporada) === i);
+  const otraFamilia = unicos.filter((c) => !FAMILIA[prev] || FAMILIA[c.id] !== FAMILIA[prev]);
+  const top = (otraFamilia.length ? otraFamilia : unicos).slice(0, 3);
   const lista = top.map((c, i) => `${i + 1}) ${c.nombre} (${c.temporada}, puntaje ${c.puntaje})`).join('; ');
   const rot = r.rotacion.map((x) => `año ${x.anio} ${x.temporada}: ${NOMBRE[x.cultivo]}`).join('; ');
   const p = r.prediccion;
+  const u = r.perfil_usado ?? {};
+  const tomado = u.cultivo_actual ? ` (tomé en cuenta que ahorita tienes ${NOMBRE[u.cultivo_actual]}, para no repetir el mismo tipo)`
+    : u.ultimo_cultivo ? ` (tomé en cuenta que lo último que sembraste fue ${NOMBRE[u.ultimo_cultivo] ?? u.ultimo_cultivo}, para no repetir el mismo tipo)` : '';
   const partes = [
     `Para sembrar de ${r.agua} y con la meta de ${ETIQUETA[r.prioridad]}, en ${r.estado}${estadoInferido ? ' (lo supuse por tu ubicación; confírmalo)' : ''} te salen mejor: ${lista}. [SIAP]`,
-    `Rotación de 3 años: ${rot}.`,
+    `Rotación de 3 años${tomado}: ${rot}.`,
   ];
   if (p) {
     partes.push(
-      `Si la sigues, el ingreso bruto esperado en 3 años es de unos ${peso(p.ingreso_bruto_3_anios_esperado_por_ha)} por hectárea (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_por_ha)} en un caso malo a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha)} en uno bueno), ${p.probabilidad_al_menos_un_anio_con_perdida_pct === 0 ? `y en los ${p.anios_base} años de datos no se vio ninguno con pérdidas mayores al ${PERDIDA_ALTA} %, aunque eso no garantiza que no pase` : `y en ${p.probabilidad_al_menos_un_anio_con_perdida_pct} de cada 100 casos hay al menos un año con pérdidas mayores al ${PERDIDA_ALTA} %`}. [SIAP]`,
+      `Si la sigues, el ingreso bruto esperado en 3 años es de unos ${peso(p.ingreso_bruto_3_anios_esperado_por_ha)} por hectárea (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_por_ha)} en un caso malo a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha)} en uno bueno)${p.hectareas ? `, unos ${peso(p.ingreso_bruto_3_anios_esperado_total)} en tus ${p.hectareas} hectáreas (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_total)} a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_total)})` : ''}, ${p.probabilidad_al_menos_un_anio_con_perdida_pct === 0 ? `y en los ${p.anios_base} años de datos no se vio ninguno con pérdidas mayores al ${PERDIDA_ALTA} %, aunque eso no garantiza que no pase` : `y en ${p.probabilidad_al_menos_un_anio_con_perdida_pct} de cada 100 casos hay al menos un año con pérdidas mayores al ${PERDIDA_ALTA} %`}. [SIAP]`,
     );
-    if (p.hectareas) {
-      partes.push(`En tus ${p.hectareas} hectáreas serían unos ${peso(p.ingreso_bruto_3_anios_esperado_total)} en total (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_total)} a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_total)}).`);
-    }
     if (p.ganancia_3_anios_esperada_por_ha != null) {
       partes.push(`Con los costos que diste, la ganancia esperada es de ${peso(p.ganancia_3_anios_esperada_por_ha)} por hectárea y hay ${p.probabilidad_de_perder_dinero_pct} de cada 100 casos de perder dinero.`);
     }
   }
-  if (r.perfil_usado?.ultimo_cultivo) partes.push(`Tomé en cuenta que lo último que sembraste fue ${NOMBRE[r.perfil_usado.ultimo_cultivo] ?? r.perfil_usado.ultimo_cultivo}, para no repetir el mismo tipo de cultivo.`);
-  partes.push(`${r.notas[0]} Es una estimación con datos de 7 años del estado, sin costos ni inflación; no sustituye a un técnico.`);
+  // La nota de hortalizas sigue en r.notas (la pantalla la muestra); el texto se queda en 6 frases o menos.
+  partes.push('Es una estimación con datos de 7 años del estado, sin costos ni inflación; no sustituye a un técnico.');
   return partes.join(' ');
 }
 
