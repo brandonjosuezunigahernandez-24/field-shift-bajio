@@ -148,3 +148,21 @@ test('el modelo nunca aconseja quemar el rastrojo', async () => {
   assert.ok(aconsejaQuemar('Es mejor que lo quemes, porque daña la tierra.'));
   assert.ok(!aconsejaQuemar('Mejor no lo quemes: aprovéchalo en la parcela.'));
 });
+
+test('sin plática: «¿y por qué no el maíz?» se entiende; costos sin cultivo y «¿y si cultivo aguacate?» tienen respuesta', async () => {
+  const a = await askEn('¿Y por qué no el maíz?');
+  assert.match(a.respuesta, /^Maíz grano quedó en el lugar/);
+  const c = await askEn('¿Cuánto me cuesta sembrar una hectárea?', { p: { agua: 'temporal', prioridad: 'riesgo', estado: 'Guanajuato' } });
+  assert.match(c.respuesta, /^No tengo costos/);
+  assert.equal((await askEn('¿Y si cultivo aguacate?')).tema, 'aptitud');
+});
+
+test('set nuevo: sorgo por qué quedó así, mes más seco, tierra para frijol, frijol o sorgo, se me da la fresa, granizo', async () => {
+  const h = [{ pregunta: '¿Qué me conviene sembrar?', respuesta: 'x' }];
+  assert.match((await askEn('¿y el sorgo por qué quedó así?', { historial: h })).respuesta, /^Sorgo grano quedó en el lugar/);
+  assert.match((await askEn('¿cuál es el mes más seco del año?')).respuesta, /el que menos, diciembre/);
+  assert.equal((await askEn('¿mi tierra es buena para el frijol?')).tema, 'cultivo-puedo');
+  assert.match((await askEn('¿me conviene más el frijol o el sorgo?')).respuesta, /^Te conviene más .* que /);
+  assert.equal((await askEn('¿se me da la fresa?')).tema, 'aptitud');
+  assert.equal((await askEn('¿qué hago si cae granizo?')).tema, 'apoyos');
+});

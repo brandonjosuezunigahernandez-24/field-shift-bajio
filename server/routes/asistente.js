@@ -23,7 +23,7 @@ import { parsePerfil } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { asksWhyThisCrop, esConcepto, isFollowUp, quitarMuletillas, wantsRecommendation } from '../llm/intencion.js';
 import { compactPlot, recommendPlot } from './recomendar.js';
-import { aguaDicha, metaDicha, pideIncertidumbre, pidePuedoSembrar, pideSeguirIgual, respuestaIncertidumbre, respuestaPlan, respuestaPorQueNo, respuestaSeguirIgual } from '../llm/plan-chat.js';
+import { aguaDicha, metaDicha, pideIncertidumbre, pidePuedoSembrar, pideSeguirIgual, respuestaComparar, respuestaIncertidumbre, respuestaPlan, respuestaPorQueNo, respuestaSeguirIgual } from '../llm/plan-chat.js';
 import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, rendPropio, serie, sugerenciasMaiz } from '../llm/maiz.js';
 import { conGraficas, graficasCultivoPregunta, graficasFinca, graficasMaiz, graficasPlantilla, graficasReco } from '../llm/graficas.js';
 import { ID_MAIZ, TEMAS_PLANTILLA, respaldoSeguro } from '../llm/intencion-ml.js';
@@ -150,7 +150,10 @@ async function resolver(req) {
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
   // "¿Por qué?", "¿y eso por qué?", "¿por qué no maíz?" tras una plática: seguimiento de la recomendación, no pregunta nueva
   // (se mira lo que dijo, no la pregunta completada con la plática). Va antes del maíz y de "recomiéndame".
-  const pideQue = historial.length > 0 && asksWhyThisCrop(dicha) && !esConcepto(dicha);
+  // Sin plática solo si nombra un cultivo («¿por qué no el maíz?» como primera pregunta).
+  // "¿y el sorgo por qué quedó así?": un cultivo nombrado y por qué quedó en su lugar también es del plan.
+  const porQueQuedo = Boolean(dicha && detectCrop(dicha)) && /por ?que/.test(norm(dicha)) && /(quedo|lugar|pusiste|recomiend|abajo|arriba|ultimo|primero|segundo|tercero)/.test(norm(dicha));
+  const pideQue = ((historial.length > 0 || Boolean(dicha && detectCrop(dicha))) && asksWhyThisCrop(dicha) && !esConcepto(dicha)) || porQueQuedo;
   const pideReco = !pideQue && pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
   // "¿Y si sigo igual?" y "¿Qué tan seguro es?" hablan del plan (las 3 rotaciones y su incertidumbre), no del maíz sembrado.
   const pideIgual = Boolean(dicha) && pideSeguirIgual(dicha);
@@ -260,6 +263,9 @@ async function resolver(req) {
   if ((tema === 'cultivo' || puedeCultivo) && aguaPlan && prioridad && regionEstado) {
     const cultivo = detectCrop(dicha ?? pregunta);
     const r = reco ?? await recommendPlot({ lat, lon, agua: aguaPlan, prioridad, estado: regionEstado, previo, actual });
+    // "¿Me conviene más el frijol o el sorgo?": los dos, no solo el primero que se nombra.
+    const dos = respuestaComparar(r, ['maiz', 'frijol', 'sorgo', 'trigo', 'cebada', 'garbanzo', 'brocoli'].filter((id) => norm(dicha ?? '').includes(id)));
+    if (dos) return res.json({ respuesta: dos, acciones: [], fuentes: ['NASA POWER', 'SoilGrids', 'SIAP'], verificado: true, origen: 'motor', tema: 'cultivo-puedo', base: 'ficha', enlaces: [], recomendacion: r, ...conGraficas(graficasReco(r)) });
     const lugar = r.cultivos.findIndex((c) => c.id === cultivo);
     if (lugar >= 0) {
       const c = r.cultivos[lugar];
@@ -271,7 +277,7 @@ async function resolver(req) {
       });
     }
   }
-  const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
+  const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil), estado: perfil.estado ?? estado });
   if (plantilla) return res.json(plantilla);
   // Quemar el rastrojo: siempre la tarjeta (SADER, #MiParcelaNoSeQuema). El modelo a veces volteaba el consejo.
   if (pregunta && /quem/.test(norm(pregunta)) && /rastrojo|soca|paja/.test(norm(pregunta))) {

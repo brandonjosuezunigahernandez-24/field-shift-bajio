@@ -9,6 +9,7 @@ import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.js
 import { getTemas } from '../api/client.js';
 import { useAsistente } from '../hooks/useAsistente.js';
 import { conGlosario } from '../components/Glosario.jsx';
+import { PARCELAS_PRUEBA } from '../config/parcelasPrueba.js';
 
 const pesos = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
 const num = (v) => typeof v === 'number';
@@ -77,7 +78,7 @@ const PRIMER_PERFIL = 2; // the right panel: 0 summary, 1 plan, then the profile
 // Pantalla 3: el asistente de verdad (modelo local). Todo lo que se ve sale de la respuesta del servidor o de los datos reales de la parcela.
 export default function Analisis() {
   const ctx = useParcelaContext();
-  const { point, parcelas, reiniciarPerfil, ensurePoint } = ctx;
+  const { point, parcelas, reiniciarPerfil, ensurePoint, cargarPrueba } = ctx;
   const clima = ctx.clima?.data;
   const suelo = ctx.suelo?.data;
   const labels = selectionLabels(ctx);
@@ -167,6 +168,15 @@ export default function Analisis() {
                   {ha && <> · <span className="fs-mono">{ha}</span></>}
                   <Link to="/">Cambiar parcela</Link>
                 </p>
+                {/* Demo: carga una parcela dibujada con su perfil y ya se puede preguntar (funciona con y sin internet). */}
+                <div className="an-prueba" role="group" aria-label="Parcelas de prueba">
+                  <span className="an-prueba-t">O prueba con una parcela de ejemplo:</span>
+                  {PARCELAS_PRUEBA.map((p) => (
+                    <button key={p.id} type="button" className="fs-btn fs-btn-sec" onClick={() => { cargarPrueba(p); setTexto(''); }}>
+                      <i className="bi bi-geo-alt-fill" aria-hidden="true"></i> {p.boton}
+                    </button>
+                  ))}
+                </div>
               </div>
               <AvisoEjemplo />
 

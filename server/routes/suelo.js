@@ -9,7 +9,7 @@ const router = Router();
 // to 1 m and the soil type (WRB). The soil type is extra: if it fails, the rest still answers.
 router.get('/', async (req, res) => {
   const { lat, lon } = parseCoords(req.query);
-  const [{ soil, layers, origen }, tipo] = await Promise.all([
+  const [{ soil, layers, origen, cercano }, tipo] = await Promise.all([
     getSoil(lat, lon),
     getSoilClass(lat, lon).then((r) => r.tipo, () => null),
   ]);
@@ -21,7 +21,10 @@ router.get('/', async (req, res) => {
     ...summary,
     aviso: summary.sin_datos
       ? 'SoilGrids no tiene datos de suelo en este punto (suele pasar en ciudades y cuerpos de agua). Marca un punto dentro de la parcela.'
-      : null,
+      : cercano
+        ? `SoilGrids no respondió: este es el suelo guardado más cercano, a ${cercano.m} m de tu parcela. Intenta de nuevo más tarde para el de tu punto exacto.`
+        : null,
+    ...(cercano && { cercano }),
     tipo,
     fuente: SOILGRIDS_CREDIT,
     fuente_tipo: tipo ? SOILCLASS_CREDIT : null,

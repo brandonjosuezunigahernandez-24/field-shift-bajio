@@ -38,3 +38,6 @@
 .gr-fig figcaption { font-size: 16px; margin-bottom: 6px; }
 .gr-lienzo { position: relative; height: 240px; }
 .gr-ej { color: #b5532e; font-weight: 700; }
+/* Botones de parcelas de prueba (config/parcelasPrueba.js) */
+.an-prueba { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; margin: 12px 0 0; }
+.an-prueba-t { font-size: 16px; font-weight: 600; color: var(--fs-g700, #14532d); width: 100%; }

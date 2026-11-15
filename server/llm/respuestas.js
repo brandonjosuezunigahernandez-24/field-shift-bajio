@@ -51,9 +51,12 @@ export function detectarTema(pregunta = '') {
   const q = strip(pregunta);
   if (!q.trim()) return null;
   if (has(PELIGRO, q)) return 'peligro';
+  // "¿Cuánto me cuesta sembrar una hectárea?" sin cultivo: no hay costos verificados (con maíz lo contesta maiz.js igual).
+  if (/(cuanto|que tanto) (me )?(cuesta|sale|gasto|invierto)\w* (en )?(sembrar|producir|la siembra|cultivar|meter)|costos? de (produccion|siembra|sembrar|cultivo)/.test(q) && !detectCrop(q)) return 'costos';
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
   if (has(CREDITO, q)) return 'credito';
-  if (has(APOYOS, q)) return 'apoyos';
+  // "¿Qué hago si cae granizo?": lo que hay es el seguro por clima (apoyos); no hay datos de granizo.
+  if (has(APOYOS, q) || /graniz/.test(q)) return 'apoyos';
   // Temas que tienen tarjeta verificada (data/conocimiento.json) y ninguna plantilla los contesta: van al modelo con su tarjeta.
   if (/canicula|cosecha de agua|captar (el )?agua|(guard|junt|capt|almacen|aprovech)\w* (el |la )?agua( de (la )?lluvia)?\b(?! (para|al|a la) (maiz|frijol|grano))|tierra (no )?se (me )?(canse|cansa)|tierra cansada|bordo|gorgojo|palomilla|grano guardado|maiz guardado|guardar (el )?(grano|maiz|frijol)|silo|monitor de sequia|milpa|crioll|curvas? de nivel|abono verde|gallina ciega/.test(q)) return 'tarjeta';
   if (detectarAptitud(q)) return 'aptitud'; // ¿se da aquí? (llm/aptitud.js)
@@ -69,6 +72,7 @@ export function detectarTema(pregunta = '') {
   // "¿Cuántos años secos ha habido desde 2010?" es una cuenta (secos), no un solo año.
   if (has(SECOS, q) && /cuant/.test(q) && /(desde|a partir de|despues de)( el)? (19|20)\d\d/.test(q)) return 'secos';
   if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal|\bagua\b|cayo|temporal)/, q)) return 'anio';
+  if (/mes (mas seco|que menos llueve|con menos lluvia|mas lluvioso|que mas llueve)/.test(q)) return 'lluvia'; // un mes, no los años secos
   if (has(SECOS, q)) return 'secos';
   if (has(FRIO, q)) return 'heladas';
   if (has(CALOR, q)) return 'calor';
@@ -215,6 +219,8 @@ const REDACTORES = {
     const hi = ms.reduce((a, m) => (m.humedad_raiz > a.humedad_raiz ? m : a)), lo = ms.reduce((a, m) => (m.humedad_raiz < a.humedad_raiz ? m : a));
     return out(`La humedad de la zona de raíces es más alta en ${MESES[hi.mes - 1]} (${hi.humedad_raiz}) y más baja en ${MESES[lo.mes - 1]} (${lo.humedad_raiz}); ${nota} ${NASA}.`, ['NASA POWER'], { hi, lo });
   },
+
+  costos: () => out('No tengo costos de sembrar una hectárea: no hay una fuente confirmada. Lo que sí tengo es lo que se gana: pregúntame, por ejemplo, cuánto deja el maíz o el frijol por hectárea. Para los costos pregunta a tu técnico o a tu proveedor.', [], {}),
 
   'lluvia-comparar': (q, { resumen }) => {
     const m = municipioNombrado(q);
