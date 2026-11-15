@@ -1,56 +1,41 @@
-// Habla con Ollama (local, sin internet). Devuelve { respuesta, datos_usados, fuentes } o lanza error.
+// Habla con Ollama (local, sin internet). Devuelve { respuesta, fuentes } o lanza error.
+import { mensajes } from './prompt.js';
+
 const URL = process.env.OLLAMA_URL ?? 'http://localhost:11434';
 export const MODEL = process.env.OLLAMA_MODEL ?? 'gemma3:4b';
 
-const SYSTEM = `Eres el asistente de una app para agricultores de temporal del Bajío.
-Respondes en español sencillo, máximo 3 oraciones (5 si explicas un texto de conocimiento), como si hablaras con un agricultor.
-REGLAS:
-1. Usa SOLO la FICHA. No uses conocimiento propio.
-2. Si la respuesta no está en la FICHA, responde exactamente: "No tengo ese dato para tu parcela."
-3. No cambies ningún número. Cópialo tal como está en la FICHA.
-4. Después de cada dato pon su fuente entre corchetes: [NASA POWER], [SoilGrids] u [Open-Meteo] (el pronóstico de los próximos días viene de Open-Meteo). Si usas un texto de "conocimiento", cita la fuente que trae ese texto: [Base local], [Wikipedia] o [SIAP].
-5. No recomiendes químicos, dosis ni marcas.
-6. Para máximos, mínimos y totales del pronóstico usa "resumen"; no los busques tú en "dias".
-7. Si preguntan por un cultivo y "conocimiento" no lo explica, responde "No tengo ese dato para tu parcela." No uses el pH, la arcilla ni la lluvia de la parcela para hablar de un cultivo, salvo que el texto de "conocimiento" diga qué necesita.
-8. Si usas "conocimiento", explica con tus palabras en hasta 5 oraciones cortas y sencillas.
-9. Contesta solo lo que preguntaron. No agregues pronóstico, suelo ni lluvia si no te lo pidieron.
-10. Si hay "siap", son datos oficiales por estado, no de la parcela: di el estado y cita [SIAP]. Para preguntas de riesgo usa "perdida_promedio_pct" y "anios_con_perdida_mayor_10_pct".
-11. Si hay "recomendacion", explícala con sus números y cita [SIAP]; no cambies los cultivos ni la rotación.`;
-
-const SCHEMA = {
-  type: 'object',
-  properties: {
-    respuesta: { type: 'string' },
-    datos_usados: { type: 'array', items: { type: 'string' } },
-    fuentes: { type: 'array', items: { type: 'string' } },
-  },
-  required: ['respuesta', 'datos_usados', 'fuentes'],
+// Texto libre (sin JSON forzado): sale más corto y rápido; las fuentes se leen de los corchetes.
+const citas = (t) => [...new Set([...t.matchAll(/\[([^\]]+)\]/g)].flatMap((m) => m[1].split(/\s*,\s*/)))];
+const OPTIONS = {
+  temperature: 0,
+  num_ctx: Number(process.env.OLLAMA_CTX) || 2048, // la ficha recortada cabe de sobra
+  num_predict: 180, // ~4 frases; antes 300 y a veces se ciclaba hasta cortarse
 };
+// Que el modelo se quede en memoria entre preguntas (la primera carga tarda segundos).
+const KEEP_ALIVE = process.env.OLLAMA_KEEP_ALIVE ?? '30m';
 
-function chat(ficha, pregunta, { historial = [], model = MODEL, timeoutMs = 60000, stream = false } = {}) {
+function chat(ficha, pregunta, { historial = [], model = MODEL, timeoutMs = 60000, stream = false, options = {} } = {}) {
   return fetch(`${URL}/api/chat`, {
     method: 'POST',
     signal: AbortSignal.timeout(timeoutMs),
-    body: JSON.stringify({
-      model,
-      stream,
-      format: SCHEMA,
-      // num_ctx chico y num_predict corto: menos RAM y respuestas rápidas en laptops débiles.
-      options: { temperature: 0.1, num_ctx: Number(process.env.OLLAMA_CTX) || 3072, num_predict: 300 },
-      messages: [
-        { role: 'system', content: `${SYSTEM}\n\nFICHA:\n${JSON.stringify(ficha)}` },
-        // Memoria corta: las últimas vueltas de la conversación (la ficha ya trae los datos de la parcela).
-        ...historial.flatMap((t) => [{ role: 'user', content: t.pregunta }, { role: 'assistant', content: JSON.stringify({ respuesta: t.respuesta, datos_usados: [], fuentes: [] }) }]),
-        { role: 'user', content: pregunta },
-      ],
-    }),
+    body: JSON.stringify({ model, stream, keep_alive: KEEP_ALIVE, options: { ...OPTIONS, ...options }, messages: mensajes(ficha, pregunta, historial) }),
   });
+}
+
+// Carga el modelo y deja procesado el prompt fijo (sistema + ejemplos) al arrancar el servidor. Nunca lanza.
+export async function precalentar() {
+  try {
+    const res = await chat({}, 'hola', { options: { num_predict: 1 }, timeoutMs: 120000 });
+    await res.json();
+    return true;
+  } catch { return false; }
 }
 
 export async function askModel(ficha, pregunta, opts = {}) {
   const res = await chat(ficha, pregunta, opts);
   if (!res.ok) throw new Error(`Ollama respondió ${res.status}`);
-  return JSON.parse((await res.json()).message.content);
+  const respuesta = (await res.json()).message.content.trim();
+  return { respuesta, fuentes: citas(respuesta) };
 }
 
 // Texto de "respuesta" que ya se escribió en el JSON parcial que va soltando el modelo.
@@ -66,7 +51,7 @@ export async function askModelStream(ficha, pregunta, { onDelta = () => {}, ...o
   const res = await chat(ficha, pregunta, { ...opts, stream: true });
   if (!res.ok) throw new Error(`Ollama respondió ${res.status}`);
   const dec = new TextDecoder();
-  let buf = '', content = '', sent = 0;
+  let buf = '', content = '';
   for await (const chunk of res.body) {
     buf += dec.decode(chunk, { stream: true });
     let i;
@@ -74,10 +59,10 @@ export async function askModelStream(ficha, pregunta, { onDelta = () => {}, ...o
       const line = buf.slice(0, i).trim();
       buf = buf.slice(i + 1);
       if (!line) continue;
-      content += JSON.parse(line).message?.content ?? '';
-      const t = partialRespuesta(content);
-      if (t.length > sent) { onDelta(t.slice(sent)); sent = t.length; }
+      const delta = JSON.parse(line).message?.content ?? '';
+      content += delta;
+      if (delta) onDelta(delta);
     }
   }
-  return JSON.parse(content);
+  return { respuesta: content.trim(), fuentes: citas(content) };
 }

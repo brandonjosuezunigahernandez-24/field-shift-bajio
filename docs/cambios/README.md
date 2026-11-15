@@ -44,3 +44,7 @@ Planes: `docs/plan-features.md` (niveles), `docs/ml-plan.md` (predicción y prec
 | 29 | Perfil completo en pantalla (lo último que sembró, lo que tiene sembrado, cómo riega) y etiqueta «Calculado con tus datos». Doc en la rama `integracion/todo` | Hecho |
 | [30](30-graficas-por-pregunta.md) | Gráficas con datos reales según la pregunta (campo `graficas`), también para frutas | Hecho |
 | [31](31-intencion-con-ml.md) | Entender la pregunta con aprendizaje automático: clasificador de respaldo, acierto 74.3 % → 78.4 % en 334 preguntas de prueba | Hecho |
+| [32](32-acciones-con-fuente.md) | «Qué hacer»: 20 acciones verificadas con fuente (INIFAP, CONAGUA, SENASICA, Reglas 2026) e investigación de lo que más preguntan | Hecho |
+| [33](33-pruebas-conversacion-y-entrenamiento.md) | Pruebas con 2 parcelas delimitadas y perfil lleno: bien contestadas 76 % → 96 %; reentrenamiento | Hecho |
+| [34](34-modelo-offline-mejorado.md) | Modelo offline (Gemma) mejorado: útil 44 % → 82 %, 3.4 s → 1.9 s; modo en línea solo diseñado | Hecho |
+| 35 | Rediseño del chat: respuesta grande, «Escuchar», «Qué hacer», datos plegables. Doc en la rama `integracion/todo` | Hecho |

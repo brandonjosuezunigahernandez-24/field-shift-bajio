@@ -7,6 +7,7 @@ import { summarizeForecast } from './ficha.js';
 import { detectarAptitud, redactarAptitud } from './aptitud.js';
 import { detectarDesglose, redactarDesglose } from './desglose.js';
 import { NO_ES, NO_VERIFICADO, fichaFrutal, topFrutales } from './frutales.js';
+import { accionesPara, fechaDeSiembra } from './acciones.js';
 
 const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const has = (re, q) => re.test(q);
@@ -31,16 +32,22 @@ const CALOR = /(grados|calor|calur|temperatura maxima|temperatura|caliente)/;
 const SIAP_PRECIO = /(se paga|vende|vender|venden|precio|pagan|pago por|valor de la tonelada)/;
 const SIAP_RINDE = /(rinde|rendimiento|cuanto saca|saca mi|toneladas|produce)/;
 const SIAP_RIESGO = /(riesgo|le va|riesgoso|pierde|perdida|siniestr|que tan seguro)/;
-const DENTRO = /(llu|llov|clima|tiempo|temperatura|suelo|tierra|parcela|terreno|campo|cultiv|siembr|sembr|cosech|plant|semilla|riego|regar|agua|plaga|sequi|seco|helad|calor|frio|humed|\bsol\b|solar|precio|vende|rinde|rendimiento|riesgo|fertiliz|abono|rotacion|invernadero|finca|milpa|huerto|agricol|verdura|fruta|hortaliza|\bph\b|arcilla|arena|\bmes\b|\bano\b|verano|invierno|hectarea|ayuda|que sabes|que puedes)/;
+const DENTRO = /(apoyo|bienestar|seguro|acopio|garantia|credito|coyote|rastrojo|barbech|canicula|bordo|surco|plaga|gusano|cogollero|ganado|forraje|pastura|estiercol|llu|llov|clima|tiempo|temperatura|suelo|tierra|parcela|terreno|campo|cultiv|siembr|sembr|cosech|plant|semilla|riego|regar|agua|plaga|sequi|seco|helad|calor|frio|humed|\bsol\b|solar|precio|vende|rinde|rendimiento|riesgo|fertiliz|abono|rotacion|invernadero|finca|milpa|huerto|agricol|verdura|fruta|hortaliza|\bph\b|arcilla|arena|\bmes\b|\bano\b|verano|invierno|hectarea|ayuda|que sabes|que puedes)/;
 // Frutales y perennes (el SIAP los trae aparte). "Fresa" y "aguacate" también salen en el resumen de cultivos y se siguen contestando ahí.
 const FRUTAL = /(frutal|\bfrutas?\b|esparrag|arandan|frambues|zarzamor|\btunas?\b|\buvas?\b|\bnuez|nueces|naranj|manzan|durazn|guayab|limon|nopal tunero)/;
 const CONCEPTO = /(para que sirve|que es\b|que son\b|como funciona|ayuda a|guard|retener|conservar)/;
+
+// Programas de gobierno, seguros y crédito: no hay datos propios; se contesta honesto y se apunta a «Qué hacer» (data/acciones.json).
+const CREDITO = /(credito|prestamo|financiamiento|\bfira\b|me presta)/;
+const APOYOS = /(apoyo|bienestar|subsidio|acopio|precio de garantia|asegurad|catastrof|seguro (agricola|catastrofico|de cosecha|para|si)|(cobr|paga)\w* el seguro|(perdi|se perdio|se me (helo|seco|murio)|granizo|se inundo).{0,40}(que hago|a quien|aviso|me ayudan))/;
 
 export function detectarTema(pregunta = '') {
   const q = strip(pregunta);
   if (!q.trim()) return null;
   if (has(PELIGRO, q)) return 'peligro';
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
+  if (has(CREDITO, q)) return 'credito';
+  if (has(APOYOS, q)) return 'apoyos';
   if (detectarAptitud(q)) return 'aptitud'; // ¿se da aquí? (llm/aptitud.js)
   if (detectarDesglose(q)) return 'desglose'; // superficie, riego, municipios, pérdidas... de una fruta o verdura (llm/desglose.js)
   if (has(FRUTAL, q) && !has(CONCEPTO, q)) return 'frutales';
@@ -145,7 +152,7 @@ const REDACTORES = {
     const pedido = (q.match(/\b\d{1,3}\b/g) ?? []).map(Number).find((x) => x !== n && x !== p.anios && x !== 80);
     const corrige = pedido !== undefined ? `No: según NASA POWER no fueron ${pedido}. ` : '';
     const lista = n ? `: ${resumen.anios_secos.join(', ')}` : '';
-    return out(`${corrige}Fueron ${n} años secos de ${p.anios} (${p.inicio}-${p.fin})${lista} ${NASA}. Seco quiere decir menos de ${resumen.umbral_seco_mm} mm de junio a septiembre.`, ['NASA POWER'], { n, periodo: p, resumen: { anios_secos: resumen.anios_secos, umbral: resumen.umbral_seco_mm }, pedido });
+    return out(`${corrige}${n === 1 ? 'Fue 1 año seco' : `Fueron ${n} años secos`} de ${p.anios} (${p.inicio}-${p.fin})${lista} ${NASA}. Seco quiere decir menos de ${resumen.umbral_seco_mm} mm de junio a septiembre.`, ['NASA POWER'], { n, periodo: p, resumen: { anios_secos: resumen.anios_secos, umbral: resumen.umbral_seco_mm }, pedido });
   },
 
   heladas: (q, { clim }) => {
@@ -202,7 +209,7 @@ const REDACTORES = {
       const f = clim.meses_lluvia_fuerte, primero = f[0], antes = ms[(primero + 10) % 12];
       return out(`La temporada fuerte de lluvias va de ${MESES[primero - 1]} a ${MESES[f.at(-1) - 1]}: ${MESES[primero - 1]} promedia ${ms[primero - 1].lluvia_mm} mm, mientras ${MESES[antes.mes - 1]} solo ${antes.lluvia_mm} mm ${NASA}.`, ['NASA POWER'], { f, ms });
     }
-    return out(`En verano (junio a septiembre) llueve ${resumen.lluvia_pv_mediana_mm} mm, el ${clim.verano.pct_del_anio}% del año. De ${A} años, ${resumen.anios_secos.length} fueron secos ${NASA}.`, ['NASA POWER'], { resumen: { mediana: resumen.lluvia_pv_mediana_mm, secos: resumen.anios_secos }, v: clim.verano, A, n: resumen.anios_secos.length });
+    return out(`En verano (junio a septiembre) llueve ${resumen.lluvia_pv_mediana_mm} mm, el ${clim.verano.pct_del_anio}% del año. De ${A} años, ${resumen.anios_secos.length} ${resumen.anios_secos.length === 1 ? 'fue seco' : 'fueron secos'} ${NASA}.`, ['NASA POWER'], { resumen: { mediana: resumen.lluvia_pv_mediana_mm, secos: resumen.anios_secos }, v: clim.verano, A, n: resumen.anios_secos.length });
   },
 
   siembra: (q, { clim, resumen, perfil = {} }) => {
@@ -212,11 +219,22 @@ const REDACTORES = {
       !perfil.ultimo_cultivo && { campo: 'ultimo_cultivo', pregunta: '¿Qué sembraste la última vez?' },
     ].filter(Boolean);
     const conocido = [
-      perfil.cultivo_actual && `Ahora tienes ${perfil.cultivo_actual}.`,
+      perfil.cultivo_actual && `Ahora tienes ${{ maiz: 'maíz', brocoli: 'brócoli' }[perfil.cultivo_actual] ?? perfil.cultivo_actual}.`,
       perfil.riego_frecuencia_dias && `Riegas cada ${perfil.riego_frecuencia_dias} días.`,
     ].filter(Boolean).join(' ');
-    const texto = `No tengo fechas de siembra verificadas para el Bajío. En tu parcela llueve más de junio a septiembre (${resumen.lluvia_pv_mediana_mm} mm) ${NASA}. ${conocido ? `${conocido} ` : ''}${falta.length ? `Para darte un plan, dime: ${falta[0].pregunta.toLowerCase()}` : 'Pregúntame "¿qué me conviene sembrar?" para ver opciones.'}`;
+    const fecha = fechaDeSiembra({ cultivo: detectCrop(q), perfil, pregunta: q });
+    const texto = `${fecha ? `Según el ${fecha.fuente}: ${fecha.accion[0].toLowerCase()}${fecha.accion.slice(1).replace(/\.$/, '')} (detalle abajo, en «Qué hacer»).` : 'No tengo fechas de siembra verificadas para el Bajío.'} En tu parcela llueve más de junio a septiembre (${resumen.lluvia_pv_mediana_mm} mm) ${NASA}. ${conocido ? `${conocido} ` : ''}${falta.length ? `Para darte un plan, dime: ${falta[0].pregunta.toLowerCase()}` : 'Pregúntame "¿qué me conviene sembrar?" para ver opciones.'}`;
     return { ...out(texto.trim(), ['NASA POWER'], { resumen: { mediana: resumen.lluvia_pv_mediana_mm }, perfil }), ...(falta.length && { preguntar: falta[0] }) };
+  },
+
+  // Sin fuente propia: se dice y se apunta a «Qué hacer» solo si ahí hay algo para esta pregunta.
+  apoyos: (q, { perfil = {} }) => {
+    const hay = accionesPara({ tema: 'apoyos', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;
+    return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Para montos, fechas y papeles confirma en la ventanilla de la Secretaría de Agricultura de tu municipio (CADER) o en tu presidencia municipal.`, [], {});
+  },
+  credito: (q, { perfil = {} }) => {
+    const hay = accionesPara({ tema: 'credito', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;
+    return out(`No tengo una fuente verificada sobre créditos para el campo, así que no te doy montos ni requisitos. Los créditos agrícolas los dan los bancos y las financieras rurales, muchos con respaldo de FIRA (fideicomisos del Banco de México); pregunta ahí o en el CADER de tu municipio.${hay ? ' Abajo, en «Qué hacer», hay algo relacionado con su fuente.' : ''}`, [], {});
   },
 
   suelo: (q, { suelo }) => {
@@ -231,13 +249,24 @@ const REDACTORES = {
     return r && out(`No tengo información verificada de cómo se siembra ni de qué necesita ese cultivo. Lo que sí hay: ${r.respuesta}`, ['SIAP'], r.datos);
   },
 
-  siap: (q, { siap }) => {
+  siap: (q, { siap, perfil = {} }) => {
     const id = detectCrop(q), nombre = { maiz: 'maíz', brocoli: 'brócoli' }[id] ?? id;
     if (!siap) return out(`No tengo datos del SIAP para ${nombre}. Solo tengo maíz, sorgo, frijol, trigo, cebada, garbanzo, brócoli y jitomate [SIAP].`, ['SIAP'], {});
     const porEstado = siap.grupos.filter((g, i) => siap.grupos.findIndex((x) => x.estado === g.estado) === i);
     const temporales = siap.grupos.filter((g) => g.modalidad === 'Temporal');
     // Con menos de 20 ha en el último año el promedio no dice nada (p. ej. fresa en Querétaro salía con 100% de pérdida).
-    const lista = (has(/temporal/, q) && temporales.length ? temporales : porEstado).filter((g) => g.superficie_sembrada_ha_ultimo_anio >= 20);
+    let lista = (has(/temporal/, q) && temporales.length ? temporales : porEstado).filter((g) => g.superficie_sembrada_ha_ultimo_anio >= 20);
+    // El estado y la modalidad (temporal/riego) que dice la pregunta; si no dice, los del perfil.
+    const estado = q.match(/guanajuato|queretaro/)?.[0].replace('queretaro', 'Querétaro').replace('guanajuato', 'Guanajuato') ?? perfil.estado ?? null;
+    const modalidad = q.match(/temporal|riego/)?.[0] ?? perfil.agua ?? null;
+    const suyos = siap.grupos.filter((g) => (!estado || g.estado === estado) && g.superficie_sembrada_ha_ultimo_anio >= 20);
+    const conAgua = suyos.filter((g) => !modalidad || g.modalidad === cap(modalidad));
+    const base = conAgua.length ? conAgua : suyos;
+    let aviso = '';
+    if ((estado || modalidad) && base.length) {
+      lista = base.filter((g, i) => base.findIndex((x) => x.estado === g.estado) === i);
+      if (modalidad && !conAgua.length) aviso = `No tengo ${nombre} de ${modalidad}${estado ? ` en ${estado}` : ''} entre lo que más se siembra; te doy lo que hay. `;
+    }
     if (!lista.length) return null;
     const [a, b] = siap.periodo.split('-').map(Number), A = b - a + 1;
     const frase = (g) => {
@@ -249,6 +278,6 @@ const REDACTORES = {
     const frases = lista.map(frase).filter(Boolean);
     if (!frases.length) return null;
     const parcela = has(/\bmi (parcela|terreno|milpa|lote)\b/, q) ? 'No tengo el dato de tu parcela; estos son promedios del estado. ' : '';
-    return out(`${parcela}${frases.join(' ')} Son datos oficiales por estado, no de tu parcela.`, ['SIAP'], { siap: { ...siap, grupos: lista }, A, umbral_pct: 10 });
+    return out(`${aviso}${parcela}${frases.join(' ')} Son datos oficiales por estado, no de tu parcela.`, ['SIAP'], { siap: { ...siap, grupos: lista }, A, umbral_pct: 10 });
   },
 };
