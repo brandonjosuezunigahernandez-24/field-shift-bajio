@@ -26,6 +26,15 @@ const TARJETAS = [
 const MES = { 6: 'junio', 7: 'julio', 11: 'noviembre' };
 const fmt = (n) => Math.round(n).toLocaleString('es-MX');
 const pct = (p) => Math.round(p * 100);
+// Frost and heat of a crop's cycle in the real years (c.helada, c.calor): only the ones that did happen.
+const extremosTexto = (c) =>
+  [
+    c.helada?.anios.length > 0 && `helada que daña en ${c.helada.anios.length} de ${c.helada.anios_total} años`,
+    c.calor?.anios.length > 0 && `calor que daña en ${c.calor.anios.length} de ${c.calor.anios_total} años`,
+  ]
+    .filter(Boolean)
+    .map((t) => ` · ${t}`)
+    .join('');
 
 // A titled list that opens on tap: keeps the card short (evidence, gaps and what to check locally).
 function Lista({ titulo, items, abierta = false }) {
@@ -268,6 +277,7 @@ export default function Rotacion() {
                         {agua === 'riego'
                           ? 'con riego'
                           : `${pct(c.riesgo)} % de años sin lluvia suficiente${c.riesgo_rango ? ` (puede ser de ${pct(c.riesgo_rango[0])} a ${pct(c.riesgo_rango[1])} %)` : ''}`}
+                        {extremosTexto(c)}
                       </span>
                     </b>
                     <em>{c.puntaje}/100</em>

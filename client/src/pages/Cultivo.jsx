@@ -294,6 +294,8 @@ function Resultado({ crop, data, prueba, agua, placeName, verdictRef, onProbar, 
           <p className="fs-verdict-sum">
             Queda en el lugar {lugar} de {cultivos.length} cultivos para tu parcela, con {crop.puntaje} de 100
             {agua === 'temporal' ? ` y riesgo de año seco de ${Math.round(crop.riesgo * 100)} %.` : '.'}
+            {crop.helada?.anios.length > 0 && ` Le tocó helada que daña en ${crop.helada.anios.length} de ${crop.helada.anios_total} años.`}
+            {crop.calor?.anios.length > 0 && ` Le tocó calor que daña en ${crop.calor.anios.length} de ${crop.calor.anios_total} años.`}
           </p>
           <div className="fs-verdict-cmp">
             <span className="fs-eyebrow">Comparado con tu plan</span>

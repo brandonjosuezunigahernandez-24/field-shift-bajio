@@ -46,3 +46,16 @@ test('compararRotaciones: with irrigation there is no rain risk to compare, and 
   const sinCero = medida(compararRotaciones(CELAYA), 'familia');
   assert.equal(sinCero.filas[1].ancho, 0, 'a zero draws no bar');
 });
+
+test('compararRotaciones: frost and heat are compared when the engine sends them, also with irrigation', () => {
+  const extremos = [[0, 0.12], [0, 0.05], [0, 0.07]];
+  const conExtremos = CELAYA.map((e, i) => ({
+    ...e,
+    resumen: { ...e.resumen, riesgo: null, riesgo_rango: null, riesgo_helada: extremos[i][0], riesgo_calor: extremos[i][1] },
+  }));
+  const m = compararRotaciones(conExtremos);
+  assert.deepEqual(m.map((x) => x.id), ['helada', 'calor', 'leguminosas', 'familia', 'agua', 'ingreso']);
+  assert.deepEqual(medida(m, 'calor').filas.map((f) => f.texto), ['12 %', '5 %', '7 %']);
+  assert.deepEqual(mejores(medida(m, 'calor')), ['recomendada']);
+  assert.deepEqual(mejores(medida(m, 'helada')), [], 'no frost in any rotation: nobody is better');
+});

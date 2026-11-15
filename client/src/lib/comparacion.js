@@ -16,6 +16,21 @@ const MEDIDAS = [
     valor: (r) => r.riesgo,
     texto: (r) => `${pct(r.riesgo)} %${r.riesgo_rango ? ` (${pct(r.riesgo_rango[0])}–${pct(r.riesgo_rango[1])} %)` : ''}`,
   },
+  // Frost and heat come from the coldest and hottest hour of each month (NASA POWER); they also apply with irrigation.
+  {
+    id: 'helada',
+    titulo: 'Temporadas con helada que daña',
+    mejor: 'menos',
+    valor: (r) => r.riesgo_helada,
+    texto: (r) => `${pct(r.riesgo_helada)} %`,
+  },
+  {
+    id: 'calor',
+    titulo: 'Temporadas con calor que daña',
+    mejor: 'menos',
+    valor: (r) => r.riesgo_calor,
+    texto: (r) => `${pct(r.riesgo_calor)} %`,
+  },
   {
     id: 'leguminosas',
     titulo: 'Temporadas con leguminosa (dejan nitrógeno)',
