@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { buildRotation, cycleMonths, dryYearRisk, recommend } from '../engine/index.js';
+import { backtest, buildRotation, cycleMonths, dryYearRisk, recommend } from '../engine/index.js';
 import { parsePower } from '../sources/nasaPower.js';
 
 const json = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
@@ -69,4 +69,15 @@ test('buildRotation swaps in a legume where it costs the fewest points', () => {
   const cand = (id, familia, puntaje, leguminosa = false) => ({ crop: { id, familia, leguminosa }, temporada: 'PV', puntaje });
   const plan = buildRotation([cand('a', 'x', 90), cand('b', 'y', 80), cand('c', 'z', 70), cand('l', 'leguminosa', 10, true)], { agua: 'temporal' });
   assert.deepEqual(plan.map((s) => s.cand.crop.id), ['a', 'b', 'l']);
+});
+
+test('backtest gives every real year and agrees with dryYearRisk; July sowing moves the cycle', () => {
+  const june = backtest(crop('maiz'), rows);
+  assert.equal(june.anios.length, 25);
+  assert.deepEqual(june.anios_bajo_minimo, dryYearRisk(crop('maiz'), rows).anios_bajo_minimo);
+  assert.equal(june.anios.filter((y) => !y.alcanzo).length, 12);
+  assert.ok(june.anios.every((y) => y.alcanzo === !june.anios_bajo_minimo.includes(y.anio)));
+  const july = backtest(crop('maiz'), rows, 7);
+  assert.deepEqual(july.meses, [7, 8, 9, 10]);
+  assert.equal(july.mes_siembra, 7);
 });

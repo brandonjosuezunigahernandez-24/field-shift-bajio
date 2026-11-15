@@ -20,16 +20,29 @@ const WEIGHTS = {
 const mean = (values) => (values.length ? values.reduce((sum, v) => sum + v, 0) / values.length : null);
 const monthRange = (months) => `de ${MONTHS[months[0] - 1]} a ${MONTHS[months.at(-1) - 1]}`;
 
-// Months of the crop's cycle, e.g. a 4-month PV crop -> [6, 7, 8, 9].
-export function cycleMonths(crop, temporada) {
-  return Array.from({ length: crop.ciclo_meses }, (_, i) => ((SEASON_START[temporada] - 1 + i) % 12) + 1);
+// Months of the crop's cycle, e.g. a 4-month PV crop -> [6, 7, 8, 9]. `inicio` is the sowing month.
+export function cycleMonths(crop, temporada, inicio = SEASON_START[temporada]) {
+  return Array.from({ length: crop.ciclo_meses }, (_, i) => ((inicio - 1 + i) % 12) + 1);
+}
+
+// The crop against every real year: the rain of its cycle (sown in month `inicio`) and whether it reached
+// the crop's minimum. Only the rain changes with the sowing month, not the temperature fit.
+// shortcut: a cycle that crosses December would mix two calendar years; fine for June and July sowings.
+export function backtest(crop, rows, inicio = SEASON_START.PV) {
+  const meses = cycleMonths(crop, 'PV', inicio);
+  const anios = seasonRainByYear(rows, meses).map((y) => ({
+    anio: y.year,
+    lluvia_mm: Math.round(y.rain_mm),
+    alcanzo: y.rain_mm >= crop.lluvia_ciclo_min_mm,
+  }));
+  const low = anios.filter((y) => !y.alcanzo).map((y) => y.anio);
+  return { mes_siembra: inicio, meses, anios, anios_bajo_minimo: low, riesgo: anios.length ? low.length / anios.length : 0 };
 }
 
 // Share of years in which the rain of the crop's cycle (sown in June) stayed below its minimum.
 export function dryYearRisk(crop, rows) {
-  const years = seasonRainByYear(rows, cycleMonths(crop, 'PV'));
-  const low = years.filter((y) => y.rain_mm < crop.lluvia_ciclo_min_mm).map((y) => y.year);
-  return { riesgo: years.length ? low.length / years.length : 0, anios_bajo_minimo: low, anios_total: years.length };
+  const { riesgo, anios_bajo_minimo, anios } = backtest(crop, rows);
+  return { riesgo, anios_bajo_minimo, anios_total: anios.length };
 }
 
 // Each fit goes from 0 (bad) to 1 (ideal). `lluvia` is null with irrigation: rain does not limit the crop.

@@ -214,3 +214,14 @@ test('the assistant uses the same INEGI boundary as /api/recomendar', async () =
   assert.match(body.respuesta, /fuera de Guanajuato y Querétaro/);
   assert.equal(body.recomendacion, undefined);
 });
+
+test('GET /api/recomendar/prueba gives each rain-fed crop against the real years, sown in June and July', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const { status, body } = await get(`/api/recomendar/prueba?lat=${demo.lat}&lon=${demo.lon}`);
+  assert.equal(status, 200);
+  const maiz = body.cultivos.find((c) => c.id === 'maiz');
+  assert.deepEqual(maiz.siembras.map((s) => s.mes_siembra), [6, 7]);
+  assert.equal(maiz.siembras[0].anios.length, 25);
+  assert.equal(maiz.siembras[0].anios_bajo_minimo.length, 12);
+  assert.ok(body.cultivos.every((c) => c.siembras.length === 2 && c.minimo_mm > 0));
+});

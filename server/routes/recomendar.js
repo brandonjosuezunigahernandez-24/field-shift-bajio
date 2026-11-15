@@ -4,7 +4,7 @@ import { HttpError } from '../lib/errors.js';
 import { parseCoords } from '../lib/coords.js';
 import { POWER_CREDIT, getClimate, summarizeClimate } from '../sources/nasaPower.js';
 import { SOILGRIDS_CREDIT, getSoil, summarizeSoil } from '../sources/soilGrids.js';
-import { PRIORIDADES, recommend } from '../engine/index.js';
+import { PRIORIDADES, backtest, recommend } from '../engine/index.js';
 import { incomeByCrop } from '../llm/siap.js';
 import { ESTADOS, ETIQUETA, predictionSentences } from '../llm/recomendador.js';
 import { stateAt } from '../lib/state.js';
@@ -87,6 +87,23 @@ router.post('/', async (req, res) => {
     throw new HttpError(400, 'Elige qué te importa más: ganar más, cuidar el suelo, gastar menos agua o arriesgar menos.');
   }
   res.json(await recommendPlot({ lat, lon, agua, prioridad, estado }));
+});
+
+// GET /api/recomendar/prueba?lat&lon -> each rain-fed crop against every real year, sown in June and in July.
+// One call feeds the whole "Probar cultivo" screen: crop, comparison and sowing month change without new requests.
+const SOWING_MONTHS = [6, 7];
+router.get('/prueba', async (req, res) => {
+  const { lat, lon } = parseCoords(req.query);
+  const { rows } = await getClimate(lat, lon);
+  res.json({
+    cultivos: CROPS.filter((c) => c.agua.includes('temporal') && c.temporadas.includes('PV')).map((crop) => ({
+      id: crop.id,
+      nombre: crop.nombre,
+      minimo_mm: crop.lluvia_ciclo_min_mm,
+      siembras: SOWING_MONTHS.map((mes) => backtest(crop, rows, mes)),
+    })),
+    fuente: POWER_CREDIT,
+  });
 });
 
 export default router;
