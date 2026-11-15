@@ -322,11 +322,13 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
   }, [outlines]);
 
   // Exaggerated like the relief, so a 0.5 m bean is still visible: 0.022 to 0.045 of the side.
+  // A smaller block (a small parcel) shows things bigger, so plants and buildings shrink with it.
+  const blockFactor = clamp(Math.sqrt((terreno?.lado_m ?? 1000) / 1000), 0.6, 1.3);
   const cropGeometry = (id) => models[id] ?? Object.values(models).find((g) => !/casa|arbol|_lp/.test(g.userData.name));
   const cropScale = (geometry) => {
     if (!geometry.boundingBox) geometry.computeBoundingBox();
     const realHeight = geometry.boundingBox.max.y - geometry.boundingBox.min.y;
-    return clamp(realHeight * 0.022, 0.022, 0.045) / realHeight;
+    return (clamp(realHeight * 0.022, 0.022, 0.045) / realHeight) * blockFactor;
   };
 
   // Ground: tilled soil on top, soil layers on the sides (procedural, see textures.js), tinted by
@@ -444,7 +446,7 @@ export default function Diorama({ lat, lon, terreno, clima, suelo, anio, cultivo
         material={modelMaterial(models[id])}
         position={[x, heightAt(targetY, tam, x, z), z]}
         rotation={[0, yaw, 0]}
-        scale={scale}
+        scale={scale * blockFactor}
         raycast={() => null}
       />
     );

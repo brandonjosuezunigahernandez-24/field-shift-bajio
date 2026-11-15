@@ -43,7 +43,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - Al tocar "Usar esta parcela", el mapa se ajusta al contorno (`fitBounds`, inclinado para ver el relieve).
 - **Varias parcelas.** El agricultor puede dibujar más de una ("Dibujar otra parcela") y elegir el cultivo de cada una. La app guarda `parcelas: [{ id, contorno: [[lon, lat], ...], hectareas, cultivo }]` (`client/src/map/parcels.js`). A la API se manda **un solo punto**: el promedio de todas las esquinas. Cambiar el cultivo de una parcela no vuelve a pedir clima ni suelo.
 - Si una parcela nueva se encima con otra, se avisa (no se bloquea). En la vista 3D, donde se enciman, se siembra la más reciente.
-- **Secciones en 3D:** con 2 o más parcelas, la vista 3D deja elegir "Parcela 1", "Parcela 2"… o "Todas juntas". Cada sección es su propia maqueta de 1 km **centrada en sus parcelas** y con su propio `/api/terreno`; solo se dibuja la sección elegida. Al guardar una parcela nueva se muestra esa. Si las parcelas están a más de 1 km entre sí, se avisa que juntas no caben y conviene verlas una por una.
+- **Secciones en 3D:** con 2 o más parcelas, la vista 3D deja elegir "Parcela 1", "Parcela 2"… o "Todas juntas". Cada sección es su propia maqueta **centrada en sus parcelas y del tamaño que necesitan** (250 m a 4 km) y con su propio `/api/terreno`; solo se dibuja la sección elegida. Al guardar una parcela nueva se muestra esa. Si juntas no caben en 4 km, se avisa que juntas no caben y conviene verlas una por una.
 - **Parcelas levantadas en el mapa:** cada parcela guardada se ve como un bloque de tierra sobre el satélite (capas `fill-extrusion` de MapLibre): lados del color del suelo de SoilGrids y encima el color del cultivo. Al guardarla, el mapa pasa a "Relieve 3D" y el bloque sube (sin animación con "reducir movimiento"). La altura crece con la parcela (6 a 40 m, `raiseHeight`); cada parcela nueva queda 1.5 m más alta, y con el relieve se compensa la altura del terreno en el centro de cada una para que una sección dibujada adentro de otra siempre se vea encima.
 - **Corregir esquinas:** los números de las esquinas se pueden arrastrar mientras se dibuja. Una parcela ya guardada se corrige con "Corregir" en "Tus parcelas": sus esquinas vuelven como números arrastrables y "Guardar cambios" recalcula hectáreas y centro (y vuelve a pedir clima y suelo).
 - **El mapa sigue los años:** hay un solo año para toda la página (`useYearPlayer` en `client/src/year.jsx`); el control junto al mapa y el de la vista 3D mueven el mismo. En años secos la capa del cultivo de cada parcela levantada se pone color paja y más delgada; arriba del mapa se ve "2011 · año seco · 398 mm". Todo sale de `/api/clima`, no hay datos inventados.
@@ -146,9 +146,9 @@ Fuente: SoilGrids 2.0 (ISRIC). Promedio de 0 a 30 cm, ponderado por el espesor d
 
 - **`sin_datos: true`**: SoilGrids respondió pero no tiene suelo en ese punto (ciudades y cuerpos de agua están enmascarados). En ese caso los valores vienen en `null` y `aviso` trae un texto para mostrar. Pasa, por ejemplo, en el centro de Celaya (20.52, -100.81). El front y el motor deben aguantar `null`.
 
-## GET /api/terreno?lat=20.47&lon=-100.81
+## GET /api/terreno?lat=20.47&lon=-100.81&lado=1000
 
-Relieve del cuadro de 1 km alrededor de la parcela, para la vista 3D. Fuente: AWS Terrain Tiles (Mapzen, codificación *terrarium*, zoom 14); en México las alturas vienen de NASA SRTM (~30 m), así que la malla es una interpolación suave: sirve para una maqueta, no para topografía.
+Relieve del cuadro alrededor de la parcela, para la vista 3D. `lado` (opcional, en metros) se redondea hacia arriba a 250, 500, 1000, 2000 o 4000; sin él es 1000. Fuente: AWS Terrain Tiles (Mapzen, codificación *terrarium*, zoom 14, o 13 para 4 km); en México las alturas vienen de NASA SRTM (~30 m), así que la malla es una interpolación suave: sirve para una maqueta, no para topografía.
 
 ```jsonc
 {
@@ -168,7 +168,8 @@ Relieve del cuadro de 1 km alrededor de la parcela, para la vista 3D. Fuente: AW
 
 - `alturas[fila * tam + col]`: la fila 0 es el borde **norte** y la columna 0 el borde **oeste**.
 - **Se centra a 3 decimales (unos 110 m), no a 2 como clima y suelo.** El bloque mide 1 km: con 2 decimales una parcela podía quedar hasta ~550 m fuera del centro y salirse de su propia maqueta.
-- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat3>_<lon3>.json` (el fixture de Celaya es `terrain_20.470_-100.810.json`).
+- **La maqueta toma el tamaño de la parcela:** el cliente pide el lado más chico que contiene las parcelas de la sección, con 10 % de margen por lado (`blockSide` en `client/src/map/parcels.js`). Una parcela de 0.3 ha se ve en un cuadro de 250 m; un punto sin parcela dibujada, en el de 1 km. Las plantas y la casa se achican con el cuadro para no verse gigantes.
+- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat3>_<lon3>.json` para 1 km y `terrain<lado>_<lat3>_<lon3>.json` para los otros tamaños (el fixture de Celaya es `terrain_20.470_-100.810.json`, de 1 km).
 
 ## POST /api/recomendar
 

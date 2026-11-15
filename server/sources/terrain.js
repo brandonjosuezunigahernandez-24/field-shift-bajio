@@ -12,7 +12,10 @@ export const TERRAIN_CREDIT =
 
 export const TERRAIN_ZOOM = 14; // ~2.2 km per tile at the Bajío latitude
 export const GRID_SIZE = 65; // vertices per side (64 x 64 squares)
-export const SIDE_M = 1000; // square side in meters, centered on the plot
+export const SIDE_M = 1000; // default square side in meters, centered on the plot
+// Sides the 3D view may ask for: the smallest one that holds the drawn parcel is used.
+// Fixed steps, so nearby parcels share cache files.
+export const SIDES_M = [250, 500, 1000, 2000, 4000];
 // The block is centered to ~110 m (3 decimals), not ~1.1 km like climate and soil: with 2 decimals
 // a parcel could sit up to ~550 m off center and fall off its own 1 km diorama.
 export const TERRAIN_DECIMALS = 3;
@@ -39,8 +42,28 @@ export function decodeTerrarium(r, g, b) {
   return r * 256 + g + b / 256 - 32768;
 }
 
-// The 2 x 2 tiles that always contain a square of SIDE_M around the point
-// (half the side, 500 m, is less than half a tile, ~1.1 km).
+// Allowed side for a requested one: the smallest step that holds it (default SIDE_M).
+export function terrainSide(value) {
+  const n = Number(value);
+  if (!Number.isFinite(n) || n <= 0) return SIDE_M;
+  return SIDES_M.find((side) => side >= n) ?? SIDES_M[SIDES_M.length - 1];
+}
+
+// Tile width in meters at this latitude and zoom.
+export function tileMeters(lat, z) {
+  return (40075016.7 * Math.cos((lat * Math.PI) / 180)) / 2 ** z;
+}
+
+// Most detailed zoom (at most TERRAIN_ZOOM) whose 2 x 2 tiles always contain the square:
+// the side must stay under one tile. SRTM is ~30 m, so zoom 14 (~9 m per pixel) is already finer.
+export function terrainZoom(lat, sideM = SIDE_M) {
+  let z = TERRAIN_ZOOM;
+  while (z > 1 && tileMeters(lat, z) < sideM * 1.05) z--;
+  return z;
+}
+
+// The 2 x 2 tiles that always contain a square of the given side around the point
+// (half the side is less than half a tile, see terrainZoom).
 export function tilesAround(lat, lon, z = TERRAIN_ZOOM) {
   const { x, y } = lonLatToTile(lon, lat, z);
   const x0 = Math.floor(x - 0.5);
@@ -108,8 +131,8 @@ export function validateTerrain(raw) {
 }
 
 // Downloads the 4 tiles and builds the grid that gets cached.
-export async function fetchTerrainGrid(lat, lon, { timeoutMs = 15000 } = {}) {
-  const { x0, y0, z } = tilesAround(lat, lon);
+export async function fetchTerrainGrid(lat, lon, { timeoutMs = 15000, sideM = SIDE_M } = {}) {
+  const { x0, y0, z } = tilesAround(lat, lon, terrainZoom(lat, sideM));
   const offsets = [[0, 0], [1, 0], [0, 1], [1, 1]];
   const images = await Promise.all(
     offsets.map(async ([dx, dy]) => ({
@@ -118,8 +141,8 @@ export async function fetchTerrainGrid(lat, lon, { timeoutMs = 15000 } = {}) {
       image: decodePng(await fetchBuffer(terrariumTileUrl(z, x0 + dx, y0 + dy), { timeoutMs })),
     }))
   );
-  const alturas = sampleGrid(stitchTiles(images), { lat, lon, x0, y0, z });
-  return { zoom: z, tam: GRID_SIZE, lado_m: SIDE_M, alturas };
+  const alturas = sampleGrid(stitchTiles(images), { lat, lon, x0, y0, z }, { sideM });
+  return { zoom: z, tam: GRID_SIZE, lado_m: sideM, alturas };
 }
 
 // Grid -> the summary served by GET /api/terreno (see docs/api-contract.md).
@@ -139,14 +162,21 @@ export function summarizeTerrain(raw) {
   };
 }
 
-export async function getTerrain(lat, lon) {
+// Cache name per side: the 1 km block keeps its old name (and the committed fixtures).
+export const terrainSource = (sideM) => (sideM === SIDE_M ? TERRAIN_SOURCE : `${TERRAIN_SOURCE}${sideM}`);
+
+export async function getTerrain(lat, lon, sideM = SIDE_M) {
   const { raw, origen } = await loadRaw({
-    source: TERRAIN_SOURCE,
+    source: terrainSource(sideM),
     label: 'el relieve del terreno',
     lat,
     lon,
-    fetcher: fetchTerrainGrid, // loadRaw calls it with the point already rounded to TERRAIN_DECIMALS
-    validate: validateTerrain,
+    // loadRaw calls it with the point already rounded to TERRAIN_DECIMALS
+    fetcher: (la, lo) => fetchTerrainGrid(la, lo, { sideM }),
+    validate: (raw) => {
+      validateTerrain(raw);
+      if ((raw.lado_m ?? SIDE_M) !== sideM) throw new Error(`Terrain grid of ${raw.lado_m} m, expected ${sideM} m`);
+    },
     decimals: TERRAIN_DECIMALS,
   });
   return { terrain: raw, origen };

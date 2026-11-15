@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { rm } from 'node:fs/promises';
 import { afterEach, test } from 'node:test';
-import { readCache, writeCache, writeFixture } from '../lib/cache.js';
+import { CACHE_DIR, readCache, writeCache, writeFixture } from '../lib/cache.js';
 import { HttpError } from '../lib/errors.js';
 import { loadRaw } from '../lib/loadRaw.js';
 
@@ -10,7 +10,7 @@ import { loadRaw } from '../lib/loadRaw.js';
 delete process.env.OFFLINE;
 const realFetch = globalThis.fetch;
 const KEY = 'test-loadraw_0.00_0.00';
-const TEST_FILES = ['../cache/', '../fixtures/'].map((dir) => new URL(`${dir}${KEY}.json`, import.meta.url));
+const TEST_FILES = [new URL(`${KEY}.json`, CACHE_DIR), new URL(`../fixtures/${KEY}.json`, import.meta.url)];
 const validate = (raw) => {
   if (!raw.ok) throw new Error('missing ok');
 };

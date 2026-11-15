@@ -1,6 +1,13 @@
 import { mkdir, readFile, writeFile } from 'node:fs/promises';
+import { tmpdir } from 'node:os';
+import { join, sep } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
-const CACHE_DIR = new URL('../cache/', import.meta.url);
+// Under `node --test` the cache is a temp folder: the tests see only the committed fixtures, never
+// what the app downloaded on this machine (e.g. a newer year of NASA POWER than the fixtures).
+export const CACHE_DIR = process.env.NODE_TEST_CONTEXT
+  ? pathToFileURL(join(tmpdir(), 'field-shift-test-cache') + sep)
+  : new URL('../cache/', import.meta.url);
 const FIXTURE_DIR = new URL('../fixtures/', import.meta.url);
 
 async function readJson(dirUrl, key) {

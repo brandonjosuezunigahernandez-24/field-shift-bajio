@@ -9,6 +9,7 @@ import {
   farmPoint,
   farmSummary,
   mapPlantSpots,
+  blockSide,
   fitsOneBlock,
   nextParcelId,
   parcelColor,
@@ -81,11 +82,21 @@ test('sections: one parcel or all, centered like /api/terreno (3 decimals)', () 
   assert.equal(String(c.lon).split('.')[1].length <= 3, true);
 });
 
-test('fitsOneBlock: neighbors fit, parcels 3 km apart do not', () => {
+test('fitsOneBlock: neighbors fit, parcels 6 km apart do not', () => {
   assert.equal(fitsOneBlock([west, east]), true);
-  const far = createParcel(3, square(-100.81 + 0.03)); // ~3 km east
+  const far = createParcel(3, square(-100.81 + 0.06)); // ~6 km east
   assert.equal(fitsOneBlock([west, far]), false);
   assert.equal(fitsOneBlock([far]), true);
+});
+
+test('blockSide: the 3D block is as big as the parcels need', () => {
+  assert.equal(blockSide([]), 1000); // only a point: the usual 1 km block
+  assert.equal(blockSide([west]), 500); // one ~200 m square (off the rounded center a little)
+  assert.equal(blockSide([west, east]), 1000); // two of them side by side
+  const far = createParcel(3, square(-100.81 + 0.012)); // ~1.25 km east
+  assert.equal(blockSide([west, far]), 2000);
+  const tiny = createParcel(4, [[-100.81, 20.47], [-100.8095, 20.47], [-100.8095, 20.4705], [-100.81, 20.4705]]); // ~50 m
+  assert.equal(blockSide([tiny]), 250);
 });
 
 test('raiseHeight grows with the parcel and stays between 6 and 40 m', () => {

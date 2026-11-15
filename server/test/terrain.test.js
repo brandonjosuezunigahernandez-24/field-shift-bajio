@@ -5,6 +5,10 @@ import { deflateSync } from 'node:zlib';
 import { decodePng } from '../lib/png.js';
 import {
   GRID_SIZE,
+  SIDES_M,
+  terrainSide,
+  terrainZoom,
+  tileMeters,
   decodeTerrarium,
   lonLatToTile,
   sampleGrid,
@@ -160,4 +164,24 @@ test('real Celaya terrain fixture: Bajío heights and a mostly flat plot', async
 test('validateTerrain rejects incomplete grids', () => {
   assert.throws(() => validateTerrain({ tam: 3, alturas: [1, 2] }), /Unexpected terrain/);
   assert.throws(() => validateTerrain({ tam: 1, alturas: [null] }), /missing heights/);
+});
+
+test('terrainSide rounds up to the allowed sides', () => {
+  assert.equal(terrainSide(undefined), 1000);
+  assert.equal(terrainSide('abc'), 1000);
+  assert.equal(terrainSide(120), 250);
+  assert.equal(terrainSide(600), 1000);
+  assert.equal(terrainSide(9000), 4000);
+  assert.deepEqual(SIDES_M, [250, 500, 1000, 2000, 4000]);
+});
+
+test('terrainZoom keeps every allowed side inside its 2 x 2 tiles', () => {
+  for (const lat of [0, 20.47, 45, 60]) {
+    for (const side of SIDES_M) {
+      const z = terrainZoom(lat, side);
+      assert.ok(z <= 14 && tileMeters(lat, z) > side, `lat ${lat}, side ${side}: zoom ${z}`);
+    }
+  }
+  assert.equal(terrainZoom(20.47, 1000), 14); // the Bajío block keeps the old zoom
+  assert.equal(terrainZoom(20.47, 4000), 13);
 });

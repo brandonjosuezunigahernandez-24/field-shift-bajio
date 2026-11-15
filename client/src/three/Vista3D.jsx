@@ -2,7 +2,7 @@ import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { getTerreno } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES, DEFAULT_CROP } from '../crops.js';
-import { ALL_SECTIONS, fitsOneBlock, parcelColor, sectionCenter, sectionParcels } from '../map/parcels.js';
+import { ALL_SECTIONS, blockSide, fitsOneBlock, parcelColor, sectionCenter, sectionParcels } from '../map/parcels.js';
 import { toDiorama } from '../map/polygon.js';
 import { latLonToXYZ, round2, wrapLon } from './geo.js';
 import { preloadModels } from './models.js';
@@ -13,13 +13,13 @@ import Scene from './Scene.jsx';
 
 const STEP_DEG = 0.01; // ~1 km, the same resolution as the server cache
 
-// Relief already downloaded, by block center: going back to a section is instant and asks the
-// server nothing. A plain Map: a farm has a handful of parcels, each grid is ~30 KB.
+// Relief already downloaded, by block center and side: going back to a section is instant and asks
+// the server nothing. A plain Map: a farm has a handful of parcels, each grid is ~30 KB.
 const terrainCache = new Map();
-function loadTerreno(lat, lon) {
-  const key = `${lat},${lon}`;
+function loadTerreno(lat, lon, side) {
+  const key = `${lat},${lon},${side}`;
   if (!terrainCache.has(key)) {
-    const request = getTerreno(lat, lon);
+    const request = getTerreno(lat, lon, side);
     request.catch(() => terrainCache.delete(key)); // a failure can be retried later
     terrainCache.set(key, request);
   }
@@ -99,20 +99,23 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
   const center = members.length ? sectionCenter(members) : point ? { lat: round3(point.lat), lon: round3(point.lon) } : null;
   const centerLat = center?.lat ?? null;
   const centerLon = center?.lon ?? null;
+  // Side of the block in meters: as big as the shown parcels need (250 m to 4 km), 1 km for a point.
+  const side = useMemo(() => blockSide(members), [members]);
+  const sideLabel = side >= 1000 ? `${side / 1000} km` : `${side} m`;
 
-  // Relief of the section's 1 km block. Stale answers are ignored.
+  // Relief of the section's block. Stale answers are ignored.
   useEffect(() => {
     if (centerLat === null) return undefined;
     let current = true;
     setTerreno(null);
-    loadTerreno(centerLat, centerLon).then(
+    loadTerreno(centerLat, centerLon, side).then(
       (data) => current && setTerreno({ data }),
       (err) => current && setTerreno({ error: err.message })
     );
     return () => {
       current = false;
     };
-  }, [centerLat, centerLon]);
+  }, [centerLat, centerLon, side]);
   const place = useMemo(
     () => (centerLat === null ? null : { lat: centerLat, lon: centerLon }),
     [centerLat, centerLon]
@@ -127,11 +130,11 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
             numero: parcelas.indexOf(p) + 1,
             cultivo: p.cultivo,
             color: parcelColor(p.id),
-            outline: toDiorama(p.contorno, centerLat, centerLon),
+            outline: toDiorama(p.contorno, centerLat, centerLon, side),
           })),
-    [members, parcelas, centerLat, centerLon]
+    [members, parcelas, centerLat, centerLon, side]
   );
-  // Parts of a parcel farther than 500 m from the center fall off the 1 km block.
+  // Parts of a parcel outside the block (only when they need more than 4 km) fall off it.
   const offBlock = sections.some((s) => s.outline.some(([x, z]) => Math.abs(x) > 0.5 || Math.abs(z) > 0.5));
 
   // Camera framing for the drawn parcels: bounding box center and half diagonal, on the block.
@@ -201,6 +204,11 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
             : 'Arrastra para girar el globo. Rueda o pellizca para acercar. Toca un punto para elegir tu parcela.'}
         </p>
         {point && !terreno && inParcel && <p className="vista3d-badge">Cargando el relieve…</p>}
+        {terrenoData && inParcel && (
+          <p className="vista3d-badge">
+            Maqueta de {sideLabel} por lado{sections.length ? ', a la medida de tu parcela' : ''}
+          </p>
+        )}
       </div>
 
       {point ? (
@@ -237,7 +245,7 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
               </label>
               {!allFit && (
                 <p className="hint">
-                  Tus parcelas están a más de 1 km entre sí: juntas no caben en una maqueta. Mírala una por una.
+                  Tus parcelas están muy separadas: juntas no caben en una maqueta de 4 km. Mírala una por una.
                 </p>
               )}
             </fieldset>
@@ -320,8 +328,8 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
               {offBlock && (
                 <p className="hint">
                   {seccion === ALL_SECTIONS
-                    ? 'Una parte de tus parcelas queda fuera de la maqueta (1 km). Elige una parcela arriba para verla completa.'
-                    : 'Esta parcela mide más de 1 km: la maqueta muestra solo el centro.'}
+                    ? 'Una parte de tus parcelas queda fuera de la maqueta (4 km). Elige una parcela arriba para verla completa.'
+                    : 'Esta parcela mide más de 4 km: la maqueta muestra solo el centro.'}
                 </p>
               )}
             </>
@@ -354,7 +362,7 @@ export default function Vista3D({ point, parcelas = [], clima, suelo, onSelectPo
             {sueloData?.sin_datos && <li className="error">{sueloData.aviso}</li>}
             {terrenoData && (
               <li>
-                Altura: {fmt(terrenoData.altura_centro_m)} m. En 1 km el terreno sube y baja {terrenoData.desnivel_m} m{' '}
+                Altura: {fmt(terrenoData.altura_centro_m)} m. En la maqueta ({sideLabel} por lado) el terreno sube y baja {terrenoData.desnivel_m} m{' '}
                 {exaggeration > 1
                   ? `(en la maqueta se ve ${exaggeration} veces más alto para que se note).`
                   : '(en la maqueta, a su altura real).'}

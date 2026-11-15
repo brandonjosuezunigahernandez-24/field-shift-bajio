@@ -51,7 +51,11 @@ export function parcelsGeoJSON(parcelas) {
 // --- 3D sections: each parcel in its own diorama, or all of them together ---
 
 export const ALL_SECTIONS = 'todas';
-const BLOCK_HALF_M = 500; // the 3D block is 1 km per side
+// Sides of the 3D block, in meters (the same steps /api/terreno serves). The block takes the
+// smallest one that holds the shown parcels, so a 2 ha parcel is not lost in a 1 km square.
+export const BLOCK_SIDES = [250, 500, 1000, 2000, 4000];
+export const DEFAULT_BLOCK_SIDE = 1000; // a point without a drawn parcel
+const BLOCK_MARGIN = 1.2; // 10% of room on each side, so the outline never touches the edge
 // The server centers /api/terreno to 3 decimals (~110 m); the diorama uses the same center.
 const round3 = (v) => Math.round(v * 1000) / 1000 + 0;
 
@@ -62,19 +66,30 @@ export function sectionParcels(parcelas, seccion) {
   return one ? [one] : parcelas;
 }
 
-// Center of a section's 1 km block, rounded like the server rounds /api/terreno.
+// Center of a section's block, rounded like the server rounds /api/terreno.
 export function sectionCenter(members) {
   const { lat, lon } = polygonCenter(allCorners(members));
   return { lat: round3(lat), lon: round3(lon) };
 }
 
-// Do all these parcels fit in one 1 km block around their common center?
+// Side the parcels need around their common (rounded) center, margin included, in meters.
+function neededSide(members) {
+  const { lat, lon } = sectionCenter(members);
+  const far = Math.max(...toMeters(allCorners(members), lat, lon).map(([e, n]) => Math.max(Math.abs(e), Math.abs(n))));
+  return 2 * far * BLOCK_MARGIN;
+}
+
+// Side of the 3D block for these parcels: the smallest step that holds them (at most 4 km).
+export function blockSide(members) {
+  if (!members.length) return DEFAULT_BLOCK_SIDE;
+  const need = neededSide(members);
+  return BLOCK_SIDES.find((side) => side >= need) ?? BLOCK_SIDES[BLOCK_SIDES.length - 1];
+}
+
+// Do all these parcels fit in the biggest block (4 km) around their common center?
 export function fitsOneBlock(members) {
   if (!members.length) return true;
-  const { lat, lon } = sectionCenter(members);
-  return toMeters(allCorners(members), lat, lon).every(
-    ([east, north]) => Math.abs(east) <= BLOCK_HALF_M && Math.abs(north) <= BLOCK_HALF_M
-  );
+  return neededSide(members) <= BLOCK_SIDES[BLOCK_SIDES.length - 1];
 }
 
 // --- Raised parcels on the satellite map (MapLibre fill-extrusion) ---
