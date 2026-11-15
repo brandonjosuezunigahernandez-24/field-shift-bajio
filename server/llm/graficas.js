@@ -110,6 +110,18 @@ export function graficasPlantilla(tema, pregunta, ctx = {}, d = {}) {
       if (d.todos) return [tablaFrutales(['Guanajuato', 'Querétaro'].flatMap((e) => d.todos.filter((f) => f.estado === e).slice(0, 4)))];
       return [];
     }
+    case 'desglose': {
+      const est = Object.entries(d.c ?? {});
+      if (!est.length) return [];
+      return final([
+        tabla(`Lo que reporta el SIAP en ${d.anio ?? 2024}`, ['Estado', 'Hectáreas', 'Rendimiento (t/ha)', '% con riego', '% perdido 2018-2024', 'Precio rural ($/t)'],
+          est.map(([e, x]) => [e, Math.round(x.sembrada_ha_2024), x.rendimiento_2024, x.riego_pct_2024, x.perdida_pct_2018_2024, x.precio_2024]), 'SIAP', 'Datos del estado, no de tu parcela.'),
+        tabla('Municipios con más superficie', ['Estado', 'Municipio', '% de la superficie'], est.flatMap(([e, x]) => (x.municipios_2024 ?? []).map((m) => [e, m.nombre, m.pct_sembrada])), 'SIAP'),
+      ].filter((t) => t.filas.length));
+    }
+    case 'aptitud': return d.aptitud?.length ? [tabla('¿Se da en tu parcela?', ['Cultivo', 'Resultado', 'Por qué'],
+      d.aptitud.map((a) => [a.nombre, { bien: 'Se da bien', cuidados: 'Con cuidados', dificil: 'Es difícil', sin_dato: 'Sin dato' }[a.nivel] ?? a.nivel, a.razon]), 'FAO EcoCrop y NASA POWER',
+      'Compara los rangos de FAO EcoCrop con el clima de tu parcela; no es un dictamen técnico.')] : [];
     case 'pronostico': return grafPronostico(ctx.pronostico);
     case 'lluvia': return clim ? final([porMes(clim, 'lluvia_mm', 'Lluvia media por mes', 'mm', 'Lluvia', `Promedio de ${clim.periodo.anios} años.`), lluviaVerano(ctx)]) : [];
     case 'secos': case 'anio': return clim ? [lluviaVerano(ctx)] : [];

@@ -91,7 +91,14 @@ test('recomendación: el puntaje de los 3 primeros cultivos y el ingreso de 3 a�
 test('frutales: la tabla trae hectáreas, rendimiento y riego del texto', async () => {
   const b = await ask('¿Cuánto se siembra de aguacate y frutales?');
   esquema(b);
-  for (const f of b.graficas[0].filas) dice(b, f.slice(2, 5));
+  assert.equal(b.tema, 'desglose');
+  dice(b, b.graficas[0].filas.map((f) => f[1]));
+});
+
+test('aptitud: la tabla dice si se da y por qué, igual que el texto', async () => {
+  const b = await ask('¿Puedo sembrar fresa aquí?');
+  esquema(b);
+  assert.ok(b.respuesta.includes(b.graficas[0].filas[0][2]));
 });
 
 test('pronóstico: lluvia y temperaturas de 7 días (sin pronóstico no hay gráfica)', () => {
