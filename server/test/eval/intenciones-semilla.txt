@@ -351,3 +351,163 @@ Siempre siembro maíz, ¿se cansa la tierra?
 ¿Necesito estar en Producción para el Bienestar para un crédito?
 == tendencia
 ¿Está lloviendo menos que antes?
+
+# Preguntas específicas de desarrollo (test/eval/especificas.json, set dev; las de prueba NO van aquí).
+== maiz_produccion
+Tengo 3.5 hectáreas y me dieron 1.2 toneladas de maíz, ¿estoy bien o mal? | saque 1.2 toneladas de maiz de mis 3.5 hectareas es poco?
+En mis 6 hectáreas coseché 9 toneladas de maíz, ¿cómo voy contra el promedio?
+¿Cuánto maíz saco en 12 hectáreas de temporal? | cuanto maiz saco en mis 4 ectareas
+¿Cuánto rinde el maíz de temporal en Dolores Hidalgo? | en dolores hidalgo cuanto sale de maiz por hectarea
+¿Cómo le va al maíz de temporal en San Miguel de Allende?
+En Pénjamo, ¿cuánto rinde el maíz de riego?
+== maiz_riego
+Con 400 mm de lluvia en el temporal, ¿alcanza para el maíz? | si llueven 400 mm se me da el maiz?
+¿Qué rinde más, maíz de riego o de temporal?
+== secos
+Si este año caen 300 mm de junio a septiembre, ¿cuenta como año seco?
+== siembra
+¿Siembro el maíz en julio o ya es tarde? | si siembro el maiz a mediados de julio todavia la armo?
+¿Cuándo siembro el frijol de temporal? | en que fecha echo el frijol
+== heladas
+¿Me cae helada en octubre al maíz? | en octubre hiela? tengo el maiz todavia en la parcela
+ay elada en dicienbre?
+¿En qué mes hiela más en mi parcela?
+== maiz_donde
+¿Cuánto maíz se siembra en Celaya?
+== apoyos
+¿A cuánto me compra el maíz Acopio para el Bienestar? | cuanto paga el gobierno la tonelada de maiz en el acopio
+aserca del seguro catastrofico q ago si perdi la cosecha
+¿Cuánto me toca de Producción para el Bienestar con 3 hectáreas?
+== maiz_precio
+El coyote me ofrece 4,500 la tonelada de maíz, ¿es buen precio? | me pagan 4500 por tonelada de maiz me conviene?
+¿Cuándo vendo el maíz para que me lo paguen mejor?
+¿Cuánto dinero me deja el maíz en 5 hectáreas?
+== siap
+¿A cómo está el sorgo de temporal en Guanajuato?
+¿Cuánto rinde el frijol de temporal en Guanajuato?
+¿Qué tan riesgoso es el frijol de temporal?
+¿Cuánto rinde el sorgo de temporal?
+¿Cuánto rinde la cebada en Guanajuato?
+¿Cuánto rinde el garbanzo?
+¿Cuánto rinde la fresa en Guanajuato?
+¿Cuánto rinde el jitomate en Guanajuato?
+== insumos
+El fertilizante está carísimo, ¿qué hago? | no me alcanza para la urea que hago
+¿Cuánto cuesta el bulto de urea?
+¿Cómo le bajo a los gastos de fertilizante?
+== peligro
+¿Cuánta urea le echo a una hectárea de maíz?
+Ya me salió el gusano cogollero en el maíz, ¿qué hago?
+== maiz_riesgo
+Si viene otro año seco como 2023, ¿qué hago con mi maíz? | y si se repite la seca del 2023 que le hago al maiz
+¿De cada 10 años, en cuántos se pierde el maíz de temporal?
+== anio
+¿2023 fue año seco en mi parcela?
+== recomendar
+¿Qué siembro que aguante la sequía?
+Sembré maíz 3 años seguidos, ¿qué le pongo ahora?
+¿Qué siembro el otro año si quiero ganar más?
+== general
+¿Cómo guardo el agua de lluvia en mi parcela?
+¿Quemo el rastrojo o lo dejo en la parcela?
+== lluvia
+¿Llueve más en julio o en agosto?
+¿Cuánta lluvia cae en septiembre en mi parcela?
+¿En qué mes viene la canícula?
+== tendencia
+¿Está lloviendo menos que hace 20 años?
+== maiz_comparar
+¿Me conviene cambiar el maíz por sorgo?
+¿Me conviene poner nopal en vez de maíz?
+¿Maíz o cebada para un año seco?
+¿Le entro al maíz este temporal o mejor siembro frijol?
+== cultivo
+¿Puedo sembrar trigo en otoño-invierno sin riego?
+¿El garbanzo necesita riego?
+¿Se da la fresa en mi parcela?
+¿Puedo plantar aguacate en mi terreno de temporal?
+¿Se da el nopal en mi parcela?
+== maiz_suelo
+Mi tierra es barrosa, ¿le sirve al maíz?
+== suelo
+¿Qué pH tiene mi tierra?
+== calor
+¿Hace mucho calor en junio para el maíz?
+== sin_dato
+¿Cuántas semillas de maíz necesito para 4 hectáreas?
+
+# Paráfrasis de DESARROLLO de test/eval/parafrasis.json (cambio 40). Las de prueba NO van aquí. "# retro" = siempre a entrena, no mueve la prueba de arriba.
+== recomendar
+que siembro este año | ¿Qué me recomiendas sembrar? | que debo sembrar | ps que le meto a la tierra | que cultivo me recomienda | qué sería bueno sembrar aquí | dime que sembrar | a ver que me aconseja sembrar este ciclo | que cultivo es mejor para mi terreno | que es lo mas conveniente sembrar # retro
+== cultivo
+puedo sembrar sorgo | se puede sembrar trigo aqui | esta bien si siembro sorgo | vale la pena sembrar frijol | me conviene el sorgo | le pongo frijol o no | ¿Qué tal el sorgo para mi parcela? | es buena idea sembrar cebada | podria sembrar frijol este año | este... me recomienda el frijol # retro
+== siembra
+en que mes se siembra el sorgo | cuando es buena fecha para sembrar | que fecha es la mejor para sembrar frijol | a partir de cuando se puede sembrar | en que tiempo se siembra el frijol | cuando empiezo a sembrar este temporal | ps cuando planto | cual es la fecha de siembra del sorgo | cuando conviene sembrar el frijol # retro
+== maiz_produccion
+¿Cuánto maíz voy a cosechar? | cuantas toneladas de maiz saco | cuanto maiz levanto en mi parcela | que tanto maiz voy a sacar | cuanto rinde mi maiz | cuantas toneladas me salen | este... cuanto maiz sale por hectarea | cuanto produce el maiz aqui | cuantos kilos de maiz voy a sacar # retro
+== maiz_produccion
+me salieron 2 toneladas de maiz es poco | levante 4 toneladas por hectarea de maiz como voy | el año pasado saque 3 toneladas de maiz por hectarea | me dio 2.5 toneladas el maiz esta bien o mal | oiga yo saco como 3 toneladas por hectarea | mi maiz dio 3 toneladas por hectarea | saco 2 toneladas por hectarea esta bajo | si saco 4 toneladas de maiz por hectarea es bueno # retro
+== maiz_precio
+a como esta el maiz | cuanto pagan la tonelada de maiz | que precio tiene el maiz | a como anda el maiz ahorita | precio del maiz | cuanto dinero me deja el maiz | cuando se paga mejor el maiz | a como me lo pagan el maiz | cuanto vale el maiz # retro
+== maiz_riesgo
+¿Qué tan riesgoso es el maíz de temporal? | cuanto se pierde de maiz | que probabilidad hay de perder el maiz | el maiz se pierde mucho por la sequia | oiga que tan seguro es sembrar maiz | cuantas veces se pierde el maiz por falta de lluvia | si llueve poco cuanto pierdo de maiz | que tanto se siniestra el maiz | cual fue el peor año para el maiz # retro
+== maiz_decision
+siembro maiz o no | le entro al maiz este año | vale la pena sembrar maiz | me aviento con el maiz | me recomiendas sembrar maiz | este... sera buen año para maiz | le sigo con el maiz | maiz si o no este año | que tal si siembro maiz # retro
+== maiz_ciclo
+en cuanto tiempo se da el maiz | cuanto se tarda en crecer el maiz | oiga cuando va a estar listo el maiz | cuantos meses tarda el maiz en dar | cuando se levanta el maiz | cuanto dura el ciclo del maiz | en cuantos meses se cosecha el maiz | puedo sacar dos cosechas de maiz al año # retro
+== maiz_riego
+¿Me conviene meterle riego a mi maíz? | vale la pena poner riego al maiz | maiz de riego o de temporal | oiga si le pongo riego al maiz gano mas | le meto riego o lo dejo de temporal el maiz | que diferencia hay entre maiz de riego y temporal | sirve instalar riego para el maiz | es mejor el maiz regado # retro
+== maiz_riego
+cuanta lluvia ocupa el maiz | cada cuanto se riega el maiz | cuantas veces riego el maiz | oiga el maiz cuanta agua pide | con cuanta agua se da el maiz | cuantos milimetros necesita el maiz | el maiz necesita mucha agua | cuanta agua necesita mi maiz para dar bien # retro
+== maiz_suelo
+¿Mi suelo sirve para maíz? | mi tierra es buena para el maiz | esta bien mi tierra para maiz | mi tierra aguanta el maiz | el suelo de aqui es bueno para sembrar maiz | mi tierra sirve para sembrar maiz | es adecuado mi suelo para maiz | mi suelo es bueno pal maiz # retro
+== maiz_comparar
+¿Maíz o sorgo, cuál me conviene? | que es mejor maiz o frijol | me conviene mas el sorgo que el maiz | maiz contra sorgo cual deja mas | oiga que me deja mas el maiz o el frijol | en vez de maiz pongo sorgo | que rinde mas el maiz o el trigo | maiz vs frijol # retro
+== maiz_donde
+¿Dónde se siembra más maíz en Guanajuato? | donde hay mas maiz | que municipio siembra mas maiz | cuales municipios tienen mas maiz | donde siembran maiz aqui en el estado | en que partes de guanajuato se siembra maiz | donde se cosecha mas maiz | que municipios son los que mas maiz siembran # retro
+== maiz_rotacion
+Sembré frijol el año pasado, ¿puedo sembrar maíz? | tenia sorgo puedo sembrar maiz este año | oiga sembre frijol y ahora quiero maiz | despues del frijol puedo poner maiz | el año pasado sembre maiz puedo repetir maiz | sembre trigo puedo sembrar maiz ahorita | vengo de frijol me conviene el maiz ahora | ya sembre maiz dos años puedo seguir con maiz # retro
+== lluvia
+¿Cuánto llueve en mi parcela? | cuanta lluvia cae aqui | que tanto llueve en mi terreno | cuanto llueve en verano | llueve mucho aqui | cuando empiezan las lluvias | cuantos milimetros llueven | como estan las lluvias aqui | cuando llueve mas # retro
+== lluvia
+¿Cuánto llueve en julio? | cuanto llueve en agosto | que tanto llueve en junio | cuanta lluvia cae en septiembre | como llueve en octubre | cuanta agua cae en junio | cuantos milimetros en agosto | cuanto llovio en promedio en julio # retro
+== secos
+¿Cuáles fueron los años secos? | cuantos años secos ha habido | que años llovio poco | hubo sequias aqui | oiga cuantas sequias ha habido | en que años no llovio | cuantos años malos de lluvia | que años fueron de sequia | ha habido sequia en los ultimos años # retro
+== anio
+¿Cuánto llovió en 2023? | fue seco el 2021 | cuanto llovio en 2019 | llovio bien en 2020 | como estuvo la lluvia en 2024 | el año pasado fue seco | cuanta agua cayo en 2015 | en 2012 llovio normal # retro
+== tendencia
+¿Está lloviendo menos que antes? | ha cambiado la lluvia | la lluvia va a la baja | se esta secando mas que antes | las lluvias estan cambiando | con el cambio climatico llueve menos | ya no llueve como antes | esta disminuyendo la lluvia # retro
+== heladas
+cuando caen heladas | en que meses hiela | oiga hay heladas en marzo | cuando hace mas frio | cuantas heladas hay | hay helada en diciembre | cae helada en abril | este... cuando son las heladas | le pega la helada al maiz # retro
+== calor
+¿Cuál es el mes más caluroso? | cuanto calor hace | que temperatura hace en mayo | cuantos grados hace en junio | que tan caluroso es abril | cuantos grados llega | la temperatura de mi parcela | que temperatura hay en verano # retro
+== pronostico
+¿Va a llover esta semana? | va a llover mañana | llueve hoy | que se espera esta semana | oiga va a llover estos dias | habra lluvia la proxima semana | como viene el clima los proximos dias | que dice el pronostico del tiempo | ps va a llover o no # retro
+== suelo
+como es mi tierra | cuanta arcilla tiene mi terreno | que tipo de suelo tengo | como esta la tierra de mi parcela | mi suelo es arcilloso | que textura tiene mi suelo | cuanta materia organica tiene mi suelo | es acida mi tierra | este... como salio mi suelo # retro
+== humedad
+¿Qué tan húmeda está la tierra? | que tan mojada esta la tierra en julio | oiga mi tierra guarda humedad | esta humeda mi parcela | la tierra esta seca o humeda | en que mes esta mas humeda la tierra | humedad de mi terreno | cuanta humedad hay en mi parcela en agosto # retro
+== siap
+¿A cuánto se paga el sorgo? | a como esta el frijol | precio del sorgo | en cuanto se vende la cebada | a como anda el frijol ahorita | cuanto me pagan por tonelada de frijol | a como se vende el brocoli | cuanto dan por el sorgo # retro
+== siap
+¿Cuánto rinde el frijol? | cuanto da el sorgo por hectarea | cuantas toneladas saca el frijol | que rendimiento tiene el trigo | oiga cuanto produce el sorgo | cuanto rinde la cebada de temporal | que tanto rinde el sorgo aqui | cuanto se cosecha de sorgo # retro
+== siap
+¿Qué tan riesgoso es el frijol? | cuanto se pierde de sorgo | el frijol se pierde mucho | que riesgo tiene el sorgo | cuantas perdidas tiene el trigo | el sorgo aguanta o se pierde | le va bien al sorgo de temporal | cuanto se pierde de frijol en temporal # retro
+== frutales
+que frutas se siembran en guanajuato | oiga que frutales hay por aca | que fruta se cultiva en queretaro | cuanto aguacate hay en guanajuato | que tal la fresa en guanajuato | cuanta uva hay | que frutas tienen mas valor | informacion del durazno # retro
+== apoyos
+que apoyos hay para temporaleros | oiga dan algun apoyo para la siembra | hay subsidio para semilla | como cobro el apoyo del bienestar | como vendo en un centro de acopio | que programas hay para el campo | me pueden ayudar con un apoyo | hay apoyo para fertilizante # retro
+== apoyos
+¿Hay seguro si pierdo la cosecha por sequía? | se me helo el maiz a quien le aviso | hay seguro agricola para temporal | perdi la cosecha por el granizo que hago | como aseguro mi cosecha | se me seco todo me ayudan | el seguro paga si no llueve | como funciona el seguro catastrofico # retro
+== credito
+¿Dónde consigo un crédito para sembrar? | como pido un prestamo para el campo | que es fira | donde saco financiamiento para mi parcela | me pueden prestar para la semilla | como consigo dinero prestado para sembrar | hay prestamos para temporaleros | que banco da credito al campo # retro
+== peligro
+¿Qué le echo al gusano cogollero? | que veneno le pongo a la plaga | que producto uso para el gusano | oiga que le fumigo al maiz | con que mato el gusano | que le rocio a la plaga del frijol | que quimico uso para la hierba | que marca de plaguicida es buena # retro
+== peligro
+cuanta urea le pongo | cuantos kilos de abono por hectarea | que dosis de fertilizante uso | oiga cuanto abono le aplico | que fertilizante le pongo al maiz | cuantos litros de fertilizante foliar | con cuanto abono | cuanta urea por hectarea de maiz # retro
+== insumos
+¿Cuánto cuesta el fertilizante? | a como esta la urea | precio de la semilla | oiga esta muy caro el abono | cuanto cuesta la semilla de sorgo | no me alcanza para el fertilizante | esta caro el diesel | cuanto gasto en semilla # retro
+== concepto
+que es la rotacion | para que sirven las leguminosas | que es el temporal | que significa leguminosa | que es la materia organica | que es el ph del suelo | por que es bueno rotar cultivos | que son los nutrientes del suelo # retro
+== fuera
+que celular me compro | quien es el presidente de mexico | me recomiendas una pelicula | como arreglo mi carro | que laptop me conviene | cual es la capital de francia | como bajo de peso | a que hora juega el america # retro

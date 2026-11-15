@@ -4,13 +4,14 @@ import { fetchJson } from '../lib/fetchJson.js';
 
 export const FORECAST_CREDIT = 'Open-Meteo.com (datos CC BY 4.0)';
 const FORECAST_DAYS = 7;
-const FRESH_HOURS = 3; // dentro de este tiempo se reusa la caché y no se vuelve a llamar a la API
+const FRESH_HOURS = 0.25; // Open-Meteo renueva el clima de este momento (`current`) cada 15 min
 
 export function buildForecastUrl(lat, lon) {
   const params = new URLSearchParams({
     latitude: String(lat),
     longitude: String(lon),
     daily: 'precipitation_sum,precipitation_probability_max,temperature_2m_max,temperature_2m_min,weather_code',
+    current: 'temperature_2m,precipitation,weather_code',
     timezone: 'America/Mexico_City',
     forecast_days: String(FORECAST_DAYS),
   });
@@ -34,13 +35,20 @@ export function parseForecast(raw) {
   }));
 }
 
+// El clima de este momento (bloque `current`), o null si la respuesta no lo trae.
+export function parseCurrent(raw) {
+  const c = raw?.current;
+  if (!c?.time || c.weather_code == null) return null;
+  return { hora: c.time, temp_c: c.temperature_2m ?? null, lluvia_mm: c.precipitation ?? null, codigo_clima: c.weather_code };
+}
+
 // Pronóstico de 7 días. Es un extra: nunca lanza, devuelve null si no hay internet ni caché.
 // Orden: caché reciente -> API -> caché vieja (con su fecha) -> null.
 export async function getForecast(lat, lon) {
   const key = cacheKey('forecast', lat, lon);
   const cached = await readCache(key);
-  // Una caché de antes de agregar codigo_clima se considera vieja para volver a consultar (si no hay internet se usa igual).
-  const oldShape = cached && !('codigo_clima' in (cached.dias?.[0] ?? {}));
+  // Una caché de antes de agregar codigo_clima o el clima actual se considera vieja (si no hay internet se usa igual).
+  const oldShape = cached && (!('codigo_clima' in (cached.dias?.[0] ?? {})) || !('actual' in cached));
   const ageHours = cached && !oldShape ? (Date.now() - Date.parse(cached.obtenido)) / 3.6e6 : Infinity;
 
   if (cached && ageHours < FRESH_HOURS) return { ...cached, origen: 'cache' };
@@ -48,7 +56,7 @@ export async function getForecast(lat, lon) {
   if (process.env.OFFLINE !== '1') {
     try {
       const raw = await fetchJson(buildForecastUrl(lat, lon), { timeoutMs: 8000 });
-      const fresh = { obtenido: new Date().toISOString(), dias: parseForecast(raw) };
+      const fresh = { obtenido: new Date().toISOString(), dias: parseForecast(raw), actual: parseCurrent(raw) };
       await writeCache(key, fresh);
       return { ...fresh, origen: 'api' };
     } catch (err) {

@@ -30,21 +30,26 @@ export function generar(texto) {
   for (const linea of texto.split(/\r?\n/)) {
     if (!linea.trim() || linea.startsWith('#')) continue;
     if (linea.startsWith('==')) { etiqueta = linea.slice(2).trim(); continue; }
-    const frases = linea.split('|').map((f) => f.trim()).filter(Boolean);
-    const r = rng(hash(linea));
+    // "# retro" al final = vino de la retroalimentación (scripts/revisar-retro.js): siempre a entrena, nunca a la prueba.
+    const retro = /#\s*retro\s*$/.test(linea);
+    const limpia = linea.replace(/#\s*retro\s*$/, '');
+    const frases = limpia.split('|').map((f) => f.trim()).filter(Boolean);
+    const r = rng(hash(limpia));
     const extra = [plano(frases[0]), conFaltas(frases[1] ?? frases[0], r)];
-    grupos.push({ intencion: etiqueta, frases: [...new Set([...frases, ...extra])] });
+    grupos.push({ intencion: etiqueta, retro, frases: [...new Set([...frases, ...extra])] });
   }
   // Prueba: ~30 % de los grupos de cada intención (al menos 1), escogidos por hash para que no dependa del orden.
+  // Los grupos "retro" no cuentan para el reparto: así agregarlos no cambia qué preguntas son de prueba.
   const porEtiqueta = Object.groupBy(grupos, (g) => g.intencion);
   const preguntas = [];
   let id = 0;
   for (const [intencion, gs] of Object.entries(porEtiqueta)) {
-    const orden = gs.map((g, i) => ({ g, i, h: hash(g.frases[0]) })).sort((a, b) => a.h - b.h);
-    const nPrueba = Math.max(1, Math.round(gs.length * 0.3));
+    const todos = gs.map((g, i) => ({ g, i, h: hash(g.frases[0]) }));
+    const orden = [...todos.filter((x) => !x.g.retro).sort((a, b) => a.h - b.h), ...todos.filter((x) => x.g.retro)];
+    const nPrueba = Math.max(1, Math.round(todos.filter((x) => !x.g.retro).length * 0.3));
     orden.forEach(({ g, i }, k) => {
-      const set = k < nPrueba ? 'prueba' : 'entrena';
-      for (const pregunta of g.frases) preguntas.push({ id: ++id, grupo: `${intencion}-${i + 1}`, set, intencion, pregunta });
+      const set = k < nPrueba && !g.retro ? 'prueba' : 'entrena';
+      for (const pregunta of g.frases) preguntas.push({ id: ++id, grupo: `${intencion}-${i + 1}`, set, intencion, pregunta, ...(g.retro && { retro: true }) });
     });
   }
   return preguntas;

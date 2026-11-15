@@ -17,6 +17,14 @@ export function climatePeriod(clima, now = new Date()) {
   return clima?.periodo ? `${clima.periodo.inicio}–${clima.periodo.fin}` : `2000–${lastCompleteYear(now)}`;
 }
 
+// How many years of rain are analyzed: those of the answer, or the expected ones while loading.
+export function yearsAnalyzed(clima, now = new Date()) {
+  return clima?.lluvia_pv_anual?.length || lastCompleteYear(now) - 1999;
+}
+
+// Card titles may say "{n}": the number of years analyzed.
+export const withYears = (text, clima) => text.replace('{n}', yearsAnalyzed(clima));
+
 // Cards of the rotation screen. Returns [{ etiqueta, valor }] like FS_DATOS.kpis.
 export function kpisFrom(clima, suelo) {
   if (!clima?.lluvia_pv_anual?.length) return FS_DATOS.kpis;

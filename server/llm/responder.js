@@ -6,6 +6,20 @@ import { verifyNumbers } from './verificador.js';
 
 const SOURCES = ['NASA POWER', 'SoilGrids', 'Open-Meteo', 'Base local', 'Wikipedia', 'SIAP'];
 export const REFUSAL = /^(no tengo ese dato|no lo s[eé] con mis datos)/i;
+// Respuesta floja: una frase que se muerde la cola ("La erosión frena la erosión") o que solo repite la pregunta.
+// shortcut: raíces de 5 letras, no un análisis real del español; si marca de más, subir el mínimo de palabras.
+const raices = (t) => (t.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').match(/[a-z]{5,}/g) ?? []).map((w) => w.slice(0, 5));
+export function floja(texto, pregunta = '') {
+  const limpio = texto.replace(/\[[^\]]*\]/g, '');
+  const tautologia = limpio.split(/[.;:!?]+/).some((f) => {
+    const r = raices(f);
+    return f.trim().split(/\s+/).length <= 8 && new Set(r).size < r.length;
+  });
+  const q = new Set(raices(pregunta));
+  const nuevas = new Set(raices(limpio).filter((r) => !q.has(r)));
+  return tautologia || (!/\d/.test(limpio) && nuevas.size < 3); // con números es un dato, no un eco
+}
+
 const SUMMARY_QUESTION = 'Explícame cómo es mi parcela: lluvia, años secos y suelo.';
 
 // Nunca lanza: si el modelo falla o inventa un número, responde con la plantilla.
@@ -22,7 +36,8 @@ export async function answer({ ficha, pregunta, historial = [], ask = askModel }
       .replace(/\[([^\]]*)\]/g, (m, name) => (SOURCES.includes(name) ? m : ''))
       .replace(/\s+/g, ' ')
       .trim();
-    if (texto && verifyNumbers(texto, vista).ok) {
+    // Si se niega, se respeta (la tarjeta pudo no venir al caso); si contesta flojo, mejor la tarjeta tal cual (abajo).
+    if (texto && verifyNumbers(texto, vista).ok && (REFUSAL.test(texto) || !floja(texto, q))) {
       return {
         respuesta: texto,
         // Si el modelo se niega, no hay nada que mostrar en el mapa.

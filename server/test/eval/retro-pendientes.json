@@ -1,0 +1,157 @@
+{
+ "nota": "Generado por scripts/revisar-retro.js. Revisa cada item: si la etiqueta es correcta pon \"confirmado\": true (cámbiala si hace falta; vale cualquier intención de intenciones-semilla.txt). Solo los confirmados con etiqueta entran al entrenamiento con --aplicar.",
+ "archivo": "data/retro/ejemplo.jsonl",
+ "votos": 10,
+ "utiles": 3,
+ "no_utiles": 7,
+ "grupos": [
+  {
+   "clave": "sin_tema · no_era",
+   "n": 2,
+   "items": [
+    {
+     "id": "14gzy4a",
+     "pregunta": "mi tierra se pone dura como piedra cuando se seca",
+     "comentario": "quería saber cómo está mi tierra",
+     "tema_servido": null,
+     "ruta_palabras": "modelo",
+     "intencion_predicha": "suelo",
+     "confianza": 0.56,
+     "otras": [
+      "fuera 6 %",
+      "heladas 6 %"
+     ],
+     "etiqueta": "suelo",
+     "que_hacer": "Confirmar la etiqueta propuesta (o cambiarla).",
+     "confirmado": false
+    },
+    {
+     "id": "fcljn9",
+     "pregunta": "cuantos dias tarda el frijol en darse",
+     "comentario": null,
+     "tema_servido": null,
+     "ruta_palabras": "modelo",
+     "intencion_predicha": "maiz_ciclo",
+     "confianza": 0.25,
+     "otras": [
+      "heladas 12 %",
+      "calor 8 %"
+     ],
+     "etiqueta": "maiz_ciclo",
+     "que_hacer": "Confirmar la etiqueta propuesta (o cambiarla).",
+     "confirmado": false
+    }
+   ]
+  },
+  {
+   "clave": "maiz-decision · no_era",
+   "n": 1,
+   "items": [
+    {
+     "id": "urpyap",
+     "pregunta": "vale la pena meterle sorgo en vez de maiz",
+     "comentario": "quería comparar sorgo con maíz",
+     "tema_servido": "maiz-decision",
+     "ruta_palabras": "maiz_decision",
+     "intencion_predicha": "maiz_comparar",
+     "confianza": 0.77,
+     "otras": [
+      "maiz_riego 4 %",
+      "maiz_precio 4 %"
+     ],
+     "etiqueta": "maiz_comparar",
+     "que_hacer": "Confirmar la etiqueta propuesta (o cambiarla).",
+     "confirmado": false
+    }
+   ]
+  },
+  {
+   "clave": "maiz-sin-dato · no_era",
+   "n": 1,
+   "items": [
+    {
+     "id": "16ioosa",
+     "pregunta": "se me esta secando la milpa que hago",
+     "comentario": "qué hago si no llueve, llámenme al [teléfono]",
+     "tema_servido": "maiz-sin-dato",
+     "ruta_palabras": "maiz_?",
+     "intencion_predicha": "apoyos",
+     "confianza": 0.15,
+     "otras": [
+      "suelo 14 %",
+      "tendencia 11 %"
+     ],
+     "etiqueta": "apoyos",
+     "que_hacer": "Confirmar la etiqueta propuesta (o cambiarla).",
+     "confirmado": false
+    }
+   ]
+  },
+  {
+   "clave": "siap · falta",
+   "n": 1,
+   "items": [
+    {
+     "id": "v96vlx",
+     "pregunta": "que tan seguido se pierde la cosecha de frijol aqui",
+     "comentario": "no dice cuántos años se perdió",
+     "tema_servido": "siap",
+     "ruta_palabras": "siap",
+     "intencion_predicha": "siap",
+     "confianza": 0.42,
+     "otras": [
+      "maiz_ciclo 11 %",
+      "heladas 8 %"
+     ],
+     "etiqueta": null,
+     "que_hacer": "Revisar la plantilla: faltó información.",
+     "confirmado": false
+    }
+   ]
+  },
+  {
+   "clave": "maiz-produccion · largo",
+   "n": 1,
+   "items": [
+    {
+     "id": "dwr4h9",
+     "pregunta": "¿Cuánto maíz voy a cosechar?",
+     "comentario": null,
+     "tema_servido": "maiz-produccion",
+     "ruta_palabras": "maiz_produccion",
+     "intencion_predicha": "maiz_ciclo",
+     "confianza": 0.44,
+     "otras": [
+      "maiz_produccion 38 %",
+      "maiz_precio 10 %"
+     ],
+     "etiqueta": null,
+     "que_hacer": "Revisar la plantilla: muy larga.",
+     "confirmado": false
+    }
+   ]
+  },
+  {
+   "clave": "suelo · no_entiendo",
+   "n": 1,
+   "items": [
+    {
+     "id": "1gcyz5w",
+     "pregunta": "¿Cómo está mi tierra?",
+     "comentario": "qué es carbono orgánico",
+     "tema_servido": "suelo",
+     "ruta_palabras": "modelo",
+     "intencion_predicha": "suelo",
+     "confianza": 0.86,
+     "otras": [
+      "humedad 4 %",
+      "maiz_suelo 4 %"
+     ],
+     "etiqueta": null,
+     "que_hacer": "Revisar la redacción: palabras difíciles.",
+     "confirmado": false
+    }
+   ]
+  }
+ ]
+}

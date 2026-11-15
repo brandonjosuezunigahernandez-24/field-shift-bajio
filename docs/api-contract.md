@@ -205,6 +205,8 @@ Petición:
 { "lat": 20.47, "lon": -100.81, "agua": "temporal", "prioridad": "riesgo" }
 ```
 
+Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en temporal: el mes con mejor puntaje).
+
 - `agua`: `"temporal"` o `"riego"`.
 - `prioridad`: `"ganar"`, `"suelo"`, `"agua"` o `"riesgo"`.
 - `estado` (opcional): `"Guanajuato"` o `"Querétaro"`, para el ingreso del SIAP. Si no viene, sale de los límites oficiales del INEGI (`server/lib/state.js`).
@@ -249,6 +251,37 @@ Respuesta (valores reales del punto demo, recortados):
 - **Sin suelo también responde:** si SoilGrids falla o no tiene dato, `suelo.sin_datos` es `true`, `suelo.aviso` lo explica y el pH no cambia el puntaje.
 - Errores: 400 si falta `agua` o `prioridad`; 502 si no se pudo consultar el clima; 422 con `{ error, fuera_de_region: true }` si la parcela está fuera de Guanajuato y Querétaro (sin `estado`). El 422 sale antes de consultar NASA o SoilGrids. Las pantallas siguen mostrando clima y suelo con `/api/clima` y `/api/suelo`, que funcionan en cualquier punto.
 - El asistente (`POST /api/asistente`) contesta "¿qué siembro?" con esta misma recomendación.
+
+## GET /api/recomendar/prueba?lat=20.47&lon=-100.81
+
+Para la pantalla "Probar cultivo": cada cultivo de temporal contra cada año real de la parcela (`backtest` en el motor). Una sola llamada alimenta la gráfica de 25 años, la comparación entre dos cultivos y el cambio de mes de siembra.
+
+```jsonc
+{
+  "cultivos": [
+    {
+      "id": "maiz",
+      "nombre": "Maíz grano",
+      "minimo_mm": 520,
+      "siembras": [
+        {
+          "mes_siembra": 6,
+          "meses": [6, 7, 8, 9],
+          "anios": [{ "anio": 2000, "lluvia_mm": 361, "alcanzo": false } /* ... 25 años */],
+          "anios_bajo_minimo": [2000, 2005 /* ... 12 años */],
+          "riesgo": 0.48
+        }
+        // ... y lo mismo con "mes_siembra": 7 (julio a octubre: 18 años bajo el mínimo)
+      ]
+    }
+    // ... sorgo y frijol
+  ],
+  "fuente": "NASA POWER ..."
+}
+```
+
+- El `riesgo` de junio es el mismo que usa `/api/recomendar`. Desde el cambio 41, `/api/recomendar` prueba junio y julio y usa el mes de mejor puntaje (`mes_siembra`).
+- Cambiar el mes solo recalcula la lluvia, no el ajuste de temperatura.
 
 ## Motor de reglas (`server/engine/index.js`)
 

@@ -12,12 +12,10 @@ import { useEffect, useRef, useState } from 'react';
 import { NASA_LAYERS } from '../config/mapLayers.js';
 import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
 import { soilColors, yearState } from '../three/parcelState.js';
-import { WEATHER_OPTIONS, weatherScene } from '../weather.js';
-import { YearControl } from '../year.jsx';
+import { WEATHER_OPTIONS, weatherFromCode, weatherScene } from '../weather.js';
 import { allCorners, parcelColor, parcelsGeoJSON, raisedParcelsGeoJSON } from './parcels.js';
 import { createCropLayer } from './cropLayer.js';
 import { DEFAULT_TOLERANCE, detectParcelAt } from './detectTiles.js';
-import FarmSummary from './FarmSummary.jsx';
 import { ensurePattern } from './patterns.js';
 import {
   areaHectares,
@@ -70,31 +68,16 @@ const ESRI_CREDIT = 'Imágenes: Esri, Maxar, Earthstar Geographics y la comunida
 //  - aerea:   straight from above, no tilt and no 3D relief. Best for drawing: what you tap is
 //             exactly where the corner goes. Tilting/rotating is switched off.
 //  - relieve: tilted, with the 3D relief (AWS Terrain Tiles / NASA SRTM). Best to look at the land.
-export const VIEWS = {
-  aerea: { label: 'Aérea', note: 'desde arriba, para dibujar' },
-  relieve: { label: 'Relieve 3D', note: 'inclinada, para ver lomas y bajadas' },
-};
 const VIEW_PITCH = { aerea: 0, relieve: 55 };
 const RISE_MS = 1300; // a saved parcel comes up out of the ground in this time
 const DETAIL_ZOOM = 16.2; // from here in, the map draws the detailed crop models
 const TERRAIN = { source: 'relieve', exaggeration: 1.5 };
 
-function saved(key, options, fallback) {
-  try {
-    const value = localStorage.getItem(key);
-    return value in options ? value : fallback;
-  } catch {
-    return fallback;
-  }
-}
-
-function remember(key, value) {
-  try {
-    localStorage.setItem(key, value);
-  } catch {
-    // private mode: the choice just isn't remembered
-  }
-}
+const FAR_ZOOM = 10; // NASA GIBS pictures are 250 m to 9 km squares: they are read from far away
+// What the page asks the map to show (Parcela.jsx sets it per card). Nothing here is picked by the farmer.
+//   vista: 'aerea' | 'relieve' (drawing always goes aerial)   nasa: null | a NASA_LAYERS id
+//   clima: 'hoy' (sky right now) | 'anio' (the chosen real year) | 'apagado'   lejos: zoom out to the region
+export const DEFAULT_SCENE = { vista: 'relieve', nasa: null, clima: 'hoy', lejos: false };
 
 // Satellite imagery + place names and streets (Esri) and 3D relief (the same heights that
 // /api/terreno uses). All free, no API key. Raster only: no glyphs or sprites to fetch.
@@ -231,7 +214,7 @@ function addParcelLayers(map) {
 }
 
 // Puts the map in the chosen view. Aerial switches off tilt and rotation so a tap is a tap.
-function applyView(map, view, { animate = true } = {}) {
+function applyView(map, view, { animate = true, camera = true } = {}) {
   const aerial = view === 'aerea';
   map.setTerrain(aerial ? null : TERRAIN);
   for (const handler of [map.dragRotate, map.touchPitch]) {
@@ -240,7 +223,7 @@ function applyView(map, view, { animate = true } = {}) {
   }
   if (aerial) map.touchZoomRotate.disableRotation();
   else map.touchZoomRotate.enableRotation();
-  map.easeTo({ pitch: VIEW_PITCH[view], ...(aerial ? { bearing: 0 } : {}), duration: animate && !reducedMotion() ? 900 : 0 });
+  if (camera) map.easeTo({ pitch: VIEW_PITCH[view], ...(aerial ? { bearing: 0 } : {}), duration: animate && !reducedMotion() ? 900 : 0 });
 }
 
 // Corners are numbered HTML markers (1, 2, 3...) so the farmer sees the order they were placed.
@@ -288,6 +271,10 @@ const fmtHa = (ha) => ha.toLocaleString('es-MX', { maximumFractionDigits: ha < 1
 //   suelo            /api/suelo data (or null): colors the sides of the raised parcels
 //   clima, year      /api/clima data and the page-wide year (useYearPlayer): the parcels follow it
 //   onUpdateParcela  (id, contorno) => void, when a saved parcel is corrected
+//   escena           how the map looks right now (see DEFAULT_SCENE), set by the page's cards
+//   soloVer          only show (screen 2): never draws, no parcel list nor drawing tools
+//   plantasPorParcela optional { [id]: { growth, tint } }: each parcel's own crop look (else the year's look for all)
+//   actual           the weather right now ({ temp_c, codigo_clima, ... } from /api/pronostico) or null
 export default function ParcelMap({
   point,
   parcelas,
@@ -298,23 +285,25 @@ export default function ParcelMap({
   onUpdateParcela,
   onRemoveParcela,
   onSetCultivo,
+  escena = DEFAULT_SCENE,
+  actual = null,
+  soloVer = false,
+  plantasPorParcela = null,
 }) {
   const containerRef = useRef(null);
   const mapRef = useRef(null);
   const [ready, setReady] = useState(false);
   const [failed, setFailed] = useState(false);
   const [corners, setCorners] = useState([]);
-  const [drawing, setDrawing] = useState(parcelas.length === 0);
+  const [drawing, setDrawing] = useState(!soloVer && parcelas.length === 0);
   const [hint, setHint] = useState(null);
-  const [imagery, setImagery] = useState(() => saved('fieldshift.imagen2', IMAGERY, 'rapido'));
+  // Cloud free is best to draw on; if it keeps failing it switches to the fast one by itself (below).
+  const [imagery, setImagery] = useState('claro');
   const [imageryNotice, setImageryNotice] = useState(null);
-  const [nasa, setNasa] = useState(null); // id of the NASA_LAYERS picture shown over the imagery, or null
-  const [view, setView] = useState(() => saved('fieldshift.vista', VIEWS, 'aerea'));
+  const nasa = escena.nasa; // id of the NASA_LAYERS picture shown over the imagery, or null
   const [editingId, setEditingId] = useState(null); // a saved parcel being corrected, or null
   // Plants + weather standing on the satellite map, and whether the weather moves.
   const cropLayerRef = useRef(null);
-  const weatherIds = Object.fromEntries(WEATHER_OPTIONS.map((o) => [o.id, true]));
-  const [weatherChoice, setWeatherChoice] = useState(() => saved('fieldshift.clima', weatherIds, 'auto'));
   const [onScreen, setOnScreen] = useState(true);
   const [closeUp, setCloseUp] = useState(false); // zoomed in enough for the detailed crop models
   // "Detectar con un toque": the next tap analyzes the photo instead of adding a corner.
@@ -325,15 +314,23 @@ export default function ParcelMap({
   detectModeRef.current = detectMode;
   const runDetectionRef = useRef(null);
   const shown = editingId === null ? parcelas : parcelas.filter((p) => p.id !== editingId);
+  // Placing corners (or about to draw one more parcel): straight from above, so a tap is a tap.
+  // With no parcel yet and no corner (e.g. an example point) the page's scene still rules.
+  const placing = drawing && (corners.length > 0 || parcelas.length > 0);
+  const view = placing ? 'aerea' : escena.vista;
   const yearNow = yearState(clima, year?.anio ?? null);
-  // Weather drawn over the map: from the real year ("auto") or picked by hand (marked as example).
-  const weather = weatherScene(weatherChoice, yearNow);
+  // Weather drawn over the map: the sky right now (Open-Meteo) or the real year (NASA POWER).
+  // Without today's weather (offline) it falls back to the year.
+  const today = escena.clima === 'hoy' && actual ? weatherFromCode(actual.codigo_clima, actual.lluvia_mm ?? 0) : null;
+  const weatherChoice = escena.clima === 'apagado' ? 'apagado' : today ? 'hoy' : 'auto';
+  const weather = weatherScene(weatherChoice, yearNow, actual?.codigo_clima);
   const weatherOption = WEATHER_OPTIONS.find((o) => o.id === weather.id) ?? WEATHER_OPTIONS[0];
   // Crops follow the real year, unless a hand-picked scene brings its own look (e.g. drought).
   const plantLook = weather.plant
     ? { ...weather.plant, tint: [1, 0.8 + 0.2 * weather.plant.wet, 0.45 + 0.55 * weather.plant.wet] }
     : yearNow;
   const animateWeather = weather.id !== 'apagado' && onScreen && !reducedMotion();
+  const plantasKey = plantasPorParcela ? JSON.stringify(plantasPorParcela) : '';
 
   // Latest values for the map handlers and effects that must not re-run on every change.
   const drawingRef = useRef(drawing);
@@ -509,6 +506,7 @@ export default function ParcelMap({
           id: p.id,
           cultivo: p.cultivo,
           contorno: p.contorno,
+          plants: plantasPorParcela?.[p.id] ?? null,
           base: (ground?.get(p.id) ?? 0) + raised.features[i].properties.tope_m,
         })),
         plants: plantLook,
@@ -538,7 +536,7 @@ export default function ParcelMap({
       cancelAnimationFrame(frame);
       fresh.forEach((id) => rise.set(id, 1)); // never leave a parcel half way up
     };
-  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, weather.id, weather.example, animateWeather, closeUp]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [ready, parcelas, soilKey, editingId, yearNow.anio, yearNow.wet, weather.id, weather.example, animateWeather, closeUp, plantasKey]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Pause the weather animation while the map is scrolled out of view (no wasted battery).
   useEffect(() => {
@@ -564,17 +562,39 @@ export default function ParcelMap({
 
   // With every parcel deleted, go back to drawing.
   useEffect(() => {
-    if (parcelas.length === 0) setDrawing(true);
-  }, [parcelas.length]);
+    if (!soloVer && parcelas.length === 0) setDrawing(true);
+  }, [parcelas.length, soloVer]);
 
-  // Show only the chosen imagery (a hidden layer downloads nothing) and remember the choice.
+  // Only show: when the page around the map changes size (a card finishes loading) the resize cuts the camera's
+  // flight to the parcel. Until the farmer moves the map, frame the parcel again after each resize.
   useEffect(() => {
-    if (ready) {
-      for (const id of Object.keys(IMAGERY)) {
-        mapRef.current.setLayoutProperty(id, 'visibility', id === imagery ? 'visible' : 'none');
-      }
+    if (!ready || !soloVer) return undefined;
+    const map = mapRef.current;
+    let moved = false;
+    const byHand = (e) => {
+      if (e.originalEvent) moved = true;
+    };
+    const frame = () => {
+      if (moved) return;
+      const farm = parcelasRef.current;
+      const pitch = VIEW_PITCH[viewRef.current];
+      if (farm.length) map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration: 0 });
+      else if (point) map.jumpTo({ center: [point.lon, point.lat], zoom: 16, pitch });
+    };
+    map.on('movestart', byHand);
+    map.on('resize', frame);
+    return () => {
+      map.off('movestart', byHand);
+      map.off('resize', frame);
+    };
+  }, [ready, soloVer, point]);
+
+  // Show only the chosen imagery (a hidden layer downloads nothing).
+  useEffect(() => {
+    if (!ready) return;
+    for (const id of Object.keys(IMAGERY)) {
+      mapRef.current.setLayoutProperty(id, 'visibility', id === imagery ? 'visible' : 'none');
     }
-    remember('fieldshift.imagen2', imagery);
   }, [ready, imagery]);
 
   // Same for the NASA picture: only the chosen one is visible.
@@ -585,11 +605,22 @@ export default function ParcelMap({
     }
   }, [ready, nasa]);
 
-  const changeView = (next) => {
-    setView(next);
-    remember('fieldshift.vista', next);
-    if (ready) applyView(mapRef.current, next);
-  };
+  // The camera follows the scene: aerial to draw, 3D relief to look, far away for the NASA pictures.
+  const lejos = escena.lejos && !placing;
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!ready) return;
+    applyView(map, view, { camera: false });
+    const duration = reducedMotion() ? 0 : 1200;
+    const pitch = VIEW_PITCH[view];
+    const farm = parcelasRef.current;
+    if (placing) {
+      // A correction or a detection may already be framing the map: only level it if nothing moves.
+      if (!map.isMoving()) map.easeTo({ pitch, bearing: 0, duration });
+    } else if (lejos && point) map.flyTo({ center: [point.lon, point.lat], zoom: FAR_ZOOM, pitch, bearing: 0, duration });
+    else if (farm.length) map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration });
+    else map.easeTo({ pitch, duration });
+  }, [ready, view, lejos]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // Follow the place chosen anywhere in the page. With drawn parcels, frame all of them;
   // with a bare point (example button, 3D globe), fly to it and start drawing there.
@@ -602,8 +633,10 @@ export default function ParcelMap({
     if (farm.length) {
       map.fitBounds(bounds(allCorners(farm)), { padding: 60, pitch, maxZoom: 17.5, duration });
     } else {
-      setCorners([]);
-      setDrawing(true);
+      if (!soloVer) {
+        setCorners([]);
+        setDrawing(true);
+      }
       map.flyTo({ center: [point.lon, point.lat], zoom: 16, pitch, duration }); // a esta distancia ya se puede dibujar la parcela
     }
   }, [ready, point]);
@@ -625,7 +658,6 @@ export default function ParcelMap({
     setCorners([]);
     setDrawing(false);
     setHint(null);
-    if (viewRef.current === 'aerea') changeView('relieve');
   };
 
   // "Dibujar otra parcela": back to the aerial view, so the next outline is drawn precisely.
@@ -634,7 +666,6 @@ export default function ParcelMap({
     setCorners([]);
     setDrawing(true);
     setHint(null);
-    changeView('aerea');
   };
 
   const cancelDrawing = () => {
@@ -675,7 +706,6 @@ export default function ParcelMap({
     setCorners(parcela.contorno.map((c) => [...c]));
     setDrawing(true);
     setHint(null);
-    changeView('aerea');
     mapRef.current?.fitBounds(bounds(parcela.contorno), { padding: 80, pitch: 0, bearing: 0, maxZoom: 18, duration: reducedMotion() ? 0 : 900 });
   };
   const editingNumber = editingId === null ? null : parcelas.findIndex((p) => p.id === editingId) + 1;
@@ -706,119 +736,32 @@ export default function ParcelMap({
     <div className="parcel-map">
       <div className="parcel-map-frame">
         <div ref={containerRef} className="parcel-map-canvas" />
-        {parcelas.length > 0 && weather.id !== 'apagado' && (
+        {weather.id !== 'apagado' && (
           <div className={`weather-overlay wx-${weather.id}`} aria-hidden="true">
             <span className="wx-sun" />
             <span className="wx-flash" />
           </div>
         )}
-        {parcelas.length > 0 && weather.example && (
-          <p className="map-year-badge map-year-example" aria-hidden="true">
-            {weatherOption.icon} {weather.label} · vista de ejemplo
+        {today && (
+          <p className="map-year-badge" aria-hidden="true">
+            Hoy · {today.icon} {today.label}
+            {actual.temp_c != null && ` · ${Math.round(actual.temp_c)} °C`}
           </p>
         )}
-        {parcelas.length > 0 && !weather.example && yearNow.lluvia_mm !== null && (
+        {!today && weather.id !== 'apagado' && yearNow.lluvia_mm !== null && (
           <p className={yearNow.seco ? 'map-year-badge map-year-dry' : 'map-year-badge'} aria-hidden="true">
-            {year.anio} · {weather.id !== 'apagado' ? `${weatherOption.icon} ${weather.label}` : yearNow.seco ? 'año seco' : 'año bueno'} ·{' '}
-            {Math.round(yearNow.lluvia_mm)} mm
+            {year.anio} · {weatherOption.icon} {weather.label} · {Math.round(yearNow.lluvia_mm)} mm
           </p>
         )}
       </div>
 
-      <div className="map-options">
-        <fieldset className="option-switch">
-          <legend>Tipo de vista</legend>
-          {Object.entries(VIEWS).map(([id, { label, note }]) => (
-            <label key={id}>
-              <input type="radio" name="vista-mapa" value={id} checked={view === id} onChange={() => changeView(id)} />
-              <span>
-                <strong>{label}</strong> <span className="option-note">({note})</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-        <fieldset className="option-switch">
-          <legend>Imagen del mapa</legend>
-          {Object.entries(IMAGERY).map(([id, { label, note }]) => (
-            <label key={id}>
-              <input
-                type="radio"
-                name="imagen-mapa"
-                value={id}
-                checked={imagery === id}
-                onChange={() => {
-                  setImagery(id);
-                  setImageryNotice(null);
-                }}
-              />
-              <span>
-                <strong>{label}</strong> <span className="option-note">({note})</span>
-              </span>
-            </label>
-          ))}
-        </fieldset>
-        <fieldset className="option-switch">
-          <legend>Datos de la NASA sobre el mapa</legend>
-          <label>
-            <input type="radio" name="nasa-mapa" checked={nasa === null} onChange={() => setNasa(null)} />
-            <span>
-              <strong>Ninguno</strong>
-            </span>
-          </label>
-          {Object.entries(NASA_LAYERS).map(([id, { label, note }]) => (
-            <label key={id}>
-              <input type="radio" name="nasa-mapa" value={id} checked={nasa === id} onChange={() => setNasa(id)} />
-              <span>
-                <strong>{label}</strong> <span className="option-note">({note})</span>
-              </span>
-            </label>
-          ))}
-          {nasa && (
-            <p className="hint">Imagen de NASA GIBS del 12 de agosto de 2024. Muestra la región, no el detalle de tu parcela: aléjate en el mapa para verla bien.</p>
-          )}
-        </fieldset>
-        <fieldset className="weather-picker">
-          <legend>Clima en el mapa</legend>
-          {WEATHER_OPTIONS.map((o) => (
-            <label key={o.id} className={weatherChoice === o.id ? 'chip chip-on' : 'chip'}>
-              <input
-                type="radio"
-                name="clima-mapa"
-                value={o.id}
-                checked={weatherChoice === o.id}
-                onChange={() => {
-                  setWeatherChoice(o.id);
-                  remember('fieldshift.clima', o.id);
-                }}
-              />
-              <span aria-hidden="true">{o.icon}</span> {o.label}
-            </label>
-          ))}
-          <p className="hint">
-            {weatherChoice === 'auto'
-              ? 'Según el año: el clima sale de la lluvia real de junio a septiembre de ese año (NASA POWER).'
-              : weatherChoice === 'apagado'
-                ? 'Sin animaciones de clima sobre el mapa.'
-                : 'Vista de ejemplo para explorar: no son datos de tu parcela.'}
-          </p>
-        </fieldset>
-        {imageryNotice && (
-          <p className="hint" role="status">
-            {imageryNotice}
-          </p>
-        )}
-      </div>
-
-      <FarmSummary parcelas={parcelas} />
-
-      {parcelas.length > 0 && year && (
-        <div className="map-year">
-          <p className="map-year-title">¿Cómo le fue a tu terreno cada año? Mueve el año y mira el color de tus cultivos.</p>
-          <YearControl id="anio-mapa" year={year} clima={clima} />
-        </div>
+      {imageryNotice && (
+        <p className="hint" role="status">
+          {imageryNotice}
+        </p>
       )}
 
-      {parcelas.length > 0 && (
+      {!soloVer && parcelas.length > 0 && (
         <div className="parcel-list">
           <h3>Tus parcelas</h3>
           <ul>
@@ -860,6 +803,7 @@ export default function ParcelMap({
         </div>
       )}
 
+      {!soloVer && (
       <div className="parcel-map-tools">
         {drawing ? (
           <>
@@ -985,6 +929,7 @@ export default function ParcelMap({
           </div>
         )}
       </div>
+      )}
     </div>
   );
 }

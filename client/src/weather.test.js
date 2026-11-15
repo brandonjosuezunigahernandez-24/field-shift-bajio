@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { test } from 'node:test';
 import { yearState } from './three/parcelState.js';
-import { WEATHER_OPTIONS, sceneForYear, weatherScene } from './weather.js';
+import { WEATHER_OPTIONS, sceneForCode, sceneForYear, weatherScene } from './weather.js';
 
 const clima = {
   lluvia_pv_mediana_mm: 500,
@@ -39,6 +39,20 @@ test('weatherScene: real scenes keep the year look; hand-picked ones are marked 
 
   const off = weatherScene('apagado', year(2015));
   assert.equal(off.rain + off.dust + off.clouds, 0);
+});
+
+test('"hoy" draws the real sky right now (Open-Meteo WMO code), not an example', () => {
+  assert.equal(sceneForCode(0), 'soleado');
+  assert.equal(sceneForCode(2), 'normal');
+  assert.equal(sceneForCode(45), 'nublado');
+  assert.equal(sceneForCode(63), 'lluvia');
+  assert.equal(sceneForCode(81), 'lluvia');
+  assert.equal(sceneForCode(96), 'tormenta');
+  assert.equal(sceneForCode(null), 'normal');
+  const hoy = weatherScene('hoy', year(2011), 95);
+  assert.equal(hoy.id, 'tormenta', 'the sky of today, not the dry year');
+  assert.equal(hoy.example, false);
+  assert.equal(hoy.plant, null);
 });
 
 test('every option has a label and an icon', () => {

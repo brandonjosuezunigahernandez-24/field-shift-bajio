@@ -5,9 +5,9 @@
 // Solo cambia el texto con que se enruta; si no aplica, devuelve la pregunta igual.
 import { MESES } from './climatologia.js';
 import { detectCrop } from './siap.js';
-import { esMaiz, intencionMaiz } from './maiz.js';
+import { esMaiz, intencionMaiz, rendPropio } from './maiz.js';
 import { detectarTema } from './respuestas.js';
-import { wantsRecommendation } from './intencion.js';
+import { esConcepto, wantsRecommendation } from './intencion.js';
 
 const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const CULTIVO_RE = /\b(maiz|sorgo|frijol(es)?|trigo|cebada|garbanzos?|brocoli|jitomates?|avena|girasol|cacahuates?|calabazas?|papas?|cebollas?|chiles?|fresas?|alfalfa|agave|nopal(es)?|aguacates?)\b/;
@@ -19,7 +19,9 @@ const quita = (s) => s.replace(/^[\s¿¡]*y\s+/, '').replace(/[?¿!¡.]/g, '').t
 export function seguimiento(pregunta, historial = []) {
   const q = strip(pregunta ?? '');
   const prev = historial.at(-1)?.pregunta;
-  if (!prev || !/^[\s¿¡]*y\s/.test(q) || q.split(/\s+/).length > 7) return pregunta;
+  // "en 3 hectáreas" / "por hectárea" después de "me salieron 2 toneladas": la respuesta corta completa la anterior.
+  if (prev && rendPropio(strip(prev))?.falta_ha && /\b(ha|hect\w*)\b/.test(q) && q.split(/\s+/).length <= 6) return `${strip(prev).replace(/[?¿!¡.]/g, '')} ${q}`;
+  if (!prev ||!/^[\s¿¡]*y\s/.test(q) || q.split(/\s+/).length > 7) return pregunta;
   const p = strip(prev);
   const resto = quita(q);
   for (const re of [CULTIVO_RE, ANIO_RE, MES_RE]) {
@@ -32,11 +34,12 @@ export function seguimiento(pregunta, historial = []) {
 
 // 2) Habla de su propio cultivo sin nombrarlo.
 // Primera persona sobre su propia cosecha ("saco", "voy a cosechar", "pierdo") también cuenta.
-const PROPIO = /(mi cultivo|mis cultivos|mi siembra|mi cosecha|lo que (tengo|sembre|siembro|plante)|lo cosecho|lo levanto|me lo (van a )?(pagan|pagar)|me (lo )?(deja|dejaria)|voy a (cosechar|sacar|levantar)|\b(saco|sacaria|levanto|cosecho|pierdo)\b|me queda)/;
+const PROPIO = /(mi cultivo|mis cultivos|mi siembra|mi cosecha|lo que (tengo|sembre|siembro|plante)|lo cosecho|lo levanto|me lo (van a )?(pagan|pagar)|me (lo )?(deja|dejaria)|voy a (cosechar|sacar|levantar)|me (salen|sale|va a dar|van a salir)|\b(saco|sacaria|levanto|cosecho|pierdo|saque|levante|coseche)\b|me (dieron|dio|salio|salieron)|me queda)/;
 const DEL_CULTIVO = ['produccion', 'precio', 'ciclo', 'decision', 'riesgo', 'riego'];
 export function conCultivoActual(pregunta, cultivoActual) {
-  if (cultivoActual !== 'maiz' || !pregunta || esMaiz(pregunta) || wantsRecommendation(pregunta)) return pregunta;
+  if (cultivoActual !== 'maiz' || !pregunta || esMaiz(pregunta) || wantsRecommendation(pregunta) || esConcepto(pregunta)) return pregunta;
   const q = strip(pregunta);
+  if (/(guard|capt|junt|cosech)\w* (el |la )?agua/.test(q)) return pregunta; // "¿cómo guardo el agua de lluvia?" no es del maíz
   const propio = PROPIO.test(q);
   if (!propio && (detectCrop(q) || detectarTema(q))) return pregunta; // "¿cuánto llueve en julio?" sigue siendo de lluvia
   if (detectCrop(q) && !/lo que (tengo|sembre|siembro)/.test(q)) return pregunta; // "¿cuánto saco de sorgo?" es del sorgo

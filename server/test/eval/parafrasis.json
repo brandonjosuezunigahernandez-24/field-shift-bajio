@@ -1,0 +1,2614 @@
+{
+ "nota": "Paráfrasis reales por intención (perfil: temporal, Guanajuato, prioridad riesgo, último frijol, actual maíz, 7.94 ha; parcela de Celaya). set=prueba (30 % por intención, por hash) NO se usa para arreglar reglas ni para entrenar. esperado = rótulos aceptados de la respuesta de /api/asistente (ver scripts/evaluar-parafrasis.js). Medir: cd server && node scripts/evaluar-parafrasis.js",
+ "perfil": {
+  "agua": "temporal",
+  "prioridad": "riesgo",
+  "estado": "Guanajuato",
+  "ultimo_cultivo": "frijol",
+  "cultivo_actual": "maiz",
+  "hectareas": 7.94
+ },
+ "lat": 20.47,
+ "lon": -100.81,
+ "intenciones": [
+  {
+   "id": "recomendar",
+   "descripcion": "Qué me conviene sembrar",
+   "esperado": [
+    "recomendar"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué puedo sembrar?",
+     "set": "prueba"
+    },
+    {
+     "texto": "que siembro este año",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "¿Qué me recomiendas sembrar?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga joven que le pongo a mi parcela este temporal",
+     "set": "prueba"
+    },
+    {
+     "texto": "que debo sembrar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "este... qué me conviene plantar",
+     "set": "prueba"
+    },
+    {
+     "texto": "ps que le meto a la tierra",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que cultivo me recomienda",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "qué sería bueno sembrar aquí",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "dime que sembrar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "no se que sembrar ayudeme",
+     "set": "prueba"
+    },
+    {
+     "texto": "a ver que me aconseja sembrar este ciclo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que cultivo es mejor para mi terreno",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "qué podría sembrar en mi parcela",
+     "set": "prueba"
+    },
+    {
+     "texto": "que es lo mas conveniente sembrar",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "puedo_cultivo",
+   "descripcion": "¿Puedo sembrar X? (otro cultivo que no es maíz)",
+   "esperado": [
+    "puedo"
+   ],
+   "frases": [
+    {
+     "texto": "¿Puedo sembrar frijol?",
+     "set": "prueba"
+    },
+    {
+     "texto": "puedo sembrar sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se puede sembrar trigo aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga y si siembro garbanzo",
+     "set": "prueba"
+    },
+    {
+     "texto": "esta bien si siembro sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "vale la pena sembrar frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "me conviene el sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "le pongo frijol o no",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "¿Qué tal el sorgo para mi parcela?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "es buena idea sembrar cebada",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "podria sembrar frijol este año",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "debo sembrar sorgo",
+     "set": "prueba"
+    },
+    {
+     "texto": "este... me recomienda el frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "sirve el garbanzo para mi terreno",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "siembra_fecha",
+   "descripcion": "Cuándo sembrar",
+   "esperado": [
+    "siembra"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuándo puedo sembrar frijol?",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuando siembro el frijol",
+     "set": "prueba"
+    },
+    {
+     "texto": "en que mes se siembra el sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando es buena fecha para sembrar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga cuando le echo la semilla",
+     "set": "prueba"
+    },
+    {
+     "texto": "que fecha es la mejor para sembrar frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando debo sembrar",
+     "set": "prueba"
+    },
+    {
+     "texto": "a partir de cuando se puede sembrar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en que tiempo se siembra el frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando empiezo a sembrar este temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "ps cuando planto",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cual es la fecha de siembra del sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando conviene sembrar el frijol",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_produccion",
+   "descripcion": "Cuánto maíz voy a cosechar",
+   "esperado": [
+    "maiz-produccion"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto maíz voy a cosechar?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto voy a cosechar",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuantas toneladas de maiz saco",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga cuanto me va a dar el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto maiz levanto en mi parcela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tanto maiz voy a sacar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto rinde mi maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas toneladas me salen",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto voy a levantar de cosecha",
+     "set": "prueba"
+    },
+    {
+     "texto": "este... cuanto maiz sale por hectarea",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto produce el maiz aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto maiz se da en mi terreno",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuantos kilos de maiz voy a sacar",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "rendimiento_propio",
+   "descripcion": "Dice cuánto sacó y pregunta si está bien",
+   "esperado": [
+    "maiz-produccion"
+   ],
+   "frases": [
+    {
+     "texto": "saqué 3 toneladas por hectárea, ¿está bien?",
+     "set": "prueba"
+    },
+    {
+     "texto": "me salieron 2 toneladas de maiz es poco",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "levante 4 toneladas por hectarea de maiz como voy",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "coseche 1.5 toneladas por hectarea es normal",
+     "set": "prueba"
+    },
+    {
+     "texto": "el año pasado saque 3 toneladas de maiz por hectarea",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "me dio 2.5 toneladas el maiz esta bien o mal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga yo saco como 3 toneladas por hectarea",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "saque 20 toneladas en mis 7 hectareas de maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "mi maiz dio 3 toneladas por hectarea",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "este año me salieron 2 toneladas por hectarea",
+     "set": "prueba"
+    },
+    {
+     "texto": "saco 2 toneladas por hectarea esta bajo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "si saco 4 toneladas de maiz por hectarea es bueno",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_precio",
+   "descripcion": "Precio del maíz",
+   "esperado": [
+    "maiz-precio",
+    "maiz-precio_mes"
+   ],
+   "frases": [
+    {
+     "texto": "¿A cuánto se paga el maíz?",
+     "set": "prueba"
+    },
+    {
+     "texto": "a como esta el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto pagan la tonelada de maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga a como compran el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "en cuanto se vende el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "que precio tiene el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto me pagan por mi maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "a como anda el maiz ahorita",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "precio del maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto dinero me deja el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando se paga mejor el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "a como me lo pagan el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto vale el maiz",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_riesgo",
+   "descripcion": "Riesgo del maíz por lluvia",
+   "esperado": [
+    "maiz-riesgo"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué tan riesgoso es el maíz de temporal?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que riesgo tiene el maiz aqui",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto se pierde de maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que probabilidad hay de perder el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "si no llueve que pasa con mi maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "el maiz se pierde mucho por la sequia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga que tan seguro es sembrar maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas veces se pierde el maiz por falta de lluvia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "es arriesgado el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "si llueve poco cuanto pierdo de maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tanto se siniestra el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hay mucho riesgo con el maiz de temporal",
+     "set": "prueba"
+    },
+    {
+     "texto": "cual fue el peor año para el maiz",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_decision",
+   "descripcion": "¿Siembro maíz este año?",
+   "esperado": [
+    "maiz-decision"
+   ],
+   "frases": [
+    {
+     "texto": "¿Me conviene sembrar maíz este año?",
+     "set": "prueba"
+    },
+    {
+     "texto": "siembro maiz o no",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "le entro al maiz este año",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "vale la pena sembrar maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga es buen año para el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "me aviento con el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "es buena idea sembrar maiz este temporal",
+     "set": "prueba"
+    },
+    {
+     "texto": "debo sembrar maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "me recomiendas sembrar maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "este... sera buen año para maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "le sigo con el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "maiz si o no este año",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tal si siembro maiz",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_ciclo",
+   "descripcion": "Cuánto tarda el maíz",
+   "esperado": [
+    "maiz-ciclo",
+    "maiz-dosciclos"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto tarda el maíz?",
+     "set": "prueba"
+    },
+    {
+     "texto": "en cuanto tiempo se da el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos dias dura el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuando cosecho mi maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto se tarda en crecer el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga cuando va a estar listo el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos meses tarda el maiz en dar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tan rapido sale el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuando se levanta el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto dura el ciclo del maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en cuantos meses se cosecha el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "puedo sacar dos cosechas de maiz al año",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_riego",
+   "descripcion": "¿Le meto riego al maíz?",
+   "esperado": [
+    "maiz-riego"
+   ],
+   "frases": [
+    {
+     "texto": "¿Me conviene meterle riego a mi maíz?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "vale la pena poner riego al maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "conviene el riego para el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "maiz de riego o de temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto mas saco de maiz con riego",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga si le pongo riego al maiz gano mas",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "le meto riego o lo dejo de temporal el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que diferencia hay entre maiz de riego y temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "sirve instalar riego para el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "con riego cuanto mas da el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "es mejor el maiz regado",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "conviene regar el maiz",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "maiz_agua",
+   "descripcion": "Cuánta agua necesita el maíz",
+   "esperado": [
+    "maiz-agua"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánta agua necesita el maíz?",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanta lluvia ocupa el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tanta agua requiere el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanta agua le hace falta al maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "cada cuanto se riega el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas veces riego el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga el maiz cuanta agua pide",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta lluvia necesita la milpa",
+     "set": "prueba"
+    },
+    {
+     "texto": "con cuanta agua se da el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos milimetros necesita el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el maiz necesita mucha agua",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta agua necesita mi maiz para dar bien",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_suelo",
+   "descripcion": "¿Mi suelo sirve para maíz?",
+   "esperado": [
+    "maiz-suelo"
+   ],
+   "frases": [
+    {
+     "texto": "¿Mi suelo sirve para maíz?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "mi tierra es buena para el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se da el maiz en mi suelo",
+     "set": "prueba"
+    },
+    {
+     "texto": "esta bien mi tierra para maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el ph de mi suelo sirve para maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga mi terreno es apto para maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "mi tierra aguanta el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el suelo de aqui es bueno para sembrar maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tal es mi suelo para el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "mi tierra sirve para sembrar maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "es adecuado mi suelo para maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "mi suelo es bueno pal maiz",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_comparar",
+   "descripcion": "Maíz contra otro cultivo",
+   "esperado": [
+    "maiz-comparar"
+   ],
+   "frases": [
+    {
+     "texto": "¿Maíz o sorgo, cuál me conviene?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que es mejor maiz o frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "me conviene mas el sorgo que el maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "maiz contra sorgo cual deja mas",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga que me deja mas el maiz o el frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "siembro maiz o mejor sorgo",
+     "set": "prueba"
+    },
+    {
+     "texto": "en vez de maiz pongo sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que rinde mas el maiz o el trigo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "comparame el maiz con el sorgo",
+     "set": "prueba"
+    },
+    {
+     "texto": "cual es mas seguro maiz o sorgo",
+     "set": "prueba"
+    },
+    {
+     "texto": "maiz vs frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "es mejor el sorgo o el maiz para temporal",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "maiz_donde",
+   "descripcion": "Dónde se siembra más maíz",
+   "esperado": [
+    "maiz-donde"
+   ],
+   "frases": [
+    {
+     "texto": "¿Dónde se siembra más maíz en Guanajuato?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en que municipios se siembra mas maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "donde hay mas maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que municipio siembra mas maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "donde se da mas el maiz en queretaro",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga en donde siembran mas maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuales municipios tienen mas maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "donde siembran maiz aqui en el estado",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en que partes de guanajuato se siembra maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que zonas son mas maiceras",
+     "set": "prueba"
+    },
+    {
+     "texto": "donde se cosecha mas maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que municipios son los que mas maiz siembran",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "maiz_rotacion",
+   "descripcion": "Sembré X, ¿puedo poner maíz?",
+   "esperado": [
+    "maiz-rotacion"
+   ],
+   "frases": [
+    {
+     "texto": "Sembré frijol el año pasado, ¿puedo sembrar maíz?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el año pasado tuve frijol puedo poner maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "sembre frijol ahora puedo meter maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "si antes tuve frijol se puede sembrar maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "tenia sorgo puedo sembrar maiz este año",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga sembre frijol y ahora quiero maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "despues del frijol puedo poner maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el año pasado sembre maiz puedo repetir maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "sembre trigo puedo sembrar maiz ahorita",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "vengo de frijol me conviene el maiz ahora",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "ya sembre maiz dos años puedo seguir con maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "tuve frijol el ciclo pasado y ahora maiz se puede",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "lluvia",
+   "descripcion": "Cuánto llueve",
+   "esperado": [
+    "lluvia"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto llueve en mi parcela?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta lluvia cae aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto llueve al año",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tanto llueve en mi terreno",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga cuanta agua de lluvia cae",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto llueve en verano",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "llueve mucho aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando empiezan las lluvias",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta lluvia tengo",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuantos milimetros llueven",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "este... cuanto llueve por aca",
+     "set": "prueba"
+    },
+    {
+     "texto": "como estan las lluvias aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando llueve mas",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "lluvia_mes",
+   "descripcion": "Lluvia de un mes",
+   "esperado": [
+    "lluvia"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto llueve en julio?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto llueve en agosto",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tanto llueve en junio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "llueve en mayo",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanta lluvia cae en septiembre",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga en julio llueve mucho",
+     "set": "prueba"
+    },
+    {
+     "texto": "como llueve en octubre",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta agua cae en junio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos milimetros en agosto",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "llueve mas en julio o en agosto",
+     "set": "prueba"
+    },
+    {
+     "texto": "ps en junio ya llueve",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto llovio en promedio en julio",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "secos",
+   "descripcion": "Años secos",
+   "esperado": [
+    "secos"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuáles fueron los años secos?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos años secos ha habido",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que años llovio poco",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hubo sequias aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga cuantas sequias ha habido",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en que años no llovio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos años malos de lluvia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que años fueron de sequia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas veces ha llovido poco",
+     "set": "prueba"
+    },
+    {
+     "texto": "este... años secos en mi parcela",
+     "set": "prueba"
+    },
+    {
+     "texto": "cada cuanto hay sequia",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuales años fueron malos de agua",
+     "set": "prueba"
+    },
+    {
+     "texto": "ha habido sequia en los ultimos años",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "anio",
+   "descripcion": "Lluvia de un año",
+   "esperado": [
+    "anio"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto llovió en 2023?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como llovio el año pasado",
+     "set": "prueba"
+    },
+    {
+     "texto": "fue seco el 2021",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto llovio en 2019",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga el 2011 fue año seco",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tal llovio en 2022",
+     "set": "prueba"
+    },
+    {
+     "texto": "llovio bien en 2020",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como estuvo la lluvia en 2024",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el año pasado fue seco",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta agua cayo en 2015",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en 2012 llovio normal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como fue el temporal de 2023",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "tendencia",
+   "descripcion": "¿Llueve menos que antes?",
+   "esperado": [
+    "tendencia"
+   ],
+   "frases": [
+    {
+     "texto": "¿Está lloviendo menos que antes?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "llueve menos que antes",
+     "set": "prueba"
+    },
+    {
+     "texto": "cada vez llueve menos",
+     "set": "prueba"
+    },
+    {
+     "texto": "ha cambiado la lluvia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga antes llovia mas verdad",
+     "set": "prueba"
+    },
+    {
+     "texto": "la lluvia va a la baja",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se esta secando mas que antes",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "las lluvias estan cambiando",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "llueve igual que hace 20 años",
+     "set": "prueba"
+    },
+    {
+     "texto": "con el cambio climatico llueve menos",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "ya no llueve como antes",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "esta disminuyendo la lluvia",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "heladas",
+   "descripcion": "Heladas",
+   "esperado": [
+    "heladas"
+   ],
+   "frases": [
+    {
+     "texto": "¿Hay riesgo de heladas?",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuando caen heladas",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hiela aqui",
+     "set": "prueba"
+    },
+    {
+     "texto": "en que meses hiela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga hay heladas en marzo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se me puede helar el cultivo",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuando hace mas frio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas heladas hay",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hay helada en diciembre",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tan fuerte hiela",
+     "set": "prueba"
+    },
+    {
+     "texto": "cae helada en abril",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "este... cuando son las heladas",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "le pega la helada al maiz",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "calor",
+   "descripcion": "Calor y temperatura",
+   "esperado": [
+    "calor"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuál es el mes más caluroso?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto calor hace",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que temperatura hace en mayo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando hace mas calor",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga que tan caliente se pone",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuantos grados hace en junio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cual es la temperatura promedio",
+     "set": "prueba"
+    },
+    {
+     "texto": "hace mucho calor aqui",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tan caluroso es abril",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos grados llega",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "la temperatura de mi parcela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que temperatura hay en verano",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "pronostico",
+   "descripcion": "Pronóstico de la semana",
+   "esperado": [
+    "pronostico"
+   ],
+   "frases": [
+    {
+     "texto": "¿Va a llover esta semana?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "va a llover mañana",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "llueve hoy",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que se espera esta semana",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga va a llover estos dias",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cual es el pronostico",
+     "set": "prueba"
+    },
+    {
+     "texto": "habra lluvia la proxima semana",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como va a estar el tiempo esta semana",
+     "set": "prueba"
+    },
+    {
+     "texto": "lloverá el fin de semana",
+     "set": "prueba"
+    },
+    {
+     "texto": "como viene el clima los proximos dias",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "va a hacer frio esta semana",
+     "set": "prueba"
+    },
+    {
+     "texto": "que dice el pronostico del tiempo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "ps va a llover o no",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "suelo",
+   "descripcion": "Cómo es mi suelo",
+   "esperado": [
+    "suelo"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cómo está mi suelo?",
+     "set": "prueba"
+    },
+    {
+     "texto": "como es mi tierra",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que ph tiene mi suelo",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanta arcilla tiene mi terreno",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga mi tierra es buena",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tipo de suelo tengo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como esta la tierra de mi parcela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "mi suelo es arcilloso",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "de que es mi tierra",
+     "set": "prueba"
+    },
+    {
+     "texto": "que textura tiene mi suelo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta materia organica tiene mi suelo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "es acida mi tierra",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "este... como salio mi suelo",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "humedad",
+   "descripcion": "Humedad de la tierra",
+   "esperado": [
+    "humedad"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué tan húmeda está la tierra?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta humedad tiene mi suelo",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tan mojada esta la tierra en julio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "la humedad del suelo en septiembre",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga mi tierra guarda humedad",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "esta humeda mi parcela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuando esta mas humedo el suelo",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tanta humedad hay en la raiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "la tierra esta seca o humeda",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en que mes esta mas humeda la tierra",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "humedad de mi terreno",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta humedad hay en mi parcela en agosto",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "siap_precio",
+   "descripcion": "Precio de otro cultivo",
+   "esperado": [
+    "siap"
+   ],
+   "frases": [
+    {
+     "texto": "¿A cuánto se paga el sorgo?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "a como esta el frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto pagan el frijol",
+     "set": "prueba"
+    },
+    {
+     "texto": "precio del sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga a como compran el trigo",
+     "set": "prueba"
+    },
+    {
+     "texto": "en cuanto se vende la cebada",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto vale el garbanzo",
+     "set": "prueba"
+    },
+    {
+     "texto": "a como anda el frijol ahorita",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que precio tiene el sorgo",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto me pagan por tonelada de frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "a como se vende el brocoli",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto dan por el sorgo",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "siap_rinde",
+   "descripcion": "Cuánto rinde otro cultivo",
+   "esperado": [
+    "siap"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto rinde el frijol?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto da el sorgo por hectarea",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas toneladas saca el frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que rendimiento tiene el trigo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga cuanto produce el sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto rinde la cebada de temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas toneladas da el garbanzo",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto saca de frijol una hectarea",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tanto rinde el sorgo aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "rendimiento del frijol en guanajuato",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto se cosecha de sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto produce el frijol de temporal",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "siap_riesgo",
+   "descripcion": "Riesgo de otro cultivo",
+   "esperado": [
+    "siap"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué tan riesgoso es el frijol?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto se pierde de sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el frijol se pierde mucho",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que riesgo tiene el sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga que tan seguro es el frijol",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuantas perdidas tiene el trigo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el sorgo aguanta o se pierde",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tanto se siniestra el frijol",
+     "set": "prueba"
+    },
+    {
+     "texto": "es riesgoso sembrar frijol",
+     "set": "prueba"
+    },
+    {
+     "texto": "le va bien al sorgo de temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto se pierde de frijol en temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tan seguro es el garbanzo",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "que_hacer",
+   "descripcion": "Qué hago si… (pide acción)",
+   "esperado": [
+    "accion"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué hago si se atrasa la lluvia?",
+     "set": "prueba"
+    },
+    {
+     "texto": "que hago si no llueve",
+     "set": "prueba"
+    },
+    {
+     "texto": "que puedo hacer si viene la sequia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como le hago si cae helada",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga que hago si se seca mi maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "que debo hacer si llueve poco",
+     "set": "prueba"
+    },
+    {
+     "texto": "que hago si se me encharca la parcela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como cuido mi suelo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que hago para que no se me pierda la cosecha",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como le hago para guardar humedad",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como protejo mi cultivo de la helada",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que le hago si no llueve en julio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como evito perder el maiz por la sequia",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "aptitud",
+   "descripcion": "¿Se da esta fruta aquí?",
+   "esperado": [
+    "aptitud"
+   ],
+   "frases": [
+    {
+     "texto": "¿Se da el aguacate aquí?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se da la fresa en mi parcela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "puedo sembrar aguacate",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "crece el durazno aqui",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga se dan las uvas en mi terreno",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que frutas se dan en mi parcela",
+     "set": "prueba"
+    },
+    {
+     "texto": "se puede plantar nogal aqui",
+     "set": "prueba"
+    },
+    {
+     "texto": "se dan los limones aqui",
+     "set": "prueba"
+    },
+    {
+     "texto": "puedo plantar manzanas",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se daria la guayaba en mi tierra",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tal se da el chile aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se puede sembrar jitomate aqui",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se da el nopal tunero en mi parcela",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "desglose",
+   "descripcion": "Desglose de una fruta o verdura",
+   "esperado": [
+    "desglose"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánta fresa es de riego?",
+     "set": "prueba"
+    },
+    {
+     "texto": "en que municipios se siembra fresa",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas hectareas de aguacate hay",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanta superficie de esparrago hay en guanajuato",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "donde se siembra mas fresa",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto se pierde de fresa",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como ha cambiado el precio de la nuez",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto tarda el aguacate en dar fruto",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga cuanto esparrago es de riego",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantas hectareas de nuez hay en queretaro",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "en que municipios hay mas aguacate",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta perdida tiene la uva",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "frutales",
+   "descripcion": "Qué frutales hay",
+   "esperado": [
+    "frutales",
+    "siap",
+    "desglose"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué frutales hay en mi estado?",
+     "set": "prueba"
+    },
+    {
+     "texto": "que frutas se siembran en guanajuato",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuales son los frutales mas sembrados",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga que frutales hay por aca",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que fruta se cultiva en queretaro",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "frutales de guanajuato",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto aguacate hay en guanajuato",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que tal la fresa en guanajuato",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanta uva hay",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "datos de la fresa",
+     "set": "prueba"
+    },
+    {
+     "texto": "que frutas tienen mas valor",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "informacion del durazno",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "apoyos",
+   "descripcion": "Apoyos de gobierno",
+   "esperado": [
+    "apoyos"
+   ],
+   "frases": [
+    {
+     "texto": "¿Hay apoyos del gobierno para el campo?",
+     "set": "prueba"
+    },
+    {
+     "texto": "como me inscribo a produccion para el bienestar",
+     "set": "prueba"
+    },
+    {
+     "texto": "que apoyos hay para temporaleros",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga dan algun apoyo para la siembra",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hay subsidio para semilla",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como cobro el apoyo del bienestar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "donde pido apoyo para mi parcela",
+     "set": "prueba"
+    },
+    {
+     "texto": "hay precio de garantia para el maiz",
+     "set": "prueba"
+    },
+    {
+     "texto": "como vendo en un centro de acopio",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que programas hay para el campo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "me pueden ayudar con un apoyo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hay apoyo para fertilizante",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "seguro",
+   "descripcion": "Seguro por pérdida",
+   "esperado": [
+    "apoyos"
+   ],
+   "frases": [
+    {
+     "texto": "¿Hay seguro si pierdo la cosecha por sequía?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se me helo el maiz a quien le aviso",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como cobro el seguro catastrofico",
+     "set": "prueba"
+    },
+    {
+     "texto": "hay seguro agricola para temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "perdi la cosecha por el granizo que hago",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga hay seguro para la sequia",
+     "set": "prueba"
+    },
+    {
+     "texto": "como aseguro mi cosecha",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se me seco todo me ayudan",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "el seguro paga si no llueve",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "donde aviso que perdi mi cosecha",
+     "set": "prueba"
+    },
+    {
+     "texto": "como funciona el seguro catastrofico",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "se inundo mi parcela a quien aviso",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "credito",
+   "descripcion": "Crédito",
+   "esperado": [
+    "credito"
+   ],
+   "frases": [
+    {
+     "texto": "¿Dónde consigo un crédito para sembrar?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como pido un prestamo para el campo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hay credito para agricultores",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga quien me presta para la siembra",
+     "set": "prueba"
+    },
+    {
+     "texto": "que es fira",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "donde saco financiamiento para mi parcela",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "me pueden prestar para la semilla",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "credito agricola",
+     "set": "prueba"
+    },
+    {
+     "texto": "como consigo dinero prestado para sembrar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hay prestamos para temporaleros",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que banco da credito al campo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "necesito un prestamo para el tractor",
+     "set": "prueba"
+    }
+   ]
+  },
+  {
+   "id": "plagas",
+   "descripcion": "Qué le echo a la plaga (negarse a dar producto o dosis)",
+   "esperado": [
+    "peligro",
+    "maiz-plaga"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué le echo al gusano cogollero?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que veneno le pongo a la plaga",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que producto uso para el gusano",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga que le fumigo al maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "con que mato el gusano",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que insecticida es bueno",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto le echo de veneno",
+     "set": "prueba"
+    },
+    {
+     "texto": "que le rocio a la plaga del frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "tengo plaga que le aplico",
+     "set": "prueba"
+    },
+    {
+     "texto": "que quimico uso para la hierba",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que herbicida le pongo",
+     "set": "prueba"
+    },
+    {
+     "texto": "que marca de plaguicida es buena",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "fertilizante",
+   "descripcion": "Cuánto fertilizante (negarse a dar dosis)",
+   "esperado": [
+    "peligro",
+    "maiz-plaga"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto fertilizante le echo al maíz?",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanta urea le pongo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos kilos de abono por hectarea",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que dosis de fertilizante uso",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga cuanto abono le aplico",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuantos bultos de urea le echo",
+     "set": "prueba"
+    },
+    {
+     "texto": "que fertilizante le pongo al maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto fertilizante necesita el frijol",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuantos litros de fertilizante foliar",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "con cuanto abono",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que abono le echo a la milpa",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanta urea por hectarea de maiz",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "insumos",
+   "descripcion": "Precio de insumos (no hay dato)",
+   "esperado": [
+    "insumos"
+   ],
+   "frases": [
+    {
+     "texto": "¿Cuánto cuesta el fertilizante?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "a como esta la urea",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "precio de la semilla",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto vale el diesel",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga esta muy caro el abono",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto cuesta la semilla de sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "precio del fertilizante este año",
+     "set": "prueba"
+    },
+    {
+     "texto": "cuanto sale el bulto de urea",
+     "set": "prueba"
+    },
+    {
+     "texto": "no me alcanza para el fertilizante",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto cuesta rentar el tractor",
+     "set": "prueba"
+    },
+    {
+     "texto": "esta caro el diesel",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuanto gasto en semilla",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "tarjeta",
+   "descripcion": "Temas con tarjeta (van al modelo con su tarjeta)",
+   "esperado": [
+    "modelo"
+   ],
+   "frases": [
+    {
+     "texto": "¿Qué hago en la canícula?",
+     "set": "prueba"
+    },
+    {
+     "texto": "como hago una cosecha de agua",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como evito el gorgojo en el maiz guardado",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como leo el monitor de sequia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que es la milpa",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "conviene el maiz criollo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como hago un bordo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como guardo el grano para que no se pique",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que son las curvas de nivel",
+     "set": "prueba"
+    },
+    {
+     "texto": "que es un abono verde",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como combato la gallina ciega",
+     "set": "prueba"
+    },
+    {
+     "texto": "como capto el agua de lluvia",
+     "set": "prueba"
+    },
+    {
+     "texto": "que pasa en la canicula",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "concepto",
+   "descripcion": "Pregunta para entender (va al modelo)",
+   "esperado": [
+    "modelo"
+   ],
+   "frases": [
+    {
+     "texto": "¿Para qué sirve la rotación de cultivos?",
+     "set": "prueba"
+    },
+    {
+     "texto": "que es la rotacion",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "para que sirven las leguminosas",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que es el temporal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como funciona la rotacion de cultivos",
+     "set": "prueba"
+    },
+    {
+     "texto": "que significa leguminosa",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que es la evapotranspiracion",
+     "set": "prueba"
+    },
+    {
+     "texto": "para que sirve el rastrojo",
+     "set": "prueba"
+    },
+    {
+     "texto": "que es la materia organica",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que es el ph del suelo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "por que es bueno rotar cultivos",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que son los nutrientes del suelo",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "fuera",
+   "descripcion": "Fuera de tema",
+   "esperado": [
+    "fuera",
+    "sin_respuesta"
+   ],
+   "frases": [
+    {
+     "texto": "¿Quién ganó el mundial?",
+     "set": "prueba"
+    },
+    {
+     "texto": "que celular me compro",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cuentame un chiste",
+     "set": "prueba"
+    },
+    {
+     "texto": "como hago tamales",
+     "set": "prueba"
+    },
+    {
+     "texto": "quien es el presidente de mexico",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga que hora es en japon",
+     "set": "prueba"
+    },
+    {
+     "texto": "me recomiendas una pelicula",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como arreglo mi carro",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "que laptop me conviene",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "cual es la capital de francia",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "como bajo de peso",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "a que hora juega el america",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "seguimiento_cultivo",
+   "descripcion": "¿Y el frijol? tras el precio del maíz",
+   "esperado": [
+    "siap"
+   ],
+   "historial": [
+    {
+     "pregunta": "¿A cuánto se paga el maíz?",
+     "respuesta": "El maíz se paga a 4,800 pesos por tonelada [SIAP]."
+    }
+   ],
+   "frases": [
+    {
+     "texto": "¿Y el frijol?",
+     "set": "prueba"
+    },
+    {
+     "texto": "y el sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y el trigo?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y la cebada",
+     "set": "prueba"
+    },
+    {
+     "texto": "¿y el garbanzo?",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga y el frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y del sorgo",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y el frijol cuanto",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y el sorgo a como",
+     "set": "prueba"
+    },
+    {
+     "texto": "y el brocoli",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y que tal el frijol",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y pal sorgo",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "porque",
+   "descripcion": "¿Por qué? tras una recomendación",
+   "esperado": [
+    "porque"
+   ],
+   "historial": [
+    {
+     "pregunta": "¿Qué me conviene sembrar?",
+     "respuesta": "Te conviene más sorgo."
+    }
+   ],
+   "frases": [
+    {
+     "texto": "¿Por qué?",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "por que ese",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y eso por que",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "porque ese cultivo",
+     "set": "prueba"
+    },
+    {
+     "texto": "oiga y por que",
+     "set": "prueba"
+    },
+    {
+     "texto": "por que me recomiendas eso",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "por que el sorgo",
+     "set": "prueba"
+    },
+    {
+     "texto": "pero por que",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "por que no maiz",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "y por que ese y no otro",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "explicame por que",
+     "set": "prueba"
+    },
+    {
+     "texto": "por que salio primero",
+     "set": "desarrollo"
+    }
+   ]
+  },
+  {
+   "id": "saludo",
+   "descripcion": "Saludo",
+   "esperado": [
+    "saludo"
+   ],
+   "frases": [
+    {
+     "texto": "Hola",
+     "set": "prueba"
+    },
+    {
+     "texto": "buenas",
+     "set": "prueba"
+    },
+    {
+     "texto": "buenos dias",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "buenas tardes",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "gracias",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "ok",
+     "set": "prueba"
+    },
+    {
+     "texto": "hola buenas tardes",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "oiga buenas",
+     "set": "prueba"
+    },
+    {
+     "texto": "que tal",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "muchas gracias",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "hola joven",
+     "set": "desarrollo"
+    },
+    {
+     "texto": "buen dia",
+     "set": "desarrollo"
+    }
+   ]
+  }
+ ]
+}

@@ -65,17 +65,26 @@ if (process.argv[1].endsWith('evaluar-modelo.js')) {
     await new Promise((ok) => setTimeout(ok, 50));
     const tok = calls[n] ?? {};
     const fallos = check(q, r);
-    res.push({ id: q.id, tipo: q.tipo, pregunta: q.pregunta, ok: !fallos.length, ms, origen: r.origen, ...tok, fallos, respuesta: r.respuesta });
+    res.push({ id: q.id, tipo: q.tipo, conjunto: q.conjunto ?? 'desarrollo', codigo: q.camino === 'codigo', pregunta: q.pregunta, ok: !fallos.length, ms, origen: r.origen, ...tok, fallos, respuesta: r.respuesta });
     console.log(`${fallos.length ? 'FALLA' : 'ok   '} #${q.id} [${r.origen}] ${ms} ms ${tok.entrada ?? '?'}+${tok.salida ?? '?'} tok  ${q.pregunta}\n        "${r.respuesta}"${fallos.length ? `\n        -> ${fallos.join('; ')}` : ''}`);
   }
-  const ms = res.map((x) => x.ms).sort((a, b) => a - b);
-  const pct = (n) => `${Math.round((100 * n) / res.length)}%`;
-  const avg = (k) => Math.round(res.reduce((s, x) => s + (x[k] ?? 0), 0) / res.length);
-  console.log(`\nÚTIL: ${res.filter((x) => x.ok).length}/${res.length} (${pct(res.filter((x) => x.ok).length)})`);
-  for (const tipo of [...new Set(res.map((x) => x.tipo))]) console.log(`  ${tipo}: ${res.filter((x) => x.tipo === tipo && x.ok).length}/${res.filter((x) => x.tipo === tipo).length}`);
-  console.log(`RESPALDO (plantilla en vez del modelo): ${pct(res.filter((x) => x.origen !== 'llm').length)}`);
-  console.log(`TIEMPO: medio ${Math.round(ms.reduce((a, b) => a + b, 0) / ms.length)} ms, mediana ${ms[Math.floor(ms.length / 2)]} ms, p90 ${ms[Math.ceil(ms.length * 0.9) - 1]} ms (Ollama compartido: otros procesos lo alentan)`);
-  console.log(`TOKENS: entrada media ${avg('entrada')}, salida media ${avg('salida')}`);
+  // camino=codigo: la contesta una plantilla a propósito; no cuenta como falla (ni acierto) del modelo.
+  const resumen = (rs, nombre) => {
+    const m = rs.filter((x) => !x.codigo);
+    const ms = m.map((x) => x.ms).sort((a, b) => a - b);
+    const ok = m.filter((x) => x.ok).length;
+    const pct = (n) => `${Math.round((100 * n) / (m.length || 1))}%`;
+    const avg = (k) => Math.round(m.reduce((s, x) => s + (x[k] ?? 0), 0) / (m.length || 1));
+    console.log(`
+== ${nombre}: ÚTIL ${ok}/${m.length} (${pct(ok)})${rs.length > m.length ? ` (+${rs.length - m.length} que contesta el código, aparte)` : ''}`);
+    for (const tipo of [...new Set(m.map((x) => x.tipo))]) console.log(`  ${tipo}: ${m.filter((x) => x.tipo === tipo && x.ok).length}/${m.filter((x) => x.tipo === tipo).length}`);
+    console.log(`  SE NIEGA AUNQUE HAY TARJETA: ${m.filter((x) => x.fallos.includes('se niega aunque hay tarjeta')).length}`);
+    console.log(`  RESPALDO (plantilla en vez del modelo): ${pct(m.filter((x) => x.origen !== 'llm').length)}`);
+    console.log(`  TIEMPO: medio ${Math.round(ms.reduce((a, b) => a + b, 0) / (ms.length || 1))} ms, mediana ${ms[Math.floor(ms.length / 2)]} ms, p90 ${ms[Math.ceil(ms.length * 0.9) - 1]} ms (Ollama compartido: otros procesos lo alentan)`);
+    console.log(`  TOKENS: entrada media ${avg('entrada')}, salida media ${avg('salida')}`);
+  };
+  resumen(res, 'TODO');
+  for (const c of [...new Set(res.map((x) => x.conjunto))]) resumen(res.filter((x) => x.conjunto === c), c.toUpperCase());
   const out = arg('--json', null);
   if (out) writeFileSync(out, JSON.stringify(res, null, 1));
   srv.close();

@@ -28,6 +28,9 @@ const PREGUNTAS = [
   ['¿Hay seguro si pierdo la cosecha por sequía?'], ['¿Cómo consigo un crédito para sembrar?'], ['¿Dónde vendo mi maíz a mejor precio?'], ['¿Me conviene meterle riego a mi parcela?'],
   ['¿Qué fertilizante le echo al maíz y cuánto?'], ['cuando levanto el maiz si lo sembre en junio'], ['oiga y si llueve poco que hago'], ['¿Quién ganó el mundial?'],
 ];
+// Más específicas (rendimiento propio, mes, municipio, temas con tarjeta), en Celaya.
+const EXTRA = ['Tengo 3.5 ha y me dieron 1.2 t, ¿estuvo bien?', '¿Siembro el maíz en julio o ya es tarde?', '¿Con 400 mm de lluvia alcanza para el maíz?',
+  '¿Cómo evito el gorgojo en el maíz guardado?', '¿Cómo hago una cosecha de agua?', '¿Qué es la gallina ciega?'];
 const QRO = ['¿Cuánto llueve en mi parcela en el temporal?', '¿Cuáles fueron los años secos?', '¿Cuánto maíz voy a cosechar?', '¿Qué me conviene sembrar después del maíz?'];
 
 function parcela(id) {
@@ -70,6 +73,11 @@ for (const [i, [q, seguimiento]] of PREGUNTAS.entries()) {
   if (!seguimiento) prev = { pregunta: q, respuesta: (r.respuesta ?? '').slice(0, 600) };
   process.stdout.write(filas.at(-1).obs.length ? 'x' : '.');
 }
+for (const [i, q] of EXTRA.entries()) {
+  const r = await preguntar(celaya, q, []);
+  filas.push({ n: `E${i + 1}`, parcela: 'extra', q, r, obs: revisar(r, q) });
+  process.stdout.write(filas.at(-1).obs.length ? 'x' : '.');
+}
 for (const [i, q] of QRO.entries()) {
   const r = await preguntar(amealco, q, []);
   filas.push({ n: `Q${i + 1}`, parcela: 'amealco', q, r, obs: revisar(r, q) });
@@ -105,6 +113,7 @@ table{border-collapse:collapse;margin:6px 0}td,th{border:1px solid #bcd0c3;paddi
 <table>${Object.entries({ 'Agua': 'Solo lluvia (temporal)', 'Qué le importa más': 'Arriesgar menos', 'Estado': 'Guanajuato', 'Lo último que sembró': 'Frijol', 'Lo que tiene sembrado ahorita': 'Maíz', 'Hectáreas': `${celaya.ha} (del dibujo)`, 'Tierra mojada al apretarla': 'Se pega y hace barro (arcillosa)', '¿Se encharca?': 'No' }).map(([k, v]) => `<tr><th>${k}</th><td>${v}</td></tr>`).join('')}</table>
 <h2>2. Parcela dibujada (delimitación)</h2><p><b>${esc(celaya.nombre)}</b>: el agricultor da 5 clics en el mapa.</p>${tParcela(celaya)}
 <h2>3. 32 preguntas en la parcela de Celaya</h2>${filas.filter((f) => f.parcela === 'celaya').map(tarjeta).join('')}
+<h2>3b. Preguntas más específicas (misma parcela de Celaya)</h2>${filas.filter((f) => f.parcela === 'extra').map(tarjeta).join('')}
 <h2>4. La misma prueba en Querétaro</h2><p><b>${esc(amealco.nombre)}</b>, mismo perfil con estado Querétaro.</p>${tParcela(amealco)}
 ${filas.filter((f) => f.parcela === 'amealco').map(tarjeta).join('')}
 <h2>5. Límites que hay que decir</h2><ul>

@@ -89,6 +89,7 @@ Para la demo conviene `npm start` en lugar de `npm run dev`: no reinicia el serv
 | `GET /api/suelo?lat&lon` | pH, arcilla, arena, limo, carbono orgánico y nitrógeno de 0 a 30 cm. |
 | `GET /api/terreno?lat&lon` | Relieve (malla de 65 × 65 alturas) del cuadro de 1 km alrededor de la parcela, para la vista 3D. |
 | `POST /api/recomendar` | Cultivos con puntaje, riesgo y razones, y la rotación de 3 años (motor de reglas). |
+| `GET /api/recomendar/prueba?lat&lon` | Cada cultivo de temporal contra los años reales: lluvia de su ciclo por año y si le alcanzó, sembrando en junio y en julio. |
 | `GET /api/pronostico?lat&lon` | Pronóstico de 7 días. |
 | `POST /api/asistente` | Respuesta del asistente con los datos de la parcela. "¿Qué siembro?" usa el mismo motor que `/api/recomendar`. |
 | `POST /api/voz` | Voz a texto (Whisper local). |

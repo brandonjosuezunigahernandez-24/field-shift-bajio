@@ -1,6 +1,6 @@
 // Respuestas por plantilla para las preguntas frecuentes: el código calcula, redacta y pone la cita; el modelo no interviene.
 // detectarTema(pregunta) -> tema | null; redactar(tema, pregunta, ctx) -> { respuesta, fuentes, datos } | null (null = que conteste el modelo).
-import { MESES } from './climatologia.js';
+import { MESES, lluviaDicha, mesesDe, mmDe } from './climatologia.js';
 import { detectCrop } from './siap.js';
 import { isFollowUp } from './intencion.js';
 import { summarizeForecast } from './ficha.js';
@@ -13,33 +13,33 @@ const strip = (s) => s.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
 const has = (re, q) => re.test(q);
 const NASA = '[NASA POWER]';
 const cap = (s) => s[0].toUpperCase() + s.slice(1);
-const mesDe = (q) => { const i = MESES.findIndex((m) => new RegExp(`\\b${m}\\b`).test(q)); return i >= 0 ? i + 1 : null; };
+const mesDe = (q) => mesesDe(q)[0] ?? null; // tolera una letra mal: "dicienbre"
 // "este año" / "el año pasado" -> 2024 (el último año con datos de NASA POWER; la respuesta lo dice).
 const ULTIMO = 2024;
 const anioDe = (q) => { const m = q.match(/\b(19\d\d|20\d\d)\b/); return m ? Number(m[1]) : /(ano pasado|este ano|ultimo ano)/.test(q) ? ULTIMO : null; };
 const dia = (f) => { const [, m, d] = f.split('-').map(Number); return `${d} de ${MESES[m - 1]}`; };
 const neg = (n) => (n < 0 ? `−${Math.abs(n)}` : `${n}`);
 
-const PELIGRO = /(pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|pongo|rocio)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
-const INSUMO = /(cuesta|precio|cuanto vale|costo)/;
-const INSUMOS = /(fertiliz|abono|semilla|diesel|insumo|urea|tractor)/;
+const PELIGRO = /((cuant[oa]s?|dosis|kilos|litros|bultos)(?! (cuesta|vale|sale|gasto|cobran))( \w+){0,3} (de )?(fertiliz|abono|urea)|pesticid|plaguicid|herbicid|insecticid|fungicid|agroquimic|veneno|fumig|dosis|marca de|que (producto|quimico)|cuantos (litros|gramos|ml|cc)|cuanto (le )?(echo|aplico|pongo|rocio)|que (le )?(echo|aplico|rocio)|que (le )?pongo (al|a la|para|contra) (plaga|gusano|hierba|maleza|hongo)|(fertiliz|abono|urea).*(cuanto|dosis|kilos|litros))/;
+const INSUMO = /(cuesta|precio|cuanto vale|cuanto sale|costo|caro|carisim|no me alcanza|gasto)/;
+const INSUMOS = /(fertiliz|abono|semilla|diesel|insumo|urea|tractor|bulto)/;
 const PRON = /(semana|se espera|\bhoy\b|manana|pronostico|proximos dias|proxima|va a llover|llovera|habra|^\W*llueve\W*$)/;
-const TREND = /(tendencia|cambiando|cambio climatico|cada vez|que antes|llovia|va a la baja|ultimos \d+ anos|disminu|aument|empeor|mejor[ao]n? )/;
-const SECOS = /(llovio poco|poca lluvia|anos? sec|sequi|\bsecos?\b|\bsecoss\b|anos? de (poca|mala) lluvia)/;
-const LLUVIA = /(llov|lluvi|llue|agua(?!cate))/; // "aguacate" no es lluvia
-const FRIO = /(helad|hiela|congel|\bfri[oa]|invierno|inviern|temperatura minima)/;
+const TREND = /(tendencia|cambiando|cambiad|cambio la|como antes|ya no (llueve|llovia)|antes llov|cambio climatico|cada vez|que antes|llovia|va a la baja|ultimos \d+ anos|hace \d+ anos|disminu|aument|empeor|mejor[ao]n? )/;
+const SECOS = /(llovio poco|no llovio|anos? (malos?|sin lluvia)|poca lluvia|anos? sec|sequi|\bsecos?\b|\bsecoss\b|anos? de (poca|mala) lluvia)/;
+const LLUVIA = /(llov|lluvi|llue|\bagua\b|milimetr)/; // "aguacate" y "aguanta" no son lluvia
+const FRIO = /(helad|\belada|hiela|congel|\bfri[oa]|invierno|inviern|temperatura minima)/;
 const CALOR = /(grados|calor|calur|temperatura maxima|temperatura|caliente)/;
 const SIAP_PRECIO = /(se paga|vende|vender|venden|precio|pagan|pago por|valor de la tonelada)/;
 const SIAP_RINDE = /(rinde|rendimiento|cuanto saca|saca mi|toneladas|produce)/;
 const SIAP_RIESGO = /(riesgo|le va|riesgoso|pierde|perdida|siniestr|que tan seguro)/;
-const DENTRO = /(apoyo|bienestar|seguro|acopio|garantia|credito|coyote|rastrojo|barbech|canicula|bordo|surco|plaga|gusano|cogollero|ganado|forraje|pastura|estiercol|llu|llov|clima|tiempo|temperatura|suelo|tierra|parcela|terreno|campo|cultiv|siembr|sembr|cosech|plant|semilla|riego|regar|agua|plaga|sequi|seco|helad|calor|frio|humed|\bsol\b|solar|precio|vende|rinde|rendimiento|riesgo|fertiliz|abono|rotacion|invernadero|finca|milpa|huerto|agricol|verdura|fruta|hortaliza|\bph\b|arcilla|arena|\bmes\b|\bano\b|verano|invierno|hectarea|ayuda|que sabes|que puedes)/;
+const DENTRO = /(apoyo|programa|tonelad|milimetr|urea|diesel|bulto|bienestar|seguro|acopio|garantia|credito|coyote|rastrojo|barbech|canicula|bordo|surco|plaga|gusano|cogollero|ganado|forraje|pastura|estiercol|llu|llov|clima|tiempo|temperatura|suelo|tierra|parcela|terreno|campo|cultiv|siembr|sembr|cosech|plant|semilla|riego|regar|agua|plaga|sequi|seco|helad|calor|frio|humed|\bsol\b|solar|precio|vende|rinde|rendimiento|riesgo|fertiliz|abono|rotacion|invernadero|finca|milpa|huerto|agricol|verdura|fruta|hortaliza|\bph\b|arcilla|arena|\bmes\b|\bano\b|verano|invierno|hectarea|ayuda|que sabes|que puedes)/;
 // Frutales y perennes (el SIAP los trae aparte). "Fresa" y "aguacate" también salen en el resumen de cultivos y se siguen contestando ahí.
 const FRUTAL = /(frutal|\bfrutas?\b|esparrag|arandan|frambues|zarzamor|\btunas?\b|\buvas?\b|\bnuez|nueces|naranj|manzan|durazn|guayab|limon|nopal tunero)/;
 const CONCEPTO = /(para que sirve|que es\b|que son\b|como funciona|ayuda a|guard|retener|conservar)/;
 
 // Programas de gobierno, seguros y crédito: no hay datos propios; se contesta honesto y se apunta a «Qué hacer» (data/acciones.json).
-const CREDITO = /(credito|prestamo|financiamiento|\bfira\b|me presta)/;
-const APOYOS = /(apoyo|bienestar|subsidio|acopio|precio de garantia|asegurad|catastrof|seguro (agricola|catastrofico|de cosecha|para|si)|(cobr|paga)\w* el seguro|(perdi|se perdio|se me (helo|seco|murio)|granizo|se inundo).{0,40}(que hago|a quien|aviso|me ayudan))/;
+const CREDITO = /(credito|prestamo|financiamiento|\bfira\b|\bprest(a|an|ar|ado|en|ame|amos)\b)/;
+const APOYOS = /(apoyo|bienestar|subsidio|gratis|regalan|acopio|precio de garantia|programas? (de|del|para|hay)|asegur|(un|el|algun|del|al|hay) seguro|catastrof|seguro (agricola|catastrofico|de cosecha|para|si)|(cobr|paga)\w* el seguro|(perdi|se perdio|se me (helo|seco|murio)|granizo|se inundo).{0,40}(que hago|a quien|aviso|me ayudan))/;
 
 export function detectarTema(pregunta = '') {
   const q = strip(pregunta);
@@ -48,6 +48,8 @@ export function detectarTema(pregunta = '') {
   if (has(INSUMO, q) && has(INSUMOS, q)) return 'insumos';
   if (has(CREDITO, q)) return 'credito';
   if (has(APOYOS, q)) return 'apoyos';
+  // Temas que tienen tarjeta verificada (data/conocimiento.json) y ninguna plantilla los contesta: van al modelo con su tarjeta.
+  if (/canicula|cosecha de agua|captar (el )?agua|bordo|gorgojo|palomilla|grano guardado|maiz guardado|guardar (el )?(grano|maiz|frijol)|silo|monitor de sequia|milpa|crioll|curvas? de nivel|abono verde|gallina ciega/.test(q)) return 'tarjeta';
   if (detectarAptitud(q)) return 'aptitud'; // ¿se da aquí? (llm/aptitud.js)
   if (detectarDesglose(q)) return 'desglose'; // superficie, riego, municipios, pérdidas... de una fruta o verdura (llm/desglose.js)
   if (has(FRUTAL, q) && !has(CONCEPTO, q)) return 'frutales';
@@ -55,17 +57,20 @@ export function detectarTema(pregunta = '') {
   if (has(CONCEPTO, q)) return null;
   if (has(PRON, q)) return 'pronostico';
   if (has(TREND, q) && has(LLUVIA, q)) return 'tendencia';
-  if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal)/, q)) return 'anio';
+  // "¿Con 400 mm alcanza?": la lluvia que dice el agricultor contra la de su parcela.
+  if (mmDe(q) != null && !detectCrop(q)) return has(SECOS, q) ? 'secos' : 'lluvia';
+  if (anioDe(q) && has(/(llov|lluvi|llue|seco|sequi|normal|\bagua\b|cayo|temporal)/, q)) return 'anio';
   if (has(SECOS, q)) return 'secos';
   if (has(FRIO, q)) return 'heladas';
   if (has(CALOR, q)) return 'calor';
   if (has(/(radiacion|solar|\bsol\b|insolacion)/, q)) return 'radiacion';
-  if (has(/(hum[ea]d|mojad)/, q) && has(/(tierra|suelo|raiz|parcela)/, q)) return 'humedad';
+  if (has(/(hum[ea]d|mojad)/, q) && has(/(tierra|suelo|raiz|parcela|terreno)/, q)) return 'humedad';
   if (has(LLUVIA, q)) return 'lluvia';
-  if (has(/cuando (siembro|sembrar|planto|plantar|se siembra)/, q)) return 'siembra';
+  if (has(/(cuando|que fecha|en que (mes|tiempo|fecha)|fecha de siembra|mejor (fecha|mes|epoca))\b.{0,25}\b(siembr|sembr|plant|echo\b|echar)/, q)) return 'siembra';
   if (has(/(mi suelo|\bph\b|arcilla|textura de mi|como esta (la )?tierra)/, q)) return 'suelo';
   // "¿Puedo sembrar fresas?": no hay agronomía verificada del cultivo; se dice y se da lo que sí hay (SIAP). Antes el modelo usaba la tarjeta del maíz.
-  if (detectCrop(q) && has(/(puedo|se puede|conviene|vale la pena)/, q)) return 'cultivo';
+  // Verbos modales y formas comunes: "¿podría?", "¿debo?", "¿está bien si…?", "¿le pongo…?", "¿qué tal el…?", "¿me recomienda el…?".
+  if (detectCrop(q) && has(/(puedo|podria|se puede|conviene|convendria|vale la pena|debo|deberia|esta bien si|seria bueno|es buena idea|recomiend|aconsej|que tal (si|(el|la|los|las) \w+ (para|en) (mi|aqui))|le (pongo|meto|echo)|sirve)/, q)) return 'cultivo';
   // Sin ninguna palabra del campo, el clima o los cultivos: fuera de tema (lo contesta el código; el modelo inventaba).
   if (q.trim().split(/\s+/).length >= 3 && !has(DENTRO, q) && !detectCrop(q) && !isFollowUp(q)) return 'fuera';
   return null;
@@ -149,6 +154,8 @@ const REDACTORES = {
 
   secos: (q, { clim, resumen }) => {
     const n = resumen.anios_secos.length, p = clim.periodo;
+    const dicha = lluviaDicha(mmDe(q), resumen);
+    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length, n_anios: resumen.lluvia_pv_anual.length });
     const pedido = (q.match(/\b\d{1,3}\b/g) ?? []).map(Number).find((x) => x !== n && x !== p.anios && x !== 80);
     const corrige = pedido !== undefined ? `No: según NASA POWER no fueron ${pedido}. ` : '';
     const lista = n ? `: ${resumen.anios_secos.join(', ')}` : '';
@@ -196,9 +203,16 @@ const REDACTORES = {
 
   lluvia: (q, { clim, resumen }) => {
     const mes = mesDe(q), ms = clim.por_mes, A = clim.periodo.anios;
+    const dicha = lluviaDicha(mmDe(q), resumen);
+    if (dicha) return out(dicha, ['NASA POWER'], { resumen, mm: mmDe(q), menos: resumen.lluvia_pv_anual.filter((y) => y.lluvia_mm < mmDe(q)).length, n_anios: resumen.lluvia_pv_anual.length });
+    const dos = mesesDe(q);
+    if (dos.length >= 2) { // "¿llueve más en julio o en agosto?"
+      const [a, b] = dos.map((i) => ms[i - 1]), mas = a.lluvia_mm >= b.lluvia_mm ? a : b;
+      return out(`Llueve más en ${MESES[mas.mes - 1]}: ${MESES[a.mes - 1]} promedia ${a.lluvia_mm} mm y ${MESES[b.mes - 1]} ${b.lluvia_mm} mm (${A} años) ${NASA}.`, ['NASA POWER'], { a, b, A });
+    }
     if (mes) {
       const m = ms[mes - 1];
-      return out(`En ${MESES[mes - 1]} llueven en promedio ${m.lluvia_mm} mm (en ${A} años osciló entre ${m.lluvia_min_mm} y ${m.lluvia_max_mm} mm) ${NASA}.`, ['NASA POWER'], { m, A });
+      return out(`En ${MESES[mes - 1]} llueven en promedio ${m.lluvia_mm} mm ${NASA}. Según el año, de ${m.lluvia_min_mm} a ${m.lluvia_max_mm} mm.`, ['NASA POWER'], { m, A });
     }
     if (has(/\b(mas|menos|mes)\b/, q) && has(/(llue|lluvi|seco)/, q)) {
       const a = ms[clim.mes_mas_lluvioso - 1], b = ms[clim.mes_mas_seco - 1];
@@ -219,7 +233,7 @@ const REDACTORES = {
       !perfil.ultimo_cultivo && { campo: 'ultimo_cultivo', pregunta: '¿Qué sembraste la última vez?' },
     ].filter(Boolean);
     const conocido = [
-      perfil.cultivo_actual && `Ahora tienes ${{ maiz: 'maíz', brocoli: 'brócoli' }[perfil.cultivo_actual] ?? perfil.cultivo_actual}.`,
+      perfil.cultivo_actual && !['ninguno', 'otro'].includes(perfil.cultivo_actual) && `Ahora tienes ${{ maiz: 'maíz', brocoli: 'brócoli' }[perfil.cultivo_actual] ?? perfil.cultivo_actual}.`,
       perfil.riego_frecuencia_dias && `Riegas cada ${perfil.riego_frecuencia_dias} días.`,
     ].filter(Boolean).join(' ');
     const fecha = fechaDeSiembra({ cultivo: detectCrop(q), perfil, pregunta: q });
@@ -230,7 +244,11 @@ const REDACTORES = {
   // Sin fuente propia: se dice y se apunta a «Qué hacer» solo si ahí hay algo para esta pregunta.
   apoyos: (q, { perfil = {} }) => {
     const hay = accionesPara({ tema: 'apoyos', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;
-    return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Para montos, fechas y papeles confirma en la ventanilla de la Secretaría de Agricultura de tu municipio (CADER) o en tu presidencia municipal.`, [], {});
+    // Seguro por pérdida: lo primero es avisar a tiempo (acción seguro-catastrofico-gto, con su fuente en «Qué hacer»).
+    if (/segur|asegur|catastrof|pierd|perd[ií]/.test(q)) {
+      return out(`${perfil.estado === 'Guanajuato' ? 'Sí hay un seguro del gobierno para pérdidas por clima en Guanajuato: avisa pronto a tu municipio para que registre tus hectáreas (detalle abajo, en «Qué hacer»).' : 'No tengo una fuente verificada del seguro por clima en tu estado.'} Si tienes un seguro propio, avisa a tu aseguradora en cuanto veas el daño. Montos y papeles, confírmalos en el CADER de tu municipio.`, [], {});
+    }
+    return out(`${hay ? 'Eso lo decide un programa de gobierno, no tu parcela. Abajo, en «Qué hacer», te dejo lo que dicen las reglas oficiales con su fuente.' : 'No tengo información verificada de ese apoyo o seguro.'} Montos, fechas y papeles, confírmalos en el CADER de tu municipio. Es la ventanilla de la Secretaría de Agricultura; también te orientan en la presidencia municipal.`, [], {});
   },
   credito: (q, { perfil = {} }) => {
     const hay = accionesPara({ tema: 'credito', cultivo: detectCrop(q), perfil, pregunta: q }).length > 0;

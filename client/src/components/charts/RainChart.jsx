@@ -4,8 +4,8 @@ import { reducedMotion } from '../../lib/fs.js';
 
 // Yearly rain bar chart of the rotation screen (design section 8.4), with the dry-year threshold
 // as a dashed line and a chip over it. Dry years get the hatched pattern of the design.
-// Props: anios (number[]), valores (mm per year), umbral (mm).
-export default function RainChart({ anios, valores, umbral }) {
+// Props: anios (number[]), valores (mm per year), umbral (mm), etiquetaBajo (tooltip text of a bar under the line).
+export default function RainChart({ anios, valores, umbral, etiquetaBajo = 'año seco' }) {
   const canvasRef = useRef(null);
   const [chipTop, setChipTop] = useState(null);
 
@@ -66,7 +66,7 @@ export default function RainChart({ anios, valores, umbral }) {
             displayColors: false,
             callbacks: {
               title: () => '',
-              label: (c) => `${anios[c.dataIndex]}: ${c.raw} mm${c.raw < umbral ? ' · año seco' : ''}`,
+              label: (c) => `${anios[c.dataIndex]}: ${c.raw} mm${c.raw < umbral ? ` · ${etiquetaBajo}` : ''}`,
             },
           },
         },
@@ -96,7 +96,7 @@ export default function RainChart({ anios, valores, umbral }) {
       ],
     });
     return () => chart.destroy();
-  }, [anios, valores, umbral]);
+  }, [anios, valores, umbral, etiquetaBajo]);
 
   return (
     <div className="fs-chart">

@@ -17,16 +17,17 @@ import { buildProceso } from '../llm/proceso.js';
 import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
-import { inferEstado, simulateRotation } from '../llm/recomendador.js';
+import { ETIQUETA, inferEstado, simulateRotation } from '../llm/recomendador.js';
 import { stateAt } from '../lib/state.js';
 import { parsePerfil } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
-import { asksWhyThisCrop, isFollowUp, wantsRecommendation } from '../llm/intencion.js';
+import { asksWhyThisCrop, esConcepto, isFollowUp, quitarMuletillas, wantsRecommendation } from '../llm/intencion.js';
 import { compactPlot, explainPlot, recommendPlot } from './recomendar.js';
 import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, serie, sugerenciasMaiz } from '../llm/maiz.js';
 import { conGraficas, graficasCultivoPregunta, graficasFinca, graficasMaiz, graficasPlantilla, graficasReco } from '../llm/graficas.js';
 import { ID_MAIZ, TEMAS_PLANTILLA, respaldoSeguro } from '../llm/intencion-ml.js';
 import { conCultivoActual, seguimiento } from '../llm/seguimiento.js';
+import { claro } from '../llm/claro.js';
 
 const router = Router();
 // Preguntas sobre el riesgo del maíz por la lluvia: las contesta el modelo entrenado (solo maíz), con su aviso.
@@ -34,7 +35,7 @@ const RIESGO = /(riesg|perdid|siniestr|sequi|seco|llue|llov|lluvia)/;
 const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const MAX_QUESTION = 300;
 // Un saludo no necesita datos ni modelo (antes el modelo contestaba un saludo con el pronóstico).
-const GREETING = /^\s*(¡)?(hola|buenas|buenos d[ií]as|buenas tardes|buenas noches|gracias|ok|adi[oó]s)[\s!.¡]*$/i;
+const GREETING = /^\s*(¡)?((hola|buenas|buenos d[ií]as|buen d[ií]a|buenas tardes|buenas noches|(muchas )?gracias|ok|okey|adi[oó]s|qu[eé] tal|saludos)[\s,!.¡]*)+((joven|amig[oa]|se[nñ]or|se[nñ]o|jefe)[\s!.]*)?$/i;
 const HELLO = '¡Hola! Soy tu asistente. Pregúntame por la lluvia de tu parcela, los años secos, el suelo, el pronóstico de la semana, sobre algún cultivo o qué te conviene sembrar.';
 
 const ASK = {
@@ -113,15 +114,18 @@ async function resolver(req) {
   const perfil = parsePerfil(raw);
   const { agua, prioridad } = perfil;
   const historial = parseHistory(req.body.historial);
+  // Muletillas de voz al inicio ("oiga joven, este... ps") fuera; el saludo se mira antes de completar la pregunta
+  // (antes "buenos días" + maíz sembrado se volvía "buenos días (maíz)" y contestaba el ciclo del maíz).
+  if (pregunta) pregunta = quitarMuletillas(pregunta);
+  const dicha = pregunta; // tal cual la dijo (sin muletillas), antes de completarla con la plática o el perfil
+  if (GREETING.test(pregunta ?? '')) {
+    return res.json({ respuesta: HELLO, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [] });
+  }
   // "¿y el frijol?" usa la pregunta anterior; "¿cuánto voy a cosechar?" con maíz sembrado es del maíz (llm/seguimiento.js).
   if (pregunta) pregunta = conCultivoActual(seguimiento(pregunta, historial), extraPerfil(req.body.perfil).cultivo_actual);
   const parcelas = parseParcelas(req.body.parcelas);
   // Con una sola parcela dibujada, sus hectáreas son las del perfil.
   if (parcelas.length === 1 && parcelas[0].hectareas && perfil.hectareas == null) perfil.hectareas = parcelas[0].hectareas;
-
-  if (GREETING.test(pregunta ?? '')) {
-    return res.json({ respuesta: HELLO, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [] });
-  }
 
   // Estado dicho por el agricultor o, si no, el de los límites del INEGI. null = fuera de Gto y Qro: el motor no recomienda.
   const regionEstado = perfil.estado ?? stateAt(lat, lon);
@@ -134,8 +138,11 @@ async function resolver(req) {
   if (idMaiz === 'despues') perfil.ultimo_cultivo = 'maiz';
   // El recomendador solo corre si piden una recomendación o un seguimiento de ella. El dock manda agua y prioridad
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
-  const pideReco = pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
-  const needsReco = pideReco || (pregunta && isFollowUp(pregunta));
+  // "¿Por qué?", "¿y eso por qué?", "¿por qué no maíz?" tras una plática: seguimiento de la recomendación, no pregunta nueva
+  // (se mira lo que dijo, no la pregunta completada con la plática). Va antes del maíz y de "recomiéndame".
+  const pideQue = historial.length > 0 && asksWhyThisCrop(dicha) && !esConcepto(dicha);
+  const pideReco = !pideQue && pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
+  const needsReco = pideReco || pideQue || (pregunta && isFollowUp(pregunta));
   // Maíz: respuestas específicas con desglose (producción en tu parcela, decisión, ciclo, precio, riego, comparación...), calculadas por el código.
   // Una pregunta de maíz que no entendemos NO se manda a las tarjetas (podían traer una que no responde): se dice que no hay ese dato.
   const temaPrev = pregunta ? detectarTema(pregunta) : null;
@@ -143,7 +150,7 @@ async function resolver(req) {
     const h = await porPlantilla('heladas', pregunta, lat, lon, false, perfil); // las heladas son del clima (NASA), no del modelo de lluvia
     if (h) return res.json(h);
   }
-  if (pregunta && esMaiz(pregunta) && !['peligro', 'insumos', 'apoyos', 'credito'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
+  if (pregunta && !pideQue && esMaiz(pregunta) && !['peligro', 'insumos', 'apoyos', 'credito', 'tarjeta'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
     const id = idMaiz;
     const extra = extraPerfil(req.body.perfil);
     const ha = perfil.hectareas ?? (parcelas.length >= 2 && parcelas.every((p) => p.hectareas) ? parcelas.reduce((t, p) => t + p.hectareas, 0) : undefined);
@@ -163,8 +170,10 @@ async function resolver(req) {
       return res.json({ respuesta: 'Esta parcela está fuera de Guanajuato y Querétaro, y mis datos de cultivos (SIAP) son solo de esos dos estados, así que no te recomiendo cultivos aquí. Si de todos modos quieres verlos, dime de cuál de los dos estados quieres la referencia.', acciones: [], fuentes: [], verificado: true, origen: 'motor', base: 'ficha', enlaces: [] });
     }
   }
+  // Lo que tiene sembrado ahora (o lo último que sembró) cuenta como la temporada anterior del plan.
+  const previo = idMaiz === 'despues' ? 'maiz' : extraPerfil(req.body.perfil).cultivo_actual ?? perfil.ultimo_cultivo ?? null;
   // Es el mismo motor de POST /api/recomendar (clima NASA, suelo y cultivos.json): el chat y la pantalla dicen lo mismo.
-  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado }) : null;
+  const reco = agua && prioridad && needsReco && regionEstado ? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo }) : null;
   // Ingreso esperado de 3 años: el SIAP del estado para la rotación del motor (la misma simulación del recomendador del SIAP).
   if (reco) reco.prediccion = simulateRotation({ rotacion: reco.rotacion, estado: reco.estado, agua, costos, hectareas: perfil.hectareas });
 
@@ -187,7 +196,7 @@ async function resolver(req) {
 
   // "¿Por qué ese cultivo?" tras una recomendación: las razones las da el motor, no el modelo de lenguaje (inventaba puntajes).
   // Solo las razones: el `porque` del motor repite el puntaje y el riesgo que ya trae razones[0].
-  if (reco && !pideReco && asksWhyThisCrop(pregunta)) {
+  if (reco && !pideReco && (pideQue || asksWhyThisCrop(pregunta))) {
     const primero = reco.rotacion[0];
     const top = reco.cultivos.find((c) => c.id === primero.cultivo) ?? reco.cultivos[0];
     return res.json({
@@ -196,7 +205,7 @@ async function resolver(req) {
     });
   }
   // Riesgo del maíz según la lluvia: lo calcula el modelo entrenado y lo redacta el código (el modelo de lenguaje no toca estos números).
-  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta)) && !['apoyos', 'credito'].includes(temaPrev)) {
+  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta)) && !['apoyos', 'credito', 'tarjeta'].includes(temaPrev)) {
     try {
       const { rows: filas } = await getClimate(lat, lon);
       const riesgo = riesgoPorEscenarios({ estado, cultivo: 'maiz', clima: summarizeClimate(filas) });
@@ -212,7 +221,22 @@ async function resolver(req) {
 
 
   // Preguntas frecuentes: las contesta el código con plantilla y cita puesta por él (sin modelo, sin Wikipedia).
-  const tema = ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
+  const tema = temaPrev === 'tarjeta' ? null : ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
+  // "¿Puedo sembrar frijol?": el lugar de ese cultivo en la recomendación para su parcela (mismo cálculo que "¿qué me conviene?").
+  // Usa el motor de la pantalla (recommendPlot), así el chat y /api/recomendar dan el mismo lugar.
+  if (tema === 'cultivo' && agua && prioridad && regionEstado) {
+    const cultivo = detectCrop(pregunta);
+    const r = reco ?? await recommendPlot({ lat, lon, agua, prioridad, estado: regionEstado, previo });
+    const lugar = r.cultivos.findIndex((c) => c.id === cultivo);
+    if (lugar >= 0) {
+      const c = r.cultivos[lugar];
+      const razones = (c.razones ?? []).filter((x) => !/^Puntaje/.test(x)).slice(0, 2).join(' ');
+      return res.json({
+        respuesta: `${lugar < 3 ? 'Sí, te conviene' : 'Sí se puede, pero hay mejores opciones'}: ${c.nombre.toLowerCase()} sale en el lugar ${lugar + 1} de ${r.cultivos.length} en tu parcela si quieres ${ETIQUETA[prioridad]} (puntaje ${c.puntaje} de 100). ${razones} [NASA POWER, SoilGrids, SIAP]`.replace(/\s+/g, ' ').trim(),
+        acciones: [], fuentes: ['NASA POWER', 'SoilGrids', 'SIAP'], verificado: true, origen: 'motor', tema: 'cultivo-puedo', base: 'ficha', enlaces: [], recomendacion: r, ...conGraficas(graficasReco(r)),
+      });
+    }
+  }
   const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
   if (plantilla) return res.json(plantilla);
   // Confianza baja y nada que la respalde: decirlo y sugerir 3 preguntas que sí sabe (solo si la validación lo aprobó: modelo.negar).
@@ -283,9 +307,9 @@ async function conModelo({ ficha, pregunta, historial, contexto, graficas }, ask
 const SIN_CLIMA = ['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose', 'apoyos', 'credito'];
 async function conQueHacer(body, req) {
   try {
-    const { pregunta } = req.body;
+    const pregunta = req.body.pregunta && quitarMuletillas(req.body.pregunta);
     // Sin tema y con `preguntar` = el asistente pide agua o prioridad antes de contestar (asking): ahí no van acciones.
-    if (!pregunta || GREETING.test(pregunta) || (body.preguntar && !body.tema) || body.sugerencias) return { ...body, que_hacer: [] };
+    if (!pregunta || GREETING.test(pregunta) || body.respuesta === HELLO || (body.preguntar && !body.tema) || body.sugerencias) return { ...body, que_hacer: [] };
     if (body.tema === 'fuera') return { ...body, que_hacer: [] };
     // Sin tema en la respuesta (la contestó el modelo o el recomendador): se toma el de las palabras, salvo 'fuera',
     // porque si llegó al modelo es que la base de conocimiento sí sabía del tema.
@@ -299,10 +323,14 @@ async function conQueHacer(body, req) {
     if (!SIN_CLIMA.includes(tema)) { try { datos = summarizeClimate((await getClimate(lat, lon)).rows); } catch { /* sin clima: acciones sin el dato */ } }
     const que_hacer = accionesPara({ tema, cultivo: detectCrop(pregunta), perfil, datos, pregunta });
     // "¿Qué hago si…?" pide acciones: la respuesta empieza por la primera, y los datos quedan como respaldo.
-    const pideAccion = /que (hago|hacer|puedo hacer|debo hacer|le hago)|como (cuido|mejoro|protejo|evito)/.test(norm(pregunta));
+    const pideAccion = /que (hago|hacer|puedo hacer|debo hacer|le hago|se hace|me recomiendas hacer)|como (cuido|mejoro|protejo|evito|le hago|hago para)/.test(norm(pregunta));
     const respuesta = pideAccion && que_hacer.length && body.respuesta && !body.respuesta.includes('Qué hacer')
       ? `${que_hacer[0].accion} [${que_hacer[0].fuente}] Más ideas abajo, en «Qué hacer». ${body.respuesta}` : body.respuesta;
-    return { ...body, respuesta, que_hacer };
+    // Cierra con lo que conviene hacer (la misma acción de «Qué hacer»), si cabe en 5 frases y no lo dijo ya.
+    const n = (respuesta ?? '').split(/(?<=[.!?])\s+/).filter((x) => x.trim().length > 2).length;
+    const corta = que_hacer[0]?.accion.split(/\s*[(;:]/)[0].replace(/[.,]$/, ''); // sin paréntesis ni detalles: esos van en «Qué hacer»
+    const cierre = !pideAccion && corta && n < 5 && corta.split(/\s+/).length <= 18 && !/Qué hacer/.test(respuesta ?? '') ? ` Lo que conviene: ${corta[0].toLowerCase()}${corta.slice(1)}.` : '';
+    return { ...body, respuesta: claro((respuesta ?? '') + cierre), que_hacer };
   } catch {
     return { ...body, que_hacer: [] }; // las acciones nunca tumban la respuesta
   }

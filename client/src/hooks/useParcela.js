@@ -56,8 +56,18 @@ export function useParcela() {
     getPronostico(selected.lat, selected.lon).then((p) => id === requestId.current && setPronostico(p)).catch(() => {});
     const [climaResult, sueloResult] = await Promise.allSettled([getClima(selected.lat, selected.lon), getSuelo(selected.lat, selected.lon)]);
     if (id !== requestId.current) return; // a newer selection won
-    setClima(settle(climaResult));
+    const climaFinal = settle(climaResult);
+    setClima(climaFinal);
     setSuelo(settle(sueloResult));
+    // El estado sale del mapa (límites del INEGI): el agricultor ya no lo tiene que elegir. Fuera de Gto y Qro no se toca.
+    const estado = climaFinal.data?.estado;
+    if (estado) {
+      setPerfilGuardado((antes) => {
+        const nuevo = { ...antes, estado };
+        guardarPerfil(nuevo);
+        return nuevo;
+      });
+    }
     setLoading(false);
   }, []);
 
@@ -120,21 +130,24 @@ export function useParcela() {
 
   // POST /api/recomendar for the current plot and answers. If it fails the error is kept and
   // the screens say so and fall back to the design's example plan.
+  // What is sown now (or was last) counts as the season before the plan: the engine does not repeat its family.
+  const previo = [perfilGuardado.cultivo_actual, perfilGuardado.ultimo_cultivo].find((c) => c && !['ninguno', 'otro', 'no_se'].includes(c)) ?? null;
   const recomendar = useCallback(async () => {
     if (!point) return;
-    const key = [point.lat, point.lon, agua, prioridad].join(',');
+    const key = [point.lat, point.lon, agua, prioridad, previo].join(',');
     if (recKey.current === key) return;
     recKey.current = key;
     setRecomendacion(null);
     try {
-      const data = await postRecomendar({ lat: point.lat, lon: point.lon, agua, prioridad });
+      const data = await postRecomendar({ lat: point.lat, lon: point.lon, agua, prioridad, cultivo_previo: previo });
       setRecomendacion({ data });
       if (data.clima) setClima({ data: data.clima });
       if (data.suelo) setSuelo({ data: data.suelo });
     } catch (err) {
+      recKey.current = null; // "Intentar de nuevo" can ask again
       setRecomendacion({ error: err.message, outsideRegion: err.outsideRegion === true });
     }
-  }, [point, agua, prioridad]);
+  }, [point, agua, prioridad, previo]);
 
   // Restore the saved plot's data on first load.
   useEffect(() => {

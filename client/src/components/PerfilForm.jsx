@@ -25,7 +25,7 @@ function Numero({ q, valor, onSet }) {
 
 // Formulario del perfil armado con GET /api/perfil/preguntas (el servidor decide qué hay y qué opciones tiene).
 export default function PerfilForm() {
-  const { perfil, setPerfilCampo, parcelas } = useParcelaContext();
+  const { perfil, setPerfilCampo, parcelas, clima } = useParcelaContext();
   const [preguntas, setPreguntas] = useState(null);
   const [falla, setFalla] = useState(false);
   const has = Math.round(parcelas.reduce((s, p) => s + (p.hectareas || 0), 0) * 100) / 100;
@@ -63,7 +63,11 @@ export default function PerfilForm() {
               })}
             </div>
           )}
-          {q.porque && <small className="pf-porque">{q.porque}</small>}
+          {q.campo === 'estado' && perfil.estado && perfil.estado === clima?.data?.estado ? (
+            <small className="pf-porque">Lo elegimos solo, con la ubicación de tu parcela en el mapa (límites del INEGI).</small>
+          ) : (
+            q.porque && <small className="pf-porque">{q.porque}</small>
+          )}
         </div>
       ))}
     </div>

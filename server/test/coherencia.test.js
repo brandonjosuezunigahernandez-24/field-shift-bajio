@@ -52,3 +52,25 @@ test('el precio de la nuez no sugiere vender maíz en acopio', async () => {
   const b = await ask('¿Cómo ha cambiado el precio de la nuez?');
   assert.ok(!b.que_hacer.some((a) => /maíz|frijol/.test(a.accion)));
 });
+
+test('temas con tarjeta (gorgojo, cosecha de agua, canícula, Monitor de Sequía) van al modelo con su tarjeta, no a otra plantilla', async () => {
+  const { detectarTema } = await import('../llm/respuestas.js');
+  for (const q of ['¿Cómo evito el gorgojo en el maíz guardado?', '¿Cómo hago una cosecha de agua?', '¿Qué hago en la canícula?', '¿Cómo leo el Monitor de Sequía?']) assert.equal(detectarTema(q), 'tarjeta', q);
+  assert.notEqual(detectarTema('¿Cuáles fueron los años secos?'), 'tarjeta');
+});
+
+test('toneladas sin hectáreas: pregunta en cuántas, y «en 4 hectáreas» completa la cuenta', async () => {
+  const a = await ask('Me salieron 2 toneladas de maíz');
+  assert.match(a.respuesta, /cuántas hectáreas/);
+  const b = await ask('en 4 hectáreas', [{ pregunta: 'Me salieron 2 toneladas de maíz', respuesta: a.respuesta }]);
+  assert.match(b.respuesta, /Sacaste 0\.5 toneladas por hectárea \(2 t en 4 ha\)/);
+});
+
+test('"¿Qué puedo sembrar?" es una recomendación, y "¿Puedo sembrar frijol?" da el mismo lugar que la recomendación', async () => {
+  const reco = await ask('Que puedo sembrar?');
+  assert.equal(reco.origen, 'motor');
+  const primero = reco.recomendacion.cultivos[0].id; // el primero del motor (recommendPlot)
+  const b = await ask(`¿Puedo sembrar ${primero}?`);
+  assert.equal(b.tema, 'cultivo-puedo');
+  assert.match(b.respuesta, /lugar 1 de/);
+});

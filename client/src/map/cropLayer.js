@@ -54,7 +54,8 @@ function seeded(seed) {
 }
 
 // layer: add it with map.addLayer(layer, beforeId).
-// update({ parcels: [{ id, cultivo, contorno, base }], plants, weather, animate }):
+// update({ parcels: [{ id, cultivo, contorno, base, plants? }], plants, weather, animate }):
+//   (a parcel's own `plants` wins over the shared one: each crop against its own water need)
 //   base     absolute height (m) of the top of the parcel's raised block, where plants stand
 //   plants   { growth, tint } how the crops look (yearState, or the hand-picked weather's look)
 //   weather  scene from weather.js weatherScene() (clouds, rain, dust, light, warm)
@@ -261,9 +262,8 @@ export function createCropLayer() {
       spotCache.clear();
     }
 
-    const plants = state.plants;
-    const growth = plants?.growth ?? 1;
-    const tint = srgb(plants?.tint ?? [1, 1, 1]);
+    const lookOf = (plants) => ({ growth: plants?.growth ?? 1, tint: srgb(plants?.tint ?? [1, 1, 1]) });
+    const shared = lookOf(state.plants);
     const byCrop = new Map();
     let x0 = Infinity;
     let x1 = -Infinity;
@@ -275,7 +275,7 @@ export function createCropLayer() {
       if (!spotCache.has(key)) spotCache.set(key, mapPlantSpots(p.contorno, origin.lat, origin.lon, p.id * 7919));
       const { spots, spacing } = spotCache.get(key);
       if (!byCrop.has(p.cultivo)) byCrop.set(p.cultivo, []);
-      byCrop.get(p.cultivo).push({ spots, spacing, base: p.base });
+      byCrop.get(p.cultivo).push({ spots, spacing, base: p.base, look: p.plants ? lookOf(p.plants) : shared });
       for (const s of spots) {
         x0 = Math.min(x0, s.x);
         x1 = Math.max(x1, s.x);
@@ -305,7 +305,8 @@ export function createCropLayer() {
       const mesh = new InstancedMesh(geometry, modelMaterial(geometry), count); // baked texture
       mesh.frustumCulled = false;
       let i = 0;
-      for (const { spots, spacing, base } of groups) {
+      for (const { spots, spacing, base, look } of groups) {
+        const { growth, tint } = look;
         // Plants are drawn bigger and bushier than life (like the relief) so a field reads from the sky.
         const target = Math.min(18, Math.max(6, spacing * 1.1)) * (detail ? 1.35 : 1);
         const bushy = detail ? 1.25 : 1.8; // the detailed models are already leafy

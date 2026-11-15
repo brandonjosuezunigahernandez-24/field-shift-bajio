@@ -77,3 +77,26 @@ export function reliefExaggeration(desnivelM, sideM = 1000, target = 0.08) {
   if (!desnivelM || desnivelM <= 0) return 1;
   return Math.round(clamp((target * sideM) / desnivelM, 1, 10) * 2) / 2;
 }
+
+// One crop in one year (the general state above treats every crop the same).
+//  - With irrigation the rain does not limit the crop: full growth, no yellowing.
+//  - Rain-fed: the rain of THIS crop's cycle against ITS minimum (GET /api/recomendar/prueba), sown in `mes`
+//    (the month the engine chose, `mes_siembra` of /api/recomendar; June without it). ratio 1 = exactly what the crop needs.
+//  - A crop without backtest (irrigated-only crops) keeps the general state.
+// entry: { minimo_mm, siembras: [{ mes_siembra, riesgo, anios: [{ anio, lluvia_mm, alcanzo }] }] } or undefined.
+export function cropYearState(base, entry, anio, agua, mes = 6) {
+  if (agua === 'riego') return { ...base, growth: 1, tint: NEUTRAL, riego: true };
+  const siembra = entry?.siembras?.find((s) => s.mes_siembra === mes) ?? entry?.siembras?.[0];
+  const y = siembra?.anios.find((a) => a.anio === anio);
+  if (!y || !entry.minimo_mm) return base;
+  const ratio = y.lluvia_mm / entry.minimo_mm;
+  return {
+    ...base,
+    growth: clamp(0.4 + 0.6 * ratio, 0.4, 1.15),
+    tint: mix(TINT_DRY, NEUTRAL, clamp((ratio - 0.6) / 0.4, 0, 1)),
+    lluvia_ciclo_mm: y.lluvia_mm,
+    minimo_mm: entry.minimo_mm,
+    alcanzo: y.alcanzo,
+    mes_siembra: siembra.mes_siembra,
+  };
+}

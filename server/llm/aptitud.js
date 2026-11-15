@@ -103,7 +103,7 @@ export const todosLosCultivos = () => Object.keys(load().cultivos);
 
 // ---------- Detección y redacción para el asistente ----------
 const PLURAL = /\b(frutas|frutales|verduras|hortalizas|cultivos|plantas)\b/;
-const SE_DA = /(se da\b|se dan\b|se puede[n]? (sembrar|plantar|cultivar|tener|dar)|puedo (sembrar|plantar|cultivar|tener|meter|poner)|podria (sembrar|plantar|cultivar)|crece[n]?\b|aguanta|resiste|aptitud|apto|aptos|prospera|da bien|dan bien|funciona|conviene (sembrar|plantar|cultivar)|vale la pena (sembrar|plantar|cultivar)|es dificil|es facil|se adapta|adapta)/;
+const SE_DA = /(se da\b|se dan\b|se darian?\b|se puede[n]? (sembrar|plantar|cultivar|tener|dar)|puedo (sembrar|plantar|cultivar|tener|meter|poner)|podria (sembrar|plantar|cultivar)|crece[n]?\b|aguanta|resiste|aptitud|apto|aptos|prospera|da bien|dan bien|funciona|conviene (sembrar|plantar|cultivar)|vale la pena (sembrar|plantar|cultivar)|es dificil|es facil|se adapta|adapta)/;
 const AQUI = /(aqui|mi parcela|mi terreno|mi tierra|mi zona|por aca|mi rancho|mi lote|queretaro|guanajuato|el bajio|mi region|mi estado)/;
 const OTRO_TEMA = /(precio|se paga|se vende|vende|rinde|rendimiento|cuanto saca|riesgo|perdida|dosis|pesticid|plaga|fertiliz)/;
 // Cultivos que el asistente conoce de nombre pero de los que NO hay requisitos verificados: se dice "no verificado" en vez de inventar.
@@ -112,7 +112,7 @@ export function detectarAptitud(q) {
   q = strip(q);
   const cs = detectarCultivos(q);
   if (!cs.length && SIN_DATOS.test(q) && /(se da\b|se dan\b|crece|puedo (sembrar|plantar|cultivar)|se puede (sembrar|plantar|cultivar))/.test(q)) return true;
-  const explicito = /(se da\b|se dan\b|crece|puedo sembrar|se puede sembrar|se puede plantar)/.test(q);
+  const explicito = /(se da\b|se dan\b|se darian?\b|crece|puedo sembrar|se puede sembrar|se puede plantar)/.test(q);
   if (OTRO_TEMA.test(q) && !explicito) return false;
   if (SE_DA.test(q) && (cs.length || PLURAL.test(q))) return true;
   return cs.length > 0 && AQUI.test(q) && /(sembrar|plantar|cultivar|tener)/.test(q);

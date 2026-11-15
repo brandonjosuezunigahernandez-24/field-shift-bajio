@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';
-import { buildRotation, cycleMonths, dryYearRisk, recommend } from '../engine/index.js';
+import { backtest, buildRotation, cycleMonths, dryYearRisk, recommend } from '../engine/index.js';
 import { parsePower } from '../sources/nasaPower.js';
 
 const json = (path) => JSON.parse(readFileSync(new URL(path, import.meta.url), 'utf8'));
@@ -69,4 +69,53 @@ test('buildRotation swaps in a legume where it costs the fewest points', () => {
   const cand = (id, familia, puntaje, leguminosa = false) => ({ crop: { id, familia, leguminosa }, temporada: 'PV', puntaje });
   const plan = buildRotation([cand('a', 'x', 90), cand('b', 'y', 80), cand('c', 'z', 70), cand('l', 'leguminosa', 10, true)], { agua: 'temporal' });
   assert.deepEqual(plan.map((s) => s.cand.crop.id), ['a', 'b', 'l']);
+});
+
+test('backtest gives every real year and agrees with dryYearRisk; July sowing moves the cycle', () => {
+  const june = backtest(crop('maiz'), rows);
+  assert.equal(june.anios.length, 25);
+  assert.deepEqual(june.anios_bajo_minimo, dryYearRisk(crop('maiz'), rows).anios_bajo_minimo);
+  assert.equal(june.anios.filter((y) => !y.alcanzo).length, 12);
+  assert.ok(june.anios.every((y) => y.alcanzo === !june.anios_bajo_minimo.includes(y.anio)));
+  const july = backtest(crop('maiz'), rows, 7);
+  assert.deepEqual(july.meses, [7, 8, 9, 10]);
+  assert.equal(july.mes_siembra, 7);
+});
+
+test('the crop sown now counts as the previous season: year 1 does not repeat its family', () => {
+  const base = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'ganar' });
+  const first = crops.find((c) => c.id === base.rotacion[0].cultivo);
+  const same = crops.find((c) => c.familia === first.familia && c.agua.includes('temporal'));
+  const r = recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'ganar', previo: same.id });
+  assert.notEqual(crops.find((c) => c.id === r.rotacion[0].cultivo).familia, first.familia);
+  assert.match(r.rotacion[0].porque, new RegExp(`después de tu ${same.nombre.toLowerCase()}`));
+  assert.deepEqual(recommend({ rows, soil, crops, agua: 'temporal', prioridad: 'ganar', previo: 'otro' }).rotacion, base.rotacion);
+});
+
+test('"agua" compares only the crops of this water mode: the thriftiest rain-fed crop gets the full component', () => {
+  // With the range taken over all crops (irrigated garbanzo 250, brócoli 600) frijol got 0.86 instead of 1.
+  const r = recommend({ rows, soil: { ph: null }, crops: crops.map((c) => ({ ...c, temp_opt_min_c: -50, temp_opt_max_c: 60, lluvia_ciclo_max_mm: 5000 })), agua: 'temporal', prioridad: 'agua' });
+  const frijol = r.cultivos.find((c) => c.id === 'frijol');
+  // ajuste (temp 1, suelo 0.5, lluvia ~1) * .3 + agua 1 * .4 + seguridad*.2 + suelo 1*.05 + ingreso .5*.05: above 85 only with agua = 1
+  assert.ok(frijol.puntaje >= 85, `frijol ${frijol.puntaje}`);
+});
+
+test('rain-fed crops keep the sowing month (June or July) that scores higher, and the risk is the one of that month', () => {
+  for (const prioridad of ['riesgo', 'ganar']) {
+    const r = recommend({ rows, soil, crops, agua: 'temporal', prioridad });
+    assert.equal(r.cultivos.length, 3, 'one row per crop');
+    for (const c of r.cultivos) {
+      const crop = crops.find((x) => x.id === c.id);
+      assert.ok([6, 7].includes(c.mes_siembra));
+      assert.equal(c.riesgo, Math.round(backtest(crop, rows, c.mes_siembra).riesgo * 100) / 100);
+    }
+    assert.equal(r.cultivos.find((c) => c.id === 'maiz').mes_siembra, 6);
+  }
+});
+
+test('backtest compares the rounded rain the farmer reads', () => {
+  const fake = [6, 7, 8, 9].map((month) => ({ year: 2020, month, rain_mm: 519.6 / 4, t_mean_c: 20 }));
+  const y = backtest(crop('maiz'), fake).anios[0];
+  assert.equal(y.lluvia_mm, 520);
+  assert.equal(y.alcanzo, true);
 });
