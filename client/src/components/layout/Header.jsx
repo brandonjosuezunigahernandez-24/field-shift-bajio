@@ -29,9 +29,7 @@ export default function Header({ sub, pills }) {
     <header className="fs-header" ref={ref}>
       <div className="fs-header-in">
         <Link className="fs-brand" to="/">
-          <span className="fs-logo">
-            <i className="bi bi-globe-americas" aria-hidden="true"></i>
-          </span>
+          <img className="fs-logo" src="/logo-icono.png" alt="" width="48" height="48" />
           <span>
             <span className="fs-brand-name d-block">
               Field Shift <span>Bajío</span>

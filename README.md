@@ -1,3 +1,5 @@
+<p align="center"><img src="client/public/logo.png" width="260" alt="Field Shift Bajío logo: a globe with fields and a plant with three leaves, numbered 1 to 3"></p>
+
 # Field Shift Bajío
 
 **Crop rotations for rain-fed farmers in central Mexico, measured against the real dry years of their own plot.**

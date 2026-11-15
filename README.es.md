@@ -1,3 +1,5 @@
+<p align="center"><img src="client/public/logo.png" width="260" alt="Logo de Field Shift Bajío: un globo con campos de cultivo y una planta con tres hojas numeradas del 1 al 3"></p>
+
 # Field Shift Bajío
 
 Proyecto del **NASA Space Apps Challenge 2026**, sede Querétaro. Reto: *Field Shift: Adapting Farms with NASA Data*.
