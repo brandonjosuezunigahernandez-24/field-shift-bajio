@@ -1,6 +1,7 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { Link, useSearchParams } from 'react-router-dom';
 import Header from '../components/layout/Header.jsx';
+import AvisoEjemplo from '../components/AvisoEjemplo.jsx';
 import RainChart from '../components/charts/RainChart.jsx';
 import { getPrueba, postRecomendar } from '../api/client.js';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
@@ -23,7 +24,6 @@ export default function Cultivo() {
   const labels = selectionLabels(ctx);
   const [params] = useSearchParams();
 
-  const [usedDefault, setUsedDefault] = useState(false);
   const [agua, setAgua] = useState(aguaPerfil === 'riego' ? 'riego' : 'temporal');
   const [rec, setRec] = useState(null); // null while loading, { data } or { error }
   const [prueba, setPrueba] = useState(null); // every rain-fed crop against the real years, or null
@@ -35,7 +35,7 @@ export default function Cultivo() {
   const verdictRef = useRef(null);
 
   useEffect(() => {
-    if (ensurePoint()) setUsedDefault(true);
+    ensurePoint(); // without a plot, the Celaya example (AvisoEjemplo says so)
   }, [ensurePoint]);
 
   useEffect(() => {
@@ -124,8 +124,8 @@ export default function Cultivo() {
                 <span>{placeName}</span> · <span className="fs-mono">{point ? `${point.lat.toFixed(2)}, ${point.lon.toFixed(2)}` : '—'}</span>
                 <Link to="/">Cambiar parcela</Link>
               </p>
-              {usedDefault && <p className="fs-note">No elegiste parcela en el paso 1; usamos Celaya como ejemplo.</p>}
             </div>
+            <AvisoEjemplo />
 
             <form className="fs-test-form" onSubmit={onSubmit} noValidate>
               <label htmlFor="cultivo" className="fs-q mb-0">Escribe el cultivo que quieres probar</label>

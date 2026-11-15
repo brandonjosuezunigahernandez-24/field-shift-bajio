@@ -488,6 +488,11 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 .fs-test-in{flex:7 1 600px}
 .fs-test-ctx{flex:5 1 420px}
 @media (max-width:991.98px){ .fs-test-in,.fs-test-ctx{flex-basis:100%} }
+/* Aviso de que se ve el ejemplo de Celaya (components/AvisoEjemplo.jsx), en las pantallas 2, 3 y 4 */
+.fs-aviso-ejemplo{display:flex;gap:10px;align-items:flex-start;margin:0;padding:12px 14px;border-radius:14px;
+  background:#FFF6DD;border:1px solid #E9C46A;color:#5C4510;font-size:15px;line-height:1.45}
+.fs-aviso-ejemplo i{color:#B7791F;font-size:18px;line-height:1.2}
+.fs-aviso-ejemplo a{color:#5C4510;font-weight:700}
 .fs-parcel-line{display:flex;flex-wrap:wrap;align-items:center;gap:6px;font-size:14px;color:var(--fs-ink-2);margin:10px 0 0}
 .fs-parcel-line i{color:var(--fs-g700)}
 .fs-parcel-line a{font-size:13px;font-weight:600;margin-left:6px}

@@ -76,7 +76,7 @@ export function useParcela() {
 
   // Called by the map click and by the example buttons. Loads climate and soil right away.
   const selectPoint = useCallback(
-    ({ lat, lon, id, nombre, boton }) => {
+    ({ lat, lon, id, nombre, boton, ejemplo = false }) => {
       const selected = {
         id: id || CUSTOM_POINT.id,
         nombre: nombre || CUSTOM_POINT.nombre,
@@ -84,6 +84,8 @@ export function useParcela() {
         // Sent as is: the server rounds per source (climate ~1 km, soil ~110 m). Rounding here moved the soil off the parcel.
         lat,
         lon,
+        // true only when a screen put Celaya because the farmer skipped screen 1 (AvisoEjemplo says so).
+        ...(ejemplo && { ejemplo: true }),
       };
       setPoint(selected);
       setRecomendacion(null);
@@ -96,10 +98,10 @@ export function useParcela() {
     [loadPointData]
   );
 
-  // Screens 2 and 4 need a plot even if the farmer skipped screen 1: use Celaya and say so.
+  // Screens 2, 3 and 4 need a plot even if the farmer skipped screen 1: use Celaya, marked as an example.
   const ensurePoint = useCallback(() => {
     if (point) return false;
-    selectPoint(DEFAULT_POINT);
+    selectPoint({ ...DEFAULT_POINT, ejemplo: true });
     return true;
   }, [point, selectPoint]);
 

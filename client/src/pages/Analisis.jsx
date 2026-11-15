@@ -1,6 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import PanelPasos from '../components/PanelPasos.jsx';
+import AvisoEjemplo from '../components/AvisoEjemplo.jsx';
 import { PreguntaPerfil, usePreguntasPerfil } from '../components/PerfilForm.jsx';
 import RespuestaCard, { EstadoAsistente, preguntasSiguientes } from '../components/Respuesta.jsx';
 import Header from '../components/layout/Header.jsx';
@@ -91,6 +92,11 @@ export default function Analisis() {
     getTemas().then(setTemas).catch(() => setTemas({ temas: [], nota: '' }));
   }, []);
 
+  // Without a plot, the Celaya example (like screens 2 and 4; AvisoEjemplo says so), so the summary has data.
+  useEffect(() => {
+    ensurePoint();
+  }, [ensurePoint]);
+
   // ?pregunta=... hace la pregunta al cargar (sirve para revisar la ruta completa).
   useEffect(() => {
     const q = new URLSearchParams(window.location.search).get('pregunta');
@@ -162,6 +168,7 @@ export default function Analisis() {
                   <Link to="/">Cambiar parcela</Link>
                 </p>
               </div>
+              <AvisoEjemplo />
 
               <form onSubmit={(e) => { e.preventDefault(); if (texto.trim()) preguntar(texto.trim()); }}>
                 <label htmlFor="an-pregunta" className="fs-q">Escribe tu pregunta o toca «Hablar» y dila en voz alta</label>

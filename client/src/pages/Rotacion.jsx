@@ -4,6 +4,7 @@ import Header from '../components/layout/Header.jsx';
 import RainChart from '../components/charts/RainChart.jsx';
 import ComparaRotaciones from '../components/ComparaRotaciones.jsx';
 import PanelPasos from '../components/PanelPasos.jsx';
+import AvisoEjemplo from '../components/AvisoEjemplo.jsx';
 import { getPrueba } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES } from '../crops.js';
 import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.jsx';
@@ -345,6 +346,7 @@ export default function Rotacion() {
               </Link>
             }
           >
+            <AvisoEjemplo />
             {cuerpo(tarjeta.id)}
           </PanelPasos>
         </div>
