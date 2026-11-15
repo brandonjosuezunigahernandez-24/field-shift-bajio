@@ -109,3 +109,34 @@
 .rc-error p { margin: 0 0 10px; font-weight: 600; }
 @media print { .rc-oir, .rc-copiar, .rc-sig { display: none; } }
 .rc .fs-cal { grid-template-columns: repeat(12, minmax(26px, 1fr)); gap: 4px; }
+
+/* ---- «¿Te sirvió?» debajo de cada respuesta ---- */
+.rt { border-top: 1px solid #cfe0d4; padding-top: 12px; }
+.rt-votos { display: flex; gap: 12px; }
+.rt-votos button { flex: 1; min-height: 56px; font-size: 20px; font-weight: 700; border-radius: 12px; border: 2px solid #14532d; background: #fff; color: #14532d; cursor: pointer; font-family: inherit; }
+.rt-votos button:hover, .rt-opciones button:hover { background: #e3f1e6; }
+.rt-motivo { display: flex; flex-direction: column; gap: 10px; }
+.rt-motivo p, .rt-motivo label { margin: 0; font-size: 17px; }
+.rt-opciones { display: flex; flex-wrap: wrap; gap: 8px; }
+.rt-opciones button { min-height: 48px; padding: 8px 14px; font-size: 17px; border-radius: 12px; border: 2px solid #1f7a45; background: #fff; color: #14532d; cursor: pointer; font-family: inherit; }
+.rt-opciones button[aria-pressed="true"] { background: #14532d; color: #fff; }
+.rt-motivo input { min-height: 48px; font-size: 17px; padding: 8px 12px; border: 2px solid #9bb8a5; border-radius: 10px; font-family: inherit; }
+.rt-motivo .rc-btn { align-self: flex-start; }
+.rt-gracias { margin: 0; padding-top: 12px; border-top: 1px solid #cfe0d4; font-size: 17px; color: #14532d; font-weight: 600; }
+.rt button:focus-visible, .rt input:focus-visible { outline: 3px solid #f0a020; outline-offset: 2px; }
+
+/* ---- Lectura fácil: cifra grande, «Para ti», glosario al tocar y qué mirar en las gráficas ---- */
+.rc-cifra { margin: 0 0 4px; color: #14532d; display: flex; align-items: baseline; flex-wrap: wrap; gap: 8px; }
+.rc-cifra b { font-size: clamp(44px, 9vw, 60px); font-weight: 800; line-height: 1; }
+.rc-cifra span { font-size: 22px; font-weight: 700; }
+.rc-parati { background: #fff8e6; border: 2px solid #f0c66a; border-radius: 12px; padding: 10px 12px; font-size: 18px; }
+.rc-parati > b { color: #7a4a00; }
+.rc-pista { font-size: 15px; color: #4a5a4a; }
+.gl-term { all: unset; cursor: pointer; text-decoration: underline dotted 2px; text-underline-offset: 4px; color: inherit; font: inherit; }
+.gl-term:hover { background: #e3f1e6; }
+.gl-term:focus-visible { outline: 3px solid #f0a020; outline-offset: 2px; border-radius: 4px; }
+.gl-term[aria-expanded="true"] { background: #fff1c9; }
+.gl-def { display: block; margin: 6px 0; padding: 8px 12px; background: #fffbea; border: 2px solid #f0c66a; border-radius: 10px; font-size: 16px; font-weight: 400; line-height: 1.45; color: #1d2b1d; text-align: left; }
+.gl-def[hidden] { display: none; }
+.gr-mirar { margin: 0 0 8px; font-size: 16px; color: #3d4f3d; }
+@media print { .gl-term { text-decoration: none; } .rc-pista { display: none; } }

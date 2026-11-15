@@ -7,6 +7,7 @@ import { selectionLabels, useParcelaContext } from '../context/ParcelaContext.js
 import { getPerfilPreguntas, getTemas } from '../api/client.js';
 import { useAsistente } from '../hooks/useAsistente.js';
 import { toast } from '../lib/fs.js';
+import { conGlosario } from '../components/Glosario.jsx';
 
 const pesos = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
 const num = (v) => typeof v === 'number';
@@ -33,7 +34,7 @@ function Notas({ lista }) {
   return lista?.length > 0 ? (
     <section aria-label="Ten en cuenta">
       <h3 className="fs-sub">Ten en cuenta</h3>
-      <ul className="an-notas">{lista.map((n) => <li key={n}>{n}</li>)}</ul>
+      <ul className="an-notas">{lista.map((n) => <li key={n}>{conGlosario(n)}</li>)}</ul>
     </section>
   ) : null;
 }
@@ -120,6 +121,7 @@ export default function Analisis() {
         ? modelo.escenarios.map((e) => ({ k: e.nombre, cifra: `${e.siniestro_pct}%`, titulo: e.nombre, textos: [`Con ${e.lluvia_mm} mm de lluvia en verano, cerca de ${Math.round(e.siniestro_pct)} % de la superficie dañada. Nivel: ${e.nivel}.`], fuente: 'Modelo SIAP + NASA POWER' }))
         : [];
 
+  const vistos = new Set(); // glosario de «Por qué esta respuesta»: cada palabra una vez
   const hayRiesgos = rec?.prediccion || finca || r?.corroboracion || modelo || rec?.notas?.length || finca?.notas?.length;
 
   function guardarFicha() {
@@ -193,8 +195,8 @@ export default function Analisis() {
                       {razones.map((x) => (
                         <div key={x.k} className="fs-reason">
                           {x.cifra && <span className="num">{x.cifra}</span>}
-                          <b>{x.titulo}</b>
-                          {x.textos.map((t) => <p key={t}>{t}</p>)}
+                          <b>{conGlosario(x.titulo, vistos)}</b>
+                          {x.textos.map((t) => <p key={t}>{conGlosario(t, vistos)}</p>)}
                           <span className="fs-src">[{x.fuente}]</span>
                         </div>
                       ))}

@@ -1,7 +1,10 @@
 import { Children, useEffect, useState } from 'react';
 import { Link } from 'react-router-dom';
 import Graficas from './Graficas.jsx';
+import Retro from './Retro.jsx';
 import { copyText, toast } from '../lib/fs.js';
+import { conGlosario } from './Glosario.jsx';
+import { aniosNombrados, cifraPrincipal, fraseParaTi, paraOir } from '../glosario.js';
 
 // Tarjeta de respuesta compartida por Análisis IA y el botón flotante. Orden: respuesta corta → Qué hacer →
 // Los datos → De dónde salió → Preguntas siguientes. Todo sale de la respuesta del servidor.
@@ -77,17 +80,43 @@ export default function RespuestaCard({ r, pregunta, seg, pendiente, contestar, 
   const [hablando, setHablando] = useState(false);
   useEffect(() => () => window.speechSynthesis?.cancel(), [r]);
 
-  const lista = frases(r.respuesta);
+  // «¿Qué hago…?» en el celular: las acciones van antes que la respuesta.
+  const accionesPrimero = /^¿?\s*qu[eé] hago/i.test(pregunta ?? '') && !escritorio();
+  // Con las acciones arriba, «Más ideas abajo, en Qué hacer» ya no es cierto: se quita.
+  const lista = frases(r.respuesta).filter((f) => !(accionesPrimero && /^Más ideas abajo/.test(f)));
   const acciones = Array.isArray(r.que_hacer) ? r.que_hacer.filter((a) => a?.accion).slice(0, 3) : [];
   const sig = siguientes.filter((p) => p !== pregunta).slice(0, 3);
   const abierto = !compacto && escritorio();
   const texto = [...lista, ...acciones.map((a, i) => `Paso ${i + 1}: ${a.accion}`)].join(' ');
+  // Escuchar lee también el porqué de cada paso, y las unidades en palabras (t/ha → toneladas por hectárea).
+  const textoOir = paraOir([...lista, acciones.length ? 'Qué hacer.' : '', ...acciones.map((a, i) => `Paso ${i + 1}: ${a.accion.replace(/\.?$/, '.')} ${a.porque ?? ''}`)].join(' '));
+  const vistos = new Set(); // cada palabra del glosario se marca solo la primera vez en la tarjeta
+  const cifra = cifraPrincipal(pregunta, lista);
+  const kTi = fraseParaTi(lista);
+
+  const quehacer = () => acciones.length > 0 && (
+    <section aria-label="Qué hacer">
+      <h3 className="rc-h">Qué hacer{ejemplo && <span className="gr-ej"> · ejemplo, no son datos reales</span>}</h3>
+      <ol className="rc-acciones">
+        {acciones.map((a, i) => (
+          <li key={a.accion}>
+            <span className="rc-num" aria-hidden="true">{i + 1}</span>
+            <div>
+              <b>{conGlosario(a.accion, vistos)}</b>
+              {a.porque && <p>{conGlosario(a.porque, vistos)}</p>}
+              {(a.fuente || a.url) && <small>Fuente: <Fuente nombre={a.fuente} url={a.url} /></small>}
+            </div>
+          </li>
+        ))}
+      </ol>
+    </section>
+  );
 
   function escuchar() {
     if (!('speechSynthesis' in window)) return toast('Tu navegador no puede leer en voz alta');
     speechSynthesis.cancel();
     if (hablando) return setHablando(false);
-    const u = new SpeechSynthesisUtterance(texto);
+    const u = new SpeechSynthesisUtterance(textoOir);
     u.lang = 'es-MX';
     u.onend = u.onerror = () => setHablando(false);
     setHablando(true);
@@ -98,10 +127,15 @@ export default function RespuestaCard({ r, pregunta, seg, pendiente, contestar, 
     <article className={`rc${compacto ? ' rc-compacto' : ''}`} aria-label="Respuesta del asistente">
       {pregunta && <p className="rc-preg">Preguntaste: «{pregunta}»</p>}
 
+      {accionesPrimero && quehacer()}
+
       <div className="rc-corta">
-        <h2>{lista[0]}</h2>
+        {cifra && <p className="rc-cifra"><b>{cifra.valor}</b> <span>{cifra.unidad}</span></p>}
+        <h2>{conGlosario(lista[0], vistos)}</h2>
+        {kTi > 0 && <p className="rc-parati"><b>Para ti:</b> {conGlosario(lista[kTi], vistos)}</p>}
         {/* El resto no se pliega: a veces la cifra que pidió el agricultor viene en la 3.ª frase. */}
-        {lista.slice(1).map((f) => <p key={f}>{f}</p>)}
+        {lista.slice(1).map((f, i) => i + 1 !== kTi && <p key={f}>{conGlosario(f, vistos)}</p>)}
+        {vistos.size > 0 && <p className="rc-pista"><i className="bi bi-hand-index" aria-hidden="true"></i> Toca las palabras subrayadas para ver qué quieren decir.</p>}
         <div className="rc-barra">
           <button type="button" className="rc-btn rc-oir" onClick={escuchar} aria-pressed={hablando}>
             <i className={`bi ${hablando ? 'bi-stop-fill' : 'bi-volume-up-fill'}`} aria-hidden="true"></i> {hablando ? 'Parar' : 'Escuchar'}
@@ -119,28 +153,12 @@ export default function RespuestaCard({ r, pregunta, seg, pendiente, contestar, 
         </div>
       )}
 
-      {acciones.length > 0 && (
-        <section aria-label="Qué hacer">
-          <h3 className="rc-h">Qué hacer{ejemplo && <span className="gr-ej"> · ejemplo, no son datos reales</span>}</h3>
-          <ol className="rc-acciones">
-            {acciones.map((a, i) => (
-              <li key={a.accion}>
-                <span className="rc-num" aria-hidden="true">{i + 1}</span>
-                <div>
-                  <b>{a.accion}</b>
-                  {a.porque && <p>{a.porque}</p>}
-                  {(a.fuente || a.url) && <small>Fuente: <Fuente nombre={a.fuente} url={a.url} /></small>}
-                </div>
-              </li>
-            ))}
-          </ol>
-        </section>
-      )}
+      {!accionesPrimero && quehacer()}
 
       {(r.graficas?.length > 0 || Children.toArray(children).length > 0) && (
         <details key={`g${r.respuesta}`} className="rc-plegable" open={abierto}>
           <summary><i className="bi bi-bar-chart-fill" aria-hidden="true"></i> Los datos</summary>
-          <Graficas graficas={r.graficas} ejemplo={ejemplo} />
+          <Graficas graficas={r.graficas} ejemplo={ejemplo} resaltar={aniosNombrados(r.respuesta)} />
           {children}
         </details>
       )}
@@ -167,6 +185,8 @@ export default function RespuestaCard({ r, pregunta, seg, pendiente, contestar, 
           </div>
         </section>
       )}
+
+      {!ejemplo && !r.preguntar && <Retro key={r.respuesta} r={r} pregunta={pregunta} />}
 
       <button type="button" className="rc-copiar" onClick={() => copyText(texto, () => toast('Respuesta copiada'), () => toast('No se pudo copiar'))}>
         <i className="bi bi-clipboard" aria-hidden="true"></i> Copiar respuesta
