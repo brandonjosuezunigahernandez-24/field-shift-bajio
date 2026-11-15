@@ -20,7 +20,10 @@ const BASE = {
 
 export function buildProceso(body, info = {}) {
   const o = body.origen ?? 'llm';
-  const [tituloRedaccion, detalleRedaccion] = QUIEN_ESCRIBIO[o] ?? QUIEN_ESCRIBIO.llm;
+  // Una plantilla con tema es una respuesta ARMADA A PROPÓSITO por el código (rápida y verificable), no un respaldo por falla.
+  const [tituloRedaccion, detalleRedaccion] = o === 'plantilla' && body.tema
+    ? ['Respuesta armada por el código con tus datos', 'Las cifras salen de tus datos y las puso el código; el modelo de lenguaje no inventó nada.']
+    : QUIEN_ESCRIBIO[o] ?? QUIEN_ESCRIBIO.llm;
   const pasos = [
     { titulo: 'Entendió tu pregunta', detalle: TIPO[o] ?? TIPO.llm },
   ];
@@ -41,7 +44,7 @@ export function buildProceso(body, info = {}) {
   }
   pasos.push({
     titulo: 'Revisó los números',
-    detalle: o === 'llm' || o === 'plantilla'
+    detalle: o === 'llm' || (o === 'plantilla' && !body.tema)
       ? 'Comprobó que cada número de la respuesta salga de tus datos; si no, usa un texto de respaldo.'
       : 'Los números los calcula el código, no el modelo de lenguaje.',
   });
