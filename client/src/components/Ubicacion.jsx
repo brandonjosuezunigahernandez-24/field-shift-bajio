@@ -1,5 +1,6 @@
-import { useState } from 'react';
-import { EXAMPLE_POINTS } from '../config/examplePoints.js';
+import { useEffect, useState } from 'react';
+import { getEjemplos } from '../api/client.js';
+import { DEFAULT_POINT } from '../config/examplePoints.js';
 
 // Paso 1 del flujo: ¿dónde está tu parcela? Pueblo o dirección (OpenStreetMap), tu ubicación (GPS) o coordenadas.
 // Al elegir un lugar, el mapa vuela hasta allí y el agricultor dibuja su parcela.
@@ -8,12 +9,18 @@ const COORDS = /^\s*(-?\d{1,2}(?:\.\d+)?)\s*[,;\s]\s*(-?\d{1,3}(?:\.\d+)?)\s*$/;
 // "Celaya, Guanajuato, México" -> "Celaya, Guanajuato"
 const shortName = (full) => full.split(',').map((s) => s.trim()).slice(0, 3).filter((p) => p !== 'México').join(', ');
 
-export default function Ubicacion({ onPick }) {
+export default function Ubicacion({ onPick, selectedId }) {
   const [texto, setTexto] = useState('');
   const [buscando, setBuscando] = useState(false);
   const [resultados, setResultados] = useState([]);
   const [aviso, setAviso] = useState('');
   const [sinInternet, setSinInternet] = useState(false);
+  const [ejemplos, setEjemplos] = useState([]);
+
+  // Parcelas de ejemplo del servidor (todas con respaldo sin internet). Si no responde, la fila no aparece.
+  useEffect(() => {
+    getEjemplos().then(setEjemplos).catch(() => {});
+  }, []);
 
   const elegir = (lugar) => {
     setResultados([]);
@@ -113,9 +120,19 @@ export default function Ubicacion({ onPick }) {
 
       {aviso && <p className="fs-ubic-aviso" role="alert">{aviso}</p>}
       {sinInternet && (
-        <button type="button" className="fs-ubic-link" onClick={() => elegir(EXAMPLE_POINTS[0])}>
-          Sin internet: usar {EXAMPLE_POINTS[0].nombre} de ejemplo
+        <button type="button" className="fs-ubic-link" onClick={() => elegir(DEFAULT_POINT)}>
+          Sin internet: usar {DEFAULT_POINT.nombre} de ejemplo
         </button>
+      )}
+      {ejemplos.length > 0 && (
+        <div className="fs-demo">
+          <span className="fs-demo-l">O prueba con una parcela de ejemplo:</span>
+          {ejemplos.map((p) => (
+            <button key={p.id} type="button" className={`fs-btn fs-btn-pill${selectedId === p.id ? ' is-selected' : ''}`} aria-pressed={selectedId === p.id} onClick={() => elegir(p)}>
+              {p.boton}
+            </button>
+          ))}
+        </div>
       )}
       <p className="fs-ubic-nota">Las direcciones se buscan con OpenStreetMap (el texto que escribes se envía allá). Tu ubicación del GPS no sale de tu navegador.</p>
     </div>

@@ -1,5 +1,3 @@
-import { USE_MOCK, mockPostRecomendar } from './mock.js';
-
 // All calls to the server go through here. Errors always carry a message in plain Spanish.
 const SERVER_DOWN = 'No pudimos conectar con el servidor. Revisa que esté encendido e intenta de nuevo.';
 
@@ -23,15 +21,19 @@ export const getClima = (lat, lon) => request(`/api/clima?${pointQuery(lat, lon)
 
 export const getSuelo = (lat, lon) => request(`/api/suelo?${pointQuery(lat, lon)}`);
 
+// Example plots for the quick buttons: [{ id, nombre, boton, lat, lon }], all with offline fixtures on the server.
+export const getEjemplos = () => request('/api/ejemplos');
+
 // payload: { lat, lon, agua: "temporal" | "riego", prioridad: "ganar" | "suelo" | "agua" | "riesgo" }
 export const postRecomendar = (payload) =>
-  USE_MOCK
-    ? mockPostRecomendar(payload)
-    : request('/api/recomendar', {
-        method: 'POST',
-        headers: { 'content-type': 'application/json' },
-        body: JSON.stringify(payload),
-      });
+  request('/api/recomendar', {
+    method: 'POST',
+    headers: { 'content-type': 'application/json' },
+    body: JSON.stringify(payload),
+  });
+
+// Relief of the 1 km square around the plot, for the 3D view.
+export const getTerreno = (lat, lon) => request(`/api/terreno?${pointQuery(lat, lon)}`);
 
 // Próximos 7 días (Open-Meteo). Si no hay internet ni copia guardada responde { disponible: false }.
 export const getPronostico = (lat, lon) => request(`/api/pronostico?${pointQuery(lat, lon)}`);

@@ -77,8 +77,8 @@ export function useParcela() {
     saveSelection({ prioridad: value });
   }, []);
 
-  // POST /api/recomendar for the current plot and answers. If it fails (today: 501 until the
-  // engine lands, unless VITE_USE_MOCK=1) the error is kept and the screens fall back to demo data.
+  // POST /api/recomendar for the current plot and answers. If it fails, the error is kept and
+  // the screens say so and fall back to the design's example plan.
   const recomendar = useCallback(async () => {
     if (!point) return;
     const key = [point.lat, point.lon, agua, prioridad].join(',');

@@ -1,30 +1,30 @@
-// Map layers of the plot screen. The base is OpenStreetMap (reliable). NDVI and SMAP are NASA GIBS
-// WMTS tiles (visual only, as CLAUDE.md says) drawn over the base so the map still works if GIBS fails.
+// NASA GIBS layers drawn over the satellite image of the plot map (visual only, as CLAUDE.md says).
+// They are regional pictures: one square is 250 m (color, verdor) or 9 km (humedad), so they are read zoomed out.
 const GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best';
-const GIBS_DATE = '2024-08-12'; // rainy season; 8-day NDVI periods start on this date
+const GIBS_DATE = '2024-08-12'; // middle of the rainy season
 
-export const BASE_LAYER = {
-  url: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-  attribution: '© colaboradores de OpenStreetMap',
-};
-
-export const MAP_LAYERS = {
-  sat: {
-    titulo: 'CAPA: NASA GIBS TRUE COLOR + LÍMITES',
-    sub: 'Resolución 250 m · MODIS Terra · © OpenStreetMap',
-    overlay: { url: `${GIBS}/MODIS_Terra_CorrectedReflectance_TrueColor/default/${GIBS_DATE}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`, maxNativeZoom: 9, opacity: 0.75 },
+// The 8-day NDVI layer (MODIS_Terra_NDVI_8Day) only keeps the last months and answers 404 for 2024:
+// the 16-day one (MOD13Q1) has the whole record.
+export const NASA_LAYERS = {
+  color: {
+    label: 'Color real',
+    note: 'MODIS Terra, cuadros de 250 m',
+    url: `${GIBS}/MODIS_Terra_CorrectedReflectance_TrueColor/default/${GIBS_DATE}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.jpg`,
+    maxzoom: 9,
+    opacity: 0.85,
   },
   ndvi: {
-    titulo: 'CAPA: MODIS MOD13Q1 · ÍNDICE DE VERDOR',
-    sub: 'NDVI 8 días · NASA GIBS · © OpenStreetMap',
-    overlay: { url: `${GIBS}/MODIS_Terra_NDVI_8Day/default/${GIBS_DATE}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png`, maxNativeZoom: 9, opacity: 0.7 },
+    label: 'Verdor (NDVI)',
+    note: 'MODIS Terra, 16 días, cuadros de 250 m',
+    url: `${GIBS}/MODIS_Terra_L3_NDVI_16Day/default/${GIBS_DATE}/GoogleMapsCompatible_Level9/{z}/{y}/{x}.png`,
+    maxzoom: 9,
+    opacity: 0.7,
   },
   smap: {
-    titulo: 'CAPA: NASA SMAP · HUMEDAD DEL SUELO',
-    sub: 'Humedad en zona de raíz L4 · NASA GIBS · © OpenStreetMap',
-    overlay: { url: `${GIBS}/SMAP_L4_Analyzed_Root_Zone_Soil_Moisture/default/${GIBS_DATE}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`, maxNativeZoom: 6, opacity: 0.6 },
+    label: 'Humedad del suelo',
+    note: 'SMAP, zona de raíces, cuadros de 9 km',
+    url: `${GIBS}/SMAP_L4_Analyzed_Root_Zone_Soil_Moisture/default/${GIBS_DATE}/GoogleMapsCompatible_Level6/{z}/{y}/{x}.png`,
+    maxzoom: 6,
+    opacity: 0.6,
   },
 };
-
-export const BAJIO_CENTER = [20.6, -100.9];
-export const BAJIO_ZOOM = 8;

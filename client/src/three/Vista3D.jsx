@@ -1,6 +1,6 @@
 import { Canvas } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { getTerreno } from '../api.js';
+import { getTerreno } from '../api/client.js';
 import { CROP_IDS, CROP_NAMES, DEFAULT_CROP } from '../crops.js';
 import { ALL_SECTIONS, fitsOneBlock, parcelColor, sectionCenter, sectionParcels } from '../map/parcels.js';
 import { toDiorama } from '../map/polygon.js';

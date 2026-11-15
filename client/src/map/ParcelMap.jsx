@@ -9,6 +9,7 @@ import {
 } from 'maplibre-gl';
 import workerUrl from 'maplibre-gl/dist/maplibre-gl-worker.mjs?url';
 import { useEffect, useRef, useState } from 'react';
+import { NASA_LAYERS } from '../config/mapLayers.js';
 import { CROP_COLORS, CROP_IDS, CROP_NAMES } from '../crops.js';
 import { soilColors, yearState } from '../three/parcelState.js';
 import { WEATHER_OPTIONS, weatherScene } from '../weather.js';
@@ -122,6 +123,13 @@ const buildStyle = (imagery, view) => ({
       tileSize: 256,
       maxzoom: 19,
     },
+    // NASA GIBS pictures (true color, greenness, soil moisture), hidden until the farmer picks one.
+    ...Object.fromEntries(
+      Object.entries(NASA_LAYERS).map(([id, { url, maxzoom }]) => [
+        `nasa-${id}`,
+        { type: 'raster', tiles: [url], tileSize: 256, maxzoom, attribution: 'NASA GIBS' },
+      ])
+    ),
     relieve: {
       type: 'raster-dem',
       tiles: ['https://s3.amazonaws.com/elevation-tiles-prod/terrarium/{z}/{x}/{y}.png'],
@@ -137,6 +145,13 @@ const buildStyle = (imagery, view) => ({
       type: 'raster',
       source: id,
       layout: { visibility: id === imagery ? 'visible' : 'none' },
+    })),
+    ...Object.entries(NASA_LAYERS).map(([id, { opacity }]) => ({
+      id: `nasa-${id}`,
+      type: 'raster',
+      source: `nasa-${id}`,
+      layout: { visibility: 'none' },
+      paint: { 'raster-opacity': opacity },
     })),
     // Only when zoomed in (from neighborhood level), so the far view stays clean and light.
     { id: 'calles', type: 'raster', source: 'calles', minzoom: STREETS_MIN_ZOOM, paint: { 'raster-opacity': 0.85 } },
@@ -284,6 +299,7 @@ export default function ParcelMap({
   const [hint, setHint] = useState(null);
   const [imagery, setImagery] = useState(() => saved('fieldshift.imagen2', IMAGERY, 'rapido'));
   const [imageryNotice, setImageryNotice] = useState(null);
+  const [nasa, setNasa] = useState(null); // id of the NASA_LAYERS picture shown over the imagery, or null
   const [view, setView] = useState(() => saved('fieldshift.vista', VIEWS, 'aerea'));
   const [editingId, setEditingId] = useState(null); // a saved parcel being corrected, or null
   // Plants + weather standing on the satellite map, and whether the weather moves.
@@ -534,6 +550,14 @@ export default function ParcelMap({
     remember('fieldshift.imagen2', imagery);
   }, [ready, imagery]);
 
+  // Same for the NASA picture: only the chosen one is visible.
+  useEffect(() => {
+    if (!ready) return;
+    for (const id of Object.keys(NASA_LAYERS)) {
+      mapRef.current.setLayoutProperty(`nasa-${id}`, 'visibility', id === nasa ? 'visible' : 'none');
+    }
+  }, [ready, nasa]);
+
   const changeView = (next) => {
     setView(next);
     remember('fieldshift.vista', next);
@@ -678,6 +702,26 @@ export default function ParcelMap({
               </span>
             </label>
           ))}
+        </fieldset>
+        <fieldset className="option-switch">
+          <legend>Datos de la NASA sobre el mapa</legend>
+          <label>
+            <input type="radio" name="nasa-mapa" checked={nasa === null} onChange={() => setNasa(null)} />
+            <span>
+              <strong>Ninguno</strong>
+            </span>
+          </label>
+          {Object.entries(NASA_LAYERS).map(([id, { label, note }]) => (
+            <label key={id}>
+              <input type="radio" name="nasa-mapa" value={id} checked={nasa === id} onChange={() => setNasa(id)} />
+              <span>
+                <strong>{label}</strong> <span className="option-note">({note})</span>
+              </span>
+            </label>
+          ))}
+          {nasa && (
+            <p className="hint">Imagen de NASA GIBS del 12 de agosto de 2024. Muestra la región, no el detalle de tu parcela: aléjate en el mapa para verla bien.</p>
+          )}
         </fieldset>
         <fieldset className="weather-picker">
           <legend>Clima en el mapa</legend>

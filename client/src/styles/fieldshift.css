@@ -655,17 +655,7 @@ a:focus-visible,button:focus-visible,input:focus-visible,[tabindex]:focus-visibl
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
 
 /* =========================================================
-   Integración React + Leaflet (agregado al portar el diseño al proyecto)
+   Integración con React (agregado al portar el diseño al proyecto)
    ========================================================= */
-/* El mapa real de Leaflet ocupa el fondo de .fs-map; el HUD, la pista y la barra inferior del
-   diseño quedan encima (ya tienen pointer-events:none) por encima de los panes de Leaflet (z 400). */
-.fs-map .fs-leaflet{position:absolute;inset:0;z-index:0;background:#DCEBD8;font-family:var(--fs-font);border-radius:18px}
-.fs-map .fs-scan,.fs-map .fs-hud,.fs-map .fs-hint,.fs-map .fs-hud-b{z-index:1001}
-.fs-map .leaflet-control-zoom{border:1px solid var(--fs-border);border-radius:12px;overflow:hidden;box-shadow:0 8px 18px rgba(16,36,26,.12)}
-.fs-map .leaflet-control-zoom a{color:var(--fs-g800);font-family:var(--fs-font)}
-.fs-map .leaflet-top.leaflet-right{top:12px;right:12px}
-/* El pin del diseño como DivIcon de Leaflet */
-.fs-pin-icon{background:none;border:0}
-.fs-pin-icon .fs-pin{position:relative;transition:none}
 /* Páginas: el enlace activo de .fs-steps lo marca react-router con aria-current="page" */
 .fs-steps a.active{background:var(--fs-g700);color:#fff;font-weight:700}

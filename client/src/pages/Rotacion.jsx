@@ -150,7 +150,6 @@ export default function Rotacion() {
                 {recomendacion.error} Mientras tanto se muestra el plan de ejemplo del diseño.
               </p>
             )}
-            {rec?._mock && <p className="fs-note" role="status">{rec._mock}</p>}
 
             <div className="fs-years" role="group" aria-label="Año de la rotación">
               {rotacion.map((y, idx) => (
