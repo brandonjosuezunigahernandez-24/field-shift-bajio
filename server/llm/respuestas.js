@@ -152,7 +152,7 @@ const REDACTORES = {
     const pedido = (q.match(/\b\d{1,3}\b/g) ?? []).map(Number).find((x) => x !== n && x !== p.anios && x !== 80);
     const corrige = pedido !== undefined ? `No: según NASA POWER no fueron ${pedido}. ` : '';
     const lista = n ? `: ${resumen.anios_secos.join(', ')}` : '';
-    return out(`${corrige}Fueron ${n} años secos de ${p.anios} (${p.inicio}-${p.fin})${lista} ${NASA}. Seco quiere decir menos de ${resumen.umbral_seco_mm} mm de junio a septiembre.`, ['NASA POWER'], { n, periodo: p, resumen: { anios_secos: resumen.anios_secos, umbral: resumen.umbral_seco_mm }, pedido });
+    return out(`${corrige}${n === 1 ? 'Fue 1 año seco' : `Fueron ${n} años secos`} de ${p.anios} (${p.inicio}-${p.fin})${lista} ${NASA}. Seco quiere decir menos de ${resumen.umbral_seco_mm} mm de junio a septiembre.`, ['NASA POWER'], { n, periodo: p, resumen: { anios_secos: resumen.anios_secos, umbral: resumen.umbral_seco_mm }, pedido });
   },
 
   heladas: (q, { clim }) => {
@@ -209,7 +209,7 @@ const REDACTORES = {
       const f = clim.meses_lluvia_fuerte, primero = f[0], antes = ms[(primero + 10) % 12];
       return out(`La temporada fuerte de lluvias va de ${MESES[primero - 1]} a ${MESES[f.at(-1) - 1]}: ${MESES[primero - 1]} promedia ${ms[primero - 1].lluvia_mm} mm, mientras ${MESES[antes.mes - 1]} solo ${antes.lluvia_mm} mm ${NASA}.`, ['NASA POWER'], { f, ms });
     }
-    return out(`En verano (junio a septiembre) llueve ${resumen.lluvia_pv_mediana_mm} mm, el ${clim.verano.pct_del_anio}% del año. De ${A} años, ${resumen.anios_secos.length} fueron secos ${NASA}.`, ['NASA POWER'], { resumen: { mediana: resumen.lluvia_pv_mediana_mm, secos: resumen.anios_secos }, v: clim.verano, A, n: resumen.anios_secos.length });
+    return out(`En verano (junio a septiembre) llueve ${resumen.lluvia_pv_mediana_mm} mm, el ${clim.verano.pct_del_anio}% del año. De ${A} años, ${resumen.anios_secos.length} ${resumen.anios_secos.length === 1 ? 'fue seco' : 'fueron secos'} ${NASA}.`, ['NASA POWER'], { resumen: { mediana: resumen.lluvia_pv_mediana_mm, secos: resumen.anios_secos }, v: clim.verano, A, n: resumen.anios_secos.length });
   },
 
   siembra: (q, { clim, resumen, perfil = {} }) => {

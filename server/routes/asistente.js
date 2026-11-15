@@ -198,7 +198,7 @@ async function resolver(req) {
     const primero = reco.rotacion[0];
     const top = reco.cultivos.find((c) => c.id === primero.cultivo) ?? reco.cultivos[0];
     return res.json({
-      respuesta: `Puse ${top.nombre ?? top.id} primero (puntaje ${top.puntaje} de 100). ${(top.razones ?? []).slice(0, 3).join(' ')}${primero.porque ? ` ${primero.porque}` : ''} [SIAP]`.replace(/\s+/g, ' ').trim(),
+      respuesta: `Puse ${top.nombre ?? top.id} primero (puntaje ${top.puntaje} de 100). ${(top.razones ?? []).filter((r) => !/^Puntaje/.test(r)).slice(0, 3).join(' ')}${primero.porque ? ` ${primero.porque}` : ''} [SIAP]`.replace(/\s+/g, ' ').trim(),
       acciones: [], fuentes: ['SIAP'], verificado: true, origen: 'motor', tema: 'recomendar-porque', base: 'ficha', enlaces: [], recomendacion: reco, ...conGraficas(graficasReco(reco)),
     });
   }
