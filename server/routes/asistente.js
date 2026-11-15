@@ -21,6 +21,7 @@ import { compactReco, explainFarm, explainRecommendation, inferEstado, recommend
 import { parsePerfil, pendientes } from '../llm/perfil.js';
 import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
+import { ID_MAIZ, TEMAS_PLANTILLA, respaldoSeguro } from '../llm/intencion-ml.js';
 import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, sugerenciasMaiz } from '../llm/maiz.js';
 
 const router = Router();
@@ -116,12 +117,15 @@ async function resolver(req) {
   }
 
   const estado = perfil.estado ?? inferEstado(lon);
+  // Respaldo con aprendizaje automático: solo cuando las palabras clave no saben qué hacer y el clasificador está seguro (llm/intencion-ml.js).
+  const ml = respaldoSeguro(pregunta);
   // "¿Qué siembro después del maíz?": el último cultivo es el maíz de la pregunta (lo contesta el recomendador de abajo).
-  const idMaiz = pregunta && esMaiz(pregunta) ? intencionMaiz(pregunta) : null;
+  const idMaiz = pregunta && esMaiz(pregunta) ? (intencionMaiz(pregunta) ?? ID_MAIZ[ml?.intencion] ?? null) : null;
   if (idMaiz === 'despues') perfil.ultimo_cultivo = 'maiz';
   // El recomendador solo corre si piden una recomendación o un seguimiento de ella. El dock manda agua y prioridad
   // en cada pregunta; si siempre se calculara, la ficha crecía con datos que no vienen al caso y el modelo fallaba.
-  const needsReco = pregunta && (wantsRecommendation(pregunta) || isFollowUp(pregunta));
+  const pideReco = pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
+  const needsReco = pideReco || (pregunta && isFollowUp(pregunta));
   const reco = agua && prioridad && needsReco
     ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, hectareas: perfil.hectareas, encharca: perfil.encharca })
     : null;
@@ -142,13 +146,13 @@ async function resolver(req) {
       try { ctx.rows = (await getClimate(lat, lon)).rows; ctx.clima = summarizeClimate(ctx.rows); } catch { /* sin clima, la respuesta sale sin esas partes */ }
     }
     if (necesitaSuelo(id)) { try { ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil); } catch { /* sin suelo, la respuesta lo dice */ } }
-    const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || /(para que sirve|que es|que son|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
+    const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || ml || /(para que sirve|que es|que son|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
     if (m?.preguntar) return res.json(asking(m.preguntar));
     if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos && { datos: m.datos }), ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }) });
   }
 
   // "¿Qué siembro?": lo contesta el código con el recomendador, sin modelo. Si falta un dato, lo pregunta.
-  if (pregunta && wantsRecommendation(pregunta)) {
+  if (pideReco) {
     // Los datos del SIAP son de Guanajuato y Querétaro: fuera de ahí (y sin estado dicho por el agricultor) no se recomienda.
     if (!perfil.estado && (lat < 19.9 || lat > 21.9 || lon < -102.2 || lon > -99)) {
       return res.json({ respuesta: 'Esta parcela está fuera de Guanajuato y Querétaro, y mis datos de cultivos (SIAP) son solo de esos dos estados, así que no te recomiendo cultivos aquí. Si de todos modos quieres verlos, dime de cuál de los dos estados quieres la referencia.', acciones: [], fuentes: [], verificado: true, origen: 'motor', base: 'ficha', enlaces: [] });
@@ -201,9 +205,13 @@ async function resolver(req) {
 
 
   // Preguntas frecuentes: las contesta el código con plantilla y cita puesta por él (sin modelo, sin Wikipedia).
-  const tema = pregunta ? detectarTema(pregunta) : null;
+  const tema = ml?.intencion ? (TEMAS_PLANTILLA.includes(ml.intencion) ? ml.intencion : null) : pregunta ? detectarTema(pregunta) : null;
   const plantilla = tema && await porPlantilla(tema, pregunta, lat, lon, historial.length > 0, { ...perfil, ...extraPerfil(req.body.perfil) });
   if (plantilla) return res.json(plantilla);
+  // Confianza baja y nada que la respalde: decirlo y sugerir 3 preguntas que sí sabe (solo si la validación lo aprobó: modelo.negar).
+  if (ml?.sugerencias && !historial.length) {
+    return res.json({ respuesta: `No tengo ese dato. Te puedo contestar, por ejemplo: ${ml.sugerencias.join(' ')}`, acciones: [], fuentes: [], verificado: true, origen: 'plantilla', base: 'ficha', enlaces: [], sugerencias: ml.sugerencias });
+  }
 
   // La ficha solo lleva lo que la pregunta pide (contexto chico = modelo más rápido y menos errores).
   const q = (pregunta ?? '').toLowerCase();
