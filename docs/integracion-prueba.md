@@ -19,7 +19,7 @@ Se juntaron **en una copia aparte, sin tocar ninguna rama del equipo**, el asist
 1. **El mapa marca un solo punto con Leaflet; el equipo decidió dibujar el contorno de la parcela** (`docs/api-contract.md`, "Selección de la parcela"). No hay polígono en su código (se buscó "Polygon" y "contorno": cero resultados).
 2. **Leaflet vs MapLibre:** `CLAUDE.md` en `main` (rama 3D) dice que el mapa pasó a MapLibre; el frontend sigue con `react-leaflet`.
 3. **La pantalla "Análisis IA" usa datos de ejemplo** ("hasta que exista `POST /api/asistente`"). Ya existe: hay que conectarla (respuesta, fuentes, botones `preguntar`, historial de 2 vueltas, micrófono a `/api/voz`). Detalle en `docs/api-contract.md`.
-4. **Motor duplicado en el navegador:** `client/src/lib/cropEngine.js` con 22 cultivos "ilustrativos, no verificados". Puede contradecir al servidor. Debe avisar en pantalla que son datos de ejemplo o usar la respuesta del servidor.
+4. **Resuelto (14 nov):** "Probar cultivo" ya usa `/api/recomendar` y se borró `cropEngine.js`. Antes: **Motor duplicado en el navegador:** `client/src/lib/cropEngine.js` con 22 cultivos "ilustrativos, no verificados". Puede contradecir al servidor. Debe avisar en pantalla que son datos de ejemplo o usar la respuesta del servidor.
 5. **Sin pruebas** en el cliente y paquete de ~700 kB sin carga diferida (ellos mismos lo anotan).
 6. `useParcela.js` ya espera `data.clima` y `data.suelo` dentro de la respuesta de `/api/recomendar`: el servidor debe devolverlos (en la prueba local sí).
 

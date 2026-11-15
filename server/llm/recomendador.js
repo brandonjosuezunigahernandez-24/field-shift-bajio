@@ -335,6 +335,22 @@ export function explainFarm(r, estadoInferido = false) {
 const peso = (n) => `$${Math.round(n).toLocaleString('es-MX')}`;
 
 // Texto para el agricultor armado por el código (el modelo no lo redacta, así no se equivoca).
+// Las frases del ingreso esperado de 3 años (y de la ganancia, si dio costos) para una predicción de simulate().
+export function predictionSentences(p) {
+  if (!p) return [];
+  const out = [`Si la sigues, el ingreso bruto esperado en 3 años es de unos ${peso(p.ingreso_bruto_3_anios_esperado_por_ha)} por hectárea (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_por_ha)} en un caso malo a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha)} en uno bueno)${p.hectareas ? `, unos ${peso(p.ingreso_bruto_3_anios_esperado_total)} en tus ${p.hectareas} hectáreas (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_total)} a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_total)})` : ''}, ${p.probabilidad_al_menos_un_anio_con_perdida_pct === 0 ? `y en los ${p.anios_base} años de datos no se vio ninguno con pérdidas mayores al ${PERDIDA_ALTA} %, aunque eso no garantiza que no pase` : `y en ${p.probabilidad_al_menos_un_anio_con_perdida_pct} de cada 100 casos hay al menos un año con pérdidas mayores al ${PERDIDA_ALTA} %`}. [SIAP]`];
+  if (p.ganancia_3_anios_esperada_por_ha != null) out.push(`Con los costos que diste, la ganancia esperada es de ${peso(p.ganancia_3_anios_esperada_por_ha)} por hectárea y hay ${p.probabilidad_de_perder_dinero_pct} de cada 100 casos de perder dinero.`);
+  return out;
+}
+
+// Ingreso de 3 años con el SIAP del estado para una rotación ya decidida (la del motor, server/engine), con la misma
+// simulación que recommend(). null si a algún cultivo de la rotación le faltan años del SIAP en ese estado.
+export function simulateRotation({ rotacion, estado, agua, costos = null, hectareas = null, filas = loadSiap()?.filas }) {
+  if (!filas || !ESTADOS.includes(estado) || !rotacion?.length) return null;
+  const cands = candidates(filas, estado, agua);
+  const plan = rotacion.map((s) => ({ anio: s.anio, cand: cands.find((c) => c.cultivo === s.cultivo && CODIGO[c.ciclo] === s.temporada) }));
+  return plan.every((x) => x.cand) ? withHectares(simulate(plan, { costos }), hectareas) : null;
+}
 // Orden que ve el agricultor: después de un cultivo no van arriba los de su misma familia (tras el maíz, el sorgo no va primero).
 const prevDe = (r) => r.perfil_usado?.cultivo_actual ?? r.perfil_usado?.ultimo_cultivo;
 export function ordenParaTi(r) {
@@ -362,14 +378,7 @@ export function explainRecommendation(r, estadoInferido = false) {
     `${lista}.${estadoInferido ? ` Supuse ${r.estado} por tu ubicación; confírmalo.` : ''} [SIAP]`,
     `Plan de 3 años${tomado}: ${rot}.`,
   ];
-  if (p) {
-    partes.push(
-      `Si la sigues, el ingreso bruto esperado en 3 años es de unos ${peso(p.ingreso_bruto_3_anios_esperado_por_ha)} por hectárea (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_por_ha)} en un caso malo a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_por_ha)} en uno bueno)${p.hectareas ? `, unos ${peso(p.ingreso_bruto_3_anios_esperado_total)} en tus ${p.hectareas} hectáreas (de ${peso(p.ingreso_bruto_3_anios_peor_10_pct_total)} a ${peso(p.ingreso_bruto_3_anios_mejor_10_pct_total)})` : ''}, ${p.probabilidad_al_menos_un_anio_con_perdida_pct === 0 ? `y en los ${p.anios_base} años de datos no se vio ninguno con pérdidas mayores al ${PERDIDA_ALTA} %, aunque eso no garantiza que no pase` : `y en ${p.probabilidad_al_menos_un_anio_con_perdida_pct} de cada 100 casos hay al menos un año con pérdidas mayores al ${PERDIDA_ALTA} %`}. [SIAP]`,
-    );
-    if (p.ganancia_3_anios_esperada_por_ha != null) {
-      partes.push(`Con los costos que diste, la ganancia esperada es de ${peso(p.ganancia_3_anios_esperada_por_ha)} por hectárea y hay ${p.probabilidad_de_perder_dinero_pct} de cada 100 casos de perder dinero.`);
-    }
-  }
+  if (p) partes.push(...predictionSentences(p));
   // La nota de hortalizas sigue en r.notas (la pantalla la muestra); el texto se queda en 6 frases o menos.
   partes.push('Es una estimación con datos de 7 años del estado, sin costos ni inflación; no sustituye a un técnico.');
   return partes.join(' ');
