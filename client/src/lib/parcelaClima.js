@@ -4,42 +4,8 @@ import FS_DATOS from '../data/datosDemo.js';
 // Where a value is missing (no soil data, API error) the design's demo value is used and the
 // result says so in `fuentes`, so the UI can show the "ilustrativo" note.
 
-export const VENTANA_DIAS_TEMPORAL = 125; // useful rain-fed days (Jun–Oct); not in the API yet
-
 const mean = (arr) => (arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null);
 const round1 = (v) => Math.round(v * 10) / 10;
-
-// Context for the rule engine (lib/cropEngine.js). `demoId` picks the fallback plot from the design.
-export function engineContextFrom(clima, suelo, demoId = 'celaya') {
-  const demo = FS_DATOS.clima[demoId] || FS_DATOS.clima.personalizada;
-  const fuentes = { clima: false, suelo: false };
-  const ctx = { ...demo, total_anios: 25, umbral_mm: FS_DATOS.lluvia.umbral, desde: FS_DATOS.lluvia.desde, secos_idx: demo.secos_idx.slice() };
-
-  if (clima?.lluvia_pv_anual?.length) {
-    const temps = clima.temp_media_mensual.filter((m) => m.mes >= 6 && m.mes <= 10 && m.t_media_c != null).map((m) => m.t_media_c);
-    const monthly = clima.lluvia_media_mensual.filter((m) => m.lluvia_mm != null).map((m) => m.lluvia_mm);
-    ctx.lluvia_ciclo = Math.round(clima.lluvia_pv_mediana_mm);
-    ctx.lluvia_anual = Math.round(monthly.reduce((a, b) => a + b, 0));
-    ctx.temp_ciclo = round1(mean(temps) ?? demo.temp_ciclo);
-    ctx.desde = clima.periodo.inicio;
-    ctx.total_anios = clima.lluvia_pv_anual.length;
-    ctx.umbral_mm = clima.umbral_seco_mm;
-    ctx.secos_idx = clima.anios_secos.map((a) => a - clima.periodo.inicio);
-    ctx.anios = clima.lluvia_pv_anual.map((y) => y.anio);
-    fuentes.clima = true;
-  }
-
-  if (suelo && !suelo.sin_datos && suelo.ph != null) {
-    ctx.ph = round1(suelo.ph);
-    ctx.arcilla = Math.round(suelo.arcilla_pct);
-    ctx.carbono = round1(suelo.carbono_organico_g_kg / 10); // g/kg -> %
-    fuentes.suelo = true;
-  }
-
-  ctx.ventana_dias = VENTANA_DIAS_TEMPORAL;
-  ctx.fuentes = fuentes;
-  return ctx;
-}
 
 // Cards of the rotation screen. Returns [{ etiqueta, valor }] like FS_DATOS.kpis.
 export function kpisFrom(clima, suelo) {

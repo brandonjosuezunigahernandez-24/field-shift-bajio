@@ -73,47 +73,6 @@ const FS_DATOS = {
   ],
   preguntaDock: '¿En qué mes me conviene sembrar el frijol en el año 2 para aprovechar las lluvias de Celaya?',
 
-
-  /* ---------- Pantalla 4 · Probar cultivo ----------
-     Clima y suelo por parcela (ilustrativo; en la app: NASA POWER + SoilGrids).
-     lluvia_ciclo = jun–sep · temp_ciclo = media jun–oct · ventana_dias = días útiles de temporal.
-     secos_idx = índices (0 = 2000) de años con menos de 520 mm. */
-  clima: {
-    celaya:       { lluvia_anual:569, lluvia_ciclo:515, temp_ciclo:21.5, ph:6.8, arcilla:38, carbono:1.9, ventana_dias:125, secos_idx:[5,9,11,19,22,23] },
-    marques:      { lluvia_anual:498, lluvia_ciclo:430, temp_ciclo:20.2, ph:7.2, arcilla:32, carbono:1.4, ventana_dias:110, secos_idx:[1,5,9,11,14,17,19,22,23] },
-    salamanca:    { lluvia_anual:612, lluvia_ciclo:540, temp_ciclo:22.4, ph:6.6, arcilla:41, carbono:2.1, ventana_dias:135, secos_idx:[5,11,19,23] },
-    personalizada:{ lluvia_anual:560, lluvia_ciclo:505, temp_ciclo:21.3, ph:6.9, arcilla:36, carbono:1.7, ventana_dias:120, secos_idx:[5,9,11,19,22,23] }
-  },
-
-  /* Requisitos por cultivo (estilo FAO Ecocrop, ilustrativos).
-     lluvia = mm que pide durante el ciclo (perennes: mm al año) · temp = °C óptima · ph · arcilla % ·
-     ciclo = días (0 = perenne) · sequia = tolerancia alta | media | baja */
-  cultivos: [
-    { id:'sorgo',     nombre:'Sorgo grano',             alias:['sorgo','milo'],                        tipo:'Grano',       lluvia:[400,650],  temp:[20,32], ph:[5.5,7.5], arcilla:[15,45], ciclo:110, sequia:'alta' },
-    { id:'frijol',    nombre:'Frijol Flor de Junio',    alias:['frijol','frijoles','frejol','poroto','flor de junio'], tipo:'Leguminosa', lluvia:[300,500], temp:[18,26], ph:[6.0,7.5], arcilla:[10,35], ciclo:95, sequia:'media' },
-    { id:'maiz',      nombre:'Maíz blanco ciclo corto', alias:['maiz','maiz blanco','elote','milpa'],   tipo:'Grano',       lluvia:[520,800],  temp:[18,30], ph:[5.8,7.5], arcilla:[15,40], ciclo:120, sequia:'baja' },
-    { id:'garbanzo',  nombre:'Garbanzo',                alias:['garbanzo'],                             tipo:'Leguminosa',  lluvia:[250,450],  temp:[15,25], ph:[6.0,8.0], arcilla:[15,40], ciclo:100, sequia:'alta' },
-    { id:'cebada',    nombre:'Cebada grano',            alias:['cebada'],                               tipo:'Grano',       lluvia:[350,600],  temp:[12,22], ph:[6.0,8.0], arcilla:[15,40], ciclo:100, sequia:'media' },
-    { id:'trigo',     nombre:'Trigo grano',             alias:['trigo'],                                tipo:'Grano',       lluvia:[450,650],  temp:[12,24], ph:[6.0,7.5], arcilla:[15,40], ciclo:130, sequia:'baja' },
-    { id:'avena',     nombre:'Avena forrajera',         alias:['avena'],                                tipo:'Forraje',     lluvia:[350,600],  temp:[10,24], ph:[5.5,7.5], arcilla:[15,45], ciclo:100, sequia:'media' },
-    { id:'amaranto',  nombre:'Amaranto',                alias:['amaranto','alegria'],                   tipo:'Grano',       lluvia:[300,500],  temp:[18,30], ph:[6.0,7.5], arcilla:[10,35], ciclo:110, sequia:'alta' },
-    { id:'girasol',   nombre:'Girasol',                 alias:['girasol'],                              tipo:'Oleaginosa',  lluvia:[400,650],  temp:[20,28], ph:[6.0,7.5], arcilla:[10,40], ciclo:110, sequia:'media' },
-    { id:'cacahuate', nombre:'Cacahuate',               alias:['cacahuate','mani','cacahuete'],         tipo:'Leguminosa',  lluvia:[450,700],  temp:[22,30], ph:[5.5,7.0], arcilla:[5,25],  ciclo:120, sequia:'media' },
-    { id:'calabaza',  nombre:'Calabaza',                alias:['calabaza','calabacita'],                tipo:'Hortaliza',   lluvia:[450,700],  temp:[18,28], ph:[5.5,7.0], arcilla:[10,35], ciclo:100, sequia:'media' },
-    { id:'papa',      nombre:'Papa',                    alias:['papa','patata'],                        tipo:'Hortaliza',   lluvia:[500,700],  temp:[15,20], ph:[5.0,6.5], arcilla:[10,30], ciclo:110, sequia:'baja' },
-    { id:'brocoli',   nombre:'Brócoli',                 alias:['brocoli'],                              tipo:'Hortaliza',   lluvia:[600,900],  temp:[15,22], ph:[6.0,7.0], arcilla:[15,35], ciclo:90,  sequia:'baja' },
-    { id:'cebolla',   nombre:'Cebolla',                 alias:['cebolla'],                              tipo:'Hortaliza',   lluvia:[600,850],  temp:[13,24], ph:[6.0,7.0], arcilla:[10,30], ciclo:140, sequia:'baja' },
-    { id:'jitomate',  nombre:'Jitomate',                alias:['jitomate','tomate rojo','tomate'],      tipo:'Hortaliza',   lluvia:[600,900],  temp:[18,27], ph:[6.0,7.0], arcilla:[10,35], ciclo:120, sequia:'baja' },
-    { id:'chile',     nombre:'Chile',                   alias:['chile','chile serrano','chile ancho','pimiento'], tipo:'Hortaliza', lluvia:[600,900], temp:[18,30], ph:[6.0,7.0], arcilla:[10,35], ciclo:140, sequia:'baja' },
-    { id:'fresa',     nombre:'Fresa',                   alias:['fresa','fresas','frutilla'],            tipo:'Frutal',      lluvia:[700,1000], temp:[15,25], ph:[5.5,6.8], arcilla:[10,30], ciclo:150, sequia:'baja' },
-    { id:'arroz',     nombre:'Arroz',                   alias:['arroz'],                                tipo:'Grano',       lluvia:[1000,1500],temp:[22,32], ph:[5.0,6.5], arcilla:[30,60], ciclo:130, sequia:'baja' },
-    { id:'alfalfa',   nombre:'Alfalfa',                 alias:['alfalfa'],                              tipo:'Forraje perenne', lluvia:[700,1200], temp:[15,28], ph:[6.5,8.0], arcilla:[15,40], ciclo:0, sequia:'media' },
-    { id:'agave',     nombre:'Agave mezcalero',         alias:['agave','maguey','agave azul','mezcal'], tipo:'Perenne',     lluvia:[400,1000], temp:[15,30], ph:[6.0,8.0], arcilla:[10,35], ciclo:0, sequia:'alta' },
-    { id:'nopal',     nombre:'Nopal',                   alias:['nopal','tuna'],                         tipo:'Perenne',     lluvia:[250,600],  temp:[15,30], ph:[6.0,8.5], arcilla:[5,35],  ciclo:0, sequia:'alta' },
-    { id:'aguacate',  nombre:'Aguacate',                alias:['aguacate','palta'],                     tipo:'Frutal perenne', lluvia:[1000,1600], temp:[16,24], ph:[5.5,6.5], arcilla:[10,30], ciclo:0, sequia:'baja' }
-  ],
-  pruebaRapida: ['Garbanzo','Fresa','Aguacate','Amaranto','Cacahuate','Agave'],
-
   /* ---------- Pantalla 3 · contrato JSON (9.8) ---------- */
   respuestaIA: {
     pregunta: { texto:'¿En qué mes me conviene sembrar el frijol en el año 2 para aprovechar las lluvias de Celaya?',

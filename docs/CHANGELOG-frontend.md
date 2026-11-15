@@ -150,9 +150,7 @@ Pruebas manuales sugeridas:
 
 - **Asistente IA:** pantalla 3 y chat esperan `/api/asistente`.
 - **Motor de reglas:** cuando `/api/recomendar` responda, quitar la bandera de mock. Las formas del contrato no cambiaron.
-- **Cultivos sin verificar:** los rangos de los 22 cultivos vienen del diseño como ilustrativos. Deben confirmarse contra FAO Ecocrop.
-- **Dos listas de cultivos:** el frontend usa 22 y `cultivos.json` del servidor usa 7. Conviene unificarlas.
-- **Ventana de temporal:** 125 días fijos; falta calcularla con datos.
+- **Resuelto (14 nov):** "Probar cultivo" usa el motor del servidor (`/api/recomendar`) con los 7 cultivos de `cultivos.json`. Se borraron `cropEngine.js`, `RadarChart.jsx`, los 22 cultivos ilustrativos y la ventana de temporal fija de 125 días.
 - **3D real:** seguir el contrato de [three/README.md](../client/src/three/README.md).
 - **Accesibilidad:** falta probar con lector de pantalla y teclado en el mapa.
 

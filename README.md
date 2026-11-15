@@ -169,7 +169,7 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 
 React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber, @react-three/drei, Chart.js, Bootstrap y Bootstrap Icons, todos de código abierto. Tipografías Plus Jakarta Sans y JetBrains Mono vía Google Fonts. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
 
-El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. Los rangos de los 22 cultivos de "Probar cultivo" y los datos de la pantalla "Análisis IA" son ilustrativos y no están verificados.
+El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. "Probar cultivo" usa el mismo motor de reglas que el Simulador 3D (`/api/recomendar`); los rangos de sus 7 cultivos están en `server/data/cultivos.json` y aún no están verificados.
 
 **Uso de inteligencia artificial**
 
