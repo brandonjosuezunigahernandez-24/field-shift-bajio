@@ -84,3 +84,31 @@ test('ruta: perfil con maíz sembrado y parcela dibujada', async () => {
   assert.equal(y.tema, 'siap');
   assert.match(y.respuesta, /Frijol en Guanajuato/);
 });
+
+test('apoyos, seguro y crédito ya no son fuera de tema; crédito no cae en siembra', async () => {
+  const { detectarTema } = await import('../llm/respuestas.js');
+  assert.equal(detectarTema('¿Cuánto me toca de Producción para el Bienestar?'), 'apoyos');
+  assert.equal(detectarTema('¿Cómo cobro el seguro catastrófico?'), 'apoyos');
+  assert.equal(detectarTema('¿Cuál es el precio de garantía del maíz?'), 'apoyos');
+  assert.equal(detectarTema('¿Cómo consigo un crédito para sembrar?'), 'credito');
+  assert.equal(detectarTema('¿Qué tan seguro es el frijol?'), 'siap'); // "seguro" de riesgo sigue siendo SIAP
+  const c = await ask({ pregunta: '¿Cómo consigo un crédito para sembrar?' });
+  assert.equal(c.tema, 'credito');
+  assert.match(c.respuesta, /FIRA/);
+  const a = await ask({ pregunta: '¿Cuánto me toca de Producción para el Bienestar?', perfil: { agua: 'temporal', hectareas: 3 } });
+  assert.equal(a.tema, 'apoyos');
+  assert.ok(a.que_hacer.length > 0 && /Qué hacer/.test(a.respuesta)); // el texto apunta a las acciones solo si las hay
+});
+
+test('siembra: si «Qué hacer» trae la fecha del INIFAP, el texto no dice "no tengo fechas"', async () => {
+  const f = await ask({ pregunta: '¿Cuándo siembro el frijol?', perfil: { agua: 'temporal', cultivo_actual: 'maiz', ultimo_cultivo: 'frijol' } });
+  assert.equal(f.tema, 'siembra');
+  assert.doesNotMatch(f.respuesta, /No tengo fechas/);
+  assert.match(f.respuesta, /INIFAP/);
+  assert.ok(f.que_hacer.some((x) => /junio/.test(x.accion)));
+  const g = await ask({ pregunta: '¿Cuándo siembro?', perfil: { agua: 'temporal', cultivo_actual: 'maiz', ultimo_cultivo: 'frijol' } });
+  // Sin cultivo en la pregunta «Qué hacer» también trae la del frijol: el texto dice de qué cultivo es, no "no tengo fechas".
+  assert.match(g.respuesta, /siembra el frijol/);
+  const m = await ask({ pregunta: '¿Cuándo siembro el maíz?', perfil: { agua: 'temporal' } });
+  assert.match(m.respuesta, /No tengo fechas/); // maíz: no hay acción con fecha, el texto se queda
+});

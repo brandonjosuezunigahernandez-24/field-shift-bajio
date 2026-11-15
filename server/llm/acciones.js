@@ -59,3 +59,7 @@ export function accionesPara({ tema = null, cultivo = null, perfil = {}, datos =
     .slice(0, 3)
     .map(({ a }) => ({ accion: a.accion, porque: porque(a, s, perfil), fuente: a.fuente.nombre, url: a.fuente.url }));
 }
+
+// La acción con fecha de siembra (p. ej. frijol del INIFAP), para que el texto de la respuesta no diga "no tengo fechas" cuando sí la hay.
+const MES = /(enero|febrero|marzo|abril|mayo|junio|julio|agosto|septiembre|octubre|noviembre|diciembre)/;
+export const fechaDeSiembra = (args) => accionesPara({ ...args, tema: 'siembra' }).find((a) => /^Siembra/.test(a.accion) && MES.test(a.accion)) ?? null;

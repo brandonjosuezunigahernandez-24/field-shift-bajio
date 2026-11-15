@@ -46,8 +46,16 @@ function bateria() {
   for (const q of leer('frutas.json').preguntas) out.push({ fuente: 'frutas', id: q.id, pregunta: q.pregunta, intencion: esperada(q.pregunta, CAT_FRUTA[q.cat]), incluye: q.incluye, excluye: q.excluye, cita: q.cita, soloCelaya: true });
   Object.values(leer('maiz-preguntas-agricultor.json').grupos).flat().forEach((p, i) => out.push({ fuente: 'agricultor', id: i + 1, pregunta: p, intencion: esperada(p) }));
   for (const q of leer('conversacion.json').preguntas) out.push({ fuente: 'conversacion', ...q, intencion: q.intencion });
+  // Banco investigado (docs/investigacion-preguntas-agricultor.md): 1 de cada 3 es prueba (no se entrena con ella).
+  leer('preguntas-investigadas.json').preguntas.forEach((p, i) => out.push({ fuente: 'investigadas', id: i + 1, set: setInvestigada(i), pregunta: p.texto, intencion: ESPERA_INV[p.tema] ?? p.tema.replace('-', '_') }));
   return out.filter((q) => !SET || q.set === SET).slice(0, MAX);
 }
+export const setInvestigada = (i) => (i % 3 === 0 ? 'prueba' : 'dev');
+// Temas del banco sin plantilla propia: vale el modelo de lenguaje (o la negativa honesta), nunca "fuera de tema".
+const ESPERA_INV = {
+  seguro: 'apoyos', venta: ['apoyos', 'maiz_precio', 'siap'], insumos: ['insumos', 'apoyos', 'modelo'], fertilizacion: ['modelo', 'peligro', 'insumos'],
+  plagas: ['modelo', 'peligro'], agua_captacion: ['modelo', 'lluvia', 'secos', 'humedad'], ganado: ['modelo', 'secos'], cultivo: ['cultivo', 'modelo', 'sin_dato'],
+};
 
 // Qué contestó el servidor, en las mismas etiquetas que intenciones.json.
 export function obtenida(j) {

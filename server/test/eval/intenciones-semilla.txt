@@ -280,3 +280,74 @@ Quiero ver una película esta noche | recomiéndame una serie | que musica me re
 hay heladas en mi parcela en marzo | hiela en marzo en mi parcela | cae helada en marzo aqui
 == fuera
 ¿Quién ganó el partido de ayer? | quien gano el futbol el domingo | cual es el mejor equipo de futbol
+# --- Banco investigado (preguntas-investigadas.json), solo las de set dev (i % 3 != 0); las de prueba NO van aqui.
+== insumos
+¿Por qué está tan cara la urea este año?
+¿Cuánto cuesta el bulto de fertilizante?
+¿Cómo sé si estoy en el padrón de fertilizantes?
+¿Para qué cultivos dan el fertilizante del Bienestar?
+== lluvia
+¿Este año va a llover bien?
+¿Cuándo empieza la canícula?
+¿Qué hago con mi milpa en la canícula?
+¿Cuánto llueve en mi parcela al año?
+== siembra
+No han llegado las lluvias, ¿todavía siembro maíz?
+Se retrasó el temporal, ¿qué siembro mejor?
+¿Cuándo siembro el maíz de temporal?
+¿Siembro en seco o espero la lluvia?
+¿Cuántas semillas de maíz echo por hectárea?
+== secos
+¿Cuántos años secos ha habido en mi parcela?
+¿Viene un año seco?
+¿Dónde veo si mi municipio está en sequía?
+¿Qué siembro que aguante la sequía?
+== maiz_precio
+¿A cómo está pagando el maíz?
+== apoyos
+¿Cuál es el precio de garantía del maíz?
+¿Qué papeles llevo al centro de acopio?
+¿Cuántas toneladas me compran a precio de garantía?
+¿A cuánto compran el frijol en el acopio?
+El coyote me paga muy poco, ¿dónde vendo mejor?
+¿Cuánto dan de apoyo por tonelada de maíz en Guanajuato?
+¿Cuánto me toca de Producción para el Bienestar?
+¿Cómo me registro en Producción para el Bienestar?
+Tengo 3 hectáreas de temporal, ¿cuánto apoyo me dan?
+¿Qué apoyos hay para los de temporal?
+¿Qué apoyo dan si hay sequía en Querétaro?
+¿Cómo cobro el seguro catastrófico?
+¿Mi parcela está asegurada?
+¿Hay seguro para el temporal en Querétaro?
+Me cayó granizo y se perdió el maíz, ¿a quién aviso?
+Se me heló el maíz, ¿qué hago?
+== suelo
+¿Qué hago si se me encharca la parcela?
+¿Cómo recupero la fertilidad de mi tierra?
+¿Está bien quemar el rastrojo?
+¿Vendo la pastura o la dejo en la parcela?
+¿Qué es la agricultura de conservación?
+¿Cómo está mi suelo?
+== peligro
+¿Qué le echo al gusano cogollero?
+== cultivo
+¿Qué variedad de frijol aguanta mejor el temporal?
+¿Qué semilla de frijol resiste la roya?
+== recomendar
+¿Qué siembro este año en mi parcela?
+¿Qué siembro después del maíz?
+== maiz_rotacion
+Siempre siembro maíz, ¿se cansa la tierra?
+== heladas
+¿Cuándo caen las heladas en mi parcela?
+== pronostico
+¿Va a helar esta semana?
+== maiz_produccion
+¿Cuánto maíz voy a sacar en mis hectáreas?
+== maiz_decision
+¿Vale la pena sembrar maíz con estos precios?
+== credito
+¿Cómo consigo un crédito para sembrar?
+¿Necesito estar en Producción para el Bienestar para un crédito?
+== tendencia
+¿Está lloviendo menos que antes?

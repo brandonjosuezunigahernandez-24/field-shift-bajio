@@ -137,11 +137,11 @@ async function resolver(req) {
   // Maíz: respuestas específicas con desglose (producción en tu parcela, decisión, ciclo, precio, riego, comparación...), calculadas por el código.
   // Una pregunta de maíz que no entendemos NO se manda a las tarjetas (podían traer una que no responde): se dice que no hay ese dato.
   const temaPrev = pregunta ? detectarTema(pregunta) : null;
-  if (idMaiz === 'helada' && temaPrev !== 'peligro') {
+  if (idMaiz === 'helada' && !['peligro', 'apoyos'].includes(temaPrev)) {
     const h = await porPlantilla('heladas', pregunta, lat, lon, false, perfil); // las heladas son del clima (NASA), no del modelo de lluvia
     if (h) return res.json(h);
   }
-  if (pregunta && esMaiz(pregunta) && !['peligro', 'insumos'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
+  if (pregunta && esMaiz(pregunta) && !['peligro', 'insumos', 'apoyos', 'credito'].includes(temaPrev) && !DELEGADAS.includes(idMaiz)) {
     const id = idMaiz;
     const extra = extraPerfil(req.body.perfil);
     const ha = perfil.hectareas ?? (parcelas.length >= 2 && parcelas.every((p) => p.hectareas) ? parcelas.reduce((t, p) => t + p.hectareas, 0) : undefined);
@@ -150,7 +150,7 @@ async function resolver(req) {
       try { ctx.rows = (await getClimate(lat, lon)).rows; ctx.clima = summarizeClimate(ctx.rows); } catch { /* sin clima, la respuesta sale sin esas partes */ }
     }
     if (necesitaSuelo(id)) { try { ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil); } catch { /* sin suelo, la respuesta lo dice */ } }
-    const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || ml || /(para que sirve|que es|que son|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
+    const m = id ? redactarMaiz(id, pregunta, ctx) : (temaPrev || ml || /(para que sirve|que es\b|que son\b|como funciona)/.test(norm(pregunta)) ? null : sugerenciasMaiz());
     if (m?.preguntar) return res.json(asking(m.preguntar));
     if (m) return res.json({ respuesta: m.respuesta, acciones: [], fuentes: m.fuentes, verificado: true, origen: m.origen ?? 'plantilla', tema: `maiz-${id ?? 'sin-dato'}`, base: 'ficha', enlaces: m.enlaces ?? [], ...(m.datos && { datos: m.datos }), ...(m.datos?.riesgo && { riesgo_modelo: m.datos.riesgo }), ...conGraficas(graficasMaiz(id, m.datos, { estado, pregunta })) });
   }
@@ -194,7 +194,7 @@ async function resolver(req) {
   }
 
   // Riesgo del maíz según la lluvia: lo calcula el modelo entrenado y lo redacta el código (el modelo de lenguaje no toca estos números).
-  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|fri[oa]/.test(norm(pregunta))) {
+  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta)) && !/helad|hiela|\bfri[oa]/.test(norm(pregunta))) {
     try {
       const { rows: filas } = await getClimate(lat, lon);
       const riesgo = riesgoPorEscenarios({ estado, cultivo: 'maiz', clima: summarizeClimate(filas) });
@@ -245,12 +245,12 @@ async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   // Con plática, solo un seguimiento corto ("¿y eso?", "¿por qué?") va al modelo; "¿quién ganó el mundial?" sigue fuera de tema.
   const corta = /^\W*(y|pero|entonces|o sea|osea|por que|porque)\b/i.test(pregunta) || pregunta.trim().split(/\s+/).length <= 3;
   if (tema === 'fuera' && ((hayHistorial && corta) || findLocal(pregunta).length)) return null; // seguimiento o tema de la base de conocimiento: // la base de conocimiento sí sabe de esto
-  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose'].includes(tema)) {
+  if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose', 'apoyos', 'credito'].includes(tema)) {
     const { rows } = await getClimate(lat, lon);
     ctx.resumen = summarizeClimate(rows);
     ctx.clim = climatologia(rows);
   }
-  ctx.perfil = perfil;
+  ctx.perfil = ['apoyos', 'credito'].includes(tema) ? { ...perfil, estado: perfil.estado ?? inferEstado(lon) } : perfil; // igual que «Qué hacer»
   if (tema === 'pronostico') ctx.pronostico = await getForecast(lat, lon);
   if (tema === 'aptitud') ctx.suelo = await Promise.race([getSoil(lat, lon).then(({ soil }) => summarizeSoil(soil)), new Promise((ok) => setTimeout(ok, 4000, null))]).catch(() => null); // el pH compara con lo que aguanta el cultivo
   if (tema === 'suelo') ctx.suelo = summarizeSoil((await getSoil(lat, lon)).soil);
@@ -276,7 +276,7 @@ async function conModelo({ ficha, pregunta, historial, contexto, graficas }, ask
 
 // `que_hacer`: hasta 3 acciones con fuente (llm/acciones.js), añadidas a la respuesta final sin tocar lo demás.
 // Nunca en saludos, fuera de tema, ni cuando el asistente está preguntando algo o no supo contestar.
-const SIN_CLIMA = ['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose'];
+const SIN_CLIMA = ['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose', 'apoyos', 'credito'];
 async function conQueHacer(body, req) {
   try {
     const { pregunta } = req.body;

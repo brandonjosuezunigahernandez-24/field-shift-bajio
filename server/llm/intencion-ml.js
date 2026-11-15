@@ -152,7 +152,7 @@ export function sugerencias(probables = []) {
 }
 
 // Intenciones que se contestan con una plantilla de respuestas.js (el nombre es el mismo tema).
-export const TEMAS_PLANTILLA = ['siembra', 'lluvia', 'secos', 'anio', 'pronostico', 'tendencia', 'heladas', 'calor', 'radiacion', 'humedad', 'suelo', 'siap', 'cultivo', 'frutales', 'peligro', 'insumos', 'fuera'];
+export const TEMAS_PLANTILLA = ['siembra', 'lluvia', 'secos', 'anio', 'pronostico', 'tendencia', 'heladas', 'calor', 'radiacion', 'humedad', 'suelo', 'siap', 'cultivo', 'frutales', 'peligro', 'insumos', 'fuera', 'apoyos', 'credito'];
 
 // Para la ruta: como respaldo(), pero si falta el modelo o algo falla, no cambia nada.
 export function respaldoSeguro(pregunta) {
