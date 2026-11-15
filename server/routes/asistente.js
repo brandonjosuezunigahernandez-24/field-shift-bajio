@@ -5,7 +5,8 @@ import { getClimate, summarizeClimate } from '../sources/nasaPower.js';
 import { getSoil, summarizeSoil } from '../sources/soilGrids.js';
 import { getForecast } from '../sources/openMeteo.js';
 import { findContext } from '../llm/contexto.js';
-import { cropFacts, loadSiap } from '../llm/siap.js';
+import { cropFacts, detectCrop, loadSiap } from '../llm/siap.js';
+import { riesgoPorEscenarios } from '../llm/riesgo-clima.js';
 import { corroborate } from '../llm/corroboracion.js';
 import { buildFicha } from '../llm/ficha.js';
 import { REFUSAL, answer } from '../llm/responder.js';
@@ -15,6 +16,9 @@ import { NOTA_FUERA_DE_TEMA, TEMAS } from '../llm/temas.js';
 import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
 
 const router = Router();
+// Preguntas sobre el riesgo del maíz por la lluvia: las contesta el modelo entrenado (solo maíz), con su aviso.
+const RIESGO = /(riesg|perdid|siniestr|sequi|seco|llue|llov|lluvia)/;
+const norm = (s) => s.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const MAX_QUESTION = 300;
 // Un saludo no necesita datos ni modelo (antes el modelo contestaba un saludo con el pronóstico).
 const GREETING = /^\s*(¡)?(hola|buenas|buenos d[ií]as|buenas tardes|buenas noches|gracias|ok|adi[oó]s)[\s!.¡]*$/i;
@@ -127,6 +131,20 @@ router.post('/', async (req, res) => {
         afinar: pendientes(raw, perfil).filter((q) => !q.obligatoria),
       });
     }
+  }
+
+  // Riesgo del maíz según la lluvia: lo calcula el modelo entrenado y lo redacta el código (el modelo de lenguaje no toca estos números).
+  if (pregunta && detectCrop(pregunta) === 'maiz' && RIESGO.test(norm(pregunta))) {
+    try {
+      const { rows: filas } = await getClimate(lat, lon);
+      const riesgo = riesgoPorEscenarios({ estado, cultivo: 'maiz', clima: summarizeClimate(filas) });
+      if (riesgo) {
+        return res.json({
+          respuesta: riesgo.lectura, acciones: [], fuentes: ['SIAP', 'NASA POWER'], verificado: true,
+          origen: 'modelo', base: 'ficha', enlaces: [], riesgo_modelo: riesgo,
+        });
+      }
+    } catch { /* sin clima no hay estimación: sigue el camino normal */ }
   }
 
   const [{ rows }, { soil }, pronostico, contexto] = await Promise.all([
