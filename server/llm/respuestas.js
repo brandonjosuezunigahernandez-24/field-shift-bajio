@@ -212,7 +212,7 @@ const REDACTORES = {
       !perfil.ultimo_cultivo && { campo: 'ultimo_cultivo', pregunta: '¿Qué sembraste la última vez?' },
     ].filter(Boolean);
     const conocido = [
-      perfil.cultivo_actual && `Ahora tienes ${perfil.cultivo_actual}.`,
+      perfil.cultivo_actual && `Ahora tienes ${{ maiz: 'maíz', brocoli: 'brócoli' }[perfil.cultivo_actual] ?? perfil.cultivo_actual}.`,
       perfil.riego_frecuencia_dias && `Riegas cada ${perfil.riego_frecuencia_dias} días.`,
     ].filter(Boolean).join(' ');
     const texto = `No tengo fechas de siembra verificadas para el Bajío. En tu parcela llueve más de junio a septiembre (${resumen.lluvia_pv_mediana_mm} mm) ${NASA}. ${conocido ? `${conocido} ` : ''}${falta.length ? `Para darte un plan, dime: ${falta[0].pregunta.toLowerCase()}` : 'Pregúntame "¿qué me conviene sembrar?" para ver opciones.'}`;
@@ -231,13 +231,24 @@ const REDACTORES = {
     return r && out(`No tengo información verificada de cómo se siembra ni de qué necesita ese cultivo. Lo que sí hay: ${r.respuesta}`, ['SIAP'], r.datos);
   },
 
-  siap: (q, { siap }) => {
+  siap: (q, { siap, perfil = {} }) => {
     const id = detectCrop(q), nombre = { maiz: 'maíz', brocoli: 'brócoli' }[id] ?? id;
     if (!siap) return out(`No tengo datos del SIAP para ${nombre}. Solo tengo maíz, sorgo, frijol, trigo, cebada, garbanzo, brócoli y jitomate [SIAP].`, ['SIAP'], {});
     const porEstado = siap.grupos.filter((g, i) => siap.grupos.findIndex((x) => x.estado === g.estado) === i);
     const temporales = siap.grupos.filter((g) => g.modalidad === 'Temporal');
     // Con menos de 20 ha en el último año el promedio no dice nada (p. ej. fresa en Querétaro salía con 100% de pérdida).
-    const lista = (has(/temporal/, q) && temporales.length ? temporales : porEstado).filter((g) => g.superficie_sembrada_ha_ultimo_anio >= 20);
+    let lista = (has(/temporal/, q) && temporales.length ? temporales : porEstado).filter((g) => g.superficie_sembrada_ha_ultimo_anio >= 20);
+    // El estado y la modalidad (temporal/riego) que dice la pregunta; si no dice, los del perfil.
+    const estado = q.match(/guanajuato|queretaro/)?.[0].replace('queretaro', 'Querétaro').replace('guanajuato', 'Guanajuato') ?? perfil.estado ?? null;
+    const modalidad = q.match(/temporal|riego/)?.[0] ?? perfil.agua ?? null;
+    const suyos = siap.grupos.filter((g) => (!estado || g.estado === estado) && g.superficie_sembrada_ha_ultimo_anio >= 20);
+    const conAgua = suyos.filter((g) => !modalidad || g.modalidad === cap(modalidad));
+    const base = conAgua.length ? conAgua : suyos;
+    let aviso = '';
+    if ((estado || modalidad) && base.length) {
+      lista = base.filter((g, i) => base.findIndex((x) => x.estado === g.estado) === i);
+      if (modalidad && !conAgua.length) aviso = `No tengo ${nombre} de ${modalidad}${estado ? ` en ${estado}` : ''} entre lo que más se siembra; te doy lo que hay. `;
+    }
     if (!lista.length) return null;
     const [a, b] = siap.periodo.split('-').map(Number), A = b - a + 1;
     const frase = (g) => {
@@ -249,6 +260,6 @@ const REDACTORES = {
     const frases = lista.map(frase).filter(Boolean);
     if (!frases.length) return null;
     const parcela = has(/\bmi (parcela|terreno|milpa|lote)\b/, q) ? 'No tengo el dato de tu parcela; estos son promedios del estado. ' : '';
-    return out(`${parcela}${frases.join(' ')} Son datos oficiales por estado, no de tu parcela.`, ['SIAP'], { siap: { ...siap, grupos: lista }, A, umbral_pct: 10 });
+    return out(`${aviso}${parcela}${frases.join(' ')} Son datos oficiales por estado, no de tu parcela.`, ['SIAP'], { siap: { ...siap, grupos: lista }, A, umbral_pct: 10 });
   },
 };

@@ -24,6 +24,7 @@ import { isFollowUp, wantsRecommendation } from '../llm/intencion.js';
 import { DELEGADAS, esMaiz, intencionMaiz, necesitaClima, necesitaSuelo, redactarMaiz, serie, sugerenciasMaiz } from '../llm/maiz.js';
 import { conGraficas, graficasCultivoPregunta, graficasFinca, graficasMaiz, graficasPlantilla, graficasReco } from '../llm/graficas.js';
 import { ID_MAIZ, TEMAS_PLANTILLA, respaldoSeguro } from '../llm/intencion-ml.js';
+import { conCultivoActual, seguimiento } from '../llm/seguimiento.js';
 
 const router = Router();
 // Preguntas sobre el riesgo del maíz por la lluvia: las contesta el modelo entrenado (solo maíz), con su aviso.
@@ -95,7 +96,7 @@ router.get('/temas', (req, res) => res.json({ temas: TEMAS, nota: NOTA_FUERA_DE_
 async function resolver(req) {
   const res = { json: (final) => ({ final }) }; // así el resto del código sigue con `return res.json(...)`
   const { lat, lon } = parseCoords(req.body);
-  const { pregunta, costos } = req.body;
+  let { pregunta, costos } = req.body;
   // Cada respuesta lleva `proceso`: los pasos reales que se siguieron (para la pantalla "Cómo llegó a la respuesta").
   const info = {};
   const sendJson = res.json.bind(res);
@@ -109,6 +110,8 @@ async function resolver(req) {
   const perfil = parsePerfil(raw);
   const { agua, prioridad } = perfil;
   const historial = parseHistory(req.body.historial);
+  // "¿y el frijol?" usa la pregunta anterior; "¿cuánto voy a cosechar?" con maíz sembrado es del maíz (llm/seguimiento.js).
+  if (pregunta) pregunta = conCultivoActual(seguimiento(pregunta, historial), extraPerfil(req.body.perfil).cultivo_actual);
   const parcelas = parseParcelas(req.body.parcelas);
   // Con una sola parcela dibujada, sus hectáreas son las del perfil.
   if (parcelas.length === 1 && parcelas[0].hectareas && perfil.hectareas == null) perfil.hectareas = parcelas[0].hectareas;
@@ -128,7 +131,7 @@ async function resolver(req) {
   const pideReco = pregunta && (wantsRecommendation(pregunta) || ml?.intencion === 'recomendar');
   const needsReco = pideReco || (pregunta && isFollowUp(pregunta));
   const reco = agua && prioridad && needsReco
-    ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, hectareas: perfil.hectareas, encharca: perfil.encharca })
+    ? recommend({ estado, agua, prioridad, costos, ultimoCultivo: perfil.ultimo_cultivo, cultivoActual: idMaiz === 'despues' ? 'maiz' : extraPerfil(req.body.perfil).cultivo_actual, hectareas: perfil.hectareas, encharca: perfil.encharca })
     : null;
 
   // Maíz: respuestas específicas con desglose (producción en tu parcela, decisión, ciclo, precio, riego, comparación...), calculadas por el código.
@@ -181,7 +184,7 @@ async function resolver(req) {
         } catch { /* sin clima no hay comparación; la recomendación sale igual */ }
       }
       return res.json({
-        respuesta: explainRecommendation(reco, !perfil.estado) + (corroboracion ? ` Comparé con la lluvia de NASA en tu parcela (${reco.rotacion[0].cultivo}): ${corroboracion.lectura} [NASA POWER, SIAP]` : ''),
+        respuesta: explainRecommendation(reco, !perfil.estado) + (corroboracion ? ` Comparé con la lluvia de NASA en tu parcela (${reco.rotacion[0].cultivo}): ${corroboracion.corta} [NASA POWER, SIAP]` : ''),
         acciones: [], fuentes: corroboracion ? ['SIAP', 'NASA POWER'] : ['SIAP'], verificado: true,
         origen: 'motor', base: 'ficha', enlaces: [], recomendacion: reco, corroboracion, ...conGraficas(graficasReco(reco)),
         // Preguntas opcionales que todavía no contesta: con ellas la recomendación se afina.
@@ -239,7 +242,9 @@ async function resolver(req) {
 // Plantilla del tema detectado, o null si no se puede (entonces contesta el modelo). Solo pide los datos que el tema necesita.
 async function porPlantilla(tema, pregunta, lat, lon, hayHistorial, perfil) {
   const ctx = {};
-  if (tema === 'fuera' && (hayHistorial || findLocal(pregunta).length)) return null; // seguimiento o tema de la base de conocimiento: // la base de conocimiento sí sabe de esto
+  // Con plática, solo un seguimiento corto ("¿y eso?", "¿por qué?") va al modelo; "¿quién ganó el mundial?" sigue fuera de tema.
+  const corta = /^\W*(y|pero|entonces|o sea|osea|por que|porque)\b/i.test(pregunta) || pregunta.trim().split(/\s+/).length <= 3;
+  if (tema === 'fuera' && ((hayHistorial && corta) || findLocal(pregunta).length)) return null; // seguimiento o tema de la base de conocimiento: // la base de conocimiento sí sabe de esto
   if (!['peligro', 'insumos', 'siap', 'cultivo', 'pronostico', 'suelo', 'frutales', 'desglose'].includes(tema)) {
     const { rows } = await getClimate(lat, lon);
     ctx.resumen = summarizeClimate(rows);

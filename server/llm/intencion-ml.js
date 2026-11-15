@@ -83,7 +83,7 @@ const AL_MODELO = ['concepto', 'general'];
 export const destino = (intencion) => (AL_MODELO.includes(intencion) ? 'modelo' : intencion);
 
 // Ids de maiz.js -> intención del conjunto etiquetado.
-const MAIZ = {
+export const MAIZ = {
   produccion: 'maiz_produccion', decision: 'maiz_decision', ciclo: 'maiz_ciclo', dosciclos: 'maiz_ciclo', precio: 'maiz_precio', precio_mes: 'maiz_precio',
   riesgo: 'maiz_riesgo', riego: 'maiz_riego', agua: 'maiz_riego', suelo: 'maiz_suelo', comparar: 'maiz_comparar', donde: 'maiz_donde',
   rotacion: 'maiz_rotacion', despues: 'recomendar', helada: 'heladas', plaga: 'peligro', siembra: 'siembra', semilla: 'sin_dato', seguro: 'sin_dato', costo: 'sin_dato',

@@ -48,5 +48,7 @@ export function corroborate({ clima, filas, estado, cultivo, ciclo = 'Primavera-
     coinciden, solo_nasa: soloNasa, solo_siap: soloSiap,
     correlacion_lluvia_perdida: r === null ? null : Math.round(r * 100) / 100,
     detalle: anios, lectura,
+    // Una frase para el chat (la lectura completa va en el campo `corroboracion` para la pantalla).
+    corta: `de ${anios[0].anio} a ${anios.at(-1).anio}, en ${coinciden.length} de los ${secos} años secos que marcó NASA el SIAP también reporta pérdidas altas en ${estado}; con tan pocos años es una pista, no una prueba.`,
   };
 }

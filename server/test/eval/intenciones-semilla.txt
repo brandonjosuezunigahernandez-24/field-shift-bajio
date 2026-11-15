@@ -251,3 +251,32 @@ Quiero ver una película esta noche | recomiéndame una serie | que musica me re
 ¿Cuánto me cuesta sembrar una hectárea de maíz? | cuanto invierto para sembrar maiz | cual es el costo de producir una hectarea de maiz
 ¿De qué color es el maíz criollo de mi zona? | que maiz criollo hay en mi region | cual maiz nativo siembran aqui
 ¿Cuánto cuesta asegurar una hectárea de maíz? | que cubre el seguro del maiz | donde contrato un seguro para mi cosecha de maiz
+# --- Agregadas en docs/cambios/33: preguntas de conversación con perfil (set dev de test/eval/conversacion.json) y fallas de la prueba
+# de punta a punta. "(maíz)" es como llegan al enrutado cuando el perfil dice que tiene maíz sembrado (llm/seguimiento.js).
+# NO se agregan las del set "prueba" de conversacion.json.
+== maiz_produccion
+¿Cuánto voy a cosechar? (maíz) | cuanto voy a cosechar de lo que tengo sembrado (maíz) | cuanto voy a levantar este temporal de maiz
+¿Cuántas toneladas saco de mi parcela? (maíz) | cuantas toneladas me salen de la parcela de maiz | cuanto maiz saco de mi terreno en toneladas
+== maiz_precio
+¿Cuánto me dejaría? (maíz) | cuanto me dejaria la cosecha de maiz | cuanto dinero me deja el maiz
+¿A cómo me lo van a pagar? (maíz) | a como me van a pagar el maiz | en cuanto me compran el maiz
+== maiz_ciclo
+¿Cuándo lo cosecho? (maíz) | cuando levanto el maiz que sembre | para cuando cosecho mi maiz
+== maiz_decision
+¿Le va a ir bien a mi cultivo este año? (maíz) | le ira bien a mi maiz este temporal | como le va a ir a mi milpa este año
+== maiz_riesgo
+¿Qué tan riesgoso es lo que tengo sembrado? (maíz) | que tanto riesgo tiene mi maiz | que tan arriesgado es mi maiz de temporal
+== maiz_suelo
+¿Mi tierra sirve para lo que tengo sembrado? (maíz) | mi tierra es buena para el maiz | sirve mi suelo para la milpa
+== maiz_riego
+¿Cuánta agua necesita mi cultivo? (maíz) | cuanta agua le hace falta a mi maiz | que tanta agua pide la milpa
+== maiz_comparar
+¿Me conviene más el sorgo que lo que tengo? (maíz) | me conviene mas sorgo que maiz | sorgo o maiz cual me deja mas
+== recomendar
+¿Qué siembro después de esta cosecha? | despues de esta cosecha que siembro | que le meto a la parcela despues de esta cosecha
+== siap
+¿a cuanto se paga el frijol? | a como esta el frijol | en cuanto se vende el frijol ahorita
+== heladas
+hay heladas en mi parcela en marzo | hiela en marzo en mi parcela | cae helada en marzo aqui
+== fuera
+¿Quién ganó el partido de ayer? | quien gano el futbol el domingo | cual es el mejor equipo de futbol

@@ -38,7622 +38,8105 @@
   },
   {
    "id": 6,
+   "grupo": "recomendar-11",
+   "set": "prueba",
+   "intencion": "recomendar",
+   "pregunta": "¿Qué siembro después de esta cosecha?"
+  },
+  {
+   "id": 7,
+   "grupo": "recomendar-11",
+   "set": "prueba",
+   "intencion": "recomendar",
+   "pregunta": "despues de esta cosecha que siembro"
+  },
+  {
+   "id": 8,
+   "grupo": "recomendar-11",
+   "set": "prueba",
+   "intencion": "recomendar",
+   "pregunta": "que le meto a la parcela despues de esta cosecha"
+  },
+  {
+   "id": 9,
+   "grupo": "recomendar-11",
+   "set": "prueba",
+   "intencion": "recomendar",
+   "pregunta": "que siembro despues de esta cosecha"
+  },
+  {
+   "id": 10,
+   "grupo": "recomendar-11",
+   "set": "prueba",
+   "intencion": "recomendar",
+   "pregunta": "oiga despuse de esta cosecha que siembro"
+  },
+  {
+   "id": 11,
    "grupo": "recomendar-8",
    "set": "prueba",
    "intencion": "recomendar",
    "pregunta": "Qué siembro después del maíz"
   },
   {
-   "id": 7,
+   "id": 12,
    "grupo": "recomendar-8",
    "set": "prueba",
    "intencion": "recomendar",
    "pregunta": "que sigue despues de levantar el maiz"
   },
   {
-   "id": 8,
+   "id": 13,
    "grupo": "recomendar-8",
    "set": "prueba",
    "intencion": "recomendar",
    "pregunta": "tras el maiz que planto"
   },
   {
-   "id": 9,
+   "id": 14,
    "grupo": "recomendar-8",
    "set": "prueba",
    "intencion": "recomendar",
    "pregunta": "que siembro despues del maiz"
   },
   {
-   "id": 10,
+   "id": 15,
    "grupo": "recomendar-8",
    "set": "prueba",
    "intencion": "recomendar",
    "pregunta": "y que sige despues de levantar el maiz jefe"
   },
   {
-   "id": 11,
+   "id": 16,
    "grupo": "recomendar-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "¿Qué rotación me toca después del frijol?"
   },
   {
-   "id": 12,
+   "id": 17,
    "grupo": "recomendar-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "y que le meto a la parcela despues del frijol"
   },
   {
-   "id": 13,
+   "id": 18,
    "grupo": "recomendar-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que cultivo sigue en mi rotacion"
   },
   {
-   "id": 14,
+   "id": 19,
    "grupo": "recomendar-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que rotacion me toca despues del frijol"
   },
   {
-   "id": 15,
+   "id": 20,
    "grupo": "recomendar-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "ps y que le meto a la prcela despues del frijol"
   },
   {
-   "id": 16,
+   "id": 21,
    "grupo": "recomendar-2",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "recomiéndame un cultivo para mi parcela"
   },
   {
-   "id": 17,
+   "id": 22,
    "grupo": "recomendar-2",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "dame una recomendación de que plantar"
   },
   {
-   "id": 18,
+   "id": 23,
    "grupo": "recomendar-2",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "aconsejame que sembrar ahorita"
   },
   {
-   "id": 19,
+   "id": 24,
    "grupo": "recomendar-2",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "recomiendame un cultivo para mi parcela"
   },
   {
-   "id": 20,
+   "id": 25,
    "grupo": "recomendar-2",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "disculpe dame una recomendacion de que plantra amigo"
   },
   {
-   "id": 21,
+   "id": 26,
    "grupo": "recomendar-1",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "¿Qué me conviene sembrar?"
   },
   {
-   "id": 22,
+   "id": 27,
    "grupo": "recomendar-1",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que siembro este año si mi tierra es de temporal"
   },
   {
-   "id": 23,
+   "id": 28,
    "grupo": "recomendar-1",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "oiga ps y que cultivo me recomienda para mi terreno"
   },
   {
-   "id": 24,
+   "id": 29,
    "grupo": "recomendar-1",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que me conviene sembrar"
   },
   {
-   "id": 25,
+   "id": 30,
    "grupo": "recomendar-1",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "oiga que siembro este ano si mi tiera es de temporal"
   },
   {
-   "id": 26,
+   "id": 31,
    "grupo": "recomendar-10",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "¿Cuál es la mejor rotación de cultivos para mí?"
   },
   {
-   "id": 27,
+   "id": 32,
    "grupo": "recomendar-10",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "dime que rotacion de cultivos me conviene"
   },
   {
-   "id": 28,
+   "id": 33,
    "grupo": "recomendar-10",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "rotacion que me recomiendas"
   },
   {
-   "id": 29,
+   "id": 34,
    "grupo": "recomendar-10",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "cual es la mejor rotacion de cultivos para mi"
   },
   {
-   "id": 30,
+   "id": 35,
    "grupo": "recomendar-10",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "oye dime que rotacion de cultivs me conviene"
   },
   {
-   "id": 31,
+   "id": 36,
    "grupo": "recomendar-9",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "¿Qué me recomiendas plantar el próximo ciclo?"
   },
   {
-   "id": 32,
+   "id": 37,
    "grupo": "recomendar-9",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que planto el otro ciclo de lluvias"
   },
   {
-   "id": 33,
+   "id": 38,
    "grupo": "recomendar-9",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "para la siguiente siembra que me sugieres"
   },
   {
-   "id": 34,
+   "id": 39,
    "grupo": "recomendar-9",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que me recomiendas plantar el proximo ciclo"
   },
   {
-   "id": 35,
+   "id": 40,
    "grupo": "recomendar-9",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "y que planto el otro cicol de lluvias"
   },
   {
-   "id": 36,
+   "id": 41,
    "grupo": "recomendar-6",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "¿Qué siembro si quiero arriesgar menos?"
   },
   {
-   "id": 37,
+   "id": 42,
    "grupo": "recomendar-6",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "cual cultivo es el mas seguro para temporal"
   },
   {
-   "id": 38,
+   "id": 43,
    "grupo": "recomendar-6",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que me conviene plantar para no perder"
   },
   {
-   "id": 39,
+   "id": 44,
    "grupo": "recomendar-6",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que siembro si quiero arriesgar menos"
   },
   {
-   "id": 40,
+   "id": 45,
    "grupo": "recomendar-6",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "ps cual cutivo es el mas seguro para temporal"
   },
   {
-   "id": 41,
+   "id": 46,
    "grupo": "recomendar-7",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "¿Qué cultivo me conviene si quiero cuidar el suelo?"
   },
   {
-   "id": 42,
+   "id": 47,
    "grupo": "recomendar-7",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que le pongo a la tierra para que descanse y no se acabe"
   },
   {
-   "id": 43,
+   "id": 48,
    "grupo": "recomendar-7",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que siembro para mejorar mi suelo"
   },
   {
-   "id": 44,
+   "id": 49,
    "grupo": "recomendar-7",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que cultivo me conviene si quiero cuidar el suelo"
   },
   {
-   "id": 45,
+   "id": 50,
    "grupo": "recomendar-7",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "oiga que le pongo a la tierra para que descanse y no se acabe ps"
   },
   {
-   "id": 46,
+   "id": 51,
    "grupo": "recomendar-4",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "¿Qué cultivo me deja más dinero en mi parcela?"
   },
   {
-   "id": 47,
+   "id": 52,
    "grupo": "recomendar-4",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "cual es el mejor cultivo para ganar mas aqui"
   },
   {
-   "id": 48,
+   "id": 53,
    "grupo": "recomendar-4",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que planta me conviene mas para sacar lana"
   },
   {
-   "id": 49,
+   "id": 54,
    "grupo": "recomendar-4",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "que cultivo me deja mas dinero en mi parcela"
   },
   {
-   "id": 50,
+   "id": 55,
    "grupo": "recomendar-4",
    "set": "entrena",
    "intencion": "recomendar",
    "pregunta": "oiga cual es el mejor cultvo para ganar mas aqui"
   },
   {
-   "id": 51,
+   "id": 56,
    "grupo": "maiz_produccion-5",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "¿Cuánto maíz saco con 25 hectáreas de temporal?"
   },
   {
-   "id": 52,
+   "id": 57,
    "grupo": "maiz_produccion-5",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "con 25 ha de maiz de temporal cuanto levanto"
   },
   {
-   "id": 53,
+   "id": 58,
    "grupo": "maiz_produccion-5",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "cuanta cosecha me dan 25 hectareas de maiz"
   },
   {
-   "id": 54,
+   "id": 59,
    "grupo": "maiz_produccion-5",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto maiz saco con 25 hectareas de temporal"
   },
   {
-   "id": 55,
+   "id": 60,
    "grupo": "maiz_produccion-5",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "ps con 25 ha de maiz de temporal cuanto levano jefe"
   },
   {
-   "id": 56,
+   "id": 61,
    "grupo": "maiz_produccion-1",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "¿Cuánto maíz voy a cosechar en mis 3 hectáreas?"
   },
   {
-   "id": 57,
+   "id": 62,
    "grupo": "maiz_produccion-1",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto maiz voy a levantar en mis tres hectareas"
   },
   {
-   "id": 58,
+   "id": 63,
    "grupo": "maiz_produccion-1",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "cuanta cosecha de maiz me toca en 3 ha"
   },
   {
-   "id": 59,
+   "id": 64,
    "grupo": "maiz_produccion-1",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto maiz voy a cosechar en mis 3 hectareas"
   },
   {
-   "id": 60,
+   "id": 65,
    "grupo": "maiz_produccion-1",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "ps cuanto maiz voy a levntar en mis tres hectareas"
   },
   {
-   "id": 61,
+   "id": 66,
+   "grupo": "maiz_produccion-11",
+   "set": "prueba",
+   "intencion": "maiz_produccion",
+   "pregunta": "¿Cuánto voy a cosechar? (maíz)"
+  },
+  {
+   "id": 67,
+   "grupo": "maiz_produccion-11",
+   "set": "prueba",
+   "intencion": "maiz_produccion",
+   "pregunta": "cuanto voy a cosechar de lo que tengo sembrado (maíz)"
+  },
+  {
+   "id": 68,
+   "grupo": "maiz_produccion-11",
+   "set": "prueba",
+   "intencion": "maiz_produccion",
+   "pregunta": "cuanto voy a levantar este temporal de maiz"
+  },
+  {
+   "id": 69,
+   "grupo": "maiz_produccion-11",
+   "set": "prueba",
+   "intencion": "maiz_produccion",
+   "pregunta": "cuanto voy a cosechar (maiz)"
+  },
+  {
+   "id": 70,
+   "grupo": "maiz_produccion-11",
+   "set": "prueba",
+   "intencion": "maiz_produccion",
+   "pregunta": "oiga cuanto voy a cosechar de lo que tengo semrbado (maiz)"
+  },
+  {
+   "id": 71,
    "grupo": "maiz_produccion-3",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "¿En un mal año cuánto maíz me queda?"
   },
   {
-   "id": 62,
+   "id": 72,
    "grupo": "maiz_produccion-3",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "si llueve poco cuanto maiz me queda"
   },
   {
-   "id": 63,
+   "id": 73,
    "grupo": "maiz_produccion-3",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "en un año malo cuanto cosecho de maiz"
   },
   {
-   "id": 64,
+   "id": 74,
    "grupo": "maiz_produccion-3",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "en un mal ano cuanto maiz me queda"
   },
   {
-   "id": 65,
+   "id": 75,
    "grupo": "maiz_produccion-3",
    "set": "prueba",
    "intencion": "maiz_produccion",
    "pregunta": "disculpe si llueve poco cuanto maiz me quda ps"
   },
   {
-   "id": 66,
+   "id": 76,
    "grupo": "maiz_produccion-7",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "Cuanto maiz puedo producir en mi parcela"
   },
   {
-   "id": 67,
+   "id": 77,
    "grupo": "maiz_produccion-7",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto maiz produce mi terreno"
   },
   {
-   "id": 68,
+   "id": 78,
    "grupo": "maiz_produccion-7",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "que cantidad de maiz sale de mi parcela"
   },
   {
-   "id": 69,
+   "id": 79,
    "grupo": "maiz_produccion-7",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto maiz puedo producir en mi parcela"
   },
   {
-   "id": 70,
+   "id": 80,
    "grupo": "maiz_produccion-7",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "oye canto maiz produce mi terreno"
   },
   {
-   "id": 71,
+   "id": 81,
    "grupo": "maiz_produccion-2",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "¿Cuántas toneladas saco por hectárea de maíz de temporal?"
   },
   {
-   "id": 72,
+   "id": 82,
    "grupo": "maiz_produccion-2",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuantas toneladas por hectarea da el maiz de temporal"
   },
   {
-   "id": 73,
+   "id": 83,
    "grupo": "maiz_produccion-2",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "ps cuantas toneladas de maiz saco por ha"
   },
   {
-   "id": 74,
+   "id": 84,
    "grupo": "maiz_produccion-2",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuantas toneladas saco por hectarea de maiz de temporal"
   },
   {
-   "id": 75,
+   "id": 85,
    "grupo": "maiz_produccion-2",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "y cuantas toneladas por hectarea da el maiz de temporl jefe"
   },
   {
-   "id": 76,
+   "id": 86,
    "grupo": "maiz_produccion-4",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "¿Cuánto maíz sacaría si tuviera riego?"
   },
   {
-   "id": 77,
+   "id": 87,
    "grupo": "maiz_produccion-4",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "y si tuviera riego cuanto maiz saco"
   },
   {
-   "id": 78,
+   "id": 88,
    "grupo": "maiz_produccion-4",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto me daria el maiz con riego"
   },
   {
-   "id": 79,
+   "id": 89,
    "grupo": "maiz_produccion-4",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto maiz sacaria si tuviera riego"
   },
   {
-   "id": 80,
+   "id": 90,
    "grupo": "maiz_produccion-4",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "oye y si tuviea riego cuanto maiz saco ps"
   },
   {
-   "id": 81,
+   "id": 91,
    "grupo": "maiz_produccion-9",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "¿Cuánto me rinde la milpa por hectárea?"
   },
   {
-   "id": 82,
+   "id": 92,
    "grupo": "maiz_produccion-9",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "que tanto rinde mi milpa"
   },
   {
-   "id": 83,
+   "id": 93,
    "grupo": "maiz_produccion-9",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto da la milpa en mi parcela"
   },
   {
-   "id": 84,
+   "id": 94,
    "grupo": "maiz_produccion-9",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto me rinde la milpa por hectarea"
   },
   {
-   "id": 85,
+   "id": 95,
    "grupo": "maiz_produccion-9",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "ps que tanto ride mi milpa jefe"
   },
   {
-   "id": 86,
+   "id": 96,
    "grupo": "maiz_produccion-8",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "¿Cuántos kilos de maíz saca mi parcela?"
   },
   {
-   "id": 87,
+   "id": 97,
    "grupo": "maiz_produccion-8",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuantos kilos de maiz me da mi parcela"
   },
   {
-   "id": 88,
+   "id": 98,
    "grupo": "maiz_produccion-8",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuantos costales de maiz saco"
   },
   {
-   "id": 89,
+   "id": 99,
    "grupo": "maiz_produccion-8",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuantos kilos de maiz saca mi parcela"
   },
   {
-   "id": 90,
+   "id": 100,
    "grupo": "maiz_produccion-8",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "ps cuantos kilos de maiz me da mi parcea ps"
   },
   {
-   "id": 91,
+   "id": 101,
    "grupo": "maiz_produccion-6",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "¿Qué rendimiento da el maíz en Querétaro?"
   },
   {
-   "id": 92,
+   "id": 102,
    "grupo": "maiz_produccion-6",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto rinde el maiz en queretaro"
   },
   {
-   "id": 93,
+   "id": 103,
    "grupo": "maiz_produccion-6",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "que tanto produce el maiz por aca en queretaro"
   },
   {
-   "id": 94,
+   "id": 104,
    "grupo": "maiz_produccion-6",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "que rendimiento da el maiz en queretaro"
   },
   {
-   "id": 95,
+   "id": 105,
    "grupo": "maiz_produccion-6",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "disculpe cuanto rinde el maiz en qureetaro ps"
   },
   {
-   "id": 96,
+   "id": 106,
+   "grupo": "maiz_produccion-12",
+   "set": "entrena",
+   "intencion": "maiz_produccion",
+   "pregunta": "¿Cuántas toneladas saco de mi parcela? (maíz)"
+  },
+  {
+   "id": 107,
+   "grupo": "maiz_produccion-12",
+   "set": "entrena",
+   "intencion": "maiz_produccion",
+   "pregunta": "cuantas toneladas me salen de la parcela de maiz"
+  },
+  {
+   "id": 108,
+   "grupo": "maiz_produccion-12",
+   "set": "entrena",
+   "intencion": "maiz_produccion",
+   "pregunta": "cuanto maiz saco de mi terreno en toneladas"
+  },
+  {
+   "id": 109,
+   "grupo": "maiz_produccion-12",
+   "set": "entrena",
+   "intencion": "maiz_produccion",
+   "pregunta": "cuantas toneladas saco de mi parcela (maiz)"
+  },
+  {
+   "id": 110,
+   "grupo": "maiz_produccion-12",
+   "set": "entrena",
+   "intencion": "maiz_produccion",
+   "pregunta": "ps cuantas toneladas me salen de la parela de maiz amigo"
+  },
+  {
+   "id": 111,
    "grupo": "maiz_produccion-10",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "¿Qué tanta cosecha de elote puedo esperar?"
   },
   {
-   "id": 97,
+   "id": 112,
    "grupo": "maiz_produccion-10",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "cuanto elote me da una hectarea"
   },
   {
-   "id": 98,
+   "id": 113,
    "grupo": "maiz_produccion-10",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "que produccion de maiz tendre este año"
   },
   {
-   "id": 99,
+   "id": 114,
    "grupo": "maiz_produccion-10",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "que tanta cosecha de elote puedo esperar"
   },
   {
-   "id": 100,
+   "id": 115,
    "grupo": "maiz_produccion-10",
    "set": "entrena",
    "intencion": "maiz_produccion",
    "pregunta": "oiga cuanto eloet me da una hectarea"
   },
   {
-   "id": 101,
+   "id": 116,
    "grupo": "maiz_decision-7",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "¿Es buen momento para sembrar maíz?"
   },
   {
-   "id": 102,
+   "id": 117,
    "grupo": "maiz_decision-7",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "ya es hora de echar el maiz"
   },
   {
-   "id": 103,
+   "id": 118,
    "grupo": "maiz_decision-7",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "sera buen momento de plantar maiz"
   },
   {
-   "id": 104,
+   "id": 119,
    "grupo": "maiz_decision-7",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "es buen momento para sembrar maiz"
   },
   {
-   "id": 105,
+   "id": 120,
    "grupo": "maiz_decision-7",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "una pregunta, ya es hora de ehcar el maiz porfa"
   },
   {
-   "id": 106,
+   "id": 121,
    "grupo": "maiz_decision-9",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "¿Será que me va bien si siembro maíz?"
   },
   {
-   "id": 107,
+   "id": 122,
    "grupo": "maiz_decision-9",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "si siembro maiz me va a ir bien"
   },
   {
-   "id": 108,
+   "id": 123,
    "grupo": "maiz_decision-9",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "maiz este año si o no"
   },
   {
-   "id": 109,
+   "id": 124,
    "grupo": "maiz_decision-9",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "sera que me va bien si siembro maiz"
   },
   {
-   "id": 110,
+   "id": 125,
    "grupo": "maiz_decision-9",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "oye si siebro maiz me va a ir bien"
   },
   {
-   "id": 111,
+   "id": 126,
    "grupo": "maiz_decision-8",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "¿Me animo a sembrar maíz con el pronóstico que hay?"
   },
   {
-   "id": 112,
+   "id": 127,
    "grupo": "maiz_decision-8",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "con como viene el clima le entro al maiz"
   },
   {
-   "id": 113,
+   "id": 128,
    "grupo": "maiz_decision-8",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "puedo arriesgarme con el maiz este año"
   },
   {
-   "id": 114,
+   "id": 129,
    "grupo": "maiz_decision-8",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "me animo a sembrar maiz con el pronostico que hay"
   },
   {
-   "id": 115,
+   "id": 130,
    "grupo": "maiz_decision-8",
    "set": "prueba",
    "intencion": "maiz_decision",
    "pregunta": "oye con como viene el clmia le entro al maiz jefe"
   },
   {
-   "id": 116,
+   "id": 131,
    "grupo": "maiz_decision-6",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "¿Vale la pena sembrar maíz el año que viene?"
   },
   {
-   "id": 117,
+   "id": 132,
    "grupo": "maiz_decision-6",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "le entro al maiz el proximo año"
   },
   {
-   "id": 118,
+   "id": 133,
    "grupo": "maiz_decision-6",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "conviene esperarme al otro año para el maiz"
   },
   {
-   "id": 119,
+   "id": 134,
    "grupo": "maiz_decision-6",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "vale la pena sembrar maiz el ano que viene"
   },
   {
-   "id": 120,
+   "id": 135,
    "grupo": "maiz_decision-6",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "ps le entro al maiz el proimo ano ps"
   },
   {
-   "id": 121,
+   "id": 136,
    "grupo": "maiz_decision-2",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "¿Me conviene sembrar maíz este año o mejor otra cosa?"
   },
   {
-   "id": 122,
+   "id": 137,
    "grupo": "maiz_decision-2",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "sembrar maiz o mejor otra cosa este año"
   },
   {
-   "id": 123,
+   "id": 138,
    "grupo": "maiz_decision-2",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "¿le sigo con el maiz o cambio de cultivo?"
   },
   {
-   "id": 124,
+   "id": 139,
    "grupo": "maiz_decision-2",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "me conviene sembrar maiz este ano o mejor otra cosa"
   },
   {
-   "id": 125,
+   "id": 140,
    "grupo": "maiz_decision-2",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "disculpe sembrr maiz o mejor otra cosa este ano ps"
   },
   {
-   "id": 126,
+   "id": 141,
+   "grupo": "maiz_decision-10",
+   "set": "entrena",
+   "intencion": "maiz_decision",
+   "pregunta": "¿Le va a ir bien a mi cultivo este año? (maíz)"
+  },
+  {
+   "id": 142,
+   "grupo": "maiz_decision-10",
+   "set": "entrena",
+   "intencion": "maiz_decision",
+   "pregunta": "le ira bien a mi maiz este temporal"
+  },
+  {
+   "id": 143,
+   "grupo": "maiz_decision-10",
+   "set": "entrena",
+   "intencion": "maiz_decision",
+   "pregunta": "como le va a ir a mi milpa este año"
+  },
+  {
+   "id": 144,
+   "grupo": "maiz_decision-10",
+   "set": "entrena",
+   "intencion": "maiz_decision",
+   "pregunta": "le va a ir bien a mi cultivo este ano (maiz)"
+  },
+  {
+   "id": 145,
+   "grupo": "maiz_decision-10",
+   "set": "entrena",
+   "intencion": "maiz_decision",
+   "pregunta": "oye le ira bien a mi maiz este tmeporal jefe"
+  },
+  {
+   "id": 146,
    "grupo": "maiz_decision-4",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "me recomiendas sembrar maiz o no, estoy dudando"
   },
   {
-   "id": 127,
+   "id": 147,
    "grupo": "maiz_decision-4",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "ps no se si sembrar maiz, que me dices"
   },
   {
-   "id": 128,
+   "id": 148,
    "grupo": "maiz_decision-4",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "oiga le meto maiz o mejor no"
   },
   {
-   "id": 129,
+   "id": 149,
    "grupo": "maiz_decision-4",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "me recomiendas sembrar maiz o no estoy dudando"
   },
   {
-   "id": 130,
+   "id": 150,
    "grupo": "maiz_decision-4",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "una pregunta, ps no se si sembrar maiz que me dics porfa"
   },
   {
-   "id": 131,
+   "id": 151,
    "grupo": "maiz_decision-1",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "Recomiendas plantar maiz este año o ya me espero al siguiente"
   },
   {
-   "id": 132,
+   "id": 152,
    "grupo": "maiz_decision-1",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "le entro al maiz este año o me espero"
   },
   {
-   "id": 133,
+   "id": 153,
    "grupo": "maiz_decision-1",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "me aviento con el maiz este temporal"
   },
   {
-   "id": 134,
+   "id": 154,
    "grupo": "maiz_decision-1",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "recomiendas plantar maiz este ano o ya me espero al siguiente"
   },
   {
-   "id": 135,
+   "id": 155,
    "grupo": "maiz_decision-1",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "oiga le etnro al maiz este ano o me espero porfa"
   },
   {
-   "id": 136,
+   "id": 156,
    "grupo": "maiz_decision-3",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "¿Es buen año para el maíz?"
   },
   {
-   "id": 137,
+   "id": 157,
    "grupo": "maiz_decision-3",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "sera buen ano para sembrar maiz"
   },
   {
-   "id": 138,
+   "id": 158,
    "grupo": "maiz_decision-3",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "este año esta bueno para el maiz o malo"
   },
   {
-   "id": 139,
+   "id": 159,
    "grupo": "maiz_decision-3",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "es buen ano para el maiz"
   },
   {
-   "id": 140,
+   "id": 160,
    "grupo": "maiz_decision-3",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "oiga sera buen ano para semrar maiz"
   },
   {
-   "id": 141,
+   "id": 161,
    "grupo": "maiz_decision-5",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "¿Y si siembro maíz este ciclo, será año bueno o malo?"
   },
   {
-   "id": 142,
+   "id": 162,
    "grupo": "maiz_decision-5",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "si planto maiz ahorita me ira bien o mal"
   },
   {
-   "id": 143,
+   "id": 163,
    "grupo": "maiz_decision-5",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "va a ser buen ciclo para el maiz"
   },
   {
-   "id": 144,
+   "id": 164,
    "grupo": "maiz_decision-5",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "y si siembro maiz este ciclo sera ano bueno o malo"
   },
   {
-   "id": 145,
+   "id": 165,
    "grupo": "maiz_decision-5",
    "set": "entrena",
    "intencion": "maiz_decision",
    "pregunta": "oye si planto maiz ahoria me ira bien o mal amigo"
   },
   {
-   "id": 146,
+   "id": 166,
    "grupo": "maiz_ciclo-8",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "Sembré maíz en junio, ¿cuándo lo levanto?"
   },
   {
-   "id": 147,
+   "id": 167,
    "grupo": "maiz_ciclo-8",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "sembre maiz a mediados de junio y cuando cosecho"
   },
   {
-   "id": 148,
+   "id": 168,
    "grupo": "maiz_ciclo-8",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "si siembro en julio cuando salgo con el maiz"
   },
   {
-   "id": 149,
+   "id": 169,
    "grupo": "maiz_ciclo-8",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "sembre maiz en junio cuando lo levanto"
   },
   {
-   "id": 150,
+   "id": 170,
    "grupo": "maiz_ciclo-8",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "y sembre maiz a medidaos de junio y cuando cosecho jefe"
   },
   {
-   "id": 151,
+   "id": 171,
    "grupo": "maiz_ciclo-3",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "¿Cuántos días tiene el ciclo del maíz?"
   },
   {
-   "id": 152,
+   "id": 172,
    "grupo": "maiz_ciclo-3",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "cuantos dias dura el ciclo del maiz"
   },
   {
-   "id": 153,
+   "id": 173,
    "grupo": "maiz_ciclo-3",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "de cuantos dias es el ciclo de maiz"
   },
   {
-   "id": 154,
+   "id": 174,
    "grupo": "maiz_ciclo-3",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "cuantos dias tiene el ciclo del maiz"
   },
   {
-   "id": 155,
+   "id": 175,
    "grupo": "maiz_ciclo-3",
    "set": "prueba",
    "intencion": "maiz_ciclo",
    "pregunta": "ps cuantos dias dura el cilo del maiz ps"
   },
   {
-   "id": 156,
+   "id": 176,
+   "grupo": "maiz_ciclo-9",
+   "set": "prueba",
+   "intencion": "maiz_ciclo",
+   "pregunta": "¿Cuándo lo cosecho? (maíz)"
+  },
+  {
+   "id": 177,
+   "grupo": "maiz_ciclo-9",
+   "set": "prueba",
+   "intencion": "maiz_ciclo",
+   "pregunta": "cuando levanto el maiz que sembre"
+  },
+  {
+   "id": 178,
+   "grupo": "maiz_ciclo-9",
+   "set": "prueba",
+   "intencion": "maiz_ciclo",
+   "pregunta": "para cuando cosecho mi maiz"
+  },
+  {
+   "id": 179,
+   "grupo": "maiz_ciclo-9",
+   "set": "prueba",
+   "intencion": "maiz_ciclo",
+   "pregunta": "cuando lo cosecho (maiz)"
+  },
+  {
+   "id": 180,
+   "grupo": "maiz_ciclo-9",
+   "set": "prueba",
+   "intencion": "maiz_ciclo",
+   "pregunta": "disculpe cuadno levanto el maiz que sembre jefe"
+  },
+  {
+   "id": 181,
    "grupo": "maiz_ciclo-5",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "¿Puedo sembrar maíz dos veces al año?"
   },
   {
-   "id": 157,
+   "id": 182,
    "grupo": "maiz_ciclo-5",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "se puede hacer dos cosechas de maiz al año"
   },
   {
-   "id": 158,
+   "id": 183,
    "grupo": "maiz_ciclo-5",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "maiz en otoño invierno se puede"
   },
   {
-   "id": 159,
+   "id": 184,
    "grupo": "maiz_ciclo-5",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "puedo sembrar maiz dos veces al ano"
   },
   {
-   "id": 160,
+   "id": 185,
    "grupo": "maiz_ciclo-5",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "ps se pude hacer dos cosechas de maiz al ano"
   },
   {
-   "id": 161,
+   "id": 186,
    "grupo": "maiz_ciclo-4",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuando cosecho el maiz"
   },
   {
-   "id": 162,
+   "id": 187,
    "grupo": "maiz_ciclo-4",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuando se cosecha el maiz que sembre"
   },
   {
-   "id": 163,
+   "id": 188,
    "grupo": "maiz_ciclo-4",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuando va a estar lista mi cosecha de maiz"
   },
   {
-   "id": 164,
+   "id": 189,
    "grupo": "maiz_ciclo-4",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "oye cuando se cosecah el maiz que sembre"
   },
   {
-   "id": 165,
+   "id": 190,
    "grupo": "maiz_ciclo-7",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "¿Cuándo madura el maíz?"
   },
   {
-   "id": 166,
+   "id": 191,
    "grupo": "maiz_ciclo-7",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuando madura la mazorca"
   },
   {
-   "id": 167,
+   "id": 192,
    "grupo": "maiz_ciclo-7",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "en que mes ya esta el maiz maduro"
   },
   {
-   "id": 168,
+   "id": 193,
    "grupo": "maiz_ciclo-7",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuando madura el maiz"
   },
   {
-   "id": 169,
+   "id": 194,
    "grupo": "maiz_ciclo-7",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "disculpe cuando maduar la mazorca ps"
   },
   {
-   "id": 170,
+   "id": 195,
    "grupo": "maiz_ciclo-1",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "Que tan rapido crece el maiz en mi parcela"
   },
   {
-   "id": 171,
+   "id": 196,
    "grupo": "maiz_ciclo-1",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "q tan rapido crece el mais"
   },
   {
-   "id": 172,
+   "id": 197,
    "grupo": "maiz_ciclo-1",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuanto tarda en crecer el maiz aqui"
   },
   {
-   "id": 173,
+   "id": 198,
    "grupo": "maiz_ciclo-1",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "que tan rapido crece el maiz en mi parcela"
   },
   {
-   "id": 174,
+   "id": 199,
    "grupo": "maiz_ciclo-1",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "oiga q tan rapido cerce el mais"
   },
   {
-   "id": 175,
+   "id": 200,
    "grupo": "maiz_ciclo-2",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "¿Cuánto tarda el maíz en estar listo para cosechar?"
   },
   {
-   "id": 176,
+   "id": 201,
    "grupo": "maiz_ciclo-2",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuanto tiempo tarda el maiz en dar elote"
   },
   {
-   "id": 177,
+   "id": 202,
    "grupo": "maiz_ciclo-2",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "en cuanto tiempo se cosecha el maiz"
   },
   {
-   "id": 178,
+   "id": 203,
    "grupo": "maiz_ciclo-2",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuanto tarda el maiz en estar listo para cosechar"
   },
   {
-   "id": 179,
+   "id": 204,
    "grupo": "maiz_ciclo-2",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "disculpe cuanto tiempo tadra el maiz en dar elote"
   },
   {
-   "id": 180,
+   "id": 205,
    "grupo": "maiz_ciclo-6",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "¿Cuántos meses tarda en crecer el maíz?"
   },
   {
-   "id": 181,
+   "id": 206,
    "grupo": "maiz_ciclo-6",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuantos meses necesita el maiz para madurar"
   },
   {
-   "id": 182,
+   "id": 207,
    "grupo": "maiz_ciclo-6",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "el maiz cuantos meses se lleva"
   },
   {
-   "id": 183,
+   "id": 208,
    "grupo": "maiz_ciclo-6",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "cuantos meses tarda en crecer el maiz"
   },
   {
-   "id": 184,
+   "id": 209,
    "grupo": "maiz_ciclo-6",
    "set": "entrena",
    "intencion": "maiz_ciclo",
    "pregunta": "disculpe cuantos meses necesita el maiz para maurar amigo"
   },
   {
-   "id": 185,
+   "id": 210,
    "grupo": "maiz_precio-9",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "¿El maíz deja ganancia?"
   },
   {
-   "id": 186,
+   "id": 211,
    "grupo": "maiz_precio-9",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "el maiz si deja ganancia"
   },
   {
-   "id": 187,
+   "id": 212,
    "grupo": "maiz_precio-9",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "sale ganancia con el maiz"
   },
   {
-   "id": 188,
+   "id": 213,
    "grupo": "maiz_precio-9",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "el maiz deja ganancia"
   },
   {
-   "id": 189,
+   "id": 214,
    "grupo": "maiz_precio-9",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "y el maiz si deja gaanncia"
   },
   {
-   "id": 190,
+   "id": 215,
    "grupo": "maiz_precio-1",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "a como se paga la tonelada de maiz"
   },
   {
-   "id": 191,
+   "id": 216,
    "grupo": "maiz_precio-1",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "a como pagan el maiz"
   },
   {
-   "id": 192,
+   "id": 217,
    "grupo": "maiz_precio-1",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "ps a como esta la tonelada de maiz"
   },
   {
-   "id": 193,
+   "id": 218,
    "grupo": "maiz_precio-1",
    "set": "prueba",
    "intencion": "maiz_precio",
    "pregunta": "ps a como pgan el maiz porfa"
   },
   {
-   "id": 194,
-   "grupo": "maiz_precio-3",
+   "id": 219,
+   "grupo": "maiz_precio-10",
    "set": "prueba",
+   "intencion": "maiz_precio",
+   "pregunta": "¿Cuánto me dejaría? (maíz)"
+  },
+  {
+   "id": 220,
+   "grupo": "maiz_precio-10",
+   "set": "prueba",
+   "intencion": "maiz_precio",
+   "pregunta": "cuanto me dejaria la cosecha de maiz"
+  },
+  {
+   "id": 221,
+   "grupo": "maiz_precio-10",
+   "set": "prueba",
+   "intencion": "maiz_precio",
+   "pregunta": "cuanto dinero me deja el maiz"
+  },
+  {
+   "id": 222,
+   "grupo": "maiz_precio-10",
+   "set": "prueba",
+   "intencion": "maiz_precio",
+   "pregunta": "cuanto me dejaria (maiz)"
+  },
+  {
+   "id": 223,
+   "grupo": "maiz_precio-10",
+   "set": "prueba",
+   "intencion": "maiz_precio",
+   "pregunta": "y canto me dejaria la cosecha de maiz amigo"
+  },
+  {
+   "id": 224,
+   "grupo": "maiz_precio-3",
+   "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "¿Cuánto dinero saco de mis 3 hectáreas de maíz?"
   },
   {
-   "id": 195,
+   "id": 225,
    "grupo": "maiz_precio-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto voy a ganar con 3 hectareas de maiz"
   },
   {
-   "id": 196,
+   "id": 226,
    "grupo": "maiz_precio-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanta ganancia me dejan mis tres hectareas de maiz"
   },
   {
-   "id": 197,
+   "id": 227,
    "grupo": "maiz_precio-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto dinero saco de mis 3 hectareas de maiz"
   },
   {
-   "id": 198,
+   "id": 228,
    "grupo": "maiz_precio-3",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "disculpe cuanto voy a gnaar con 3 hectareas de maiz"
   },
   {
-   "id": 199,
+   "id": 229,
    "grupo": "maiz_precio-7",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "¿Cuánto me pagan por vender mi maíz?"
   },
   {
-   "id": 200,
+   "id": 230,
    "grupo": "maiz_precio-7",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "por cuanto vendo mi maiz"
   },
   {
-   "id": 201,
+   "id": 231,
    "grupo": "maiz_precio-7",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto me dan por mi cosecha de maiz"
   },
   {
-   "id": 202,
+   "id": 232,
    "grupo": "maiz_precio-7",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto me pagan por vender mi maiz"
   },
   {
-   "id": 203,
+   "id": 233,
    "grupo": "maiz_precio-7",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "ps por caunto vendo mi maiz porfa"
   },
   {
-   "id": 204,
+   "id": 234,
+   "grupo": "maiz_precio-11",
+   "set": "entrena",
+   "intencion": "maiz_precio",
+   "pregunta": "¿A cómo me lo van a pagar? (maíz)"
+  },
+  {
+   "id": 235,
+   "grupo": "maiz_precio-11",
+   "set": "entrena",
+   "intencion": "maiz_precio",
+   "pregunta": "a como me van a pagar el maiz"
+  },
+  {
+   "id": 236,
+   "grupo": "maiz_precio-11",
+   "set": "entrena",
+   "intencion": "maiz_precio",
+   "pregunta": "en cuanto me compran el maiz"
+  },
+  {
+   "id": 237,
+   "grupo": "maiz_precio-11",
+   "set": "entrena",
+   "intencion": "maiz_precio",
+   "pregunta": "a como me lo van a pagar (maiz)"
+  },
+  {
+   "id": 238,
+   "grupo": "maiz_precio-11",
+   "set": "entrena",
+   "intencion": "maiz_precio",
+   "pregunta": "oiga a como me van a pagr el maiz"
+  },
+  {
+   "id": 239,
    "grupo": "maiz_precio-5",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "¿A cuánto está la tonelada de maíz de riego?"
   },
   {
-   "id": 205,
+   "id": 240,
    "grupo": "maiz_precio-5",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "precio del maiz de riego"
   },
   {
-   "id": 206,
+   "id": 241,
    "grupo": "maiz_precio-5",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "a como pagan el maiz de riego"
   },
   {
-   "id": 207,
+   "id": 242,
    "grupo": "maiz_precio-5",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "a cuanto esta la tonelada de maiz de riego"
   },
   {
-   "id": 208,
+   "id": 243,
    "grupo": "maiz_precio-5",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "oye prceio del maiz de riego jefe"
   },
   {
-   "id": 209,
+   "id": 244,
    "grupo": "maiz_precio-6",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "¿Cuánto cuesta la tonelada de maíz?"
   },
   {
-   "id": 210,
+   "id": 245,
    "grupo": "maiz_precio-6",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto vale la tonelada de maiz"
   },
   {
-   "id": 211,
+   "id": 246,
    "grupo": "maiz_precio-6",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "que precio tiene el maiz ahorita"
   },
   {
-   "id": 212,
+   "id": 247,
    "grupo": "maiz_precio-6",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto cuesta la tonelada de maiz"
   },
   {
-   "id": 213,
+   "id": 248,
    "grupo": "maiz_precio-6",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "una pregunta, cunato vale la tonelada de maiz ps"
   },
   {
-   "id": 214,
+   "id": 249,
    "grupo": "maiz_precio-8",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "¿Cuándo conviene vender el maíz?"
   },
   {
-   "id": 215,
+   "id": 250,
    "grupo": "maiz_precio-8",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "en que temporada vendo mi maiz mas caro"
   },
   {
-   "id": 216,
+   "id": 251,
    "grupo": "maiz_precio-8",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuando es mejor vender el maiz"
   },
   {
-   "id": 217,
+   "id": 252,
    "grupo": "maiz_precio-8",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuando conviene vender el maiz"
   },
   {
-   "id": 218,
+   "id": 253,
    "grupo": "maiz_precio-8",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "oiga en que temporada veno mi maiz mas caro jefe"
   },
   {
-   "id": 219,
+   "id": 254,
    "grupo": "maiz_precio-2",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "¿Cuánto dinero saco por hectárea de maíz?"
   },
   {
-   "id": 220,
+   "id": 255,
    "grupo": "maiz_precio-2",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanta lana me deja una hectarea de maiz"
   },
   {
-   "id": 221,
+   "id": 256,
    "grupo": "maiz_precio-2",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto gano por hectarea de maiz"
   },
   {
-   "id": 222,
+   "id": 257,
    "grupo": "maiz_precio-2",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuanto dinero saco por hectarea de maiz"
   },
   {
-   "id": 223,
+   "id": 258,
    "grupo": "maiz_precio-2",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "oiga caunta lana me deja una hectarea de maiz ps"
   },
   {
-   "id": 224,
+   "id": 259,
    "grupo": "maiz_precio-4",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "¿Cuándo está más caro el maíz?"
   },
   {
-   "id": 225,
+   "id": 260,
    "grupo": "maiz_precio-4",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "en que mes pagan mejor el maiz"
   },
   {
-   "id": 226,
+   "id": 261,
    "grupo": "maiz_precio-4",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuando sube el precio del maiz"
   },
   {
-   "id": 227,
+   "id": 262,
    "grupo": "maiz_precio-4",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "cuando esta mas caro el maiz"
   },
   {
-   "id": 228,
+   "id": 263,
    "grupo": "maiz_precio-4",
    "set": "entrena",
    "intencion": "maiz_precio",
    "pregunta": "disculpe en que mes pagan mjeor el maiz ps"
   },
   {
-   "id": 229,
+   "id": 264,
    "grupo": "maiz_riesgo-1",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Qué tan riesgoso es sembrar maíz de temporal?"
   },
   {
-   "id": 230,
+   "id": 265,
    "grupo": "maiz_riesgo-1",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "es muy riesgoso el maiz de temporal"
   },
   {
-   "id": 231,
+   "id": 266,
    "grupo": "maiz_riesgo-1",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "que tanto riesgo tiene el maiz sin riego"
   },
   {
-   "id": 232,
+   "id": 267,
    "grupo": "maiz_riesgo-1",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "que tan riesgoso es sembrar maiz de temporal"
   },
   {
-   "id": 233,
+   "id": 268,
    "grupo": "maiz_riesgo-1",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "disculpe es muy riesgoso el maiz de teporal"
   },
   {
-   "id": 234,
+   "id": 269,
    "grupo": "maiz_riesgo-6",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Qué probabilidad hay de perder mi maíz?"
   },
   {
-   "id": 235,
+   "id": 270,
    "grupo": "maiz_riesgo-6",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "cuantas posibilidades hay de que se me pierda el maiz"
   },
   {
-   "id": 236,
+   "id": 271,
    "grupo": "maiz_riesgo-6",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "que chance hay de que se seque mi maiz"
   },
   {
-   "id": 237,
+   "id": 272,
    "grupo": "maiz_riesgo-6",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "que probabilidad hay de perder mi maiz"
   },
   {
-   "id": 238,
+   "id": 273,
    "grupo": "maiz_riesgo-6",
    "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "ps cuantas posibilidades hay de que se me pireda el maiz porfa"
   },
   {
-   "id": 239,
+   "id": 274,
    "grupo": "maiz_riesgo-2",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Cuántos años se ha perdido el maíz en Guanajuato?"
   },
   {
-   "id": 240,
+   "id": 275,
    "grupo": "maiz_riesgo-2",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "cuantos años se me ha perdido el maiz"
   },
   {
-   "id": 241,
+   "id": 276,
    "grupo": "maiz_riesgo-2",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "en cuantos años se perdio la cosecha de maiz"
   },
   {
-   "id": 242,
+   "id": 277,
    "grupo": "maiz_riesgo-2",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "cuantos anos se ha perdido el maiz en guanajuato"
   },
   {
-   "id": 243,
+   "id": 278,
    "grupo": "maiz_riesgo-2",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "maiz_riesgo",
    "pregunta": "disculpe cuantos anos se me ha pedido el maiz amigo"
   },
   {
-   "id": 244,
+   "id": 279,
    "grupo": "maiz_riesgo-3",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Cuál fue el peor año para el maíz de temporal?"
   },
   {
-   "id": 245,
+   "id": 280,
    "grupo": "maiz_riesgo-3",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "cual fue el año mas malo para el maiz"
   },
   {
-   "id": 246,
+   "id": 281,
    "grupo": "maiz_riesgo-3",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "cuando le fue peor al maiz"
   },
   {
-   "id": 247,
+   "id": 282,
    "grupo": "maiz_riesgo-3",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "cual fue el peor ano para el maiz de temporal"
   },
   {
-   "id": 248,
+   "id": 283,
    "grupo": "maiz_riesgo-3",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "una pregunta, cual fue el ano mas malo para el maiz"
   },
   {
-   "id": 249,
+   "id": 284,
    "grupo": "maiz_riesgo-5",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Verdad que el maíz tuvo pérdidas altas en 5 de 7 años?"
   },
   {
-   "id": 250,
+   "id": 285,
    "grupo": "maiz_riesgo-5",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "el maiz tuvo muchas perdidas en los ultimos años"
   },
   {
-   "id": 251,
+   "id": 286,
    "grupo": "maiz_riesgo-5",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "cuanto se ha perdido de maiz por la sequia"
   },
   {
-   "id": 252,
+   "id": 287,
    "grupo": "maiz_riesgo-5",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "verdad que el maiz tuvo perdidas altas en 5 de 7 anos"
   },
   {
-   "id": 253,
+   "id": 288,
    "grupo": "maiz_riesgo-5",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "oye el maiz tuvo muchs perdidas en los ultimos anos"
   },
   {
-   "id": 254,
+   "id": 289,
    "grupo": "maiz_riesgo-8",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Se me puede perder la milpa por el granizo?"
   },
   {
-   "id": 255,
+   "id": 290,
    "grupo": "maiz_riesgo-8",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "el granizo daña mucho el maiz"
   },
   {
-   "id": 256,
+   "id": 291,
    "grupo": "maiz_riesgo-8",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "cuanto maiz se pierde por siniestros"
   },
   {
-   "id": 257,
+   "id": 292,
    "grupo": "maiz_riesgo-8",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "se me puede perder la milpa por el granizo"
   },
   {
-   "id": 258,
+   "id": 293,
    "grupo": "maiz_riesgo-8",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "oiga el granizo dana mcuho el maiz jefe"
   },
   {
-   "id": 259,
+   "id": 294,
    "grupo": "maiz_riesgo-4",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Qué le pasa al maíz si llueve poco?"
   },
   {
-   "id": 260,
+   "id": 295,
    "grupo": "maiz_riesgo-4",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "y si llueve poco que le pasa al maiz"
   },
   {
-   "id": 261,
+   "id": 296,
    "grupo": "maiz_riesgo-4",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "que pasa con el maiz si no llueve"
   },
   {
-   "id": 262,
+   "id": 297,
    "grupo": "maiz_riesgo-4",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "que le pasa al maiz si llueve poco"
   },
   {
-   "id": 263,
+   "id": 298,
    "grupo": "maiz_riesgo-4",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "oye y si llueev poco que le pasa al maiz ps"
   },
   {
-   "id": 264,
+   "id": 299,
+   "grupo": "maiz_riesgo-9",
+   "set": "entrena",
+   "intencion": "maiz_riesgo",
+   "pregunta": "¿Qué tan riesgoso es lo que tengo sembrado? (maíz)"
+  },
+  {
+   "id": 300,
+   "grupo": "maiz_riesgo-9",
+   "set": "entrena",
+   "intencion": "maiz_riesgo",
+   "pregunta": "que tanto riesgo tiene mi maiz"
+  },
+  {
+   "id": 301,
+   "grupo": "maiz_riesgo-9",
+   "set": "entrena",
+   "intencion": "maiz_riesgo",
+   "pregunta": "que tan arriesgado es mi maiz de temporal"
+  },
+  {
+   "id": 302,
+   "grupo": "maiz_riesgo-9",
+   "set": "entrena",
+   "intencion": "maiz_riesgo",
+   "pregunta": "que tan riesgoso es lo que tengo sembrado (maiz)"
+  },
+  {
+   "id": 303,
+   "grupo": "maiz_riesgo-9",
+   "set": "entrena",
+   "intencion": "maiz_riesgo",
+   "pregunta": "oiga que tanto riesgo tieen mi maiz"
+  },
+  {
+   "id": 304,
    "grupo": "maiz_riesgo-7",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "¿Qué pasa con mi maíz si hay sequía?"
   },
   {
-   "id": 265,
+   "id": 305,
    "grupo": "maiz_riesgo-7",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "si hay sequia me quedo sin maiz"
   },
   {
-   "id": 266,
+   "id": 306,
    "grupo": "maiz_riesgo-7",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "me va mal con el maiz si no llueve"
   },
   {
-   "id": 267,
+   "id": 307,
    "grupo": "maiz_riesgo-7",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "que pasa con mi maiz si hay sequia"
   },
   {
-   "id": 268,
+   "id": 308,
    "grupo": "maiz_riesgo-7",
    "set": "entrena",
    "intencion": "maiz_riesgo",
    "pregunta": "ps si hay sequia me qeudo sin maiz"
   },
   {
-   "id": 269,
+   "id": 309,
    "grupo": "maiz_riego-3",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "¿Cuánta agua necesita el maíz?"
   },
   {
-   "id": 270,
+   "id": 310,
    "grupo": "maiz_riego-3",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "cuanta lluvia necesita el maiz"
   },
   {
-   "id": 271,
+   "id": 311,
    "grupo": "maiz_riego-3",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "que cantidad de agua requiere el maiz"
   },
   {
-   "id": 272,
+   "id": 312,
    "grupo": "maiz_riego-3",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "cuanta agua necesita el maiz"
   },
   {
-   "id": 273,
+   "id": 313,
    "grupo": "maiz_riego-3",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "ps cuanta luvia necesita el maiz jefe"
   },
   {
-   "id": 274,
+   "id": 314,
    "grupo": "maiz_riego-2",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "¿Cada cuánto riego el maíz?"
   },
   {
-   "id": 275,
+   "id": 315,
    "grupo": "maiz_riego-2",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "cada cuantos dias se riega el maiz"
   },
   {
-   "id": 276,
+   "id": 316,
    "grupo": "maiz_riego-2",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "cuantas veces tengo que regar el maiz"
   },
   {
-   "id": 277,
+   "id": 317,
    "grupo": "maiz_riego-2",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "cada cuanto riego el maiz"
   },
   {
-   "id": 278,
+   "id": 318,
    "grupo": "maiz_riego-2",
    "set": "prueba",
    "intencion": "maiz_riego",
    "pregunta": "y cada cuantos dias se reiga el maiz amigo"
   },
   {
-   "id": 279,
+   "id": 319,
    "grupo": "maiz_riego-4",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "¿Cuánta lluvia necesita el maíz para crecer bien?"
   },
   {
-   "id": 280,
+   "id": 320,
    "grupo": "maiz_riego-4",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "cuantos milimetros de lluvia necesita el maiz"
   },
   {
-   "id": 281,
+   "id": 321,
    "grupo": "maiz_riego-4",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "con cuanta agua se da bien el maiz"
   },
   {
-   "id": 282,
+   "id": 322,
    "grupo": "maiz_riego-4",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "cuanta lluvia necesita el maiz para crecer bien"
   },
   {
-   "id": 283,
+   "id": 323,
    "grupo": "maiz_riego-4",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "oiga cuanots milimetros de lluvia necesita el maiz ps"
   },
   {
-   "id": 284,
+   "id": 324,
    "grupo": "maiz_riego-7",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "¿Cuánto mejora el maíz si lo riego?"
   },
   {
-   "id": 285,
+   "id": 325,
    "grupo": "maiz_riego-7",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "el maiz regado cuanto mas da"
   },
   {
-   "id": 286,
+   "id": 326,
    "grupo": "maiz_riego-7",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "que tanto mejora regar el maiz"
   },
   {
-   "id": 287,
+   "id": 327,
    "grupo": "maiz_riego-7",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "cuanto mejora el maiz si lo riego"
   },
   {
-   "id": 288,
+   "id": 328,
    "grupo": "maiz_riego-7",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "disculpe el maiz regdo cuanto mas da amigo"
   },
   {
-   "id": 289,
+   "id": 329,
    "grupo": "maiz_riego-6",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "¿Cuántos riegos necesita el maíz de principio a fin?"
   },
   {
-   "id": 290,
+   "id": 330,
    "grupo": "maiz_riego-6",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "cuantos riegos de auxilio ocupa el maiz"
   },
   {
-   "id": 291,
+   "id": 331,
    "grupo": "maiz_riego-6",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "cuantos riegos le doy al maiz"
   },
   {
-   "id": 292,
+   "id": 332,
    "grupo": "maiz_riego-6",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "cuantos riegos necesita el maiz de principio a fin"
   },
   {
-   "id": 293,
+   "id": 333,
    "grupo": "maiz_riego-6",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "oiga cuantos rieos de auxilio ocupa el maiz ps"
   },
   {
-   "id": 294,
+   "id": 334,
    "grupo": "maiz_riego-5",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "¿Vale la pena meterle riego al maíz?"
   },
   {
-   "id": 295,
+   "id": 335,
    "grupo": "maiz_riego-5",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "conviene poner riego al maiz"
   },
   {
-   "id": 296,
+   "id": 336,
    "grupo": "maiz_riego-5",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "si le pongo riego al maiz rinde mas"
   },
   {
-   "id": 297,
+   "id": 337,
    "grupo": "maiz_riego-5",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "vale la pena meterle riego al maiz"
   },
   {
-   "id": 298,
+   "id": 338,
    "grupo": "maiz_riego-5",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "oiga cnviene poner riego al maiz"
   },
   {
-   "id": 299,
+   "id": 339,
+   "grupo": "maiz_riego-8",
+   "set": "entrena",
+   "intencion": "maiz_riego",
+   "pregunta": "¿Cuánta agua necesita mi cultivo? (maíz)"
+  },
+  {
+   "id": 340,
+   "grupo": "maiz_riego-8",
+   "set": "entrena",
+   "intencion": "maiz_riego",
+   "pregunta": "cuanta agua le hace falta a mi maiz"
+  },
+  {
+   "id": 341,
+   "grupo": "maiz_riego-8",
+   "set": "entrena",
+   "intencion": "maiz_riego",
+   "pregunta": "que tanta agua pide la milpa"
+  },
+  {
+   "id": 342,
+   "grupo": "maiz_riego-8",
+   "set": "entrena",
+   "intencion": "maiz_riego",
+   "pregunta": "cuanta agua necesita mi cultivo (maiz)"
+  },
+  {
+   "id": 343,
+   "grupo": "maiz_riego-8",
+   "set": "entrena",
+   "intencion": "maiz_riego",
+   "pregunta": "ps cuanta agua le hace flata a mi maiz"
+  },
+  {
+   "id": 344,
    "grupo": "maiz_riego-1",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "maiz de riego o de temporal cual rinde mas"
   },
   {
-   "id": 300,
+   "id": 345,
    "grupo": "maiz_riego-1",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "que rinde mas el maiz de riego o el de temporal"
   },
   {
-   "id": 301,
+   "id": 346,
    "grupo": "maiz_riego-1",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "ps cual es mejor, maiz regado o de lluvia"
   },
   {
-   "id": 302,
+   "id": 347,
    "grupo": "maiz_riego-1",
    "set": "entrena",
    "intencion": "maiz_riego",
    "pregunta": "oiga que rinde mas el maiz de rieo o el de temporal jefe"
   },
   {
-   "id": 303,
+   "id": 348,
    "grupo": "maiz_suelo-4",
    "set": "prueba",
    "intencion": "maiz_suelo",
    "pregunta": "¿El pH de mi suelo es bueno para maíz?"
   },
   {
-   "id": 304,
+   "id": 349,
    "grupo": "maiz_suelo-4",
    "set": "prueba",
    "intencion": "maiz_suelo",
    "pregunta": "mi ph sirve para el maiz"
   },
   {
-   "id": 305,
+   "id": 350,
    "grupo": "maiz_suelo-4",
    "set": "prueba",
    "intencion": "maiz_suelo",
    "pregunta": "el ph de mi tierra le va al maiz"
   },
   {
-   "id": 306,
+   "id": 351,
    "grupo": "maiz_suelo-4",
    "set": "prueba",
    "intencion": "maiz_suelo",
    "pregunta": "el ph de mi suelo es bueno para maiz"
   },
   {
-   "id": 307,
+   "id": 352,
    "grupo": "maiz_suelo-4",
    "set": "prueba",
    "intencion": "maiz_suelo",
    "pregunta": "oiga mi ph sirev para el maiz ps"
   },
   {
-   "id": 308,
+   "id": 353,
+   "grupo": "maiz_suelo-5",
+   "set": "prueba",
+   "intencion": "maiz_suelo",
+   "pregunta": "¿Mi tierra sirve para lo que tengo sembrado? (maíz)"
+  },
+  {
+   "id": 354,
+   "grupo": "maiz_suelo-5",
+   "set": "prueba",
+   "intencion": "maiz_suelo",
+   "pregunta": "mi tierra es buena para el maiz"
+  },
+  {
+   "id": 355,
+   "grupo": "maiz_suelo-5",
+   "set": "prueba",
+   "intencion": "maiz_suelo",
+   "pregunta": "sirve mi suelo para la milpa"
+  },
+  {
+   "id": 356,
+   "grupo": "maiz_suelo-5",
+   "set": "prueba",
+   "intencion": "maiz_suelo",
+   "pregunta": "mi tierra sirve para lo que tengo sembrado (maiz)"
+  },
+  {
+   "id": 357,
+   "grupo": "maiz_suelo-5",
+   "set": "prueba",
+   "intencion": "maiz_suelo",
+   "pregunta": "ps mi tierra es beuna para el maiz porfa"
+  },
+  {
+   "id": 358,
    "grupo": "maiz_suelo-3",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "¿Mi tierra es adecuada para el maíz?"
   },
   {
-   "id": 309,
+   "id": 359,
    "grupo": "maiz_suelo-3",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "esta bien mi suelo para maiz"
   },
   {
-   "id": 310,
+   "id": 360,
    "grupo": "maiz_suelo-3",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "mi suelo aguanta el maiz"
   },
   {
-   "id": 311,
+   "id": 361,
    "grupo": "maiz_suelo-3",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "mi tierra es adecuada para el maiz"
   },
   {
-   "id": 312,
+   "id": 362,
    "grupo": "maiz_suelo-3",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "y esta bien mi sulo para maiz"
   },
   {
-   "id": 313,
+   "id": 363,
    "grupo": "maiz_suelo-2",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "¿Qué suelo necesita el maíz?"
   },
   {
-   "id": 314,
+   "id": 364,
    "grupo": "maiz_suelo-2",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "que tipo de tierra le gusta al maiz"
   },
   {
-   "id": 315,
+   "id": 365,
    "grupo": "maiz_suelo-2",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "el maiz en que suelo se da"
   },
   {
-   "id": 316,
+   "id": 366,
    "grupo": "maiz_suelo-2",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "que suelo necesita el maiz"
   },
   {
-   "id": 317,
+   "id": 367,
    "grupo": "maiz_suelo-2",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "disculpe que tipo de tierar le gusta al maiz ps"
   },
   {
-   "id": 318,
+   "id": 368,
    "grupo": "maiz_suelo-1",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "¿Mi suelo sirve para maíz?"
   },
   {
-   "id": 319,
+   "id": 369,
    "grupo": "maiz_suelo-1",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "mi tierra es buena para maiz"
   },
   {
-   "id": 320,
+   "id": 370,
    "grupo": "maiz_suelo-1",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "sera que mi terreno sirve para sembrar maiz"
   },
   {
-   "id": 321,
+   "id": 371,
    "grupo": "maiz_suelo-1",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "mi suelo sirve para maiz"
   },
   {
-   "id": 322,
+   "id": 372,
    "grupo": "maiz_suelo-1",
    "set": "entrena",
    "intencion": "maiz_suelo",
    "pregunta": "oye mi tierra es buena para maiz amigo"
   },
   {
-   "id": 323,
+   "id": 373,
    "grupo": "maiz_comparar-6",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "¿Qué deja más, el maíz o el garbanzo?"
   },
   {
-   "id": 324,
+   "id": 374,
    "grupo": "maiz_comparar-6",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "garbanzo o maiz"
   },
   {
-   "id": 325,
+   "id": 375,
    "grupo": "maiz_comparar-6",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "compara maiz con garbanzo"
   },
   {
-   "id": 326,
+   "id": 376,
    "grupo": "maiz_comparar-6",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "que deja mas el maiz o el garbanzo"
   },
   {
-   "id": 327,
+   "id": 377,
    "grupo": "maiz_comparar-6",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "oiga garbnazo o maiz"
   },
   {
-   "id": 328,
+   "id": 378,
    "grupo": "maiz_comparar-4",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "¿Conviene más el maíz que la cebada?"
   },
   {
-   "id": 329,
+   "id": 379,
    "grupo": "maiz_comparar-4",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "cebada o maiz que es mejor negocio"
   },
   {
-   "id": 330,
+   "id": 380,
    "grupo": "maiz_comparar-4",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "maiz vs cebada"
   },
   {
-   "id": 331,
+   "id": 381,
    "grupo": "maiz_comparar-4",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "conviene mas el maiz que la cebada"
   },
   {
-   "id": 332,
+   "id": 382,
    "grupo": "maiz_comparar-4",
    "set": "prueba",
    "intencion": "maiz_comparar",
    "pregunta": "disculpe cebada o maiz que es mjeor negocio amigo"
   },
   {
-   "id": 333,
+   "id": 383,
    "grupo": "maiz_comparar-5",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "Mejor siembro sorgo en vez de maíz?"
   },
   {
-   "id": 334,
+   "id": 384,
    "grupo": "maiz_comparar-5",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "cambio el maiz por sorgo"
   },
   {
-   "id": 335,
+   "id": 385,
    "grupo": "maiz_comparar-5",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "sorgo en lugar de maiz"
   },
   {
-   "id": 336,
+   "id": 386,
    "grupo": "maiz_comparar-5",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "mejor siembro sorgo en vez de maiz"
   },
   {
-   "id": 337,
+   "id": 387,
    "grupo": "maiz_comparar-5",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "ps cambio el maiz por srgo jefe"
   },
   {
-   "id": 338,
+   "id": 388,
    "grupo": "maiz_comparar-1",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "¿Vale la pena el maíz o me va mejor con sorgo?"
   },
   {
-   "id": 339,
+   "id": 389,
    "grupo": "maiz_comparar-1",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "maiz o sorgo cual me conviene"
   },
   {
-   "id": 340,
+   "id": 390,
    "grupo": "maiz_comparar-1",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "que deja mas el maiz o el sorgo"
   },
   {
-   "id": 341,
+   "id": 391,
    "grupo": "maiz_comparar-1",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "vale la pena el maiz o me va mejor con sorgo"
   },
   {
-   "id": 342,
+   "id": 392,
    "grupo": "maiz_comparar-1",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "oiga maiz o sorgo cual me convieen amigo"
   },
   {
-   "id": 343,
+   "id": 393,
    "grupo": "maiz_comparar-2",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "¿El maíz o el frijol deja más dinero por hectárea?"
   },
   {
-   "id": 344,
+   "id": 394,
    "grupo": "maiz_comparar-2",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "maiz contra frijol cual es mejor"
   },
   {
-   "id": 345,
+   "id": 395,
    "grupo": "maiz_comparar-2",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "frijol o maiz cual da mas"
   },
   {
-   "id": 346,
+   "id": 396,
    "grupo": "maiz_comparar-2",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "el maiz o el frijol deja mas dinero por hectarea"
   },
   {
-   "id": 347,
+   "id": 397,
    "grupo": "maiz_comparar-2",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "oiga maiz contra frijol cual es mejro porfa"
   },
   {
-   "id": 348,
+   "id": 398,
+   "grupo": "maiz_comparar-7",
+   "set": "entrena",
+   "intencion": "maiz_comparar",
+   "pregunta": "¿Me conviene más el sorgo que lo que tengo? (maíz)"
+  },
+  {
+   "id": 399,
+   "grupo": "maiz_comparar-7",
+   "set": "entrena",
+   "intencion": "maiz_comparar",
+   "pregunta": "me conviene mas sorgo que maiz"
+  },
+  {
+   "id": 400,
+   "grupo": "maiz_comparar-7",
+   "set": "entrena",
+   "intencion": "maiz_comparar",
+   "pregunta": "sorgo o maiz cual me deja mas"
+  },
+  {
+   "id": 401,
+   "grupo": "maiz_comparar-7",
+   "set": "entrena",
+   "intencion": "maiz_comparar",
+   "pregunta": "me conviene mas el sorgo que lo que tengo (maiz)"
+  },
+  {
+   "id": 402,
+   "grupo": "maiz_comparar-7",
+   "set": "entrena",
+   "intencion": "maiz_comparar",
+   "pregunta": "y me conviene mas sogro que maiz jefe"
+  },
+  {
+   "id": 403,
    "grupo": "maiz_comparar-3",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "¿Qué es mejor, maíz o trigo?"
   },
   {
-   "id": 349,
+   "id": 404,
    "grupo": "maiz_comparar-3",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "maiz o trigo cual conviene"
   },
   {
-   "id": 350,
+   "id": 405,
    "grupo": "maiz_comparar-3",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "trigo o maiz para mi parcela"
   },
   {
-   "id": 351,
+   "id": 406,
    "grupo": "maiz_comparar-3",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "que es mejor maiz o trigo"
   },
   {
-   "id": 352,
+   "id": 407,
    "grupo": "maiz_comparar-3",
    "set": "entrena",
    "intencion": "maiz_comparar",
    "pregunta": "disculpe maiz o trigo cual coviene amigo"
   },
   {
-   "id": 353,
+   "id": 408,
    "grupo": "maiz_donde-3",
    "set": "prueba",
    "intencion": "maiz_donde",
    "pregunta": "¿Dónde se da mejor el maíz?"
   },
   {
-   "id": 354,
+   "id": 409,
    "grupo": "maiz_donde-3",
    "set": "prueba",
    "intencion": "maiz_donde",
    "pregunta": "en que zona se da mejor el maiz"
   },
   {
-   "id": 355,
+   "id": 410,
    "grupo": "maiz_donde-3",
    "set": "prueba",
    "intencion": "maiz_donde",
    "pregunta": "donde le va mejor al maiz"
   },
   {
-   "id": 356,
+   "id": 411,
    "grupo": "maiz_donde-3",
    "set": "prueba",
    "intencion": "maiz_donde",
    "pregunta": "donde se da mejor el maiz"
   },
   {
-   "id": 357,
+   "id": 412,
    "grupo": "maiz_donde-3",
    "set": "prueba",
    "intencion": "maiz_donde",
    "pregunta": "ps en que zona se da mejro el maiz"
   },
   {
-   "id": 358,
+   "id": 413,
    "grupo": "maiz_donde-2",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "¿Qué municipios de Querétaro siembran más maíz?"
   },
   {
-   "id": 359,
+   "id": 414,
    "grupo": "maiz_donde-2",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "en que municipios de queretaro se siembra mas maiz"
   },
   {
-   "id": 360,
+   "id": 415,
    "grupo": "maiz_donde-2",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "cuales municipios queretanos siembran mas maiz"
   },
   {
-   "id": 361,
+   "id": 416,
    "grupo": "maiz_donde-2",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "que municipios de queretaro siembran mas maiz"
   },
   {
-   "id": 362,
+   "id": 417,
    "grupo": "maiz_donde-2",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "ps en que muniipios de queretaro se siembra mas maiz jefe"
   },
   {
-   "id": 363,
+   "id": 418,
    "grupo": "maiz_donde-1",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "¿Dónde se siembra más maíz en Guanajuato?"
   },
   {
-   "id": 364,
+   "id": 419,
    "grupo": "maiz_donde-1",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "en que municipios de guanajuato hay mas maiz"
   },
   {
-   "id": 365,
+   "id": 420,
    "grupo": "maiz_donde-1",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "donde se da mas el maiz en guanajuato"
   },
   {
-   "id": 366,
+   "id": 421,
    "grupo": "maiz_donde-1",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "donde se siembra mas maiz en guanajuato"
   },
   {
-   "id": 367,
+   "id": 422,
    "grupo": "maiz_donde-1",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "oiga en que municipios de guanajuao hay mas maiz"
   },
   {
-   "id": 368,
+   "id": 423,
    "grupo": "maiz_donde-4",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "¿Quiénes siembran más maíz por mi zona?"
   },
   {
-   "id": 369,
+   "id": 424,
    "grupo": "maiz_donde-4",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "que municipios cercanos siembran maiz"
   },
   {
-   "id": 370,
+   "id": 425,
    "grupo": "maiz_donde-4",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "cuales son los municipios maiceros"
   },
   {
-   "id": 371,
+   "id": 426,
    "grupo": "maiz_donde-4",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "quienes siembran mas maiz por mi zona"
   },
   {
-   "id": 372,
+   "id": 427,
    "grupo": "maiz_donde-4",
    "set": "entrena",
    "intencion": "maiz_donde",
    "pregunta": "ps que municipios cercanos sembran maiz"
   },
   {
-   "id": 373,
+   "id": 428,
    "grupo": "maiz_rotacion-4",
    "set": "prueba",
    "intencion": "maiz_rotacion",
    "pregunta": "¿Maíz sobre maíz es mala idea?"
   },
   {
-   "id": 374,
+   "id": 429,
    "grupo": "maiz_rotacion-4",
    "set": "prueba",
    "intencion": "maiz_rotacion",
    "pregunta": "sembrar maiz dos años seguidos en el mismo terreno"
   },
   {
-   "id": 375,
+   "id": 430,
    "grupo": "maiz_rotacion-4",
    "set": "prueba",
    "intencion": "maiz_rotacion",
    "pregunta": "puedo repetir maiz donde ya tuve maiz"
   },
   {
-   "id": 376,
+   "id": 431,
    "grupo": "maiz_rotacion-4",
    "set": "prueba",
    "intencion": "maiz_rotacion",
    "pregunta": "maiz sobre maiz es mala idea"
   },
   {
-   "id": 377,
+   "id": 432,
    "grupo": "maiz_rotacion-4",
    "set": "prueba",
    "intencion": "maiz_rotacion",
    "pregunta": "disculpe sembrar maiz dos anos seguidos en el mismo terrno"
   },
   {
-   "id": 378,
+   "id": 433,
    "grupo": "maiz_rotacion-3",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "¿Puedo sembrar maíz después de trigo?"
   },
   {
-   "id": 379,
+   "id": 434,
    "grupo": "maiz_rotacion-3",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "sembre trigo y quiero poner maiz"
   },
   {
-   "id": 380,
+   "id": 435,
    "grupo": "maiz_rotacion-3",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "trigo y luego maiz se puede"
   },
   {
-   "id": 381,
+   "id": 436,
    "grupo": "maiz_rotacion-3",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "puedo sembrar maiz despues de trigo"
   },
   {
-   "id": 382,
+   "id": 437,
    "grupo": "maiz_rotacion-3",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "y sembre trigo y quieor poner maiz"
   },
   {
-   "id": 383,
+   "id": 438,
    "grupo": "maiz_rotacion-2",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "Antes tenía sorgo, ¿le puedo poner maíz?"
   },
   {
-   "id": 384,
+   "id": 439,
    "grupo": "maiz_rotacion-2",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "tenia sorgo en la parcela y quiero maiz"
   },
   {
-   "id": 385,
+   "id": 440,
    "grupo": "maiz_rotacion-2",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "despues del sorgo puedo sembrar maiz"
   },
   {
-   "id": 386,
+   "id": 441,
    "grupo": "maiz_rotacion-2",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "antes tenia sorgo le puedo poner maiz"
   },
   {
-   "id": 387,
+   "id": 442,
    "grupo": "maiz_rotacion-2",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "una pregunta, tenia soro en la parcela y quiero maiz amigo"
   },
   {
-   "id": 388,
+   "id": 443,
    "grupo": "maiz_rotacion-1",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "Sembré frijol el año pasado, ¿puedo sembrar maíz?"
   },
   {
-   "id": 389,
+   "id": 444,
    "grupo": "maiz_rotacion-1",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "el año pasado tuve frijol y ahora puedo poner maiz"
   },
   {
-   "id": 390,
+   "id": 445,
    "grupo": "maiz_rotacion-1",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "antes sembre frijol, puedo meter maiz ahorita"
   },
   {
-   "id": 391,
+   "id": 446,
    "grupo": "maiz_rotacion-1",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "sembre frijol el ano pasado puedo sembrar maiz"
   },
   {
-   "id": 392,
+   "id": 447,
    "grupo": "maiz_rotacion-1",
    "set": "entrena",
    "intencion": "maiz_rotacion",
    "pregunta": "oiga el ano pasado tuve frijol y ahora puedo poer maiz amigo"
   },
   {
-   "id": 393,
+   "id": 448,
    "grupo": "siembra-6",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "¿Cuándo empiezo a sembrar en temporal?"
   },
   {
-   "id": 394,
+   "id": 449,
    "grupo": "siembra-6",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "cuando arranco la siembra del temporal"
   },
   {
-   "id": 395,
+   "id": 450,
    "grupo": "siembra-6",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "cuando planto con las primeras lluvias"
   },
   {
-   "id": 396,
+   "id": 451,
    "grupo": "siembra-6",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "cuando empiezo a sembrar en temporal"
   },
   {
-   "id": 397,
+   "id": 452,
    "grupo": "siembra-6",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "disculpe cuando arranco la siembra del teporal amigo"
   },
   {
-   "id": 398,
+   "id": 453,
    "grupo": "siembra-2",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "¿Cuándo se siembra en mi zona?"
   },
   {
-   "id": 399,
+   "id": 454,
    "grupo": "siembra-2",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "en que mes se siembra por aqui"
   },
   {
-   "id": 400,
+   "id": 455,
    "grupo": "siembra-2",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "cuando es la siembra de temporal"
   },
   {
-   "id": 401,
+   "id": 456,
    "grupo": "siembra-2",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "cuando se siembra en mi zona"
   },
   {
-   "id": 402,
+   "id": 457,
    "grupo": "siembra-2",
    "set": "prueba",
    "intencion": "siembra",
    "pregunta": "oiga en que mes se sembra por aqui jefe"
   },
   {
-   "id": 403,
+   "id": 458,
    "grupo": "siembra-4",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "¿Cuándo debo sembrar para aprovechar la lluvia?"
   },
   {
-   "id": 404,
+   "id": 459,
    "grupo": "siembra-4",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "cuando siembro para que me alcance la lluvia"
   },
   {
-   "id": 405,
+   "id": 460,
    "grupo": "siembra-4",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "en que fecha siembro para que llueva"
   },
   {
-   "id": 406,
+   "id": 461,
    "grupo": "siembra-4",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "cuando debo sembrar para aprovechar la lluvia"
   },
   {
-   "id": 407,
+   "id": 462,
    "grupo": "siembra-4",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "disculpe cuando siemrbo para que me alcance la lluvia jefe"
   },
   {
-   "id": 408,
+   "id": 463,
    "grupo": "siembra-3",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "¿Cuál es la mejor fecha de siembra?"
   },
   {
-   "id": 409,
+   "id": 464,
    "grupo": "siembra-3",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "cual es la mejor epoca para sembrar"
   },
   {
-   "id": 410,
+   "id": 465,
    "grupo": "siembra-3",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "en que mes me conviene sembrar"
   },
   {
-   "id": 411,
+   "id": 466,
    "grupo": "siembra-3",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "cual es la mejor fecha de siembra"
   },
   {
-   "id": 412,
+   "id": 467,
    "grupo": "siembra-3",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "oye cual es la mejor epcoa para sembrar amigo"
   },
   {
-   "id": 413,
+   "id": 468,
    "grupo": "siembra-5",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "¿Ya puedo sembrar?"
   },
   {
-   "id": 414,
+   "id": 469,
    "grupo": "siembra-5",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "ya es tiempo de sembrar"
   },
   {
-   "id": 415,
+   "id": 470,
    "grupo": "siembra-5",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "ps ya se puede sembrar"
   },
   {
-   "id": 416,
+   "id": 471,
    "grupo": "siembra-5",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "ya puedo sembrar"
   },
   {
-   "id": 417,
+   "id": 472,
    "grupo": "siembra-5",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "y ya es tiepmo de sembrar ps"
   },
   {
-   "id": 418,
+   "id": 473,
    "grupo": "siembra-1",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "¿Cuándo siembro?"
   },
   {
-   "id": 419,
+   "id": 474,
    "grupo": "siembra-1",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "cuando sembrar"
   },
   {
-   "id": 420,
+   "id": 475,
    "grupo": "siembra-1",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "cuando siembro"
   },
   {
-   "id": 421,
+   "id": 476,
    "grupo": "siembra-1",
    "set": "entrena",
    "intencion": "siembra",
    "pregunta": "disculpe cuando sebmrar"
   },
   {
-   "id": 422,
+   "id": 477,
    "grupo": "lluvia-1",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "¿Cuánto llueve en verano?"
   },
   {
-   "id": 423,
+   "id": 478,
    "grupo": "lluvia-1",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "cuanta lluvia cae en verano"
   },
   {
-   "id": 424,
+   "id": 479,
    "grupo": "lluvia-1",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "ps cuanto llueve en el verano por aca"
   },
   {
-   "id": 425,
+   "id": 480,
    "grupo": "lluvia-1",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "cuanto llueve en verano"
   },
   {
-   "id": 426,
+   "id": 481,
    "grupo": "lluvia-1",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "una pregunta, cuanta lluvia cae en vreano porfa"
   },
   {
-   "id": 427,
+   "id": 482,
    "grupo": "lluvia-8",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "¿Cuándo terminan las lluvias?"
   },
   {
-   "id": 428,
+   "id": 483,
    "grupo": "lluvia-8",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "en que mes se acaban las aguas"
   },
   {
-   "id": 429,
+   "id": 484,
    "grupo": "lluvia-8",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "cuando se acaba el temporal"
   },
   {
-   "id": 430,
+   "id": 485,
    "grupo": "lluvia-8",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "cuando terminan las lluvias"
   },
   {
-   "id": 431,
+   "id": 486,
    "grupo": "lluvia-8",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "una pregunta, en que mes se aaban las aguas"
   },
   {
-   "id": 432,
+   "id": 487,
    "grupo": "lluvia-2",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "¿En qué mes llueve más?"
   },
   {
-   "id": 433,
+   "id": 488,
    "grupo": "lluvia-2",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "cual es el mes mas lluvioso"
   },
   {
-   "id": 434,
+   "id": 489,
    "grupo": "lluvia-2",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "cuando llueve mas en el año"
   },
   {
-   "id": 435,
+   "id": 490,
    "grupo": "lluvia-2",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "en que mes llueve mas"
   },
   {
-   "id": 436,
+   "id": 491,
    "grupo": "lluvia-2",
    "set": "prueba",
    "intencion": "lluvia",
    "pregunta": "ps cual es el mes mas llvuioso"
   },
   {
-   "id": 437,
+   "id": 492,
    "grupo": "lluvia-7",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "¿Cuánta lluvia cae al año en mi parcela?"
   },
   {
-   "id": 438,
+   "id": 493,
    "grupo": "lluvia-7",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuanto llueve al año en mi terreno"
   },
   {
-   "id": 439,
+   "id": 494,
    "grupo": "lluvia-7",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cual es la lluvia anual de mi parcela"
   },
   {
-   "id": 440,
+   "id": 495,
    "grupo": "lluvia-7",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuanta lluvia cae al ano en mi parcela"
   },
   {
-   "id": 441,
+   "id": 496,
    "grupo": "lluvia-7",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "oiga cuanot llueve al ano en mi terreno amigo"
   },
   {
-   "id": 442,
+   "id": 497,
    "grupo": "lluvia-3",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "¿En qué mes llueve menos?"
   },
   {
-   "id": 443,
+   "id": 498,
    "grupo": "lluvia-3",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cual es el mes mas seco del año"
   },
   {
-   "id": 444,
+   "id": 499,
    "grupo": "lluvia-3",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuando llueve menos"
   },
   {
-   "id": 445,
+   "id": 500,
    "grupo": "lluvia-3",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "en que mes llueve menos"
   },
   {
-   "id": 446,
+   "id": 501,
    "grupo": "lluvia-3",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "oye cual es el mes mas seco del ano amigo"
   },
   {
-   "id": 447,
+   "id": 502,
    "grupo": "lluvia-9",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "¿Cuánta agua cae en septiembre?"
   },
   {
-   "id": 448,
+   "id": 503,
    "grupo": "lluvia-9",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuanto llueve en septiembre"
   },
   {
-   "id": 449,
+   "id": 504,
    "grupo": "lluvia-9",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "llueve mucho en septiembre"
   },
   {
-   "id": 450,
+   "id": 505,
    "grupo": "lluvia-9",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuanta agua cae en septiembre"
   },
   {
-   "id": 451,
+   "id": 506,
    "grupo": "lluvia-9",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "oye cuanto llueev en septiembre jefe"
   },
   {
-   "id": 452,
+   "id": 507,
    "grupo": "lluvia-4",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "¿Cuánto llueve en agosto?"
   },
   {
-   "id": 453,
+   "id": 508,
    "grupo": "lluvia-4",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuanta lluvia cae en agosto"
   },
   {
-   "id": 454,
+   "id": 509,
    "grupo": "lluvia-4",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuantos milimetros llueven en agosto"
   },
   {
-   "id": 455,
+   "id": 510,
    "grupo": "lluvia-4",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuanto llueve en agosto"
   },
   {
-   "id": 456,
+   "id": 511,
    "grupo": "lluvia-4",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "oiga cuatna lluvia cae en agosto amigo"
   },
   {
-   "id": 457,
+   "id": 512,
    "grupo": "lluvia-6",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "llueve?"
   },
   {
-   "id": 458,
+   "id": 513,
    "grupo": "lluvia-6",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "llueve mucho aqui"
   },
   {
-   "id": 459,
+   "id": 514,
    "grupo": "lluvia-6",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "oiga aqui si llueve"
   },
   {
-   "id": 460,
+   "id": 515,
    "grupo": "lluvia-6",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "llueve"
   },
   {
-   "id": 461,
+   "id": 516,
    "grupo": "lluvia-6",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "y lluee mucho aqui amigo"
   },
   {
-   "id": 462,
+   "id": 517,
    "grupo": "lluvia-5",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "¿Cuándo empieza la temporada de lluvias?"
   },
   {
-   "id": 463,
+   "id": 518,
    "grupo": "lluvia-5",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuando empiezan las aguas"
   },
   {
-   "id": 464,
+   "id": 519,
    "grupo": "lluvia-5",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuando entra el temporal de lluvia"
   },
   {
-   "id": 465,
+   "id": 520,
    "grupo": "lluvia-5",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "cuando empieza la temporada de lluvias"
   },
   {
-   "id": 466,
+   "id": 521,
    "grupo": "lluvia-5",
    "set": "entrena",
    "intencion": "lluvia",
    "pregunta": "disculpe cuando empiezan las augas ps"
   },
   {
-   "id": 467,
+   "id": 522,
    "grupo": "secos-4",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "¿En qué años llovió poco?"
   },
   {
-   "id": 468,
+   "id": 523,
    "grupo": "secos-4",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "que años llovio poquito"
   },
   {
-   "id": 469,
+   "id": 524,
    "grupo": "secos-4",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "en que años casi no llovio"
   },
   {
-   "id": 470,
+   "id": 525,
    "grupo": "secos-4",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "en que anos llovio poco"
   },
   {
-   "id": 471,
+   "id": 526,
    "grupo": "secos-4",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "disculpe que anos llvoio poquito ps"
   },
   {
-   "id": 472,
+   "id": 527,
    "grupo": "secos-6",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "¿Qué tan seguido hay sequías por aquí?"
   },
   {
-   "id": 473,
+   "id": 528,
    "grupo": "secos-6",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "cada cuanto hay sequia en mi zona"
   },
   {
-   "id": 474,
+   "id": 529,
    "grupo": "secos-6",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "seguido se seca la lluvia aqui"
   },
   {
-   "id": 475,
+   "id": 530,
    "grupo": "secos-6",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "que tan seguido hay sequias por aqui"
   },
   {
-   "id": 476,
+   "id": 531,
    "grupo": "secos-6",
    "set": "prueba",
    "intencion": "secos",
    "pregunta": "oye cada cuanto hay seqia en mi zona jefe"
   },
   {
-   "id": 477,
+   "id": 532,
    "grupo": "secos-8",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "¿Hubo muchos años de poca lluvia?"
   },
   {
-   "id": 478,
+   "id": 533,
    "grupo": "secos-8",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "han habido muchos años malos de lluvia"
   },
   {
-   "id": 479,
+   "id": 534,
    "grupo": "secos-8",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "muchos años con poca agua"
   },
   {
-   "id": 480,
+   "id": 535,
    "grupo": "secos-8",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "hubo muchos anos de poca lluvia"
   },
   {
-   "id": 481,
+   "id": 536,
    "grupo": "secos-8",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "oiga han habido muchos anos malso de lluvia ps"
   },
   {
-   "id": 482,
+   "id": 537,
    "grupo": "secos-2",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "¿Cuántos años secos hubo?"
   },
   {
-   "id": 483,
+   "id": 538,
    "grupo": "secos-2",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "cuantos años de sequia ha habido"
   },
   {
-   "id": 484,
+   "id": 539,
    "grupo": "secos-2",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "en cuantos años llovio poco"
   },
   {
-   "id": 485,
+   "id": 540,
    "grupo": "secos-2",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "cuantos anos secos hubo"
   },
   {
-   "id": 486,
+   "id": 541,
    "grupo": "secos-2",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "una pregunta, cuantos anos de sequa ha habido ps"
   },
   {
-   "id": 487,
+   "id": 542,
    "grupo": "secos-5",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "¿Verdad que fueron 15 años secos?"
   },
   {
-   "id": 488,
+   "id": 543,
    "grupo": "secos-5",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "es cierto que han sido 15 años de sequia"
   },
   {
-   "id": 489,
+   "id": 544,
    "grupo": "secos-5",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "Mi vecino dice que llevamos 30 años de sequía, ¿es cierto?"
   },
   {
-   "id": 490,
+   "id": 545,
    "grupo": "secos-5",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "verdad que fueron 15 anos secos"
   },
   {
-   "id": 491,
+   "id": 546,
    "grupo": "secos-5",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "ps es cierto que han sido 15 anos de seuia porfa"
   },
   {
-   "id": 492,
+   "id": 547,
    "grupo": "secos-7",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "Dime los años en que falló el temporal"
   },
   {
-   "id": 493,
+   "id": 548,
    "grupo": "secos-7",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "cuando fallo la lluvia en los ultimos años"
   },
   {
-   "id": 494,
+   "id": 549,
    "grupo": "secos-7",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "en que ciclos se nos fue el agua"
   },
   {
-   "id": 495,
+   "id": 550,
    "grupo": "secos-7",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "dime los anos en que fallo el temporal"
   },
   {
-   "id": 496,
+   "id": 551,
    "grupo": "secos-7",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "una pregunta, cuando fallo la lluiva en los ultimos anos ps"
   },
   {
-   "id": 497,
+   "id": 552,
    "grupo": "secos-1",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "¿Cuáles fueron los años secos?"
   },
   {
-   "id": 498,
+   "id": 553,
    "grupo": "secos-1",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "que años fueron de sequia"
   },
   {
-   "id": 499,
+   "id": 554,
    "grupo": "secos-1",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "cuales años llovio poco"
   },
   {
-   "id": 500,
+   "id": 555,
    "grupo": "secos-1",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "cuales fueron los anos secos"
   },
   {
-   "id": 501,
+   "id": 556,
    "grupo": "secos-1",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "oiga que anos fueron de seqiua jefe"
   },
   {
-   "id": 502,
+   "id": 557,
    "grupo": "secos-3",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "años secoss"
   },
   {
-   "id": 503,
+   "id": 558,
    "grupo": "secos-3",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "anos secos"
   },
   {
-   "id": 504,
+   "id": 559,
    "grupo": "secos-3",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "cuantas sequias han sido"
   },
   {
-   "id": 505,
+   "id": 560,
    "grupo": "secos-3",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "anos secoss"
   },
   {
-   "id": 506,
+   "id": 561,
    "grupo": "secos-3",
    "set": "entrena",
    "intencion": "secos",
    "pregunta": "y anos seocs ps"
   },
   {
-   "id": 507,
+   "id": 562,
    "grupo": "anio-6",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "¿Es cierto que 2024 fue un año seco?"
   },
   {
-   "id": 508,
+   "id": 563,
    "grupo": "anio-6",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "2024 fue año de sequia"
   },
   {
-   "id": 509,
+   "id": 564,
    "grupo": "anio-6",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "estuvo seco el 2024"
   },
   {
-   "id": 510,
+   "id": 565,
    "grupo": "anio-6",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "es cierto que 2024 fue un ano seco"
   },
   {
-   "id": 511,
+   "id": 566,
    "grupo": "anio-6",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "oye 2024 fue ano de sequai amigo"
   },
   {
-   "id": 512,
+   "id": 567,
    "grupo": "anio-7",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "¿Cómo estuvo el 2020 en lluvia?"
   },
   {
-   "id": 513,
+   "id": 568,
    "grupo": "anio-7",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "el 2020 llovio poco"
   },
   {
-   "id": 514,
+   "id": 569,
    "grupo": "anio-7",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "que tal llovio en 2020"
   },
   {
-   "id": 515,
+   "id": 570,
    "grupo": "anio-7",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "como estuvo el 2020 en lluvia"
   },
   {
-   "id": 516,
+   "id": 571,
    "grupo": "anio-7",
    "set": "prueba",
    "intencion": "anio",
    "pregunta": "ps el 2020 llovo poco"
   },
   {
-   "id": 517,
+   "id": 572,
    "grupo": "anio-3",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "¿Llovió mucho el año pasado?"
   },
   {
-   "id": 518,
+   "id": 573,
    "grupo": "anio-3",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "el año pasado llovio mucho"
   },
   {
-   "id": 519,
+   "id": 574,
    "grupo": "anio-3",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "como estuvo la lluvia el año pasado"
   },
   {
-   "id": 520,
+   "id": 575,
    "grupo": "anio-3",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "llovio mucho el ano pasado"
   },
   {
-   "id": 521,
+   "id": 576,
    "grupo": "anio-3",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "y el ano pasdao llovio mucho porfa"
   },
   {
-   "id": 522,
+   "id": 577,
    "grupo": "anio-4",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "¿Cuántos mm llovieron en 2011?"
   },
   {
-   "id": 523,
+   "id": 578,
    "grupo": "anio-4",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "en 2011 cuanto llovio"
   },
   {
-   "id": 524,
+   "id": 579,
    "grupo": "anio-4",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "llovio mucho en 2011"
   },
   {
-   "id": 525,
+   "id": 580,
    "grupo": "anio-4",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "cuantos mm llovieron en 2011"
   },
   {
-   "id": 526,
+   "id": 581,
    "grupo": "anio-4",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "disculpe en 2011 cuato llovio porfa"
   },
   {
-   "id": 527,
+   "id": 582,
    "grupo": "anio-8",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "¿Hay sequía este año?"
   },
   {
-   "id": 528,
+   "id": 583,
    "grupo": "anio-8",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "este año esta seco"
   },
   {
-   "id": 529,
+   "id": 584,
    "grupo": "anio-8",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "este año llovio menos de lo normal"
   },
   {
-   "id": 530,
+   "id": 585,
    "grupo": "anio-8",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "hay sequia este ano"
   },
   {
-   "id": 531,
+   "id": 586,
    "grupo": "anio-8",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "disculpe este ano esta seco"
   },
   {
-   "id": 532,
+   "id": 587,
    "grupo": "anio-2",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "¿El 2024 llovió más o menos de lo normal?"
   },
   {
-   "id": 533,
+   "id": 588,
    "grupo": "anio-2",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "en 2024 llovio mas o menos de lo normal"
   },
   {
-   "id": 534,
+   "id": 589,
    "grupo": "anio-2",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "el año 2024 estuvo seco o normal"
   },
   {
-   "id": 535,
+   "id": 590,
    "grupo": "anio-2",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "el 2024 llovio mas o menos de lo normal"
   },
   {
-   "id": 536,
+   "id": 591,
    "grupo": "anio-2",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "ps en 2024 llvoio mas o menos de lo normal amigo"
   },
   {
-   "id": 537,
+   "id": 592,
    "grupo": "anio-5",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "¿Cuánto llovió en 1995?"
   },
   {
-   "id": 538,
+   "id": 593,
    "grupo": "anio-5",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "en 1995 llovio mucho"
   },
   {
-   "id": 539,
+   "id": 594,
    "grupo": "anio-5",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "lluvia del año 1995"
   },
   {
-   "id": 540,
+   "id": 595,
    "grupo": "anio-5",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "cuanto llovio en 1995"
   },
   {
-   "id": 541,
+   "id": 596,
    "grupo": "anio-5",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "disculpe en 1995 lolvio mucho amigo"
   },
   {
-   "id": 542,
+   "id": 597,
    "grupo": "anio-1",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "¿Cuánto llovió en 2023?"
   },
   {
-   "id": 543,
+   "id": 598,
    "grupo": "anio-1",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "cuanto llovio en el 2023"
   },
   {
-   "id": 544,
+   "id": 599,
    "grupo": "anio-1",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "cuantos milimetros cayeron en 2023"
   },
   {
-   "id": 545,
+   "id": 600,
    "grupo": "anio-1",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "cuanto llovio en 2023"
   },
   {
-   "id": 546,
+   "id": 601,
    "grupo": "anio-1",
    "set": "entrena",
    "intencion": "anio",
    "pregunta": "una pregunta, cuato llovio en el 2023"
   },
   {
-   "id": 547,
+   "id": 602,
    "grupo": "pronostico-5",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "¿Va a llover mañana?"
   },
   {
-   "id": 548,
+   "id": 603,
    "grupo": "pronostico-5",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "manana llueve"
   },
   {
-   "id": 549,
+   "id": 604,
    "grupo": "pronostico-5",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "oiga, mañana cae agua"
   },
   {
-   "id": 550,
+   "id": 605,
    "grupo": "pronostico-5",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "va a llover manana"
   },
   {
-   "id": 551,
+   "id": 606,
    "grupo": "pronostico-5",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "oiga mannaa llueve"
   },
   {
-   "id": 552,
+   "id": 607,
    "grupo": "pronostico-8",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "¿Cómo viene el tiempo en los próximos días?"
   },
   {
-   "id": 553,
+   "id": 608,
    "grupo": "pronostico-8",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "que tiempo viene para la semana"
   },
   {
-   "id": 554,
+   "id": 609,
    "grupo": "pronostico-8",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "que me dice el clima de los proximos dias"
   },
   {
-   "id": 555,
+   "id": 610,
    "grupo": "pronostico-8",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "como viene el tiempo en los proximos dias"
   },
   {
-   "id": 556,
+   "id": 611,
    "grupo": "pronostico-8",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "y que tiempo veine para la semana"
   },
   {
-   "id": 557,
+   "id": 612,
    "grupo": "pronostico-6",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "¿Cuánta lluvia se espera en total?"
   },
   {
-   "id": 558,
+   "id": 613,
    "grupo": "pronostico-6",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "cuantos milimetros se esperan esta semana"
   },
   {
-   "id": 559,
+   "id": 614,
    "grupo": "pronostico-6",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "que tanto va a llover en los proximos dias"
   },
   {
-   "id": 560,
+   "id": 615,
    "grupo": "pronostico-6",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "cuanta lluvia se espera en total"
   },
   {
-   "id": 561,
+   "id": 616,
    "grupo": "pronostico-6",
    "set": "prueba",
    "intencion": "pronostico",
    "pregunta": "oye cuantos milimetrso se esperan esta semana"
   },
   {
-   "id": 562,
+   "id": 617,
    "grupo": "pronostico-9",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "¿Puedo regar hoy o va a llover?"
   },
   {
-   "id": 563,
+   "id": 618,
    "grupo": "pronostico-9",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "hoy va a llover o mejor riego"
   },
   {
-   "id": 564,
+   "id": 619,
    "grupo": "pronostico-9",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "llueve hoy o no"
   },
   {
-   "id": 565,
+   "id": 620,
    "grupo": "pronostico-9",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "puedo regar hoy o va a llover"
   },
   {
-   "id": 566,
+   "id": 621,
    "grupo": "pronostico-9",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "disculpe hoy va a llover o mejro riego jefe"
   },
   {
-   "id": 567,
+   "id": 622,
    "grupo": "pronostico-7",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "¿Hará calor esta semana?"
   },
   {
-   "id": 568,
+   "id": 623,
    "grupo": "pronostico-7",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "como estara el calor en los proximos dias"
   },
   {
-   "id": 569,
+   "id": 624,
    "grupo": "pronostico-7",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "va a hacer calor en estos dias"
   },
   {
-   "id": 570,
+   "id": 625,
    "grupo": "pronostico-7",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "hara calor esta semana"
   },
   {
-   "id": 571,
+   "id": 626,
    "grupo": "pronostico-7",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "una pregunta, como estara el calor en los proimos dias amigo"
   },
   {
-   "id": 572,
+   "id": 627,
    "grupo": "pronostico-1",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "¿Va a llover esta semana?"
   },
   {
-   "id": 573,
+   "id": 628,
    "grupo": "pronostico-1",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "va a llover en estos dias"
   },
   {
-   "id": 574,
+   "id": 629,
    "grupo": "pronostico-1",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "ps lloverá esta semana"
   },
   {
-   "id": 575,
+   "id": 630,
    "grupo": "pronostico-1",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "va a llover esta semana"
   },
   {
-   "id": 576,
+   "id": 631,
    "grupo": "pronostico-1",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "una pregunta, va a lloevr en estos dias"
   },
   {
-   "id": 577,
+   "id": 632,
    "grupo": "pronostico-4",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "me puedes decir el pronostico?"
   },
   {
-   "id": 578,
+   "id": 633,
    "grupo": "pronostico-4",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "pronostico del tiempo"
   },
   {
-   "id": 579,
+   "id": 634,
    "grupo": "pronostico-4",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "como va a estar el clima la proxima semana"
   },
   {
-   "id": 580,
+   "id": 635,
    "grupo": "pronostico-4",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "me puedes decir el pronostico"
   },
   {
-   "id": 581,
+   "id": 636,
    "grupo": "pronostico-4",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "ps pronostico del tiepo ps"
   },
   {
-   "id": 582,
+   "id": 637,
    "grupo": "pronostico-3",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "¿Se va a helar mañana?"
   },
   {
-   "id": 583,
+   "id": 638,
    "grupo": "pronostico-3",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "mañana va a helar"
   },
   {
-   "id": 584,
+   "id": 639,
    "grupo": "pronostico-3",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "hay helada para manana"
   },
   {
-   "id": 585,
+   "id": 640,
    "grupo": "pronostico-3",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "se va a helar manana"
   },
   {
-   "id": 586,
+   "id": 641,
    "grupo": "pronostico-3",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "disculpe manana va a hlear ps"
   },
   {
-   "id": 587,
+   "id": 642,
    "grupo": "pronostico-2",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "¿Qué temperatura mínima habrá esta semana?"
   },
   {
-   "id": 588,
+   "id": 643,
    "grupo": "pronostico-2",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "que tan frio va a hacer esta semana"
   },
   {
-   "id": 589,
+   "id": 644,
    "grupo": "pronostico-2",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "cuanto bajara la temperatura esta semana"
   },
   {
-   "id": 590,
+   "id": 645,
    "grupo": "pronostico-2",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "que temperatura minima habra esta semana"
   },
   {
-   "id": 591,
+   "id": 646,
    "grupo": "pronostico-2",
    "set": "entrena",
    "intencion": "pronostico",
    "pregunta": "disculpe que tan frio va a hacer esta smana"
   },
   {
-   "id": 592,
+   "id": 647,
    "grupo": "tendencia-2",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "¿La lluvia de verano va a la baja en los últimos 25 años?"
   },
   {
-   "id": 593,
+   "id": 648,
    "grupo": "tendencia-2",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "ha bajado la lluvia en los ultimos años"
   },
   {
-   "id": 594,
+   "id": 649,
    "grupo": "tendencia-2",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "la lluvia va disminuyendo con los años"
   },
   {
-   "id": 595,
+   "id": 650,
    "grupo": "tendencia-2",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "la lluvia de verano va a la baja en los ultimos 25 anos"
   },
   {
-   "id": 596,
+   "id": 651,
    "grupo": "tendencia-2",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "oiga ha bjaado la lluvia en los ultimos anos"
   },
   {
-   "id": 597,
+   "id": 652,
    "grupo": "tendencia-3",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "¿Está cambiando el clima?"
   },
   {
-   "id": 598,
+   "id": 653,
    "grupo": "tendencia-3",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "si esta cambiando el clima aqui"
   },
   {
-   "id": 599,
+   "id": 654,
    "grupo": "tendencia-3",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "el cambio climatico ya se nota en mi zona"
   },
   {
-   "id": 600,
+   "id": 655,
    "grupo": "tendencia-3",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "esta cambiando el clima"
   },
   {
-   "id": 601,
+   "id": 656,
    "grupo": "tendencia-3",
    "set": "prueba",
    "intencion": "tendencia",
    "pregunta": "ps si esta cambindo el clima aqui jefe"
   },
   {
-   "id": 602,
+   "id": 657,
    "grupo": "tendencia-1",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "¿Está llegando menos lluvia que antes?"
   },
   {
-   "id": 603,
+   "id": 658,
    "grupo": "tendencia-1",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "llueve menos que antes"
   },
   {
-   "id": 604,
+   "id": 659,
    "grupo": "tendencia-1",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "cada vez llueve menos"
   },
   {
-   "id": 605,
+   "id": 660,
    "grupo": "tendencia-1",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "esta llegando menos lluvia que antes"
   },
   {
-   "id": 606,
+   "id": 661,
    "grupo": "tendencia-1",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "y lleve menos que antes"
   },
   {
-   "id": 607,
+   "id": 662,
    "grupo": "tendencia-6",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "¿Ha empeorado el temporal en los últimos años?"
   },
   {
-   "id": 608,
+   "id": 663,
    "grupo": "tendencia-6",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "el temporal esta peor que antes"
   },
   {
-   "id": 609,
+   "id": 664,
    "grupo": "tendencia-6",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "cada año es peor la lluvia"
   },
   {
-   "id": 610,
+   "id": 665,
    "grupo": "tendencia-6",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "ha empeorado el temporal en los ultimos anos"
   },
   {
-   "id": 611,
+   "id": 666,
    "grupo": "tendencia-6",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "oiga el temporal esta peor que ates ps"
   },
   {
-   "id": 612,
+   "id": 667,
    "grupo": "tendencia-4",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "¿Antes llovía más que ahora?"
   },
   {
-   "id": 613,
+   "id": 668,
    "grupo": "tendencia-4",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "cuando era niño llovia mas"
   },
   {
-   "id": 614,
+   "id": 669,
    "grupo": "tendencia-4",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "ya no llueve como antes"
   },
   {
-   "id": 615,
+   "id": 670,
    "grupo": "tendencia-4",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "antes llovia mas que ahora"
   },
   {
-   "id": 616,
+   "id": 671,
    "grupo": "tendencia-4",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "oye cando era nino llovia mas jefe"
   },
   {
-   "id": 617,
+   "id": 672,
    "grupo": "tendencia-5",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "¿La lluvia está aumentando?"
   },
   {
-   "id": 618,
+   "id": 673,
    "grupo": "tendencia-5",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "llueve mas cada año"
   },
   {
-   "id": 619,
+   "id": 674,
    "grupo": "tendencia-5",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "esta mejorando la lluvia con los años"
   },
   {
-   "id": 620,
+   "id": 675,
    "grupo": "tendencia-5",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "la lluvia esta aumentando"
   },
   {
-   "id": 621,
+   "id": 676,
    "grupo": "tendencia-5",
    "set": "entrena",
    "intencion": "tendencia",
    "pregunta": "disculpe llueev mas cada ano ps"
   },
   {
-   "id": 622,
+   "id": 677,
    "grupo": "heladas-6",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "¿Hasta cuándo hay heladas?"
   },
   {
-   "id": 623,
+   "id": 678,
    "grupo": "heladas-6",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "cuando es la ultima helada"
   },
   {
-   "id": 624,
+   "id": 679,
    "grupo": "heladas-6",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "en que mes ya no hiela"
   },
   {
-   "id": 625,
+   "id": 680,
    "grupo": "heladas-6",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "hasta cuando hay heladas"
   },
   {
-   "id": 626,
+   "id": 681,
    "grupo": "heladas-6",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "disculpe caundo es la ultima helada porfa"
   },
   {
-   "id": 627,
+   "id": 682,
    "grupo": "heladas-4",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "hace frio en inviernp?"
   },
   {
-   "id": 628,
+   "id": 683,
    "grupo": "heladas-4",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "hace frio en invierno"
   },
   {
-   "id": 629,
+   "id": 684,
    "grupo": "heladas-4",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "en invierno se pone muy frio"
   },
   {
-   "id": 630,
+   "id": 685,
    "grupo": "heladas-4",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "hace frio en inviernp"
   },
   {
-   "id": 631,
+   "id": 686,
    "grupo": "heladas-4",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "y hace frio en invieno"
   },
   {
-   "id": 632,
+   "id": 687,
    "grupo": "heladas-3",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "¿Qué mes es el más frío?"
   },
   {
-   "id": 633,
+   "id": 688,
    "grupo": "heladas-3",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "cuando hace mas frio"
   },
   {
-   "id": 634,
+   "id": 689,
    "grupo": "heladas-3",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "en que mes cae la helada"
   },
   {
-   "id": 635,
+   "id": 690,
    "grupo": "heladas-3",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "que mes es el mas frio"
   },
   {
-   "id": 636,
+   "id": 691,
    "grupo": "heladas-3",
    "set": "prueba",
    "intencion": "heladas",
    "pregunta": "y cunado hace mas frio ps"
   },
   {
-   "id": 637,
+   "id": 692,
    "grupo": "heladas-1",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "¿Hay riesgo de heladas?"
   },
   {
-   "id": 638,
+   "id": 693,
    "grupo": "heladas-1",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "se dan heladas por aqui"
   },
   {
-   "id": 639,
+   "id": 694,
    "grupo": "heladas-1",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "hay heladas en mi parcela"
   },
   {
-   "id": 640,
+   "id": 695,
    "grupo": "heladas-1",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "hay riesgo de heladas"
   },
   {
-   "id": 641,
+   "id": 696,
    "grupo": "heladas-1",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "oiga se dan helaads por aqui jefe"
   },
   {
-   "id": 642,
+   "id": 697,
    "grupo": "heladas-2",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "¿Qué tan frío se pone en enero?"
   },
   {
-   "id": 643,
+   "id": 698,
    "grupo": "heladas-2",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "cuanto baja la temperatura en enero"
   },
   {
-   "id": 644,
+   "id": 699,
    "grupo": "heladas-2",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "hace mucho frio en enero"
   },
   {
-   "id": 645,
+   "id": 700,
    "grupo": "heladas-2",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "que tan frio se pone en enero"
   },
   {
-   "id": 646,
+   "id": 701,
    "grupo": "heladas-2",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "oye cuano baja la temperatura en enero"
   },
   {
-   "id": 647,
+   "id": 702,
    "grupo": "heladas-8",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "¿Se me puede quemar la siembra por el frío?"
   },
   {
-   "id": 648,
+   "id": 703,
    "grupo": "heladas-8",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "el frio puede dañar mis plantas"
   },
   {
-   "id": 649,
+   "id": 704,
    "grupo": "heladas-8",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "las heladas me dañan el cultivo"
   },
   {
-   "id": 650,
+   "id": 705,
    "grupo": "heladas-8",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "se me puede quemar la siembra por el frio"
   },
   {
-   "id": 651,
+   "id": 706,
    "grupo": "heladas-8",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "una pregunta, el frio puede danar mis plntas"
   },
   {
-   "id": 652,
+   "id": 707,
    "grupo": "heladas-7",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "¿Cuántas noches hay con helada al año?"
   },
   {
-   "id": 653,
+   "id": 708,
    "grupo": "heladas-7",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "cuantos dias de helada hay"
   },
   {
-   "id": 654,
+   "id": 709,
    "grupo": "heladas-7",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "se congela seguido mi parcela"
   },
   {
-   "id": 655,
+   "id": 710,
    "grupo": "heladas-7",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "cuantas noches hay con helada al ano"
   },
   {
-   "id": 656,
+   "id": 711,
    "grupo": "heladas-7",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "ps cuantos dias de helaa hay jefe"
   },
   {
-   "id": 657,
+   "id": 712,
+   "grupo": "heladas-10",
+   "set": "entrena",
+   "intencion": "heladas",
+   "pregunta": "hay heladas en mi parcela en marzo"
+  },
+  {
+   "id": 713,
+   "grupo": "heladas-10",
+   "set": "entrena",
+   "intencion": "heladas",
+   "pregunta": "hiela en marzo en mi parcela"
+  },
+  {
+   "id": 714,
+   "grupo": "heladas-10",
+   "set": "entrena",
+   "intencion": "heladas",
+   "pregunta": "cae helada en marzo aqui"
+  },
+  {
+   "id": 715,
+   "grupo": "heladas-10",
+   "set": "entrena",
+   "intencion": "heladas",
+   "pregunta": "oye hiela en marzo en mi pacela ps"
+  },
+  {
+   "id": 716,
    "grupo": "heladas-5",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "¿Cuándo caen las primeras heladas?"
   },
   {
-   "id": 658,
+   "id": 717,
    "grupo": "heladas-5",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "en que fecha empiezan las heladas"
   },
   {
-   "id": 659,
+   "id": 718,
    "grupo": "heladas-5",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "cuando hiela por primera vez"
   },
   {
-   "id": 660,
+   "id": 719,
    "grupo": "heladas-5",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "cuando caen las primeras heladas"
   },
   {
-   "id": 661,
+   "id": 720,
    "grupo": "heladas-5",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "oiga en que fecha empiezan las heladsa"
   },
   {
-   "id": 662,
+   "id": 721,
    "grupo": "heladas-9",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "¿Hay riesgo de helada para mi maíz?"
   },
   {
-   "id": 663,
+   "id": 722,
    "grupo": "heladas-9",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "se me puede helar el maiz"
   },
   {
-   "id": 664,
+   "id": 723,
    "grupo": "heladas-9",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "hay heladas que dañen el maiz"
   },
   {
-   "id": 665,
+   "id": 724,
    "grupo": "heladas-9",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "hay riesgo de helada para mi maiz"
   },
   {
-   "id": 666,
+   "id": 725,
    "grupo": "heladas-9",
    "set": "entrena",
    "intencion": "heladas",
    "pregunta": "una pregunta, se me puede healr el maiz porfa"
   },
   {
-   "id": 667,
+   "id": 726,
    "grupo": "calor-1",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "¿Hace mucho calor en mayo?"
   },
   {
-   "id": 668,
+   "id": 727,
    "grupo": "calor-1",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "que tan caluroso es mayo"
   },
   {
-   "id": 669,
+   "id": 728,
    "grupo": "calor-1",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "en mayo hace mucho calor"
   },
   {
-   "id": 670,
+   "id": 729,
    "grupo": "calor-1",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "hace mucho calor en mayo"
   },
   {
-   "id": 671,
+   "id": 730,
    "grupo": "calor-1",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "ps que tan clauroso es mayo porfa"
   },
   {
-   "id": 672,
+   "id": 731,
    "grupo": "calor-5",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "¿Qué tan caliente se pone en abril?"
   },
   {
-   "id": 673,
+   "id": 732,
    "grupo": "calor-5",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "hace calor en abril"
   },
   {
-   "id": 674,
+   "id": 733,
    "grupo": "calor-5",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "temperatura maxima en abril"
   },
   {
-   "id": 675,
+   "id": 734,
    "grupo": "calor-5",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "que tan caliente se pone en abril"
   },
   {
-   "id": 676,
+   "id": 735,
    "grupo": "calor-5",
    "set": "prueba",
    "intencion": "calor",
    "pregunta": "oye hace calor en abirl"
   },
   {
-   "id": 677,
+   "id": 736,
    "grupo": "calor-2",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "¿Cuál es el mes más caluroso?"
   },
   {
-   "id": 678,
+   "id": 737,
    "grupo": "calor-2",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "en que mes hace mas calor"
   },
   {
-   "id": 679,
+   "id": 738,
    "grupo": "calor-2",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "cuando es lo mas caliente del año"
   },
   {
-   "id": 680,
+   "id": 739,
    "grupo": "calor-2",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "cual es el mes mas caluroso"
   },
   {
-   "id": 681,
+   "id": 740,
    "grupo": "calor-2",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "y en que mes hace mas claor jefe"
   },
   {
-   "id": 682,
+   "id": 741,
    "grupo": "calor-6",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "¿Cuántos días de calor fuerte hay al año?"
   },
   {
-   "id": 683,
+   "id": 742,
    "grupo": "calor-6",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "cuantos dias hace mas de 35 grados"
   },
   {
-   "id": 684,
+   "id": 743,
    "grupo": "calor-6",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "que tanto calor hace en verano"
   },
   {
-   "id": 685,
+   "id": 744,
    "grupo": "calor-6",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "cuantos dias de calor fuerte hay al ano"
   },
   {
-   "id": 686,
+   "id": 745,
    "grupo": "calor-6",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "una pregunta, cuatos dias hace mas de 35 grados ps"
   },
   {
-   "id": 687,
+   "id": 746,
    "grupo": "calor-4",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "temperatura promedio en diciembre"
   },
   {
-   "id": 688,
+   "id": 747,
    "grupo": "calor-4",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "cuantos grados en diciembre"
   },
   {
-   "id": 689,
+   "id": 748,
    "grupo": "calor-4",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "que temperatura hace en diciembre"
   },
   {
-   "id": 690,
+   "id": 749,
    "grupo": "calor-4",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "y cuanots grados en diciembre amigo"
   },
   {
-   "id": 691,
+   "id": 750,
    "grupo": "calor-3",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "¿Cuántos grados hace en julio?"
   },
   {
-   "id": 692,
+   "id": 751,
    "grupo": "calor-3",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "que temperatura hay en julio"
   },
   {
-   "id": 693,
+   "id": 752,
    "grupo": "calor-3",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "temperatura de julio"
   },
   {
-   "id": 694,
+   "id": 753,
    "grupo": "calor-3",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "cuantos grados hace en julio"
   },
   {
-   "id": 695,
+   "id": 754,
    "grupo": "calor-3",
    "set": "entrena",
    "intencion": "calor",
    "pregunta": "y que temperatura hay en juio jefe"
   },
   {
-   "id": 696,
+   "id": 755,
    "grupo": "radiacion-4",
    "set": "prueba",
    "intencion": "radiacion",
    "pregunta": "¿En qué mes hay más sol?"
   },
   {
-   "id": 697,
+   "id": 756,
    "grupo": "radiacion-4",
    "set": "prueba",
    "intencion": "radiacion",
    "pregunta": "cuando hay mas radiacion"
   },
   {
-   "id": 698,
+   "id": 757,
    "grupo": "radiacion-4",
    "set": "prueba",
    "intencion": "radiacion",
    "pregunta": "cual es el mes mas soleado"
   },
   {
-   "id": 699,
+   "id": 758,
    "grupo": "radiacion-4",
    "set": "prueba",
    "intencion": "radiacion",
    "pregunta": "en que mes hay mas sol"
   },
   {
-   "id": 700,
+   "id": 759,
    "grupo": "radiacion-4",
    "set": "prueba",
    "intencion": "radiacion",
    "pregunta": "una pregunta, cuadno hay mas radiacion porfa"
   },
   {
-   "id": 701,
+   "id": 760,
    "grupo": "radiacion-1",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "¿Cuánta radiación solar hay?"
   },
   {
-   "id": 702,
+   "id": 761,
    "grupo": "radiacion-1",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "cuanto sol hay en mi parcela"
   },
   {
-   "id": 703,
+   "id": 762,
    "grupo": "radiacion-1",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "que tanta radiacion solar tengo"
   },
   {
-   "id": 704,
+   "id": 763,
    "grupo": "radiacion-1",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "cuanta radiacion solar hay"
   },
   {
-   "id": 705,
+   "id": 764,
    "grupo": "radiacion-1",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "disculpe cuanto sol hay en mi parcea porfa"
   },
   {
-   "id": 706,
+   "id": 765,
    "grupo": "radiacion-2",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "radiación solar en junio"
   },
   {
-   "id": 707,
+   "id": 766,
    "grupo": "radiacion-2",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "cuanta luz solar hay en junio"
   },
   {
-   "id": 708,
+   "id": 767,
    "grupo": "radiacion-2",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "cuanto sol llega en junio"
   },
   {
-   "id": 709,
+   "id": 768,
    "grupo": "radiacion-2",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "radiacion solar en junio"
   },
   {
-   "id": 710,
+   "id": 769,
    "grupo": "radiacion-2",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "disculpe cuanta luz solar hay en juno"
   },
   {
-   "id": 711,
+   "id": 770,
    "grupo": "radiacion-3",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "¿Cuánto sol recibe mi terreno?"
   },
   {
-   "id": 712,
+   "id": 771,
    "grupo": "radiacion-3",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "que tanto sol le pega a mi parcela"
   },
   {
-   "id": 713,
+   "id": 772,
    "grupo": "radiacion-3",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "cuanta energia solar llega aqui"
   },
   {
-   "id": 714,
+   "id": 773,
    "grupo": "radiacion-3",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "cuanto sol recibe mi terreno"
   },
   {
-   "id": 715,
+   "id": 774,
    "grupo": "radiacion-3",
    "set": "entrena",
    "intencion": "radiacion",
    "pregunta": "y que tnato sol le pega a mi parcela porfa"
   },
   {
-   "id": 716,
+   "id": 775,
    "grupo": "humedad-4",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "¿Cuándo está más húmeda la tierra?"
   },
   {
-   "id": 717,
+   "id": 776,
    "grupo": "humedad-4",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "en que mes esta mas mojado el suelo"
   },
   {
-   "id": 718,
+   "id": 777,
    "grupo": "humedad-4",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "cuando tiene mas humedad mi parcela"
   },
   {
-   "id": 719,
+   "id": 778,
    "grupo": "humedad-4",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "cuando esta mas humeda la tierra"
   },
   {
-   "id": 720,
+   "id": 779,
    "grupo": "humedad-4",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "una pregunta, en que mes esta mas moado el suelo"
   },
   {
-   "id": 721,
+   "id": 780,
    "grupo": "humedad-5",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "¿Qué tanta agua tiene mi suelo?"
   },
   {
-   "id": 722,
+   "id": 781,
    "grupo": "humedad-5",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "cuanta humedad tiene mi terreno"
   },
   {
-   "id": 723,
+   "id": 782,
    "grupo": "humedad-5",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "mi tierra tiene humedad"
   },
   {
-   "id": 724,
+   "id": 783,
    "grupo": "humedad-5",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "que tanta agua tiene mi suelo"
   },
   {
-   "id": 725,
+   "id": 784,
    "grupo": "humedad-5",
    "set": "prueba",
    "intencion": "humedad",
    "pregunta": "disculpe cunta humedad tiene mi terreno porfa"
   },
   {
-   "id": 726,
+   "id": 785,
    "grupo": "humedad-3",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "¿Qué tan seca está la tierra en abril?"
   },
   {
-   "id": 727,
+   "id": 786,
    "grupo": "humedad-3",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "la tierra esta seca en abril"
   },
   {
-   "id": 728,
+   "id": 787,
    "grupo": "humedad-3",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "humedad de mi suelo en abril"
   },
   {
-   "id": 729,
+   "id": 788,
    "grupo": "humedad-3",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "que tan seca esta la tierra en abril"
   },
   {
-   "id": 730,
+   "id": 789,
    "grupo": "humedad-3",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "y la tierra esta seca en abil jefe"
   },
   {
-   "id": 731,
+   "id": 790,
    "grupo": "humedad-1",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "¿Qué tan húmeda está la tierra en septiembre?"
   },
   {
-   "id": 732,
+   "id": 791,
    "grupo": "humedad-1",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "humedad del suelo en septiembre"
   },
   {
-   "id": 733,
+   "id": 792,
    "grupo": "humedad-1",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "que tan mojada esta la tierra en septiembre"
   },
   {
-   "id": 734,
+   "id": 793,
    "grupo": "humedad-1",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "que tan humeda esta la tierra en septiembre"
   },
   {
-   "id": 735,
+   "id": 794,
    "grupo": "humedad-1",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "disculpe humdead del suelo en septiembre porfa"
   },
   {
-   "id": 736,
+   "id": 795,
    "grupo": "humedad-2",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "¿Cómo va la humedad de la tierra en agosto?"
   },
   {
-   "id": 737,
+   "id": 796,
    "grupo": "humedad-2",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "humedad de la parcela en agosto"
   },
   {
-   "id": 738,
+   "id": 797,
    "grupo": "humedad-2",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "la tierra esta mojada en agosto"
   },
   {
-   "id": 739,
+   "id": 798,
    "grupo": "humedad-2",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "como va la humedad de la tierra en agosto"
   },
   {
-   "id": 740,
+   "id": 799,
    "grupo": "humedad-2",
    "set": "entrena",
    "intencion": "humedad",
    "pregunta": "oiga humedad de la parcela en aosto porfa"
   },
   {
-   "id": 741,
+   "id": 800,
    "grupo": "suelo-3",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "¿Qué pH tiene mi tierra?"
   },
   {
-   "id": 742,
+   "id": 801,
    "grupo": "suelo-3",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "cual es el ph de mi parcela"
   },
   {
-   "id": 743,
+   "id": 802,
    "grupo": "suelo-3",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "mi suelo es acido o alcalino"
   },
   {
-   "id": 744,
+   "id": 803,
    "grupo": "suelo-3",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "que ph tiene mi tierra"
   },
   {
-   "id": 745,
+   "id": 804,
    "grupo": "suelo-3",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "y cual es el ph de mi pacrela"
   },
   {
-   "id": 746,
+   "id": 805,
    "grupo": "suelo-1",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "¿Cómo está mi suelo?"
   },
   {
-   "id": 747,
+   "id": 806,
    "grupo": "suelo-1",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "como esta mi tierra"
   },
   {
-   "id": 748,
+   "id": 807,
    "grupo": "suelo-1",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "que tal esta el suelo de mi parcela"
   },
   {
-   "id": 749,
+   "id": 808,
    "grupo": "suelo-1",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "como esta mi suelo"
   },
   {
-   "id": 750,
+   "id": 809,
    "grupo": "suelo-1",
    "set": "prueba",
    "intencion": "suelo",
    "pregunta": "disculpe como esta mi tirera ps"
   },
   {
-   "id": 751,
+   "id": 810,
    "grupo": "suelo-4",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "¿Cuánto carbono tiene mi suelo?"
   },
   {
-   "id": 752,
+   "id": 811,
    "grupo": "suelo-4",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "que tanta materia organica tiene mi tierra"
   },
   {
-   "id": 753,
+   "id": 812,
    "grupo": "suelo-4",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "mi tierra esta pobre o rica"
   },
   {
-   "id": 754,
+   "id": 813,
    "grupo": "suelo-4",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "cuanto carbono tiene mi suelo"
   },
   {
-   "id": 755,
+   "id": 814,
    "grupo": "suelo-4",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "oiga que tanta matria organica tiene mi tierra ps"
   },
   {
-   "id": 756,
+   "id": 815,
    "grupo": "suelo-2",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "¿Cuánta arcilla tiene mi suelo?"
   },
   {
-   "id": 757,
+   "id": 816,
    "grupo": "suelo-2",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "que textura tiene mi tierra"
   },
   {
-   "id": 758,
+   "id": 817,
    "grupo": "suelo-2",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "mi suelo es arcilloso o arenoso"
   },
   {
-   "id": 759,
+   "id": 818,
    "grupo": "suelo-2",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "cuanta arcilla tiene mi suelo"
   },
   {
-   "id": 760,
+   "id": 819,
    "grupo": "suelo-2",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "oiga que textura tiee mi tierra ps"
   },
   {
-   "id": 761,
+   "id": 820,
    "grupo": "suelo-5",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "¿Cómo es la tierra de mi terreno?"
   },
   {
-   "id": 762,
+   "id": 821,
    "grupo": "suelo-5",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "de que esta hecha mi tierra"
   },
   {
-   "id": 763,
+   "id": 822,
    "grupo": "suelo-5",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "que tipo de suelo tengo"
   },
   {
-   "id": 764,
+   "id": 823,
    "grupo": "suelo-5",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "como es la tierra de mi terreno"
   },
   {
-   "id": 765,
+   "id": 824,
    "grupo": "suelo-5",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "oye de que esta hecha mi terra"
   },
   {
-   "id": 766,
+   "id": 825,
    "grupo": "suelo-6",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "¿Mi suelo es arenoso?"
   },
   {
-   "id": 767,
+   "id": 826,
    "grupo": "suelo-6",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "tengo tierra de arena"
   },
   {
-   "id": 768,
+   "id": 827,
    "grupo": "suelo-6",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "mi terreno tiene mucha arena"
   },
   {
-   "id": 769,
+   "id": 828,
    "grupo": "suelo-6",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "mi suelo es arenoso"
   },
   {
-   "id": 770,
+   "id": 829,
    "grupo": "suelo-6",
    "set": "entrena",
    "intencion": "suelo",
    "pregunta": "oye tengo tiera de arena ps"
   },
   {
-   "id": 771,
+   "id": 830,
    "grupo": "siap-4",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "¿Cuánto se paga el frijol?"
   },
   {
-   "id": 772,
+   "id": 831,
    "grupo": "siap-4",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "a como se vende el frijol"
   },
   {
-   "id": 773,
+   "id": 832,
    "grupo": "siap-4",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "cuanto pagan el kilo de frijol"
   },
   {
-   "id": 774,
+   "id": 833,
    "grupo": "siap-4",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "cuanto se paga el frijol"
   },
   {
-   "id": 775,
+   "id": 834,
    "grupo": "siap-4",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "oiga a como se vede el frijol"
   },
   {
-   "id": 776,
+   "id": 835,
    "grupo": "siap-1",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "¿A cuánto se vende el sorgo?"
   },
   {
-   "id": 777,
+   "id": 836,
    "grupo": "siap-1",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "a como pagan el sorgo"
   },
   {
-   "id": 778,
+   "id": 837,
    "grupo": "siap-1",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "precio del sorgo"
   },
   {
-   "id": 779,
+   "id": 838,
    "grupo": "siap-1",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "a cuanto se vende el sorgo"
   },
   {
-   "id": 780,
+   "id": 839,
    "grupo": "siap-1",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "una pregunta, a como pagan el sogro amigo"
   },
   {
-   "id": 781,
+   "id": 840,
    "grupo": "siap-7",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "¿Cuánto rinde la cebada?"
   },
   {
-   "id": 782,
+   "id": 841,
    "grupo": "siap-7",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "que produccion da la cebada por hectarea"
   },
   {
-   "id": 783,
+   "id": 842,
    "grupo": "siap-7",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "cuanto saca uno de cebada"
   },
   {
-   "id": 784,
+   "id": 843,
    "grupo": "siap-7",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "cuanto rinde la cebada"
   },
   {
-   "id": 785,
+   "id": 844,
    "grupo": "siap-7",
    "set": "prueba",
    "intencion": "siap",
    "pregunta": "oiga que produccion da la cebdaa por hectarea"
   },
   {
-   "id": 786,
-   "grupo": "siap-12",
+   "id": 845,
+   "grupo": "siap-13",
    "set": "prueba",
+   "intencion": "siap",
+   "pregunta": "¿a cuanto se paga el frijol?"
+  },
+  {
+   "id": 846,
+   "grupo": "siap-13",
+   "set": "prueba",
+   "intencion": "siap",
+   "pregunta": "a como esta el frijol"
+  },
+  {
+   "id": 847,
+   "grupo": "siap-13",
+   "set": "prueba",
+   "intencion": "siap",
+   "pregunta": "en cuanto se vende el frijol ahorita"
+  },
+  {
+   "id": 848,
+   "grupo": "siap-13",
+   "set": "prueba",
+   "intencion": "siap",
+   "pregunta": "a cuanto se paga el frijol"
+  },
+  {
+   "id": 849,
+   "grupo": "siap-13",
+   "set": "prueba",
+   "intencion": "siap",
+   "pregunta": "y a como esta el friol"
+  },
+  {
+   "id": 850,
+   "grupo": "siap-12",
+   "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Cuánto rinde el aguacate?"
   },
   {
-   "id": 787,
+   "id": 851,
    "grupo": "siap-12",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "siap",
    "pregunta": "a como se vende el aguacate"
   },
   {
-   "id": 788,
+   "id": 852,
    "grupo": "siap-12",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "siap",
    "pregunta": "que tan riesgoso es el aguacate"
   },
   {
-   "id": 789,
+   "id": 853,
    "grupo": "siap-12",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto rinde el aguacate"
   },
   {
-   "id": 790,
+   "id": 854,
    "grupo": "siap-12",
-   "set": "prueba",
+   "set": "entrena",
    "intencion": "siap",
    "pregunta": "oiga a como se vende el aguacae amigo"
   },
   {
-   "id": 791,
+   "id": 855,
    "grupo": "siap-2",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Cuánto rinde el trigo?"
   },
   {
-   "id": 792,
+   "id": 856,
    "grupo": "siap-2",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "ps que rinde el trigo en guanajuato"
   },
   {
-   "id": 793,
+   "id": 857,
    "grupo": "siap-2",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto saca uno de trigo por hectarea"
   },
   {
-   "id": 794,
+   "id": 858,
    "grupo": "siap-2",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto rinde el trigo"
   },
   {
-   "id": 795,
+   "id": 859,
    "grupo": "siap-2",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "oye ps que rinde el trigo en guanajuao"
   },
   {
-   "id": 796,
+   "id": 860,
    "grupo": "siap-3",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Qué tan riesgoso es el frijol?"
   },
   {
-   "id": 797,
+   "id": 861,
    "grupo": "siap-3",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "el frijol es muy riesgoso"
   },
   {
-   "id": 798,
+   "id": 862,
    "grupo": "siap-3",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "que tanto se pierde el frijol"
   },
   {
-   "id": 799,
+   "id": 863,
    "grupo": "siap-3",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "que tan riesgoso es el frijol"
   },
   {
-   "id": 800,
+   "id": 864,
    "grupo": "siap-3",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "ps el firjol es muy riesgoso ps"
   },
   {
-   "id": 801,
+   "id": 865,
    "grupo": "siap-8",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Qué tan riesgoso es el brócoli?"
   },
   {
-   "id": 802,
+   "id": 866,
    "grupo": "siap-8",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "el brocoli se pierde mucho"
   },
   {
-   "id": 803,
+   "id": 867,
    "grupo": "siap-8",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "riesgo de sembrar brocoli"
   },
   {
-   "id": 804,
+   "id": 868,
    "grupo": "siap-8",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "que tan riesgoso es el brocoli"
   },
   {
-   "id": 805,
+   "id": 869,
    "grupo": "siap-8",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "ps el brocoli se pierde muho amigo"
   },
   {
-   "id": 806,
+   "id": 870,
    "grupo": "siap-6",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿A cuánto se vende el jitomate?"
   },
   {
-   "id": 807,
+   "id": 871,
    "grupo": "siap-6",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "precio del jitomate"
   },
   {
-   "id": 808,
+   "id": 872,
    "grupo": "siap-6",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "a como pagan el tomate"
   },
   {
-   "id": 809,
+   "id": 873,
    "grupo": "siap-6",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "a cuanto se vende el jitomate"
   },
   {
-   "id": 810,
+   "id": 874,
    "grupo": "siap-6",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "ps preio del jitomate jefe"
   },
   {
-   "id": 811,
+   "id": 875,
    "grupo": "siap-9",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Cuánto rinde la cebolla?"
   },
   {
-   "id": 812,
+   "id": 876,
    "grupo": "siap-9",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "a como se vende la cebolla"
   },
   {
-   "id": 813,
+   "id": 877,
    "grupo": "siap-9",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto da la cebolla por ha"
   },
   {
-   "id": 814,
+   "id": 878,
    "grupo": "siap-9",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto rinde la cebolla"
   },
   {
-   "id": 815,
+   "id": 879,
    "grupo": "siap-9",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "ps a como se vnede la cebolla"
   },
   {
-   "id": 816,
+   "id": 880,
    "grupo": "siap-5",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Cuánto produce una hectárea de sorgo?"
   },
   {
-   "id": 817,
+   "id": 881,
    "grupo": "siap-5",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto da el sorgo por hectarea"
   },
   {
-   "id": 818,
+   "id": 882,
    "grupo": "siap-5",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto rinde el sorgo"
   },
   {
-   "id": 819,
+   "id": 883,
    "grupo": "siap-5",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto produce una hectarea de sorgo"
   },
   {
-   "id": 820,
+   "id": 884,
    "grupo": "siap-5",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "ps cuanto da el srgo por hectarea jefe"
   },
   {
-   "id": 821,
+   "id": 885,
    "grupo": "siap-10",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Cómo le va a la papa?"
   },
   {
-   "id": 822,
+   "id": 886,
    "grupo": "siap-10",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "a como esta la papa"
   },
   {
-   "id": 823,
+   "id": 887,
    "grupo": "siap-10",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto rinde la papa"
   },
   {
-   "id": 824,
+   "id": 888,
    "grupo": "siap-10",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "como le va a la papa"
   },
   {
-   "id": 825,
+   "id": 889,
    "grupo": "siap-10",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "ps a como esta la papa jefe"
   },
   {
-   "id": 826,
+   "id": 890,
    "grupo": "siap-11",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "¿Cuánto vale la tonelada de garbanzo?"
   },
   {
-   "id": 827,
+   "id": 891,
    "grupo": "siap-11",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "a como pagan el garbanzo"
   },
   {
-   "id": 828,
+   "id": 892,
    "grupo": "siap-11",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "rendimiento del garbanzo"
   },
   {
-   "id": 829,
+   "id": 893,
    "grupo": "siap-11",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "cuanto vale la tonelada de garbanzo"
   },
   {
-   "id": 830,
+   "id": 894,
    "grupo": "siap-11",
    "set": "entrena",
    "intencion": "siap",
    "pregunta": "y a como pagan el garbanoz ps"
   },
   {
-   "id": 831,
+   "id": 895,
    "grupo": "cultivo-1",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "¿Puedo sembrar fresas?"
   },
   {
-   "id": 832,
+   "id": 896,
    "grupo": "cultivo-1",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "se puede sembrar fresa en mi parcela"
   },
   {
-   "id": 833,
+   "id": 897,
    "grupo": "cultivo-1",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "me conviene sembrar fresas"
   },
   {
-   "id": 834,
+   "id": 898,
    "grupo": "cultivo-1",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "puedo sembrar fresas"
   },
   {
-   "id": 835,
+   "id": 899,
    "grupo": "cultivo-1",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "y se puede smbrar fresa en mi parcela porfa"
   },
   {
-   "id": 836,
+   "id": 900,
    "grupo": "cultivo-2",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "¿Puedo sembrar aguacate por aquí?"
   },
   {
-   "id": 837,
+   "id": 901,
    "grupo": "cultivo-2",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "se da el aguacate en mi zona"
   },
   {
-   "id": 838,
+   "id": 902,
    "grupo": "cultivo-2",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "vale la pena sembrar aguacate"
   },
   {
-   "id": 839,
+   "id": 903,
    "grupo": "cultivo-2",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "puedo sembrar aguacate por aqui"
   },
   {
-   "id": 840,
+   "id": 904,
    "grupo": "cultivo-2",
    "set": "prueba",
    "intencion": "cultivo",
    "pregunta": "ps se da el agaucate en mi zona porfa"
   },
   {
-   "id": 841,
+   "id": 905,
    "grupo": "cultivo-5",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "¿Puedo sembrar cebada?"
   },
   {
-   "id": 842,
+   "id": 906,
    "grupo": "cultivo-5",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "se puede cebada en temporal"
   },
   {
-   "id": 843,
+   "id": 907,
    "grupo": "cultivo-5",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "vale la pena sembrar cebada"
   },
   {
-   "id": 844,
+   "id": 908,
    "grupo": "cultivo-5",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "puedo sembrar cebada"
   },
   {
-   "id": 845,
+   "id": 909,
    "grupo": "cultivo-5",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "y se puede cebada en temporl jefe"
   },
   {
-   "id": 846,
+   "id": 910,
    "grupo": "cultivo-3",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "¿Conviene sembrar brócoli?"
   },
   {
-   "id": 847,
+   "id": 911,
    "grupo": "cultivo-3",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "se puede plantar brocoli"
   },
   {
-   "id": 848,
+   "id": 912,
    "grupo": "cultivo-3",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "vale la pena el brocoli"
   },
   {
-   "id": 849,
+   "id": 913,
    "grupo": "cultivo-3",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "conviene sembrar brocoli"
   },
   {
-   "id": 850,
+   "id": 914,
    "grupo": "cultivo-3",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "y se puede plantar brooli porfa"
   },
   {
-   "id": 851,
+   "id": 915,
    "grupo": "cultivo-6",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "¿Puedo sembrar papa?"
   },
   {
-   "id": 852,
+   "id": 916,
    "grupo": "cultivo-6",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "se da la papa en mi parcela"
   },
   {
-   "id": 853,
+   "id": 917,
    "grupo": "cultivo-6",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "me conviene plantar papa"
   },
   {
-   "id": 854,
+   "id": 918,
    "grupo": "cultivo-6",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "puedo sembrar papa"
   },
   {
-   "id": 855,
+   "id": 919,
    "grupo": "cultivo-6",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "ps se da la papa en mi parcla"
   },
   {
-   "id": 856,
+   "id": 920,
    "grupo": "cultivo-4",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "¿Se puede sembrar jitomate en mi terreno?"
   },
   {
-   "id": 857,
+   "id": 921,
    "grupo": "cultivo-4",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "puedo plantar tomate"
   },
   {
-   "id": 858,
+   "id": 922,
    "grupo": "cultivo-4",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "conviene el jitomate"
   },
   {
-   "id": 859,
+   "id": 923,
    "grupo": "cultivo-4",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "se puede sembrar jitomate en mi terreno"
   },
   {
-   "id": 860,
+   "id": 924,
    "grupo": "cultivo-4",
    "set": "entrena",
    "intencion": "cultivo",
    "pregunta": "oiga puedo platar tomate amigo"
   },
   {
-   "id": 861,
+   "id": 925,
    "grupo": "frutales-5",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "¿Y los árboles frutales, sirven?"
   },
   {
-   "id": 862,
+   "id": 926,
    "grupo": "frutales-5",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "conviene sembrar arboles de fruta"
   },
   {
-   "id": 863,
+   "id": 927,
    "grupo": "frutales-5",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "frutales para mi terreno"
   },
   {
-   "id": 864,
+   "id": 928,
    "grupo": "frutales-5",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "y los arboles frutales sirven"
   },
   {
-   "id": 865,
+   "id": 929,
    "grupo": "frutales-5",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "una pregunta, conviene sebrar arboles de fruta ps"
   },
   {
-   "id": 866,
+   "id": 930,
    "grupo": "frutales-3",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "¿Qué se sabe de la uva?"
   },
   {
-   "id": 867,
+   "id": 931,
    "grupo": "frutales-3",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "uva en queretaro"
   },
   {
-   "id": 868,
+   "id": 932,
    "grupo": "frutales-3",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "cuanto se siembra de uva"
   },
   {
-   "id": 869,
+   "id": 933,
    "grupo": "frutales-3",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "que se sabe de la uva"
   },
   {
-   "id": 870,
+   "id": 934,
    "grupo": "frutales-3",
    "set": "prueba",
    "intencion": "frutales",
    "pregunta": "una pregunta, uva en queretaor jefe"
   },
   {
-   "id": 871,
+   "id": 935,
    "grupo": "frutales-1",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "¿Qué frutales hay en mi estado?"
   },
   {
-   "id": 872,
+   "id": 936,
    "grupo": "frutales-1",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "que frutas se siembran en guanajuato"
   },
   {
-   "id": 873,
+   "id": 937,
    "grupo": "frutales-1",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "cuales son los frutales de queretaro"
   },
   {
-   "id": 874,
+   "id": 938,
    "grupo": "frutales-1",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "que frutales hay en mi estado"
   },
   {
-   "id": 875,
+   "id": 939,
    "grupo": "frutales-1",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "oye que frutas se siembran en guanajuao jefe"
   },
   {
-   "id": 876,
+   "id": 940,
    "grupo": "frutales-2",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "¿Cuánto rinde el espárrago?"
   },
   {
-   "id": 877,
+   "id": 941,
    "grupo": "frutales-2",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "que se sabe del esparrago"
   },
   {
-   "id": 878,
+   "id": 942,
    "grupo": "frutales-2",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "sembrar esparrago en guanajuato"
   },
   {
-   "id": 879,
+   "id": 943,
    "grupo": "frutales-2",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "cuanto rinde el esparrago"
   },
   {
-   "id": 880,
+   "id": 944,
    "grupo": "frutales-2",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "oiga que se sabe del esparraog"
   },
   {
-   "id": 881,
+   "id": 945,
    "grupo": "frutales-6",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "¿Qué hay de arándanos y frambuesas?"
   },
   {
-   "id": 882,
+   "id": 946,
    "grupo": "frutales-6",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "berries en guanajuato"
   },
   {
-   "id": 883,
+   "id": 947,
    "grupo": "frutales-6",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "zarzamora en queretaro"
   },
   {
-   "id": 884,
+   "id": 948,
    "grupo": "frutales-6",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "que hay de arandanos y frambuesas"
   },
   {
-   "id": 885,
+   "id": 949,
    "grupo": "frutales-6",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "ps beries en guanajuato porfa"
   },
   {
-   "id": 886,
+   "id": 950,
    "grupo": "frutales-7",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "¿Cuánto rinde la naranja?"
   },
   {
-   "id": 887,
+   "id": 951,
    "grupo": "frutales-7",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "naranja en mi estado"
   },
   {
-   "id": 888,
+   "id": 952,
    "grupo": "frutales-7",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "manzana o durazno en queretaro"
   },
   {
-   "id": 889,
+   "id": 953,
    "grupo": "frutales-7",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "cuanto rinde la naranja"
   },
   {
-   "id": 890,
+   "id": 954,
    "grupo": "frutales-7",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "ps naranja en mi esatdo"
   },
   {
-   "id": 891,
+   "id": 955,
    "grupo": "frutales-4",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "¿Qué hay de la tuna?"
   },
   {
-   "id": 892,
+   "id": 956,
    "grupo": "frutales-4",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "cuanto produce el nopal tunero"
   },
   {
-   "id": 893,
+   "id": 957,
    "grupo": "frutales-4",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "tuna en guanajuato"
   },
   {
-   "id": 894,
+   "id": 958,
    "grupo": "frutales-4",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "que hay de la tuna"
   },
   {
-   "id": 895,
+   "id": 959,
    "grupo": "frutales-4",
    "set": "entrena",
    "intencion": "frutales",
    "pregunta": "una pregunta, cuanto produce el nopal tuneor"
   },
   {
-   "id": 896,
+   "id": 960,
    "grupo": "peligro-1",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "¿Qué pesticida le echo al maíz y cuánto?"
   },
   {
-   "id": 897,
+   "id": 961,
    "grupo": "peligro-1",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "que le fumigo al maiz para la plaga"
   },
   {
-   "id": 898,
+   "id": 962,
    "grupo": "peligro-1",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "ps que veneno le pongo al maiz"
   },
   {
-   "id": 899,
+   "id": 963,
    "grupo": "peligro-1",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "que pesticida le echo al maiz y cuanto"
   },
   {
-   "id": 900,
+   "id": 964,
    "grupo": "peligro-1",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "ps que le fumgo al maiz para la plaga ps"
   },
   {
-   "id": 901,
+   "id": 965,
    "grupo": "peligro-7",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "¿Qué fertilizante le echo al maíz?"
   },
   {
-   "id": 902,
+   "id": 966,
    "grupo": "peligro-7",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "que abono le pongo a mi milpa"
   },
   {
-   "id": 903,
+   "id": 967,
    "grupo": "peligro-7",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "que fertilizante es mejor para mi cultivo"
   },
   {
-   "id": 904,
+   "id": 968,
    "grupo": "peligro-7",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "que fertilizante le echo al maiz"
   },
   {
-   "id": 905,
+   "id": 969,
    "grupo": "peligro-7",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "ps que abono le pogno a mi milpa jefe"
   },
   {
-   "id": 906,
+   "id": 970,
    "grupo": "peligro-6",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "¿Qué hago contra el gusano cogollero?"
   },
   {
-   "id": 907,
+   "id": 971,
    "grupo": "peligro-6",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "como combato el gusano cogollero"
   },
   {
-   "id": 908,
+   "id": 972,
    "grupo": "peligro-6",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "que le echo al cogollero"
   },
   {
-   "id": 909,
+   "id": 973,
    "grupo": "peligro-6",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "que hago contra el gusano cogollero"
   },
   {
-   "id": 910,
+   "id": 974,
    "grupo": "peligro-6",
    "set": "prueba",
    "intencion": "peligro",
    "pregunta": "y como combato el gusano cogolero"
   },
   {
-   "id": 911,
+   "id": 975,
    "grupo": "peligro-2",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "¿Cuántos litros de herbicida por hectárea le pongo al frijol?"
   },
   {
-   "id": 912,
+   "id": 976,
    "grupo": "peligro-2",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cuanto herbicida le echo a mi terreno"
   },
   {
-   "id": 913,
+   "id": 977,
    "grupo": "peligro-2",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "dosis de herbicida por hectarea"
   },
   {
-   "id": 914,
+   "id": 978,
    "grupo": "peligro-2",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cuantos litros de herbicida por hectarea le pongo al frijol"
   },
   {
-   "id": 915,
+   "id": 979,
    "grupo": "peligro-2",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "una pregunta, cuanto herbicida le echo a mi terreon"
   },
   {
-   "id": 916,
+   "id": 980,
    "grupo": "peligro-9",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "¿Cuánto agroquímico necesito por hectárea?"
   },
   {
-   "id": 917,
+   "id": 981,
    "grupo": "peligro-9",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "dosis de agroquimicos para mi parcela"
   },
   {
-   "id": 918,
+   "id": 982,
    "grupo": "peligro-9",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cuantos ml de insecticida por litro de agua"
   },
   {
-   "id": 919,
+   "id": 983,
    "grupo": "peligro-9",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cuanto agroquimico necesito por hectarea"
   },
   {
-   "id": 920,
+   "id": 984,
    "grupo": "peligro-9",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "ps dosis de agroquiicos para mi parcela porfa"
   },
   {
-   "id": 921,
+   "id": 985,
    "grupo": "peligro-5",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "¿Cuánta urea le pongo al maíz?"
   },
   {
-   "id": 922,
+   "id": 986,
    "grupo": "peligro-5",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cuantos kilos de urea por hectarea"
   },
   {
-   "id": 923,
+   "id": 987,
    "grupo": "peligro-5",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cuanto abono le echo a mi parcela"
   },
   {
-   "id": 924,
+   "id": 988,
    "grupo": "peligro-5",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cuanta urea le pongo al maiz"
   },
   {
-   "id": 925,
+   "id": 989,
    "grupo": "peligro-5",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "una pregunta, cuantos kilos de urea por hectrea ps"
   },
   {
-   "id": 926,
+   "id": 990,
    "grupo": "peligro-3",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "dame una marca de insecticida buena"
   },
   {
-   "id": 927,
+   "id": 991,
    "grupo": "peligro-3",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "cual insecticida me recomiendas"
   },
   {
-   "id": 928,
+   "id": 992,
    "grupo": "peligro-3",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "que marca de fungicida es mejor"
   },
   {
-   "id": 929,
+   "id": 993,
    "grupo": "peligro-3",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "ps cual insecticida me recomiedas ps"
   },
   {
-   "id": 930,
+   "id": 994,
    "grupo": "peligro-4",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "¿Qué le echo al maíz para que crezca más?"
   },
   {
-   "id": 931,
+   "id": 995,
    "grupo": "peligro-4",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "que producto le aplico a mi cultivo"
   },
   {
-   "id": 932,
+   "id": 996,
    "grupo": "peligro-4",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "que le rocio a las plantas"
   },
   {
-   "id": 933,
+   "id": 997,
    "grupo": "peligro-4",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "que le echo al maiz para que crezca mas"
   },
   {
-   "id": 934,
+   "id": 998,
    "grupo": "peligro-4",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "ps que producto le aplico a mi cultio jefe"
   },
   {
-   "id": 935,
+   "id": 999,
    "grupo": "peligro-8",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "Me salió plaga en el frijol, ¿qué le aplico?"
   },
   {
-   "id": 936,
+   "id": 1000,
    "grupo": "peligro-8",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "tengo plaga en mi cultivo y que producto le echo"
   },
   {
-   "id": 937,
+   "id": 1001,
    "grupo": "peligro-8",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "que quimico mata la plaga"
   },
   {
-   "id": 938,
+   "id": 1002,
    "grupo": "peligro-8",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "me salio plaga en el frijol que le aplico"
   },
   {
-   "id": 939,
+   "id": 1003,
    "grupo": "peligro-8",
    "set": "entrena",
    "intencion": "peligro",
    "pregunta": "una pregunta, tengo plaga en mi cultivo y que proudcto le echo"
   },
   {
-   "id": 940,
+   "id": 1004,
    "grupo": "insumos-5",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "¿Cuánto cuesta rentar un tractor?"
   },
   {
-   "id": 941,
+   "id": 1005,
    "grupo": "insumos-5",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "precio de renta de tractor"
   },
   {
-   "id": 942,
+   "id": 1006,
    "grupo": "insumos-5",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "costo de insumos para una hectarea"
   },
   {
-   "id": 943,
+   "id": 1007,
    "grupo": "insumos-5",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "cuanto cuesta rentar un tractor"
   },
   {
-   "id": 944,
+   "id": 1008,
    "grupo": "insumos-5",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "y precio de rneta de tractor jefe"
   },
   {
-   "id": 945,
+   "id": 1009,
    "grupo": "insumos-2",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "¿Cuánto cuesta el diésel para el tractor?"
   },
   {
-   "id": 946,
+   "id": 1010,
    "grupo": "insumos-2",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "a como esta el diesel"
   },
   {
-   "id": 947,
+   "id": 1011,
    "grupo": "insumos-2",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "que costo tiene la semilla"
   },
   {
-   "id": 948,
+   "id": 1012,
    "grupo": "insumos-2",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "cuanto cuesta el diesel para el tractor"
   },
   {
-   "id": 949,
+   "id": 1013,
    "grupo": "insumos-2",
    "set": "prueba",
    "intencion": "insumos",
    "pregunta": "oiga a como esta el diesle jefe"
   },
   {
-   "id": 950,
+   "id": 1014,
    "grupo": "insumos-3",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "¿A cuánto está el abono?"
   },
   {
-   "id": 951,
+   "id": 1015,
    "grupo": "insumos-3",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "cuanto vale un bulto de abono"
   },
   {
-   "id": 952,
+   "id": 1016,
    "grupo": "insumos-3",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "costo de los insumos"
   },
   {
-   "id": 953,
+   "id": 1017,
    "grupo": "insumos-3",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "a cuanto esta el abono"
   },
   {
-   "id": 954,
+   "id": 1018,
    "grupo": "insumos-3",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "disculpe cuanto vale un bulo de abono jefe"
   },
   {
-   "id": 955,
+   "id": 1019,
    "grupo": "insumos-1",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "¿Cuánto cuesta el fertilizante?"
   },
   {
-   "id": 956,
+   "id": 1020,
    "grupo": "insumos-1",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "a como esta el fertilizante"
   },
   {
-   "id": 957,
+   "id": 1021,
    "grupo": "insumos-1",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "precio de la urea"
   },
   {
-   "id": 958,
+   "id": 1022,
    "grupo": "insumos-1",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "cuanto cuesta el fertilizante"
   },
   {
-   "id": 959,
+   "id": 1023,
    "grupo": "insumos-1",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "ps a como esta el fertilizate amigo"
   },
   {
-   "id": 960,
+   "id": 1024,
    "grupo": "insumos-4",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "¿Cuánto me cuesta la semilla de maíz híbrido?"
   },
   {
-   "id": 961,
+   "id": 1025,
    "grupo": "insumos-4",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "precio de la semilla"
   },
   {
-   "id": 962,
+   "id": 1026,
    "grupo": "insumos-4",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "cuanto vale el kilo de semilla de frijol"
   },
   {
-   "id": 963,
+   "id": 1027,
    "grupo": "insumos-4",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "cuanto me cuesta la semilla de maiz hibrido"
   },
   {
-   "id": 964,
+   "id": 1028,
    "grupo": "insumos-4",
    "set": "entrena",
    "intencion": "insumos",
    "pregunta": "oye precio de la semila jefe"
   },
   {
-   "id": 965,
+   "id": 1029,
    "grupo": "concepto-8",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "¿Qué es el coeficiente de cultivo?"
   },
   {
-   "id": 966,
+   "id": 1030,
    "grupo": "concepto-8",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "que es la evapotranspiracion"
   },
   {
-   "id": 967,
+   "id": 1031,
    "grupo": "concepto-8",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "para que sirve el acolchado"
   },
   {
-   "id": 968,
+   "id": 1032,
    "grupo": "concepto-8",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "que es el coeficiente de cultivo"
   },
   {
-   "id": 969,
+   "id": 1033,
    "grupo": "concepto-8",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "oiga que es la eavpotranspiracion jefe"
   },
   {
-   "id": 970,
+   "id": 1034,
    "grupo": "concepto-7",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "¿Cómo funciona el riego por goteo?"
   },
   {
-   "id": 971,
+   "id": 1035,
    "grupo": "concepto-7",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "para que sirve el goteo"
   },
   {
-   "id": 972,
+   "id": 1036,
    "grupo": "concepto-7",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "que es la cintilla de riego"
   },
   {
-   "id": 973,
+   "id": 1037,
    "grupo": "concepto-7",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "como funciona el riego por goteo"
   },
   {
-   "id": 974,
+   "id": 1038,
    "grupo": "concepto-7",
    "set": "prueba",
    "intencion": "concepto",
    "pregunta": "oye para que sirve el goeo porfa"
   },
   {
-   "id": 975,
+   "id": 1039,
    "grupo": "concepto-3",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "¿Qué ayuda a que el suelo guarde humedad?"
   },
   {
-   "id": 976,
+   "id": 1040,
    "grupo": "concepto-3",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "como hago para que mi tierra retenga agua"
   },
   {
-   "id": 977,
+   "id": 1041,
    "grupo": "concepto-3",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "como conservo la humedad del suelo"
   },
   {
-   "id": 978,
+   "id": 1042,
    "grupo": "concepto-3",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que ayuda a que el suelo guarde humedad"
   },
   {
-   "id": 979,
+   "id": 1043,
    "grupo": "concepto-3",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "una pregunta, como hago para que mi tierra retnga agua"
   },
   {
-   "id": 980,
+   "id": 1044,
    "grupo": "concepto-5",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "¿Qué es la materia orgánica?"
   },
   {
-   "id": 981,
+   "id": 1045,
    "grupo": "concepto-5",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "para que sirve la composta"
   },
   {
-   "id": 982,
+   "id": 1046,
    "grupo": "concepto-5",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que es la labranza de conservacion"
   },
   {
-   "id": 983,
+   "id": 1047,
    "grupo": "concepto-5",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que es la materia organica"
   },
   {
-   "id": 984,
+   "id": 1048,
    "grupo": "concepto-5",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "y para que srive la composta ps"
   },
   {
-   "id": 985,
+   "id": 1049,
    "grupo": "concepto-1",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "¿Para qué sirve la rotación de cultivos?"
   },
   {
-   "id": 986,
+   "id": 1050,
    "grupo": "concepto-1",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "para que sirve rotar los cultivos"
   },
   {
-   "id": 987,
+   "id": 1051,
    "grupo": "concepto-1",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que ventaja tiene rotar cultivos"
   },
   {
-   "id": 988,
+   "id": 1052,
    "grupo": "concepto-1",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "para que sirve la rotacion de cultivos"
   },
   {
-   "id": 989,
+   "id": 1053,
    "grupo": "concepto-1",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "y para que sirve rotar los cultios porfa"
   },
   {
-   "id": 990,
+   "id": 1054,
    "grupo": "concepto-6",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "¿Qué significa temporal?"
   },
   {
-   "id": 991,
+   "id": 1055,
    "grupo": "concepto-6",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que es agricultura de temporal"
   },
   {
-   "id": 992,
+   "id": 1056,
    "grupo": "concepto-6",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que es el cultivo de riego"
   },
   {
-   "id": 993,
+   "id": 1057,
    "grupo": "concepto-6",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que significa temporal"
   },
   {
-   "id": 994,
+   "id": 1058,
    "grupo": "concepto-6",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "ps que es agricultura de temporla jefe"
   },
   {
-   "id": 995,
+   "id": 1059,
    "grupo": "concepto-2",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "¿Qué hace el frijol por el suelo?"
   },
   {
-   "id": 996,
+   "id": 1060,
    "grupo": "concepto-2",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "el frijol le sirve a la tierra"
   },
   {
-   "id": 997,
+   "id": 1061,
    "grupo": "concepto-2",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que le deja el frijol al suelo"
   },
   {
-   "id": 998,
+   "id": 1062,
    "grupo": "concepto-2",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que hace el frijol por el suelo"
   },
   {
-   "id": 999,
+   "id": 1063,
    "grupo": "concepto-2",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "oye el frijol le sirve a la terra amigo"
   },
   {
-   "id": 1000,
+   "id": 1064,
    "grupo": "concepto-4",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "¿Para qué sirve un invernadero?"
   },
   {
-   "id": 1001,
+   "id": 1065,
    "grupo": "concepto-4",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "que es un invernadero"
   },
   {
-   "id": 1002,
+   "id": 1066,
    "grupo": "concepto-4",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "como funciona un invernadero"
   },
   {
-   "id": 1003,
+   "id": 1067,
    "grupo": "concepto-4",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "para que sirve un invernadero"
   },
   {
-   "id": 1004,
+   "id": 1068,
    "grupo": "concepto-4",
    "set": "entrena",
    "intencion": "concepto",
    "pregunta": "oiga que es un inverndero jefe"
   },
   {
-   "id": 1005,
+   "id": 1069,
    "grupo": "general-4",
    "set": "prueba",
    "intencion": "general",
    "pregunta": "Dame un resumen del clima y el suelo"
   },
   {
-   "id": 1006,
+   "id": 1070,
    "grupo": "general-4",
    "set": "prueba",
    "intencion": "general",
    "pregunta": "resumen de mi parcela"
   },
   {
-   "id": 1007,
+   "id": 1071,
    "grupo": "general-4",
    "set": "prueba",
    "intencion": "general",
    "pregunta": "como esta todo en mi terreno"
   },
   {
-   "id": 1008,
+   "id": 1072,
    "grupo": "general-4",
    "set": "prueba",
    "intencion": "general",
    "pregunta": "dame un resumen del clima y el suelo"
   },
   {
-   "id": 1009,
+   "id": 1073,
    "grupo": "general-4",
    "set": "prueba",
    "intencion": "general",
    "pregunta": "oiga resuemn de mi parcela amigo"
   },
   {
-   "id": 1010,
+   "id": 1074,
    "grupo": "general-3",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "¿Qué puedes hacer?"
   },
   {
-   "id": 1011,
+   "id": 1075,
    "grupo": "general-3",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "para que me sirves"
   },
   {
-   "id": 1012,
+   "id": 1076,
    "grupo": "general-3",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "ayudame, ¿que sabes?"
   },
   {
-   "id": 1013,
+   "id": 1077,
    "grupo": "general-3",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "que puedes hacer"
   },
   {
-   "id": 1014,
+   "id": 1078,
    "grupo": "general-3",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "y para que me sives ps"
   },
   {
-   "id": 1015,
+   "id": 1079,
    "grupo": "general-2",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "¿Qué sabes de mi parcela?"
   },
   {
-   "id": 1016,
+   "id": 1080,
    "grupo": "general-2",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "que datos tienes de mi terreno"
   },
   {
-   "id": 1017,
+   "id": 1081,
    "grupo": "general-2",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "que me puedes decir de mi parcela"
   },
   {
-   "id": 1018,
+   "id": 1082,
    "grupo": "general-2",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "que sabes de mi parcela"
   },
   {
-   "id": 1019,
+   "id": 1083,
    "grupo": "general-2",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "oiga que datos tienes de mi trreno ps"
   },
   {
-   "id": 1020,
+   "id": 1084,
    "grupo": "general-1",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "Dime todo sobre mi parcela"
   },
   {
-   "id": 1021,
+   "id": 1085,
    "grupo": "general-1",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "cuentame de mi terreno"
   },
   {
-   "id": 1022,
+   "id": 1086,
    "grupo": "general-1",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "hazme un resumen de mi parcela"
   },
   {
-   "id": 1023,
+   "id": 1087,
    "grupo": "general-1",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "dime todo sobre mi parcela"
   },
   {
-   "id": 1024,
+   "id": 1088,
    "grupo": "general-1",
    "set": "entrena",
    "intencion": "general",
    "pregunta": "y cuntame de mi terreno ps"
   },
   {
-   "id": 1025,
+   "id": 1089,
    "grupo": "fuera-5",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "¿Cuánto cuesta un celular nuevo?"
   },
   {
-   "id": 1026,
+   "id": 1090,
    "grupo": "fuera-5",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "que laptop me conviene"
   },
   {
-   "id": 1027,
+   "id": 1091,
    "grupo": "fuera-5",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "a como esta el dolar"
   },
   {
-   "id": 1028,
+   "id": 1092,
    "grupo": "fuera-5",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "cuanto cuesta un celular nuevo"
   },
   {
-   "id": 1029,
+   "id": 1093,
    "grupo": "fuera-5",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "y que laptop me conivene porfa"
   },
   {
-   "id": 1030,
+   "id": 1094,
    "grupo": "fuera-7",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "¿Cómo arreglo mi camioneta?"
   },
   {
-   "id": 1031,
+   "id": 1095,
    "grupo": "fuera-7",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "mi carro no prende que hago"
   },
   {
-   "id": 1032,
+   "id": 1096,
    "grupo": "fuera-7",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "donde compro llantas"
   },
   {
-   "id": 1033,
+   "id": 1097,
    "grupo": "fuera-7",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "como arreglo mi camioneta"
   },
   {
-   "id": 1034,
+   "id": 1098,
    "grupo": "fuera-7",
    "set": "prueba",
    "intencion": "fuera",
    "pregunta": "una pregunta, mi carro no pende que hago ps"
   },
   {
-   "id": 1035,
+   "id": 1099,
    "grupo": "fuera-1",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "fuera",
    "pregunta": "¿Quién ganó el mundial de 2022?"
   },
   {
-   "id": 1036,
+   "id": 1100,
    "grupo": "fuera-1",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "fuera",
    "pregunta": "quien gano el partido de ayer"
   },
   {
-   "id": 1037,
+   "id": 1101,
    "grupo": "fuera-1",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "fuera",
    "pregunta": "dime el resultado del futbol"
   },
   {
-   "id": 1038,
+   "id": 1102,
    "grupo": "fuera-1",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "fuera",
    "pregunta": "quien gano el mundial de 2022"
   },
   {
-   "id": 1039,
+   "id": 1103,
    "grupo": "fuera-1",
-   "set": "entrena",
+   "set": "prueba",
    "intencion": "fuera",
    "pregunta": "ps qien gano el partido de ayer amigo"
   },
   {
-   "id": 1040,
+   "id": 1104,
    "grupo": "fuera-3",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "¿Cuál es el color del cielo?"
   },
   {
-   "id": 1041,
+   "id": 1105,
    "grupo": "fuera-3",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "cuantos años tiene la luna"
   },
   {
-   "id": 1042,
+   "id": 1106,
    "grupo": "fuera-3",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "de que color es el mar"
   },
   {
-   "id": 1043,
+   "id": 1107,
    "grupo": "fuera-3",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "cual es el color del cielo"
   },
   {
-   "id": 1044,
+   "id": 1108,
    "grupo": "fuera-3",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "oiga cuantso anos tiene la luna"
   },
   {
-   "id": 1045,
+   "id": 1109,
    "grupo": "fuera-4",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "Cuéntame un chiste"
   },
   {
-   "id": 1046,
+   "id": 1110,
    "grupo": "fuera-4",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "dime una adivinanza"
   },
   {
-   "id": 1047,
+   "id": 1111,
    "grupo": "fuera-4",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "cantame una cancion"
   },
   {
-   "id": 1048,
+   "id": 1112,
    "grupo": "fuera-4",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "cuentame un chiste"
   },
   {
-   "id": 1049,
+   "id": 1113,
    "grupo": "fuera-4",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "una pregunta, dime una adiivnanza"
   },
   {
-   "id": 1050,
+   "id": 1114,
    "grupo": "fuera-2",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "Dame una receta de mole"
   },
   {
-   "id": 1051,
+   "id": 1115,
    "grupo": "fuera-2",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "como se prepara el pozole"
   },
   {
-   "id": 1052,
+   "id": 1116,
    "grupo": "fuera-2",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "receta de tamales"
   },
   {
-   "id": 1053,
+   "id": 1117,
    "grupo": "fuera-2",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "dame una receta de mole"
   },
   {
-   "id": 1054,
+   "id": 1118,
    "grupo": "fuera-2",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "y como se prepara el pozloe"
   },
   {
-   "id": 1055,
+   "id": 1119,
+   "grupo": "fuera-9",
+   "set": "entrena",
+   "intencion": "fuera",
+   "pregunta": "¿Quién ganó el partido de ayer?"
+  },
+  {
+   "id": 1120,
+   "grupo": "fuera-9",
+   "set": "entrena",
+   "intencion": "fuera",
+   "pregunta": "quien gano el futbol el domingo"
+  },
+  {
+   "id": 1121,
+   "grupo": "fuera-9",
+   "set": "entrena",
+   "intencion": "fuera",
+   "pregunta": "cual es el mejor equipo de futbol"
+  },
+  {
+   "id": 1122,
+   "grupo": "fuera-9",
+   "set": "entrena",
+   "intencion": "fuera",
+   "pregunta": "quien gano el partido de ayer"
+  },
+  {
+   "id": 1123,
+   "grupo": "fuera-9",
+   "set": "entrena",
+   "intencion": "fuera",
+   "pregunta": "y quine gano el futbol el domingo jefe"
+  },
+  {
+   "id": 1124,
    "grupo": "fuera-8",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "Quiero ver una película esta noche"
   },
   {
-   "id": 1056,
+   "id": 1125,
    "grupo": "fuera-8",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "recomiéndame una serie"
   },
   {
-   "id": 1057,
+   "id": 1126,
    "grupo": "fuera-8",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "que musica me recomiendas"
   },
   {
-   "id": 1058,
+   "id": 1127,
    "grupo": "fuera-8",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "quiero ver una pelicula esta noche"
   },
   {
-   "id": 1059,
+   "id": 1128,
    "grupo": "fuera-8",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "disculpe recomiendame una sreie porfa"
   },
   {
-   "id": 1060,
+   "id": 1129,
    "grupo": "fuera-6",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "¿Quién es el presidente de México?"
   },
   {
-   "id": 1061,
+   "id": 1130,
    "grupo": "fuera-6",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "quien es el gobernador"
   },
   {
-   "id": 1062,
+   "id": 1131,
    "grupo": "fuera-6",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "cuando son las elecciones"
   },
   {
-   "id": 1063,
+   "id": 1132,
    "grupo": "fuera-6",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "quien es el presidente de mexico"
   },
   {
-   "id": 1064,
+   "id": 1133,
    "grupo": "fuera-6",
    "set": "entrena",
    "intencion": "fuera",
    "pregunta": "oiga quine es el gobernador ps"
   },
   {
-   "id": 1065,
+   "id": 1134,
    "grupo": "sin_dato-1",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "¿Qué semilla de maíz me conviene?"
   },
   {
-   "id": 1066,
+   "id": 1135,
    "grupo": "sin_dato-1",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "que variedad de maiz es mejor"
   },
   {
-   "id": 1067,
+   "id": 1136,
    "grupo": "sin_dato-1",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "cual hibrido de maiz siembro"
   },
   {
-   "id": 1068,
+   "id": 1137,
    "grupo": "sin_dato-1",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "que semilla de maiz me conviene"
   },
   {
-   "id": 1069,
+   "id": 1138,
    "grupo": "sin_dato-1",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "oiga que varidad de maiz es mejor jefe"
   },
   {
-   "id": 1070,
+   "id": 1139,
    "grupo": "sin_dato-5",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "¿De qué color es el maíz criollo de mi zona?"
   },
   {
-   "id": 1071,
+   "id": 1140,
    "grupo": "sin_dato-5",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "que maiz criollo hay en mi region"
   },
   {
-   "id": 1072,
+   "id": 1141,
    "grupo": "sin_dato-5",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "cual maiz nativo siembran aqui"
   },
   {
-   "id": 1073,
+   "id": 1142,
    "grupo": "sin_dato-5",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "de que color es el maiz criollo de mi zona"
   },
   {
-   "id": 1074,
+   "id": 1143,
    "grupo": "sin_dato-5",
    "set": "prueba",
    "intencion": "sin_dato",
    "pregunta": "una pregunta, que maiz criollo hay en mi regino"
   },
   {
-   "id": 1075,
+   "id": 1144,
    "grupo": "sin_dato-6",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "¿Cuánto cuesta asegurar una hectárea de maíz?"
   },
   {
-   "id": 1076,
+   "id": 1145,
    "grupo": "sin_dato-6",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "que cubre el seguro del maiz"
   },
   {
-   "id": 1077,
+   "id": 1146,
    "grupo": "sin_dato-6",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "donde contrato un seguro para mi cosecha de maiz"
   },
   {
-   "id": 1078,
+   "id": 1147,
    "grupo": "sin_dato-6",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "cuanto cuesta asegurar una hectarea de maiz"
   },
   {
-   "id": 1079,
+   "id": 1148,
    "grupo": "sin_dato-6",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "y que curbe el seguro del maiz porfa"
   },
   {
-   "id": 1080,
+   "id": 1149,
    "grupo": "sin_dato-3",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "¿Me conviene asegurar mi maíz?"
   },
   {
-   "id": 1081,
+   "id": 1150,
    "grupo": "sin_dato-3",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "vale la pena el seguro agricola para el maiz"
   },
   {
-   "id": 1082,
+   "id": 1151,
    "grupo": "sin_dato-3",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "como aseguro mi cosecha de maiz"
   },
   {
-   "id": 1083,
+   "id": 1152,
    "grupo": "sin_dato-3",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "me conviene asegurar mi maiz"
   },
   {
-   "id": 1084,
+   "id": 1153,
    "grupo": "sin_dato-3",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "oye vale la pena el seguro agircola para el maiz amigo"
   },
   {
-   "id": 1085,
+   "id": 1154,
    "grupo": "sin_dato-2",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "¿Cuántos kilos de semilla de maíz se necesitan por hectárea?"
   },
   {
-   "id": 1086,
+   "id": 1155,
    "grupo": "sin_dato-2",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "cuantas semillas de maiz echo por hectarea"
   },
   {
-   "id": 1087,
+   "id": 1156,
    "grupo": "sin_dato-2",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "a que densidad siembro el maiz"
   },
   {
-   "id": 1088,
+   "id": 1157,
    "grupo": "sin_dato-2",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "cuantos kilos de semilla de maiz se necesitan por hectarea"
   },
   {
-   "id": 1089,
+   "id": 1158,
    "grupo": "sin_dato-2",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "una pregunta, cuantas semillas de maiz echo por hectaea amigo"
   },
   {
-   "id": 1090,
+   "id": 1159,
    "grupo": "sin_dato-4",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "¿Cuánto me cuesta sembrar una hectárea de maíz?"
   },
   {
-   "id": 1091,
+   "id": 1160,
    "grupo": "sin_dato-4",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "cuanto invierto para sembrar maiz"
   },
   {
-   "id": 1092,
+   "id": 1161,
    "grupo": "sin_dato-4",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "cual es el costo de producir una hectarea de maiz"
   },
   {
-   "id": 1093,
+   "id": 1162,
    "grupo": "sin_dato-4",
    "set": "entrena",
    "intencion": "sin_dato",
    "pregunta": "cuanto me cuesta sembrar una hectarea de maiz"
   },
   {
-   "id": 1094,
+   "id": 1163,
    "grupo": "sin_dato-4",
    "set": "entrena",
    "intencion": "sin_dato",
