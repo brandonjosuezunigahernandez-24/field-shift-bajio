@@ -1,3 +1,4 @@
+import { useEffect, useRef } from 'react';
 import { Link, NavLink } from 'react-router-dom';
 
 const STEPS = [
@@ -11,8 +12,21 @@ const STEPS = [
 // `pills` is the JSX of the status pills on the right of the brand. NavLink sets
 // aria-current="page" on the active step, which is what fieldshift.css styles.
 export default function Header({ sub, pills }) {
+  // The header is sticky and its height changes with the width: the pages place the map and the assistant
+  // right under it with the CSS variable --fs-head.
+  const ref = useRef(null);
+  useEffect(() => {
+    const header = ref.current;
+    if (!header || typeof ResizeObserver === 'undefined') return undefined;
+    const medir = () => document.documentElement.style.setProperty('--fs-head', `${header.offsetHeight}px`);
+    medir();
+    const observer = new ResizeObserver(medir);
+    observer.observe(header);
+    return () => observer.disconnect();
+  }, []);
+
   return (
-    <header className="fs-header">
+    <header className="fs-header" ref={ref}>
       <div className="fs-header-in">
         <Link className="fs-brand" to="/">
           <span className="fs-logo">

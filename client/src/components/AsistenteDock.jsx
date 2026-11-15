@@ -34,7 +34,7 @@ export default function AsistenteDock() {
   return (
     <>
       <button type="button" className="asx-fab" onClick={() => setOpen((v) => !v)} aria-expanded={open} aria-controls="asx">
-        <i className={`bi ${open ? 'bi-x-lg' : 'bi-chat-dots-fill'}`} aria-hidden="true"></i> {open ? 'Cerrar' : 'Pregúntale al asistente'}
+        <i className={`bi ${open ? 'bi-x-lg' : 'bi-chat-dots-fill'}`} aria-hidden="true"></i> <span className="asx-fab-txt">{open ? 'Cerrar' : 'Pregúntale al asistente'}</span>
       </button>
 
       {open && (
