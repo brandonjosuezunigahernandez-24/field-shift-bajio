@@ -1,7 +1,7 @@
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { createApp } from '../app.js';
-import { DEMO_POINT } from '../lib/seasons.js';
+import { EXAMPLE_POINTS, FIXTURE_POINTS } from '../lib/seasons.js';
 
 // These tests never touch the network: OFFLINE=1 makes the server use cache and fixtures only.
 let server;
@@ -21,39 +21,55 @@ const get = async (path) => {
   return { status: res.status, body: await res.json() };
 };
 
-const demoQuery = `lat=${DEMO_POINT.lat}&lon=${DEMO_POINT.lon}`;
-
 test('GET /api/health', async () => {
   const { status, body } = await get('/api/health');
   assert.equal(status, 200);
   assert.deepEqual(body, { ok: true });
 });
 
-test('GET /api/clima works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/clima?${demoQuery}`);
+// Every button must work offline: the tests below check clima and suelo for all FIXTURE_POINTS.
+test('GET /api/ejemplos lists the client buttons, all of them with fixtures', async () => {
+  const { status, body } = await get('/api/ejemplos');
   assert.equal(status, 200);
-  assert.ok(['cache', 'fixture'].includes(body.origen));
-  assert.equal(body.lat, DEMO_POINT.lat);
-  assert.equal(body.lluvia_pv_anual.length, 25);
-  assert.equal(body.temp_media_mensual.length, 12);
-  assert.ok(Array.isArray(body.anios_secos));
-  assert.ok(body.umbral_seco_mm > 0);
-  assert.match(body.fuente, /NASA POWER/);
+  assert.deepEqual(body, EXAMPLE_POINTS);
+  for (const point of body) {
+    assert.ok(FIXTURE_POINTS.some((f) => f.lat === point.lat && f.lon === point.lon), point.nombre);
+    assert.equal(typeof point.id, 'string');
+    assert.equal(typeof point.boton, 'string');
+  }
 });
 
-test('GET /api/suelo works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/suelo?${demoQuery}`);
-  assert.equal(status, 200);
-  assert.ok(['cache', 'fixture'].includes(body.origen));
-  assert.equal(body.sin_datos, false);
-  assert.equal(body.aviso, null);
-  assert.ok(body.ph > 4 && body.ph < 10);
-  assert.match(body.fuente, /SoilGrids/);
+test('GET /api/clima works offline for every fixture point', async () => {
+  for (const point of FIXTURE_POINTS) {
+    const { status, body } = await get(`/api/clima?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(status, 200, point.nombre);
+    assert.ok(['cache', 'fixture'].includes(body.origen));
+    assert.equal(body.lat, point.lat);
+    assert.equal(body.lluvia_pv_anual.length, 25, point.nombre);
+    assert.equal(body.temp_media_mensual.length, 12);
+    assert.ok(Array.isArray(body.anios_secos));
+    assert.ok(body.umbral_seco_mm > 0);
+    assert.match(body.fuente, /NASA POWER/);
+  }
 });
 
-test('GET /api/terreno works offline for the demo point', async () => {
-  const { status, body } = await get(`/api/terreno?${demoQuery}`);
+test('GET /api/suelo works offline and has soil data for every fixture point', async () => {
+  for (const point of FIXTURE_POINTS) {
+    const { status, body } = await get(`/api/suelo?lat=${point.lat}&lon=${point.lon}`);
+    assert.equal(status, 200, point.nombre);
+    assert.ok(['cache', 'fixture'].includes(body.origen));
+    assert.equal(body.sin_datos, false, point.nombre);
+    assert.equal(body.aviso, null);
+    assert.ok(body.ph > 4 && body.ph < 10, point.nombre);
+    assert.match(body.fuente, /SoilGrids/);
+  }
+});
+
+test('GET /api/terreno works offline for the demo point and answers the rounded center', async () => {
+  const [demo] = EXAMPLE_POINTS;
+  const { status, body } = await get(`/api/terreno?lat=${demo.lat + 0.0003}&lon=${demo.lon - 0.0002}`);
   assert.equal(status, 200);
+  assert.deepEqual([body.lat, body.lon], [demo.lat, demo.lon]);
   assert.ok(['cache', 'fixture'].includes(body.origen));
   assert.equal(body.alturas.length, body.tam * body.tam);
   assert.equal(body.lado_m, 1000);
@@ -72,6 +88,14 @@ test('a point without cache or fixture answers 502 offline, never data from anot
   const { status, body } = await get('/api/clima?lat=-89.99&lon=179.99');
   assert.equal(status, 502);
   assert.match(body.error, /Celaya/);
+});
+
+test('a plot 760 m from the demo point shares its climate but never borrows its soil', async () => {
+  const query = 'lat=20.4749&lon=-100.8149';
+  const clima = await get(`/api/clima?${query}`);
+  assert.equal(clima.status, 200);
+  const suelo = await get(`/api/suelo?${query}`);
+  assert.equal(suelo.status, 502);
 });
 
 test('unknown /api routes answer 404 as JSON', async () => {

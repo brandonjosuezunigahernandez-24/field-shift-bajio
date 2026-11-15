@@ -23,7 +23,7 @@ para proponer rotaciones de cultivo que cuiden el suelo y se adapten al clima.
   Vista 3D en `client/src/three/` con three.js + @react-three/fiber + @react-three/drei (aprobado por el equipo).
   Modelos generados con Blender desde `assets/blender/build_models.py`.
 - `server/`: Node + Express. Sin base de datos y sin login.
-- Caché en disco: `server/cache/<fuente>_<lat2>_<lon2>.json`, con lat/lon redondeados a 2 decimales.
+- Caché en disco: `server/cache/<fuente>_<lat>_<lon>.json`. Clima (NASA POWER) a 2 decimales (~1 km); suelo (SoilGrids, cuadros de 250 m) a 3 decimales (~110 m).
 - Fixtures en `server/fixtures/` del punto demo, para que la demo funcione aunque falle el internet.
 - Correr: `cd server && npm run dev` (puerto 3001) y `cd client && npm run dev` (Vite proxy `/api` → 3001).
 

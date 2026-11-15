@@ -8,7 +8,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 
 - Base: `http://localhost:3001`. Desde el client se llama como `/api/...` (Vite lo redirige).
 - **`lat` y `lon` son el centro de la parcela que dibujó el agricultor** (ver "Selección de la parcela" abajo). El servidor sigue recibiendo un punto.
-- `lat` y `lon` se redondean a 2 decimales (más o menos 1 km). Esa es también la resolución de la caché. **Excepción:** `/api/terreno` redondea a 3 decimales (unos 110 m), ver abajo.
+- El servidor redondea `lat` y `lon` según la fuente: el clima a 2 decimales (más o menos 1 km; NASA POWER mide cada ~50 km), y el suelo y el relieve (`/api/terreno`) a 3 (más o menos 110 m; SoilGrids tiene cuadros de 250 m). Esa es también la resolución de la caché. La respuesta repite el `lat` y `lon` tal como llegaron, menos `/api/terreno`, que regresa el centro ya redondeado de su cuadro.
 - Las claves del JSON van en español; el código (variables y funciones) en inglés.
 - **Errores:** siempre `{ "error": "mensaje en español que se le puede mostrar al agricultor" }`.
 
@@ -23,7 +23,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 - **`origen`** dice de dónde salió el dato:
   - `"api"`: recién consultado a la fuente.
   - `"cache"`: guardado en `server/cache/` por una consulta anterior.
-  - `"fixture"`: copia de respaldo versionada en `server/fixtures/` (solo existe para el punto demo).
+  - `"fixture"`: copia de respaldo versionada en `server/fixtures/` (solo existe para `FIXTURE_POINTS` en `server/lib/seasons.js`: las parcelas de `GET /api/ejemplos` y 3 más).
 - El orden de búsqueda es caché → API → fixture → 502. Con `OFFLINE=1` se salta la API.
 
 ## Selección de la parcela (front)
@@ -32,7 +32,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 
 - Cada clic en el mapa agrega una esquina. Con 3 o más esquinas ya hay parcela.
 - Debe poder deshacer la última esquina y borrar todo para empezar de nuevo.
-- El front calcula el centro y lo manda como `lat` y `lon`. Basta el promedio de las esquinas: el servidor redondea a 2 decimales (más o menos 1 km), así que un centro más exacto no cambia el resultado.
+- El front calcula el centro y lo manda como `lat` y `lon`. Basta el promedio de las esquinas: el suelo se consulta a 3 decimales (más o menos 110 m), así que el centro sí debe caer dentro de la parcela.
 - **El back, el motor y el asistente no cambian.** NASA POWER y SoilGrids se consultan por punto y una parcela es mucho más chica que su resolución.
 - Se hace con **MapLibre GL** (`client/src/map/ParcelMap.jsx`), con imagen satelital de Esri y el relieve de AWS Terrain Tiles. Cambio del 14 de noviembre: antes decía react-leaflet.
 - Si el mapa está muy lejos (zoom < 13), el clic acerca el mapa en lugar de poner una esquina.
@@ -56,6 +56,20 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 ```json
 { "ok": true }
 ```
+
+## GET /api/ejemplos
+
+Las parcelas de los botones de ejemplo, con los mismos `id` y `boton` del diseño del front. Todas tienen fixture, así que funcionan sin internet. Para agregar o mover una, se cambia `EXAMPLE_POINTS` en `server/lib/seasons.js` y se corre `npm run fixtures`; el front no cambia.
+
+```json
+[
+  { "id": "celaya", "nombre": "Celaya, Gto.", "boton": "Celaya, Gto. (Temporal)", "lat": 20.47, "lon": -100.81 },
+  { "id": "marques", "nombre": "El Marqués, Qro.", "boton": "El Marqués, Qro. (Sequía)", "lat": 20.7, "lon": -100.27 },
+  { "id": "salamanca", "nombre": "Salamanca, Gto.", "boton": "Salamanca, Gto. (Riego)", "lat": 20.6, "lon": -101.23 }
+]
+```
+
+- Los puntos son tierra de cultivo a unos km del centro de cada ciudad, revisada en imagen satelital. Los centros (Celaya 20.52, -100.81; Querétaro 20.59, -100.39; Salamanca 20.57, -101.19) son zona urbana y SoilGrids no da suelo ahí.
 
 ## GET /api/clima?lat=20.47&lon=-100.81
 

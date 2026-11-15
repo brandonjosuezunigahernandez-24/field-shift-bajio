@@ -145,7 +145,7 @@ export async function getTerrain(lat, lon) {
     label: 'el relieve del terreno',
     lat,
     lon,
-    fetcher: () => fetchTerrainGrid(lat, lon),
+    fetcher: fetchTerrainGrid, // loadRaw calls it with the point already rounded to TERRAIN_DECIMALS
     validate: validateTerrain,
     decimals: TERRAIN_DECIMALS,
   });

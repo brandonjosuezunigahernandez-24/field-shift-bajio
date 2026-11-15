@@ -9,6 +9,7 @@ import pronosticoRouter from './routes/pronostico.js';
 import vozRouter from './routes/voz.js';
 import terrenoRouter from './routes/terreno.js';
 import { HttpError } from './lib/errors.js';
+import { EXAMPLE_POINTS } from './lib/seasons.js';
 
 // All routes are mounted here so nobody else needs to edit this file.
 export function createApp() {
@@ -19,6 +20,8 @@ export function createApp() {
   app.get('/probar', (req, res) => res.sendFile(fileURLToPath(new URL('./public/probar.html', import.meta.url))));
 
   app.get('/api/health', (req, res) => res.json({ ok: true }));
+  // Quick-button plots: only points with committed fixtures, so every button works offline.
+  app.get('/api/ejemplos', (req, res) => res.json(EXAMPLE_POINTS));
   app.use('/api/clima', climaRouter);
   app.use('/api/suelo', sueloRouter);
   app.use('/api/recomendar', recomendarRouter);

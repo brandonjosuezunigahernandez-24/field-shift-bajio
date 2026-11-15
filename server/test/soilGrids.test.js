@@ -61,7 +61,7 @@ test('buildSoilGridsUrl repeats property and depth and asks for the mean', () =>
 });
 
 test('real Celaya fixture: plausible pH and a texture that adds up to 100%', async () => {
-  const summary = summarizeSoil(parseSoilGrids(await readJson('../fixtures/soilgrids_20.47_-100.81.json')));
+  const summary = summarizeSoil(parseSoilGrids(await readJson('../fixtures/soilgrids_20.470_-100.810.json')));
   assert.equal(summary.sin_datos, false);
   assert.ok(summary.ph > 4 && summary.ph < 10);
   const texture = summary.arcilla_pct + summary.arena_pct + summary.limo_pct;
