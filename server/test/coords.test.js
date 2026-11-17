@@ -30,6 +30,6 @@ test('roundTo never returns negative zero', () => {
   assert.ok(Object.is(roundTo(-0.001, 2), 0));
 });
 
-test('terrain uses 3 decimals in its cache key', () => {
-  assert.equal(cacheKey('terrain', 20.4712, -100.8149, 3), 'terrain_20.471_-100.815');
+test('soil uses 3 decimals in its cache key', () => {
+  assert.equal(cacheKey('soilgrids', 20.4712, -100.8149, 3), 'soilgrids_20.471_-100.815');
 });

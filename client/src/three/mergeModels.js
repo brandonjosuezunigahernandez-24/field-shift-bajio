@@ -2,12 +2,10 @@ import { BufferAttribute, DoubleSide, Matrix4, MeshStandardMaterial, SRGBColorSp
 import { mergeGeometries } from 'three/examples/jsm/utils/BufferGeometryUtils.js';
 
 // Made in Blender by assets/blender/build_models.py. One named node per model, sizes in meters.
-// Shared by the 3D diorama (React Three Fiber) and the crops on the satellite map (plain three.js),
-// so it has no React in it.
-// One file per crop ("<id>" detailed + "<id>_lp" low-poly inside) and one for the scenery (house,
-// tree): the app downloads only the crops the farmer actually uses (~120-350 KB each).
+// Used by the crops on the satellite map (plain three.js), so it has no React in it.
+// One file per crop ("<id>" detailed + "<id>_lp" low-poly inside): the app downloads only the
+// crops the farmer actually uses (~120-350 KB each).
 export const modelUrl = (id) => `/models/${id}.glb`;
-export const SCENERY_URL = '/models/escenario.glb';
 
 // Each model may come as several meshes (one per material). For instancing we want ONE
 // geometry per model: bake each material color into a vertex color and merge. Since the models

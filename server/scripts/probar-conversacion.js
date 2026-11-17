@@ -47,7 +47,7 @@ function bateria() {
   for (const q of leer('frutas.json').preguntas) out.push({ fuente: 'frutas', id: q.id, pregunta: q.pregunta, intencion: esperada(q.pregunta, CAT_FRUTA[q.cat]), incluye: q.incluye, excluye: q.excluye, cita: q.cita, soloCelaya: true });
   Object.values(leer('maiz-preguntas-agricultor.json').grupos).flat().forEach((p, i) => out.push({ fuente: 'agricultor', id: i + 1, pregunta: p, intencion: esperada(p) }));
   for (const q of leer('conversacion.json').preguntas) out.push({ fuente: 'conversacion', ...q, intencion: q.intencion });
-  // Banco investigado (docs/investigacion-preguntas-agricultor.md): 1 de cada 3 es prueba (no se entrena con ella).
+  // Banco investigado (necesidades reales de productores de temporal): 1 de cada 3 es prueba (no se entrena con ella).
   leer('preguntas-investigadas.json').preguntas.forEach((p, i) => out.push({ fuente: 'investigadas', id: i + 1, set: setInvestigada(i), pregunta: p.texto, intencion: ESPERA_INV[p.tema] ?? p.tema.replace('-', '_') }));
   // Preguntas específicas (números, mes, municipio, seguimientos): solo con --set=especificas.
   const esp = leer('especificas.json').preguntas.map((q) => ({ fuente: 'especificas', ...q }));

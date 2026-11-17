@@ -80,8 +80,8 @@ const FAR_ZOOM = 10; // NASA GIBS pictures are 250 m to 9 km squares: they are r
 //   clima: 'hoy' (sky right now) | 'anio' (the chosen real year) | 'apagado'   lejos: zoom out to the region
 export const DEFAULT_SCENE = { vista: 'relieve', nasa: null, clima: 'hoy', lejos: false };
 
-// Satellite imagery + place names and streets (Esri) and 3D relief (the same heights that
-// /api/terreno uses). All free, no API key. Raster only: no glyphs or sprites to fetch.
+// Satellite imagery + place names and streets (Esri) and 3D relief (AWS Terrain
+// Tiles, heights from NASA SRTM). All free, no API key. Raster only: no glyphs or sprites to fetch.
 const buildStyle = (imagery, view) => ({
   version: 8,
   sources: {

@@ -1,6 +1,6 @@
 # El modelo de aprendizaje automático: cómo funciona, pruebas y resultados
 
-> Versión 1 (14 nov 2026). Detalle técnico del entrenamiento en `docs/cambios/21-modelo-entrenado.md`.
+> Versión 1 (14 nov 2026).
 
 ## En una frase
 Un modelo aprendió, con datos de **64 municipios** de Guanajuato y Querétaro, **cuánta superficie de maíz de temporal se daña según cuánto llovió en el verano**. El asistente lo usa para decir: «en un año seco el daño estimado es X %, en uno normal Y %, en uno lluvioso Z %». **No pronostica el clima ni dice qué va a pasar este año.**
@@ -37,7 +37,7 @@ Pregunta: «¿Qué tan riesgoso es el maíz de temporal con la lluvia?»
 - Solo se activa con **maíz** y palabras de riesgo o lluvia. Para frijol u otros cultivos el asistente sigue con los datos del SIAP y del clima, sin este modelo.
 
 ## Pruebas automáticas
-- **93 pruebas pasan** en total. Las del modelo: `server/test/modelo.test.js` (predicción, «no disponible» donde no supera al promedio) y `server/test/riesgo-clima.test.js` (5 pruebas: tres escenarios y más lluvia = menos daño; siempre dice «no es un pronóstico»; confianza media en Querétaro y baja en Guanajuato; solo maíz; sin clima suficiente devuelve nada).
+- Las pruebas del modelo: `server/test/modelo.test.js` (predicción, «no disponible» donde no supera al promedio) y `server/test/riesgo-clima.test.js` (5 pruebas: tres escenarios y más lluvia = menos daño; siempre dice «no es un pronóstico»; confianza media en Querétaro y baja en Guanajuato; solo maíz; sin clima suficiente devuelve nada).
 
 ## Límites (importan)
 - **Solo 7 años.** Un año raro mueve todo.
@@ -47,16 +47,13 @@ Pregunta: «¿Qué tan riesgoso es el maíz de temporal con la lluvia?»
 - Las variables se eligieron con los mismos años con que se prueba: hay algo de optimismo.
 - Las coordenadas de los municipios son el centro por geocodificación; no se revisaron una por una.
 
-## Para el discurso (frase honesta)
-«Entrenamos un modelo con 64 municipios que aprende del clima cuánto maíz de temporal se daña. En Querétaro supera claramente al promedio histórico (29 % menos error); en Guanajuato todavía no, porque los datos de pérdidas son pocos y se reportan de forma irregular. Es riesgo estimado, no pronóstico.»
-
 ## Cómo reproducirlo
 ```
 cd server
-node --test                                           # 93 pruebas
+node --test                                           # todas las pruebas
 SIAP_RAW_DIR=<carpeta con los CSV 2018..2024> node scripts/modelo-entrenar.js   # reentrena y reescribe data/modelo_*.json
 ```
 Los CSV del SIAP se bajan con `node scripts/siap-descargar.js 2018 2024` (no van al repo).
 
 ## Qué sigue
-Una **segunda ronda de investigación** está probando otras formas de usar aprendizaje automático con estos datos (clasificar «año malo», más variables de NASA, intervalos de incertidumbre, hortalizas y frutales, municipios parecidos). Resultados en `docs/cambios/26-ml-segunda-ronda.md` cuando termine.
+Una **segunda ronda de investigación** está probando otras formas de usar aprendizaje automático con estos datos (clasificar «año malo», más variables de NASA, intervalos de incertidumbre, hortalizas y frutales, municipios parecidos).

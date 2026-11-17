@@ -1,5 +1,4 @@
 import express from 'express';
-import { fileURLToPath } from 'node:url';
 import climaRouter from './routes/clima.js';
 import sueloRouter from './routes/suelo.js';
 import recomendarRouter from './routes/recomendar.js';
@@ -7,7 +6,6 @@ import asistenteRouter from './routes/asistente.js';
 import perfilRouter from './routes/perfil.js';
 import pronosticoRouter from './routes/pronostico.js';
 import vozRouter from './routes/voz.js';
-import terrenoRouter from './routes/terreno.js';
 import frutalesRouter from './routes/frutales.js';
 import retroRouter from './routes/retro.js';
 import { HttpError } from './lib/errors.js';
@@ -17,9 +15,6 @@ import { EXAMPLE_POINTS } from './lib/seasons.js';
 export function createApp() {
   const app = express();
   app.use(express.json());
-
-  // Página de prueba del asistente (herramienta de desarrollo, no es la app final).
-  app.get('/probar', (req, res) => res.sendFile(fileURLToPath(new URL('./public/probar.html', import.meta.url))));
 
   app.get('/api/health', (req, res) => res.json({ ok: true }));
   // Quick-button plots: only points with committed fixtures, so every button works offline.
@@ -31,7 +26,6 @@ export function createApp() {
   app.use('/api/asistente', asistenteRouter);
   app.use('/api/perfil', perfilRouter);
   app.use('/api/voz', vozRouter);
-  app.use('/api/terreno', terrenoRouter);
   app.use('/api/frutales', frutalesRouter);
   app.use('/api/retroalimentacion', retroRouter);
 

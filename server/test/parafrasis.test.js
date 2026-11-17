@@ -4,7 +4,7 @@ import { quitarMuletillas, wantsRecommendation } from '../llm/intencion.js';
 import { rendPropio } from '../llm/maiz.js';
 import { rotulo } from './eval/rotulo.js';
 
-// Formas comunes de decir lo mismo (docs/cambios/40-parafrasis.md): verbos modales, muletillas de voz, sin signos.
+// Formas comunes de decir lo mismo: verbos modales, muletillas de voz, sin signos.
 // Ruta real /api/asistente, sin internet y sin modelo de lenguaje (lo que iría al modelo sale como 'modelo').
 let server, baseUrl;
 before(async () => {

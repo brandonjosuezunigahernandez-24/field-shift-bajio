@@ -67,22 +67,6 @@ test('GET /api/suelo works offline and has soil data for every fixture point', a
   }
 });
 
-test('GET /api/terreno works offline for the demo point and answers the rounded center', async () => {
-  const [demo] = EXAMPLE_POINTS;
-  const { status, body } = await get(`/api/terreno?lat=${demo.lat + 0.0003}&lon=${demo.lon - 0.0002}`);
-  assert.equal(status, 200);
-  assert.deepEqual([body.lat, body.lon], [demo.lat, demo.lon]);
-  assert.ok(['cache', 'fixture'].includes(body.origen));
-  assert.equal(body.alturas.length, body.tam * body.tam);
-  assert.equal(body.lado_m, 1000);
-  assert.match(body.fuente, /SRTM/);
-  // Every example button shows its 3D relief without internet.
-  for (const point of FIXTURE_POINTS) {
-    const other = await get(`/api/terreno?lat=${point.lat}&lon=${point.lon}`);
-    assert.equal(other.status, 200, point.nombre);
-  }
-});
-
 test('bad coordinates answer 400 with a message in Spanish', async () => {
   for (const path of ['/api/clima?lat=abc&lon=1', '/api/suelo', '/api/clima?lat=95&lon=0']) {
     const { status, body } = await get(path);

@@ -1,5 +1,5 @@
 // What the diorama looks like for one year: plain numbers and sRGB colors (0..1), no three.js.
-// Every visual here comes from a real value of /api/clima, /api/suelo or /api/terreno.
+// Every visual here comes from a real value of /api/clima or /api/suelo.
 import { clamp } from './geo.js';
 
 const mix = (a, b, t) => a.map((v, i) => v + (b[i] - v) * t);

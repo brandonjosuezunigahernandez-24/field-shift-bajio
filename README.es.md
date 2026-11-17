@@ -10,7 +10,7 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 
 ## Estado
 
-**Integrado de punta a punta** (rama `integracion/final`): dibujas la parcela, eliges temporal o riego y tu prioridad, y recibes la rotación de 3 años con sus razones, la maqueta 3D y el asistente.
+**Integrado de punta a punta:** dibujas la parcela, eliges temporal o riego y tu prioridad, y recibes la rotación de 3 años con sus razones, la maqueta 3D y el asistente.
 
 | Fase | Qué incluye | Estado |
 |------|-------------|--------|
@@ -23,7 +23,6 @@ Una herramienta para el agricultor de **temporal** del Bajío (Guanajuato y Quer
 **Pendientes conocidos**
 
 - Confirmar el agua por ciclo del garbanzo y del brócoli en `server/data/cultivos.json` (no están en la tabla 14 de FAO; quedan con `"verificado": false`).
-- Las pantallas "Análisis IA" y "Probar cultivo" todavía usan datos de ejemplo del diseño.
 - La voz (micrófono) no se ha probado con un micrófono real.
 
 ## Cómo correrlo
@@ -91,7 +90,6 @@ Para la demo conviene `npm start` en lugar de `npm run dev`: no reinicia el serv
 | `GET /api/ejemplos` | Las parcelas de los botones de ejemplo (todas con respaldo sin internet). |
 | `GET /api/clima?lat&lon` | Lluvia de junio a septiembre por año, años secos, y temperatura y lluvia promedio por mes. |
 | `GET /api/suelo?lat&lon` | pH, arcilla, arena, limo, carbono orgánico y nitrógeno de 0 a 30 cm. |
-| `GET /api/terreno?lat&lon` | Relieve (malla de 65 × 65 alturas) del cuadro de 1 km alrededor de la parcela, para la vista 3D. |
 | `POST /api/recomendar` | Cultivos con puntaje, riesgo (con su rango) y razones; la rotación de 3 años; y la comparación de 3 rotaciones (la de hoy, la recomendada y otra meta) con evidencia, beneficios, huecos, qué revisar con un técnico y lo que los datos no saben (motor de reglas). |
 | `GET /api/recomendar/prueba?lat&lon` | Cada cultivo de temporal contra los años reales: lluvia de su ciclo por año y si le alcanzó, sembrando en junio y en julio. |
 | `GET /api/pronostico?lat&lon` | Pronóstico de 7 días. |
@@ -105,8 +103,8 @@ Las formas exactas de cada respuesta, con ejemplos reales, están en [docs/api-c
 ```
 server/
   index.js, app.js     arranque y rutas
-  routes/              clima, suelo, terreno, recomendar, asistente, pronostico, voz
-  sources/             NASA POWER, SoilGrids, relieve y Open-Meteo: descarga y normalización
+  routes/              clima, suelo, recomendar, asistente, pronostico, voz
+  sources/             NASA POWER, SoilGrids y Open-Meteo: descarga y normalización
   lib/                 coordenadas, caché en disco, fetch con timeout, temporadas y parcelas de ejemplo
   engine/              motor de reglas: puntaje, riesgo por años secos y rotación (funciones puras)
   llm/                 asistente: ficha de la parcela, modelo local (Ollama), verificador, datos del SIAP
@@ -121,9 +119,8 @@ client/
   src/hooks/           useParcela: el estado que comparten las pantallas
   src/config/          capas de NASA GIBS del mapa y parcela por defecto
   src/map/             mapa MapLibre donde se dibuja la parcela, y cálculos del polígono
-  src/three/           vista 3D: globo, maqueta de la parcela, cámara (three.js + react-three-fiber)
-  public/models/       bajio.glb, generado con Blender (no se edita a mano)
-  public/textures/     textura del globo (NASA Blue Marble), bajada con `npm run textura`
+  src/three/           modelos 3D de los cultivos que se dibujan sobre el mapa (three.js)
+  public/models/       un .glb por cultivo, generado con Blender (no se edita a mano)
 assets/blender/        build_models.py: script que genera los modelos 3D
 docs/
   api-contract.md      contrato entre front, back y motor
@@ -131,14 +128,13 @@ docs/
 
 ### Vista 3D
 
-Arriba de los datos hay un globo de la Tierra. Lo giras, tocas tu región y la parcela se levanta del globo como una maqueta **del tamaño de tu parcela** (250 m a 4 km por lado; 1 km si solo eliges un punto), con:
+En "Parcela" y en "Simulador 3D" el mapa de satélite se inclina con el **relieve real** (AWS Terrain Tiles, alturas de NASA SRTM) y cada parcela guardada se levanta como un bloque:
 
-- el **relieve real** del terreno (exagerado para que se note; la página dice cuántas veces),
-- los lados del bloque con las **capas reales del suelo hasta 1 m** según SoilGrids (más arcilla o más materia orgánica, más oscuro), y abajo una tarjeta "Tu suelo" con el tipo de suelo, cada capa y la humedad de NASA POWER,
-- en "Simulador 3D", el **cultivo del año elegido en el plan** de rotación,
-- un control de **años desde 2000 hasta el último año completo** (se recorre solo cada año): en años secos la tierra se ve café, las plantas chaparras y amarillas y casi no llueve.
+- los lados del bloque llevan el **color del suelo** según SoilGrids, y abajo una tarjeta "Tu suelo" con el tipo de suelo, cada capa y la humedad de NASA POWER,
+- encima se paran los **modelos 3D del cultivo** (capa propia de MapLibre con three.js); en "Simulador 3D" es el cultivo del año elegido en el plan,
+- un control de **años desde 2000 hasta el último año completo**: en años secos las plantas se ven chaparras y color paja.
 
-Cuidados de rendimiento: three.js se descarga solo si el navegador tiene WebGL y en un archivo aparte; la escena se dibuja solo cuando algo cambia (`frameloop="demand"`); cada cultivo es un único `InstancedMesh`; la resolución se limita a 1.5×; si el 3D falla, el resto de la página sigue funcionando. Con "reducir movimiento" activado en el sistema, no hay animaciones.
+Si el navegador no puede con el 3D, el mapa sigue funcionando en 2D.
 
 **Modelos 3D.** Salen de [assets/blender/build_models.py](assets/blender/build_models.py). Para cambiarlos, edita el script y vuelve a generar `client/public/models/bajio.glb` (Blender 4.2 o más nuevo):
 
@@ -166,10 +162,9 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 - **INEGI, Censo Agropecuario 2022**: en Guanajuato el 63.9 % de la superficie agrícola es de temporal.
 - **INEGI, Marco Geoestadístico** (diciembre de 2025), límites de Guanajuato y Querétaro (`server/data/estados_bajio.json`, de <https://gaia.inegi.org.mx/wscatgeo/v2/geo/mgee/11> y `/22`): deciden si una parcela está en el Bajío, donde se recomiendan cultivos.
 - **NASA GIBS** (Global Imagery Browse Services). <https://www.earthdata.nasa.gov/gibs>
-  - **Blue Marble** (capa `BlueMarble_ShadedRelief_Bathymetry`): textura del globo 3D.
   - Capas que el agricultor puede prender sobre el mapa (solo visuales, imagen del 12 de agosto de 2024): **MODIS Terra, color real** (`MODIS_Terra_CorrectedReflectance_TrueColor`), **MODIS Terra NDVI de 16 días** (`MODIS_Terra_L3_NDVI_16Day`) y **SMAP, humedad en la zona de raíces** (`SMAP_L4_Analyzed_Root_Zone_Soil_Moisture`).
   *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services (GIBS), part of NASA's Earth Science Data and Information System (ESDIS).*
-- **Terrain Tiles** en el Registry of Open Data on AWS (formato *terrarium* de Mapzen), relieve de la vista 3D. En México las alturas provienen de **NASA SRTM** (Shuttle Radar Topography Mission). <https://registry.opendata.aws/terrain-tiles/>
+- **Terrain Tiles** en el Registry of Open Data on AWS (formato *terrarium* de Mapzen), relieve 3D del mapa. En México las alturas provienen de **NASA SRTM** (Shuttle Radar Topography Mission). <https://registry.opendata.aws/terrain-tiles/>
 
 - **Esri World Imagery** y **World Imagery (Clarity)**, la versión sin nubes, más **World Boundaries and Places** y **World Transportation** (imagen satelital, nombres de lugares y calles del mapa donde se dibuja la parcela; el agricultor elige "Sin nubes" o "Más rápida"). *Imágenes: Esri, Maxar, Earthstar Geographics y la comunidad de usuarios GIS.* Se usan sin API key para este prototipo; para un uso en producción hay que revisar los términos de Esri.
   - "Detectar con un toque" lee esas mismas imágenes y la capa de calles para proponer el contorno de la parcela (visión por computadora clásica en el navegador, sin modelo entrenado).
@@ -186,7 +181,7 @@ Si alguien modela a mano en Blender, el `.glb` debe conservar los nombres de obj
 
 **Software**
 
-React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber, @react-three/drei, Chart.js, Bootstrap y Bootstrap Icons, todos de código abierto. Tipografías Plus Jakarta Sans y JetBrains Mono vía Google Fonts. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
+React, Vite, react-router, Express, MapLibre GL JS, three.js, Chart.js, Bootstrap y Bootstrap Icons, todos de código abierto. Tipografías Plus Jakarta Sans y JetBrains Mono vía Google Fonts. Modelos 3D hechos por el equipo con Blender (script en `assets/blender/`).
 
 El diseño de las pantallas (HTML, CSS y textos) lo aportó el equipo como maqueta estática y se portó a React conservando su estructura. "Probar cultivo" usa el mismo motor de reglas que el Simulador 3D (`/api/recomendar`); los rangos de sus 7 cultivos están en `server/data/cultivos.json` y salen de la FAO (falta el agua del garbanzo y del brócoli).
 

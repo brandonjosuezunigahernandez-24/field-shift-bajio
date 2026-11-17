@@ -1,5 +1,5 @@
 {
-  "nota": "Preguntas fieles (no citas textuales) a las necesidades de productores de temporal de Gto y Qro, ver docs/investigacion-preguntas-agricultor.md. tipo: 'fiel' = redactada como la diría un agricultor a partir de la necesidad que reporta la fuente. fuente = clave de 'fuentes'. tema = el tema que DEBERÍA detectar el asistente (los que no existen hoy: apoyos, seguro, venta, credito, plagas, fertilizacion, agua_captacion, ganado).",
+  "nota": "Preguntas fieles (no citas textuales) a las necesidades de productores de temporal de Gto y Qro (cada una con su fuente en 'fuentes'). tipo: 'fiel' = redactada como la diría un agricultor a partir de la necesidad que reporta la fuente. fuente = clave de 'fuentes'. tema = el tema que DEBERÍA detectar el asistente (los que no existen hoy: apoyos, seguro, venta, credito, plagas, fertilizacion, agua_captacion, ganado).",
   "fuentes": {
     "ena2025": "https://www.cronica.com.mx/nacional/2026/10/07/sequia-y-altos-costos-de-insumos-entre-los-principales-obstaculos-para-el-campo-mexicano/",
     "qro_sequia": "https://www.liderempresarial.com/productores-de-queretaro-aun-resienten-la-sequia-tras-el-inicio-de-la-temporada-de-lluvias/",

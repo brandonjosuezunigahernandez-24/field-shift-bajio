@@ -158,9 +158,6 @@ server/models/
 # CSV crudos del SIAP (varios MB cada uno)
 server/data/siap_raw/
 
-# Salida de scripts/probar-parcelas.js
-server/scripts/probar-parcelas.salida.json
-
 # Retroalimentación real de la pantalla (votos «¿Te sirvió?»): no se sube; el ejemplo sí
 server/data/retro/*
 !server/data/retro/ejemplo.jsonl

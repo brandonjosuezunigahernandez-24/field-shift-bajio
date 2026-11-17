@@ -1,5 +1,5 @@
 {
-  "nota": "Tarjetas de «qué hacer» para agricultores de temporal de Guanajuato y Querétaro. Cada una con fuente leída (verificado: true = se leyó la página o el PDF el 14 nov 2026). palabras van sin acentos. condicion: 'seco' (la parcela tiene años secos) o 'despues_maiz' (lo último sembrado fue maíz). Ver docs/cambios/32-acciones-con-fuente.md.",
+  "nota": "Tarjetas de «qué hacer» para agricultores de temporal de Guanajuato y Querétaro. Cada una con fuente leída (verificado: true = se leyó la página o el PDF el 14 nov 2026). palabras van sin acentos. condicion: 'seco' (la parcela tiene años secos) o 'despues_maiz' (lo último sembrado fue maíz).",
   "acciones": [
     {
       "id": "maiz-siembra-humedad",

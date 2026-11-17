@@ -73,7 +73,7 @@ test('parcelsGeoJSON closes each ring and carries the color', () => {
   assert.equal(fc.features[1].properties.color, parcelColor(2));
 });
 
-test('sections: one parcel or all, centered like /api/terreno (3 decimals)', () => {
+test('sections: one parcel or all, centered to 3 decimals', () => {
   assert.deepEqual(sectionParcels([west, east], ALL_SECTIONS), [west, east]);
   assert.deepEqual(sectionParcels([west, east], 2), [east]);
   assert.deepEqual(sectionParcels([west, east], 99), [west, east], 'a deleted parcel falls back to all');

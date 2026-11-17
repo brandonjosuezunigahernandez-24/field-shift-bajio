@@ -90,8 +90,8 @@ Plot outline (MapLibre) -> center point -> NASA POWER (monthly 2000-2025)  ┐
 | NASA data | How it is used |
 |---|---|
 | **NASA POWER**, monthly point data from 2000 to the last complete year (the demo fixtures stop at 2024), community AG: `T2M`, `T2M_MAX`, `T2M_MIN`, `PRECTOTCORR`, `ALLSKY_SFC_SW_DWN`, `GWETTOP`, `GWETROOT`, `GWETPROF` | **Core of the recommendation.** Summer rain per real year, dry years, temperature fit, frost and heat years (`T2M_MIN`, `T2M_MAX`) and each crop's year-by-year test. Soil wetness (surface, root zone and profile) is shown on the soil card; root-zone wetness and temperatures also feed the assistant. |
-| **NASA GIBS**: MODIS Terra NDVI (16-day), MODIS Terra true color, SMAP L4 root-zone soil moisture, Blue Marble | Map layers that show the region's greenness and soil moisture (12 Aug 2024). **Visual context only**; they do not change the scores. |
-| **SRTM** elevation (through AWS Terrain Tiles) | The 3D relief of the plot on the map and in the 3D model. |
+| **NASA GIBS**: MODIS Terra NDVI (16-day), MODIS Terra true color, SMAP L4 root-zone soil moisture | Map layers that show the region's greenness and soil moisture (12 Aug 2024). **Visual context only**; they do not change the scores. |
+| **SRTM** elevation (through AWS Terrain Tiles) | The 3D relief of the plot on the map. |
 
 ## Validation
 
@@ -171,7 +171,6 @@ npm test
 | `GET /api/suelo?lat&lon` | pH, clay, sand, silt, organic carbon and nitrogen, 0–30 cm (SoilGrids). |
 | `POST /api/recomendar` | Crop scores with risk and its range, the recommended 3-year rotation, the **3 rotations compared** with evidence, benefits, gaps and what to review, and the uncertainty notes. |
 | `GET /api/recomendar/prueba?lat&lon` | Each rain-fed crop against every real year, sown in June and July. |
-| `GET /api/terreno?lat&lon` | Elevation grid around the plot for the 3D view. |
 | `GET /api/pronostico?lat&lon` | Weather right now and the 7-day forecast (Open-Meteo). |
 | `POST /api/asistente` | Assistant answer about the plot; recommendations come from the same engine. |
 | `POST /api/voz` | Local speech-to-text (Whisper). |
@@ -183,7 +182,7 @@ Exact shapes with real examples: [docs/api-contract.md](docs/api-contract.md) (S
 ```
 server/   Node + Express
   engine/    rule engine: scores, dry-year risk, 3 rotations, uncertainty (pure functions)
-  sources/   NASA POWER, SoilGrids, terrain, Open-Meteo: download, cache and parsing
+  sources/   NASA POWER, SoilGrids, Open-Meteo: download, cache and parsing
   llm/       assistant: plot fact sheet, local model, number checker, SIAP data, trained model
   routes/    the API above
   data/      cultivos.json, SIAP summary, INEGI state boundaries, trained model weights
@@ -191,9 +190,9 @@ server/   Node + Express
 client/   React + Vite
   pages/     1. Parcela, 2. Simulador 3D, 3. Análisis IA, 4. Probar cultivo
   map/       MapLibre map: drawing, GPS, one-tap plot detection, crops on the plot
-  three/     3D model of the plot (three.js)
+  three/     3D crop models drawn on the map (three.js)
 assets/blender/  script that generates the 3D crop models
-docs/            API contract and change log (Spanish)
+docs/            API contract, deployment, ML model and data sources (Spanish)
 ```
 
 ## Credits
@@ -203,8 +202,8 @@ docs/            API contract and change log (Spanish)
 - **NASA POWER** (Prediction Of Worldwide Energy Resources), NASA Langley Research Center. <https://power.larc.nasa.gov/>
   *These data were obtained from the NASA Langley Research Center (LaRC) POWER Project funded through the NASA Earth
   Science/Applied Science Program.*
-- **NASA GIBS** (Global Imagery Browse Services): MODIS Terra NDVI and true color, SMAP L4 root-zone soil moisture,
-  Blue Marble. *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services
+- **NASA GIBS** (Global Imagery Browse Services): MODIS Terra NDVI and true color, SMAP L4 root-zone soil moisture.
+  *We acknowledge the use of imagery provided by services from NASA's Global Imagery Browse Services
   (GIBS), part of NASA's Earth Science Data and Information System (ESDIS).*
 - **SRTM** elevation through **Terrain Tiles** on the Registry of Open Data on AWS (Mapzen terrarium format).
   <https://registry.opendata.aws/terrain-tiles/>
@@ -225,7 +224,7 @@ docs/            API contract and change log (Spanish)
 - **IUSS Working Group WRB** (2015). *World Reference Base for Soil Resources 2014, update 2015*. FAO, Rome. General
   names and descriptions of the soil types.
 
-**Software:** React, Vite, react-router, Express, MapLibre GL JS, three.js, @react-three/fiber, @react-three/drei,
+**Software:** React, Vite, react-router, Express, MapLibre GL JS, three.js,
 Chart.js, Bootstrap and Bootstrap Icons, transformers.js, Ollama. Fonts: Plus Jakarta Sans and JetBrains Mono (Google
 Fonts). 3D crop models made by the team with a Blender script.
 

@@ -1,4 +1,4 @@
-// NASA GIBS layers drawn over the satellite image of the plot map (visual only, as CLAUDE.md says).
+// NASA GIBS layers drawn over the satellite image of the plot map (visual only).
 // They are regional pictures: one square is 250 m (color, verdor) or 9 km (humedad), so they are read zoomed out.
 const GIBS = 'https://gibs.earthdata.nasa.gov/wmts/epsg3857/best';
 const GIBS_DATE = '2024-08-12'; // middle of the rainy season

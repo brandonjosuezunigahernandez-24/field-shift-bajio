@@ -206,7 +206,7 @@
     ],
     "texto": "En temporal, la cosecha depende de cómo llueva y de cuánta agua guarde la tierra; su ventaja es que cuesta menos producir porque no se invierte en riego. Los cultivos de cada año se siembran en dos ciclos: primavera-verano y otoño-invierno. En el Bajío el ciclo otoño-invierno solo se puede sembrar si hay riego.",
     "verificado": "parcial",
-    "nota": "SADER dice: temporal 'depende del comportamiento de las lluvias y de la capacidad del suelo para captar el agua'; 'el gasto en la producción es menor al no tener que invertir en el tema de riego'; dos ciclos PV y OI. La página NO dice que OI necesite riego; esa frase viene del contexto del proyecto (CLAUDE.md) y la agenda INIFAP Guanajuato muestra siembras de OI e invierno bajo riego, pero no lo afirma tal cual. Quitar esa frase si se quiere 100% verificado.",
+    "nota": "SADER dice: temporal 'depende del comportamiento de las lluvias y de la capacidad del suelo para captar el agua'; 'el gasto en la producción es menor al no tener que invertir en el tema de riego'; dos ciclos PV y OI. La página NO dice que OI necesite riego; esa frase viene del contexto del proyecto y la agenda INIFAP Guanajuato muestra siembras de OI e invierno bajo riego, pero no lo afirma tal cual. Quitar esa frase si se quiere 100% verificado.",
     "fuente": {
       "nombre": "SADER (Secretaría de Agricultura), 'Tipos de cultivo, estacionalidad y ciclos'",
       "url": "https://www.gob.mx/agricultura/es/articulos/tipos-de-cultivo-estacionalidad-y-ciclos"

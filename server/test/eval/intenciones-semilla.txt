@@ -251,7 +251,7 @@ Quiero ver una película esta noche | recomiéndame una serie | que musica me re
 ¿Cuánto me cuesta sembrar una hectárea de maíz? | cuanto invierto para sembrar maiz | cual es el costo de producir una hectarea de maiz
 ¿De qué color es el maíz criollo de mi zona? | que maiz criollo hay en mi region | cual maiz nativo siembran aqui
 ¿Cuánto cuesta asegurar una hectárea de maíz? | que cubre el seguro del maiz | donde contrato un seguro para mi cosecha de maiz
-# --- Agregadas en docs/cambios/33: preguntas de conversación con perfil (set dev de test/eval/conversacion.json) y fallas de la prueba
+# --- Agregadas: preguntas de conversación con perfil (set dev de test/eval/conversacion.json) y fallas de la prueba
 # de punta a punta. "(maíz)" es como llegan al enrutado cuando el perfil dice que tiene maíz sembrado (llm/seguimiento.js).
 # NO se agregan las del set "prueba" de conversacion.json.
 == maiz_produccion
@@ -436,7 +436,7 @@ Mi tierra es barrosa, ¿le sirve al maíz?
 == sin_dato
 ¿Cuántas semillas de maíz necesito para 4 hectáreas?
 
-# Paráfrasis de DESARROLLO de test/eval/parafrasis.json (cambio 40). Las de prueba NO van aquí. "# retro" = siempre a entrena, no mueve la prueba de arriba.
+# Paráfrasis de DESARROLLO (verbos modales, muletillas de voz, sin signos). Las de prueba NO van aquí. "# retro" = siempre a entrena, no mueve la prueba de arriba.
 == recomendar
 que siembro este año | ¿Qué me recomiendas sembrar? | que debo sembrar | ps que le meto a la tierra | que cultivo me recomienda | qué sería bueno sembrar aquí | dime que sembrar | a ver que me aconseja sembrar este ciclo | que cultivo es mejor para mi terreno | que es lo mas conveniente sembrar # retro
 == cultivo

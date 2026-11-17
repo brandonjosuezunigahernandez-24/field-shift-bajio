@@ -10,7 +10,7 @@ import { DEMO_POINT } from './seasons.js';
 // and stale cache files are downloaded again.
 // `decimals` is the source's resolution: the point is rounded once, so the URL and the cache key always match.
 // Pass `buildUrl(lat, lon)` for a plain JSON API, or `fetcher(lat, lon)` (async, returns the data to cache)
-// when the source needs several requests or binary files (e.g. elevation tiles for /api/terreno).
+// when the source needs several requests (e.g. SoilGrids properties plus its soil class).
 // `isStale(raw)` (optional) returns a reason when a usable cache is out of date (e.g. a new year
 // was published): it is downloaded again, and kept as the answer if the network fails.
 // Set OFFLINE=1 to skip the network (demo rehearsal without internet).

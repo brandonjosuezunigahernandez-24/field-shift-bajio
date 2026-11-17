@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { predictLogit } from '../lib/logistic.js';
 
-// Segunda ronda de ML (ver docs/cambios/26-ml-segunda-ronda.md). Funciones puras sobre JSON entrenado.
+// Segunda ronda de ML (la entrena scripts/ml2-explorar.js). Funciones puras sobre JSON entrenado.
 const leer = (f) => JSON.parse(readFileSync(new URL(`../data/${f}`, import.meta.url), 'utf8'));
 const AM = leer('modelo_ano_malo.json');
 const CL = leer('municipios_clusters.json');

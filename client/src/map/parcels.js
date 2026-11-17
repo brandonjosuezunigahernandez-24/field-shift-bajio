@@ -51,12 +51,12 @@ export function parcelsGeoJSON(parcelas) {
 // --- 3D sections: each parcel in its own diorama, or all of them together ---
 
 export const ALL_SECTIONS = 'todas';
-// Sides of the 3D block, in meters (the same steps /api/terreno serves). The block takes the
+// Sides of the 3D block, in meters. The block takes the
 // smallest one that holds the shown parcels, so a 2 ha parcel is not lost in a 1 km square.
 export const BLOCK_SIDES = [250, 500, 1000, 2000, 4000];
 export const DEFAULT_BLOCK_SIDE = 1000; // a point without a drawn parcel
 const BLOCK_MARGIN = 1.2; // 10% of room on each side, so the outline never touches the edge
-// The server centers /api/terreno to 3 decimals (~110 m); the diorama uses the same center.
+// Centered to 3 decimals (~110 m), the same resolution as the soil data.
 const round3 = (v) => Math.round(v * 1000) / 1000 + 0;
 
 // Parcels shown in a section: one parcel (by id) or all of them.
@@ -66,7 +66,7 @@ export function sectionParcels(parcelas, seccion) {
   return one ? [one] : parcelas;
 }
 
-// Center of a section's block, rounded like the server rounds /api/terreno.
+// Center of a section's block, rounded to 3 decimals like the soil data.
 export function sectionCenter(members) {
   const { lat, lon } = polygonCenter(allCorners(members));
   return { lat: round3(lat), lon: round3(lon) };

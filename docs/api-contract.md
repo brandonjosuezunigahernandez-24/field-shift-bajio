@@ -8,7 +8,7 @@ Los ejemplos de `/api/clima` y `/api/suelo` son respuestas reales del punto demo
 
 - Base: `http://localhost:3001`. Desde el client se llama como `/api/...` (Vite lo redirige).
 - **`lat` y `lon` son el centro de la parcela que dibujó el agricultor** (ver "Selección de la parcela" abajo). El servidor sigue recibiendo un punto.
-- El servidor redondea `lat` y `lon` según la fuente: el clima a 2 decimales (más o menos 1 km; NASA POWER mide cada ~50 km), y el suelo y el relieve (`/api/terreno`) a 3 (más o menos 110 m; SoilGrids tiene cuadros de 250 m). Esa es también la resolución de la caché. La respuesta repite el `lat` y `lon` tal como llegaron, menos `/api/terreno`, que regresa el centro ya redondeado de su cuadro.
+- El servidor redondea `lat` y `lon` según la fuente: el clima a 2 decimales (más o menos 1 km; NASA POWER mide cada ~50 km), y el suelo a 3 (más o menos 110 m; SoilGrids tiene cuadros de 250 m). Esa es también la resolución de la caché. La respuesta repite el `lat` y `lon` tal como llegaron, menos `/api/terreno`, que regresa el centro ya redondeado de su cuadro.
 - Las claves del JSON van en español; el código (variables y funciones) en inglés.
 - **Errores:** siempre `{ "error": "mensaje en español que se le puede mostrar al agricultor" }`.
 
@@ -126,7 +126,7 @@ Fuente: NASA POWER, serie mensual desde 2000 hasta el **último año completo** 
 **Ojo con dos cosas:**
 
 1. **`t_max_c` y `t_min_c` son extremos, no promedios diarios.** En la API mensual de POWER, `T2M_MAX` y `T2M_MIN` son la temperatura horaria más alta y más baja de todo el mes. Para el ajuste de temperatura de un cultivo usen `t_media_c`. Los extremos sirven para heladas o golpes de calor.
-2. **"Año seco" aquí es general, sin cultivo.** El riesgo de cada cultivo (motor) no usa este umbral: compara la lluvia de cada año contra el mínimo de ese cultivo, como pide CLAUDE.md.
+2. **"Año seco" aquí es general, sin cultivo.** El riesgo de cada cultivo (motor) no usa este umbral: compara la lluvia de cada año contra el mínimo de ese cultivo (`lluvia_ciclo_min_mm` en `server/data/cultivos.json`).
 
 ## GET /api/suelo?lat=20.47&lon=-100.81
 
@@ -170,31 +170,6 @@ Fuente: SoilGrids 2.0 (ISRIC). Los valores de arriba son el promedio de 0 a 30 c
 - `POST /api/recomendar` devuelve en `suelo` exactamente lo mismo (con `capas` y `tipo`), porque la pantalla reemplaza su suelo con ese.
 - Una caché de antes de pedir las capas profundas se vuelve a bajar (y se usa la vieja si no hay internet). SoilGrids permite unas 5 consultas por minuto y a veces tarda más de 15 s; con dos consultas por punto nuevo, la primera vez puede faltar el tipo.
 
-## GET /api/terreno?lat=20.47&lon=-100.81&lado=1000
-
-Relieve del cuadro alrededor de la parcela, para la vista 3D. `lado` (opcional, en metros) se redondea hacia arriba a 250, 500, 1000, 2000 o 4000; sin él es 1000. Fuente: AWS Terrain Tiles (Mapzen, codificación *terrarium*, zoom 14, o 13 para 4 km); en México las alturas vienen de NASA SRTM (~30 m), así que la malla es una interpolación suave: sirve para una maqueta, no para topografía.
-
-```jsonc
-{
-  "lat": 20.47,
-  "lon": -100.81,
-  "origen": "fixture",
-  "tam": 65,                 // la malla es de 65 x 65 alturas
-  "lado_m": 1000,            // lado del cuadro, centrado en la parcela
-  "altura_centro_m": 1752,
-  "altura_min_m": 1746.8,
-  "altura_max_m": 1766.2,
-  "desnivel_m": 19.4,
-  "alturas": [1752.4, 1751.9 /* ... 4225 valores en m */],
-  "fuente": "AWS Terrain Tiles (Mapzen, Registry of Open Data on AWS); en México las alturas vienen de NASA SRTM"
-}
-```
-
-- `alturas[fila * tam + col]`: la fila 0 es el borde **norte** y la columna 0 el borde **oeste**.
-- **Se centra a 3 decimales (unos 110 m), no a 2 como clima y suelo.** El bloque mide 1 km: con 2 decimales una parcela podía quedar hasta ~550 m fuera del centro y salirse de su propia maqueta.
-- **La maqueta toma el tamaño de la parcela:** el cliente pide el lado más chico que contiene las parcelas de la sección, con 10 % de margen por lado (`blockSide` en `client/src/map/parcels.js`). Una parcela de 0.3 ha se ve en un cuadro de 250 m; un punto sin parcela dibujada, en el de 1 km. Las plantas y la casa se achican con el cuadro para no verse gigantes.
-- Se guarda en caché ya procesada (no las 4 imágenes PNG originales) en `server/cache/terrain_<lat3>_<lon3>.json` para 1 km y `terrain<lado>_<lat3>_<lon3>.json` para los otros tamaños (el fixture de Celaya es `terrain_20.470_-100.810.json`, de 1 km).
-
 ## POST /api/recomendar
 
 Lo calcula el motor de reglas (`server/engine/`) con el clima de NASA POWER, el suelo de SoilGrids y `server/data/cultivos.json`.
@@ -205,7 +180,7 @@ Petición:
 { "lat": 20.47, "lon": -100.81, "agua": "temporal", "prioridad": "riesgo" }
 ```
 
-Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en primavera-verano: el mes con mejor puntaje; desde el cambio 44 también con riego, porque el calor de junio cuenta).
+Opcional: `"cultivo_previo": "maiz"` (lo que tiene sembrado ahora o lo último que sembró). Cuenta como la temporada anterior: el año 1 de la rotación no repite su familia. Cada elemento de `cultivos` trae además `mes_siembra` (6 o 7 en primavera-verano: el mes con mejor puntaje; también con riego, porque el calor de junio cuenta).
 
 Opcional: `"rotacion_actual": ["frijol", "maiz"]`, lo que siembra hoy, del más viejo al más nuevo (el front manda `[ultimo_cultivo, cultivo_actual]` del perfil).
 - Es la primera de las 3 rotaciones que se comparan (`estrategias`): un cultivo se repite y dos distintos se alternan.
@@ -329,7 +304,7 @@ Para la pantalla "Probar cultivo": cada cultivo de temporal contra cada año rea
 }
 ```
 
-- El `riesgo` de junio es el mismo que usa `/api/recomendar`. Desde el cambio 41, `/api/recomendar` prueba junio y julio y usa el mes de mejor puntaje (`mes_siembra`).
+- El `riesgo` de junio es el mismo que usa `/api/recomendar`. `/api/recomendar` prueba junio y julio y usa el mes de mejor puntaje (`mes_siembra`).
 - Cambiar el mes solo recalcula la lluvia, no el ajuste de temperatura.
 
 ## Motor de reglas (`server/engine/index.js`)
@@ -340,7 +315,7 @@ Funciones puras, sin red ni disco, con pruebas en `server/test/engine.test.js`.
 |------|---------------|-------|
 | `rows` | `getClimate(lat, lon)` en `server/sources/nasaPower.js` | Una fila por mes: `{ year, month, t_mean_c, t_max_c, t_min_c, rain_mm, solar, root_wetness }`. Los faltantes vienen en `null`. |
 | `soil` | el resumen de `/api/suelo` | `ph`, `arcilla_pct`… pueden ser `null`. |
-| `crops` | `server/data/cultivos.json` | Esquema de CLAUDE.md. |
+| `crops` | `server/data/cultivos.json` | Un objeto por cultivo con el esquema de ese archivo: `id`, `familia`, `leguminosa`, `temporadas`, `agua`, rangos de temperatura, lluvia y pH, `ciclo_meses`, `helada_dano_c`, `calor_dano_c`. |
 | `ingresos` | `incomeByCrop(estado, agua)` en `server/llm/siap.js` | `{ "<id>|<PV u OI>": pesos por hectárea }`, promedio 2018 a 2024 del estado. |
 
 ```js
@@ -374,7 +349,7 @@ recommend({ rows, soil, crops, agua, prioridad, ingresos, estado }) // -> { cult
 
 1. El agua por ciclo del garbanzo y del brócoli: no están en la tabla 14 (`"verificado": false` y `todo` en cada uno).
 2. `temporadas` y `agua` salen de lo que el SIAP reporta sembrado en Guanajuato. Trigo, cebada y garbanzo quedaron como OI con riego; hay trigo y cebada de temporal (unas 13 mil ha cada uno) que el esquema actual no puede expresar.
-4. `helada_dano_c` y `calor_dano_c` son aproximados (cambio 44): confirmar con FAO Ecocrop o INIFAP. Cuentan igual en todo el ciclo, no solo en floración. Con 32 °C el frijol sembrado en junio sale con calor en 18 de 25 años en Celaya, y por eso el motor lo pasa a julio.
+4. `helada_dano_c` y `calor_dano_c` son aproximados: confirmar con FAO Ecocrop o INIFAP. Cuentan igual en todo el ciclo, no solo en floración. Con 32 °C el frijol sembrado en junio sale con calor en 18 de 25 años en Celaya, y por eso el motor lo pasa a julio.
 3. El brócoli gana en `ganar` con riego porque su ingreso bruto es muy alto; no hay costos para compararlo con los granos.
 
 ## Puntos que estaban abiertos (ya resueltos)

@@ -1,5 +1,5 @@
 // Lo que se le manda al modelo: prompt de sistema corto, ficha recortada a la pregunta y tarjetas por parecido.
-// Menos texto = gemma3:4b más rápido y con menos ganas de soltar números que no vienen al caso (ver docs/cambios/34).
+// Menos texto = gemma3:4b más rápido y con menos ganas de soltar números que no vienen al caso.
 import { readFileSync } from 'node:fs';
 
 export const SYSTEM = `Eres un técnico de campo del Bajío que platica con un agricultor de temporal. Español de México, sencillo, de tú.
@@ -54,7 +54,7 @@ const CROPS = ['maiz', 'frijol', 'sorgo', 'garbanzo', 'trigo', 'cebada', 'brocol
 const cropsIn = (t) => { const w = t.match(/[a-z]+/g) ?? []; return new Set(CROPS.filter((c) => w.some((x) => x.startsWith(c)))); };
 const cardCrops = KNOWLEDGE.map((k) => cropsIn(plain(`${k.id.replace(/-/g, ' ')} ${k.palabras.join(' ')}`)));
 
-// shortcut: el umbral 0.1 salió de probar con test/eval/modelo-abierto.json (desarrollo); con más tarjetas habrá que recalibrarlo.
+// shortcut: el umbral 0.1 salió de probar con un banco de preguntas abiertas de desarrollo; con más tarjetas habrá que recalibrarlo.
 export function tarjetas(pregunta, k = 2, umbral = 0.1) {
   // Palabras que ninguna tarjeta usa ("caen") no ayudan a elegir y solo bajaban el parecido de las que sí.
   const q = vec(terms(pregunta).filter((r) => df.has(r)));

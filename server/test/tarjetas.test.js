@@ -1,4 +1,4 @@
-// Base de conocimiento (llm/conocimiento.json) y su uso, sin Ollama (docs/cambios/38).
+// Base de conocimiento (llm/conocimiento.json) y su uso, sin Ollama.
 import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { test } from 'node:test';

@@ -1,6 +1,6 @@
 // Crops the farmer can place on a parcel. Each id has a 3D model (client/public/models/<id>.glb,
 // made by assets/blender/build_models.py). The first 7 are the ones of the rule engine
-// (CLAUDE.md, server/data/cultivos.json); the other 15 are, for now, only for the map and 3D view.
+// (server/data/cultivos.json); the other 15 are, for now, only for the map and 3D view.
 export const CROP_IDS = [
   'maiz', 'sorgo', 'trigo', 'cebada', 'frijol', 'garbanzo', 'brocoli',
   'avena', 'amaranto', 'girasol', 'cacahuate', 'calabaza', 'papa', 'cebolla', 'jitomate',

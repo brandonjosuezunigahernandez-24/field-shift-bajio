@@ -1,4 +1,4 @@
-// Regresión de las fallas que encontró scripts/probar-conversacion.js (docs/cambios/33).
+// Regresión de las fallas que encontró scripts/probar-conversacion.js.
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { createApp } from '../app.js';

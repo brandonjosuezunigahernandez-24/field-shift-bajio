@@ -10,7 +10,7 @@ test('"¿por qué ese cultivo?" and its variants ask about the recommendation', 
 });
 
 test('a "why" with its own topic is not about the recommendation', () => {
-  // These used to get "Puse Frijol primero..." (banks modelo-abierto and preguntas-investigadas).
+  // These used to get "Puse Frijol primero..." (open-question and preguntas-investigadas banks).
   for (const q of ['¿Por qué se encharca mi parcela?', '¿Por qué se quedan las plagas en el suelo?', '¿Por qué se me pudren las semillas?',
     '¿Por qué se me caen las flores del frijol?', '¿Por qué está tan cara la urea este año?', '¿por qué no me sale el maíz?',
     '¿Qué siembro?', '']) {

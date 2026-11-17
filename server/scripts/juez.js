@@ -1,6 +1,6 @@
 // Juez local: califica respuestas guardadas y mide cuánto coincide con la revisión a mano.
 //   node scripts/juez.js --entrada=reporte-pruebas.json [--gemma] [--salida=juez.json]
-// Entrada: el .json que escribe scripts/reporte-pruebas.js (lista de { n, q, respuesta, que_hacer, fuentes })
+// Entrada: una lista de { n, q, respuesta, que_hacer, fuentes }
 //          o el de scripts/probar-conversacion.js ({ resultados: [{ pregunta, respuesta }] }).
 // Reglas: (1) coherente con la pregunta, (2) empieza por lo pedido, (3) trae acción si se pidió, (4) 6 frases o menos, (5) números con fuente.
 // --gemma: además pide a gemma3:4b (Ollama) un veredicto corto en JSON: { "contesta": "si"|"no", "porque": "..." }.

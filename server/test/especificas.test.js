@@ -1,4 +1,4 @@
-// Regresión de las preguntas específicas (test/eval/especificas.json, solo las de desarrollo) y reglas de lenguaje sencillo (docs/cambios/36).
+// Regresión de las preguntas específicas (test/eval/especificas.json, solo las de desarrollo) y reglas de lenguaje sencillo.
 import assert from 'node:assert/strict';
 import { after, before, test } from 'node:test';
 import { createApp } from '../app.js';
